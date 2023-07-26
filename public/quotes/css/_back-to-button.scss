@@ -1,0 +1,18 @@
+#top {
+
+    font-weight: bold;
+    font-size: 25px;
+    bottom: 10px;
+    right: 30px;
+    border-bottom: 0;
+    padding: 10px;
+    color: #FFFFFF;
+    position: fixed;
+
+    i {
+        transform: rotateZ(315deg);
+        color: #9dc33b;
+        padding: 11px;
+        border: 2px solid #9dc33b;
+    }
+}

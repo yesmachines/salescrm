@@ -1,0 +1,50 @@
+.header-area
+{
+    position: relative;
+
+ &::after
+ {
+    position: absolute;
+    content: "";
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    width: 97%;
+    height: 7px;
+    margin: 0 auto;
+    background: $brand-color;
+ }
+
+    .heading
+    {
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+
+        h2 
+        {
+            color: #727070;
+            font-weight: 600;
+        }
+        h1
+        {
+            margin: 0;
+            font-size: 40px;
+            font-weight: 600;
+        }
+    }
+
+
+    .head-logo
+    {
+        display: flex;
+        justify-content: flex-end;
+
+        img 
+        {
+            width: 120px;
+        }
+    }
+}

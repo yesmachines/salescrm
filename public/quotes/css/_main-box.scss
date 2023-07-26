@@ -1,0 +1,36 @@
+.main-area
+{
+    width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    padding: 0 50px 30px; 
+
+    background: url(../img/bg.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    box-shadow: 1px 6px 20px 10px #d3d3d3fa;
+
+    @include respond-below(xl) {
+        width: 1000px;
+        margin: 0 auto;
+    }
+
+
+  
+
+    &::after
+    {
+        position: absolute;
+        content: "";
+        bottom: 2px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 12px;
+        margin: 0 auto;
+        background: $brand-color;
+    }
+
+
+}
