@@ -2,228 +2,586 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
+use App\Services\QuotationService;
+use App\Models\PaymentTerm;
+use App\Models\Supplier;
+use App\Models\QuotationAvailability;
+use App\Models\QuotationItem;
+use App\Models\QuotatationPaymentTerm;
+use App\Models\QuotationInstallation;
+use App\Models\OrderClient;
+use App\Models\OrderItem;
+use App\Models\OrderSupplier;
+use App\Models\OrderPayment;
+use App\Models\OrderCharge;
+use App\Models\Quotation;
+use App\Models\QuotationCharge;
+use DB;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(OrderService $orderService)
-    {
-        //
-        $data = array('status' => ['open', 'partial']);
-        $orders = $orderService->getOrder($data);
+  public function index(Request $request, OrderService $orderService)
+  {
+    return view('orders.index');
+  }
+  public function completedOrders(OrderService $orderService)
+  {
+    return view('orders.completed');
+  }
 
-        return view('orders.index', compact('orders'));
+  //
+  public function createNewFromQuote($id,  QuotationService $quotationService)
+  {
+    $quotation = $quotationService->getQuote($id);
+
+    $selling_price = $quotation->total_amount;
+    $margin_price  = $quotation->gross_margin;
+
+    $currency_rate = [];
+    if ($quotation->prefered_currency) {
+      $currency_rate = DB::table('currency_conversion')->where('currency', $quotation->prefered_currency)->first();
+      if ($currency_rate) {
+        $selling_price = $quotation->total_amount * $currency_rate->standard_rate;
+        $margin_price  = $quotation->gross_margin * $currency_rate->standard_rate;
+      }
     }
 
-    public function completedOrders(OrderService $orderService)
-    {
-        //
-        $data = array('status' => ['closed']);
-        $orders = $orderService->getOrder($data);
+    $quote_avail = QuotationAvailability::where("quotation_id", $quotation->id)->first();
+    $quote_install = QuotationInstallation::where("quotation_id", $quotation->id)->first();
+    $quote_clientpayment = QuotatationPaymentTerm::where("quotation_id", $quotation->id)->get();
+    $quote_charges = QuotationCharge::where("quotation_id", $quotation->id)->get();
 
-        return view('orders.completed', compact('orders'));
+    $items = QuotationItem::with('product')
+      ->join("suppliers", "suppliers.id", "=", "quotation_items.brand_id")
+      ->select("quotation_items.*", "suppliers.brand")
+      ->where("quotation_id", $quotation->id);
+    $quote_items = $items->get();
+
+    $customProductType = false;
+    foreach ($quote_items as $item) {
+      if ($item->product->product_type == 'custom') {
+        $customProductType = true;
+      }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    $selectedSuppliers =  $items->pluck('brand_id')->toArray();
+
+    $terms =  PaymentTerm::where("status", 1)->where("parent_id", 0)->get();
+    $suppliers = Supplier::whereIn("id", $selectedSuppliers)->get();
+    $service_employee = Employee::where("division", "LIKE", "serv")
+      ->where("status", 1)
+      ->get();
+
+    $currencies = DB::table('currency')->where('status', 1)->orderBy("code", "asc")->get();
+
+    return view('orders.createnew', compact(
+      'quotation',
+      'terms',
+      'suppliers',
+      'quote_avail',
+      'quote_items',
+      'quote_install',
+      'currency_rate',
+      'selling_price',
+      'margin_price',
+      'quote_clientpayment',
+      'service_employee',
+      'quote_charges',
+      'currencies',
+      'customProductType'
+    ));
+  }
+
+  public function saveOrderStep1(Request $request, OrderService $orderService)
+  {
+    $request->validate([
+      'customer_id'   => 'required',
+      'company_id'    => 'required',
+      'quotation_id'  => 'required',
+      'created_by'    => 'required',
+      'os_date'       => 'required',
+      'selling_price' => 'required|decimal:0,4',
+      'price_basis'   => 'required',
+      'delivery_term' => 'required',
+      'status'        => 'required'
+    ]);
+
+    $input =  $request->all();
+
+    // create
+    $order = $orderService->insertOrder($input);
+
+    if ($order && !empty($order)) {
+      //client order
+      $client = [
+        'order_id'          => $order->id,
+        'price_basis'       => $input['price_basis'],
+        'delivery_term'     => $input['delivery_term'],
+        'promised_delivery' => $input['promised_delivery']
+      ];
+      $orderClient = $orderService->saveOrderClient($client);
+
+      // payment term
+      if (isset($input['clientpayment'])) {
+        $payments = [
+          'order_id'      => $order->id,
+          'section_type'  => $input['section_type'],
+          'payment_term'  => $input['clientpayment'],
+        ];
+        $orderService->insertOrderPayment($payments);
+      }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+
+    return response()->json(['success' => 'Summary added successfully', 'data' => $order]);
+  }
+
+  public function saveOrderItemStep2(Request $request, OrderService $orderService)
+  {
+    $request->validate([
+      'order_id'          => 'required',
+      'material_status'   => 'required',
+      'material_details'  => 'required',
+      'delivery_address'  => 'required',
+      'contact_person'    => 'required',
+      'contact_phone'     => 'required',
+      'item.*.item_name'      => 'required',
+      'item.*.quantity'       => 'required',
+      'item.*.total_amount'   => 'required|decimal:0,4',
+    ]);
+
+    $input =  $request->all();
+
+    // update order
+    $oupdate = [
+      'material_status'  => $input['material_status'],
+      'material_details' => $input['material_details']
+    ];
+    $order = $orderService->updateOrder($oupdate, $input['order_id']);
+
+    // update order client 
+    $cupdate = [
+      'order_id'               => $input['order_id'],
+      'installation_training'  => $input['installation_training'],
+      'service_expert'         => $input['service_expert'],
+      'estimated_installation' => $input['estimated_installation'],
+      'delivery_address'       => $input['delivery_address'],
+      'contact_person'         => $input['contact_person'],
+      'contact_email'          => $input['contact_email'],
+      'contact_phone'          => $input['contact_phone'],
+      'remarks'                => $input['delivery_remarks'],
+      'is_demo'                => isset($input['is_demo']) ? $input['is_demo'] : 0,
+      'demo_by'                => $input['demo_by']
+    ];
+    $orderService->saveOrderClient($cupdate);
+
+    // order Items save        
+    if (isset($input['item'])) {
+      $items = [
+        'order_id'      => $input['order_id'],
+        'item'          => $input['item'],
+      ];
+      $orderService->saveOrderItems($items);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(OrderService $orderService, $id)
-    {
-        //
-        $order = $orderService->getOrderById($id);
-        return view('orders.show', compact('order'));
+    return response()->json(['success' => 'Items and delivery added successfully', 'data' => $order]);
+  }
+
+  public function saveSupplierTermStep3(Request $request, OrderService $orderService)
+  {
+
+    $validate = [
+      'order_id'          => 'required',
+      'buying_price'      => 'required|decimal:0,4',
+      'projected_margin'  => 'required|decimal:0,4',
+      'supplier.*.country_id'    => 'required',
+      'supplier.*.supplier_id'   => 'required',
+      'supplier.*.price_basis'   => 'required',
+      'supplier.*.delivery_term' => 'required',
+      'supplierpayment.*.payment_term'  => 'required',
+      'supplierpayment.*.status' => 'required',
+    ];
+    if ($request->has('isadditionalcharges') && $request->input('isadditionalcharges') == 1) {
+      $validate['charges.*.title']      = 'required';
+      $validate['charges.*.considered'] = 'required|decimal:0,4';
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(OrderService $orderService, $id)
-    {
-        //
-        $order = $orderService->getOrderById($id);
-        return view('orders.edit', compact('order'));
+    $request->validate($validate);
+    $input =  $request->all();
+
+    // update order
+    $oupdate = [
+      'order_id'         => $input['order_id'],
+      'buying_price'     => $input['buying_price'],
+      'projected_margin' => $input['projected_margin']
+    ];
+    $order = $orderService->updateOrder($oupdate, $input['order_id']);
+
+    // Supplier delivery term
+    if (isset($input['supplier'])) {
+      $supplier = [
+        'order_id'  => $order->id,
+        'supplier'  => $input['supplier'],
+      ];
+      $orderService->saveOrderSupplier($supplier);
     }
 
-    public function orderDetailsUpdate(Request $request, OrderService $orderService)
-    {
-        $request->validate([
-            //  'part_no.*' => 'required',
-            'emails.*'  => 'required|email',
+    // payment term
+    if (isset($input['supplierpayment'])) {
+      $payments = [
+        'order_id'      => $order->id,
+        'section_type'  => $input['section_type'],
+        'payment_term'  => $input['supplierpayment'],
+      ];
+      $orderService->insertOrderPayment($payments);
+    }
+
+    // Additional charges
+    if (isset($input['charges'])) {
+      $charges = [
+        'order_id' => $order->id,
+        'charges'  => $input['charges'],
+      ];
+      $orderService->insertOrderCharges($charges);
+    }
+
+    return response()->json(['success' => 'Supplier delivery and charges added successfully', 'data' => $order]);
+  }
+
+  public function downloadOS($id, OrderService $orderService)
+  {
+    // $header = view('orders.partials.header_pdf')            
+    //     ->render();
+
+    $orderDetails = $orderService->getOrder($id);
+
+    $body = view('orders.os_summary')
+      ->with(compact(
+        'orderDetails'
+      ))
+      ->render();
+
+    $mpdf = new \Mpdf\Mpdf([
+      'tempDir' => public_path('uploads/temp'),
+      'mode' => 'utf-8',
+      'autoScriptToLang' => true,
+      'autoLangToFont' => true,
+      'autoVietnamese' => true,
+      'autoArabic' => true,
+      // 'margin_top' => 8,
+      // 'margin_bottom' => 8,
+      'format' => 'A4',
+      'setAutoBottomMargin' => 'stretch',
+      'setAutoTopMargin' => 'stretch',
+      // 'autoMarginPadding' => 2,
+      'useOddEven' => 1
+    ]);
+
+    $mpdf->useSubstitutions = true;
+    $mpdf->SetWatermarkText("YESMACHINERY", 0.1);
+    $mpdf->showWatermarkText = true;
+    $mpdf->SetTitle('OS-' . $orderDetails->os_number . '.pdf');
+    // $mpdf->WriteHTML($header);
+    $mpdf->WriteHTML($body);
+    $mpdf->Output('OS-' . $orderDetails->os_number . '.pdf', 'I');
+  }
+
+  public function edit(OrderService $orderService, $id, QuotationService $quotationService)
+  {
+
+    $order = $orderService->getOrder($id);
+    $quote_avail = QuotationAvailability::where("quotation_id", $order->quotation_id)->first();
+    $quote_items = OrderItem::where('order_id', $id)->get();
+    $terms = PaymentTerm::where("status", 1)->where("parent_id", 0)->get();
+    $deliveryPoints = OrderClient::where('order_id', $id)->first();
+
+
+    $suppliers = OrderSupplier::where('order_id', $id)->get();
+    $paymentTermsSupplier = OrderPayment::where('order_id', $id)->where('section_type', 'supplier')->get();
+    $orderCharges = OrderCharge::where('order_id', $id)->get();
+    $quotation = Quotation::where('id', $order->quotation_id)->first();
+    $paymentTermsClient = OrderPayment::where('order_id', $id)->where('section_type', 'client')->get();
+    $service_employee = Employee::where("division", "LIKE", "serv")
+      ->where("status", 1)
+      ->get();
+
+    $customProductType = false;
+    foreach ($quote_items as $item) {
+      if ($item->product->product_type == 'custom') {
+        $customProductType = true;
+      }
+    }
+    $currencies = DB::table('currency')->where('status', 1)->orderBy("code", "asc")->get();
+
+    return view('orders.edit', compact(
+      'paymentTermsClient',
+      'quotation',
+      'order',
+      'quote_avail',
+      'quote_items',
+      'suppliers',
+      'terms',
+      'deliveryPoints',
+      'paymentTermsSupplier',
+      'orderCharges',
+      'service_employee',
+      'customProductType',
+      'currencies'
+    ));
+  }
+
+  public function show(OrderService $orderService, $id, QuotationService $quotationService)
+  {
+    $order = $orderService->getOrder($id);
+    $quote_avail = QuotationAvailability::where("quotation_id", $order->quotation_id)->first();
+    $quote_items = OrderItem::where('order_id', $id)->get();
+    $terms = PaymentTerm::where("status", 1)->get();
+    $deliveryPoints = OrderClient::where('order_id', $id)->first();
+    $suppliers = OrderSupplier::where('order_id', $id)->get();
+    $paymentTermsSupplier = OrderPayment::where('order_id', $id)->where('section_type', 'supplier')->get();
+    $orderCharges = OrderCharge::where('order_id', $id)->get();
+    $quotation = Quotation::where('id', $order->quotation_id)->first();
+    $paymentTermsClient = OrderPayment::where('order_id', $id)->where('section_type', 'client')->get();
+
+    return view('orders.show', compact(
+      'paymentTermsClient',
+      'quotation',
+      'order',
+      'quote_avail',
+      'quote_items',
+      'suppliers',
+      'terms',
+      'deliveryPoints',
+      'paymentTermsSupplier',
+      'orderCharges'
+    ));
+  }
+
+  public function editOrderStep1(Request $request, OrderService $orderService)
+  {
+
+    $input =  $request->all();
+
+    $order = $orderService->updateOrder($input, $input['order_id']);
+
+    if ($order && !empty($order)) {
+      $client = [
+        'order_id'          => $order->id,
+        'price_basis'       => $input['price_basis'],
+        'delivery_term'     => $input['delivery_term'],
+        'promised_delivery' => $input['promised_delivery']
+      ];
+      $orderClient = $orderService->saveOrderClient($client);
+
+      $paymentTermsClient = [];
+      if (isset($input['clientpayment'])) {
+        // update/ create payment term
+        $payments = [
+          'order_id'      => $order->id,
+          'section_type'  => $input['section_type'],
+          'payment_term'  => $input['clientpayment'],
+        ];
+        $orderService->updateOrderPayment($payments);
+
+        // update payment term section
+        $paymentTermsClient = $orderService->getOrderPayment($payments);
+        return response()->json([
+          'success' => 'Summary added successfully',
+          'isPayment' => 1,
+          'data' => view(
+            'orders._edit._clientpayment',
+            ['paymentTermsClient' => $paymentTermsClient]
+          )->render()
         ]);
+      }
+    }
 
-        $input = $request->all();
+    return response()->json(['success' => 'Summary added successfully', 'isPayment' => 0, 'data' => $order]);
+  }
 
-        // basic information orders
-        $orderService->updateOrderDetails($input);
+  public function editOrderItemStep2(Request $request, OrderService $orderService)
+  {
 
-        // delivery details update
-        $orderService->updateOrderDeliveryDetails($input);
+    $input =  $request->all();
+    $oupdate = [
+      'material_status'  => $input['material_status'],
+      'material_details' => $input['material_details']
+    ];
+    $order = $orderService->updateOrder($oupdate, $input['order_id']);
+    $cupdate = [
+      'order_id'               => $input['order_id'],
+      'installation_training'  => $input['installation_training'],
+      'service_expert'         => $input['service_expert'],
+      'estimated_installation' => $input['estimated_installation'],
+      'delivery_address'       => $input['delivery_address'],
+      'contact_person'         => $input['contact_person'],
+      'contact_email'          => $input['contact_email'],
+      'contact_phone'          => $input['contact_phone'],
+      'remarks'                => $input['delivery_remarks'],
+      'is_demo'                => isset($input['is_demo']) ? $input['is_demo'] : 0,
+      'demo_by'                => $input['demo_by']
+    ];
+    $orderService->saveOrderClient($cupdate);
+    if (isset($input['item'])) {
+      $items = [
+        'order_id'      => $input['order_id'],
+        'item'          => $input['item'],
+      ];
+      $orderService->saveOrderItems($items);
+    }
 
-        return response()->json($input['order_id']);
+    return response()->json(['success' => 'Items and delivery added successfully', 'data' => $order]);
+  }
+
+  public function editSupplierTermStep3(Request $request, OrderService $orderService)
+  {
+    $input =  $request->all();
+
+    $oupdate = [
+      'order_id'         => $input['order_id'],
+      'buying_price'     => $input['buying_price'],
+      'projected_margin' => $input['projected_margin']
+    ];
+    $order = $orderService->updateOrder($oupdate, $input['order_id']);
+
+    if (isset($input['supplier'])) {
+      $supplier = [
+        'order_id'  => $order->id,
+        'supplier'  => $input['supplier'],
+      ];
+      $orderService->saveOrderSupplier($supplier);
+    }
+    $paymentTermsSupplier = [];
+    $additionalCharges = [];
+
+    if (isset($input['supplierpayment'])) {
+      $payments = [
+        'order_id'      => $order->id,
+        'section_type'  => $input['section_type'],
+        'payment_term'  => $input['supplierpayment'],
+      ];
+      $orderService->updateOrderPayment($payments);
+
+      // update payment term section
+      $paymentTermsSupplier = $orderService->getOrderPayment($payments);
+    }
+
+    if (isset($input['charges'])) {
+      $charges = [
+        'order_id' => $order->id,
+        'charges'  => $input['charges'],
+      ];
+      $orderService->updateOrderCharges($charges);
+
+      // update additional charge section
+      $additionalCharges = $orderService->getOrderCharges($order->id);
+    }
+
+    if (!empty($paymentTermsSupplier) || !empty($additionalCharges)) {
+      return response()->json([
+        'success' => 'Supplier delivery and charges added successfully',
+        'isPayment' => 1,
+        'data' => view(
+          'orders._edit._supplierpayment',
+          ['paymentTermsSupplier' => $paymentTermsSupplier]
+        )->render(),
+        'data2' => view(
+          'orders._edit._additionalcharges',
+          ['orderCharges' => $additionalCharges]
+        )->render()
+      ]);
     }
 
 
-    public function orderDeliveryDetailsUpdate(Request $request, OrderService $orderService)
-    {
-        $request->validate([
-            'order_delivery_id' => 'required',
-            'item.*'            => 'required',
-            //  'part_no.*' => 'required',
-            'qty.*'             => 'required|numeric',
-            'delivered.*'    => 'required'
-        ]);
-        $input = $request->all();
+    return response()->json([
+      'success' => 'Supplier delivery and charges added successfully',
+      'isPayment' => 0,
+      'data' => $order
+    ]);
+  }
 
-        $orderService->updateOrderItems($input);
+  public function deletePaymentTerm(Request $request, OrderService $orderService)
+  {
+    $input = $request->all();
 
-        return response()->json($input['order_delivery_id']);
-    }
+    $orderService->deletePaymentTerm($input["paymentId"]);
 
-    public function orderHistoryDetailsInsert(Request $request, OrderService $orderService)
-    {
-        $input = $request->all();
+    return response()->json(['success' => 'Payment Term deleted successfully', 'data' => 1]);
+  }
 
-        $orderService->insertOrderHistoryDetails($input);
-        return response()->json($input['order_id']);
-    }
+  public function deleteCharges(Request $request, OrderService $orderService)
+  {
 
-    public function orderDataDeliveryHistoryLoad(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
+    $input = $request->all();
 
-        $id = $data['order_delivery_id'];
-        $items = $orderService->loadOrderItems($id);
+    $orderService->deleteOrderCharge($input["chargeId"]);
 
-        $isedit = true;
-        $data2 = view('orders.partials._items')
-            ->with(compact('items'))
-            ->render();
+    return response()->json(['success' => 'Additional Charges deleted successfully', 'data' => 1]);
+  }
 
-        return response()->json(['data' => $data2]);
-    }
+  public function orderHistoryDetailsInsert(Request $request, OrderService $orderService)
+  {
+    $input = $request->all();
 
-    public function  viewOrderDataDeliveryHistoryLoad(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
+    //$orderService->insertOrderHistoryDetails($input);
+    return response()->json($input['order_id']);
+  }
 
-        $id = $data['order_id'];
-        $order_deliveries = $orderService->loadOrderDeliveryHistoryDetails($id);
+  public function  orderHistoryLoad(Request $request, OrderService $orderService)
+  {
+    $data = $request->all();
+    $id = $data['order_id'];
 
-        $isedit = false;
-        $data2 = view('orders.partials._delivery')
-            ->with(compact('order_deliveries', 'isedit'))
-            ->render();
+    $order = $orderService->getOrderById($id);
+    $customer = ($order->customer) ? $order->customer->fullname : '';
+    //$orderService->loadOrderHistoryDetails($id);
+    $histories = $order->orderHistory;
 
-        return response()->json(['data' => $data2]);
-    }
-
-    public function  orderHistoryLoad(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
-        $id = $data['order_id'];
-
-        $order = $orderService->getOrderById($id);
-        $customer = ($order->customer) ? $order->customer->fullname : '';
-        //$orderService->loadOrderHistoryDetails($id);
-        $histories = $order->orderHistory;
-
-        $data2 = view('orders.partials._listhistory')
-            ->with(compact('histories', 'customer'))
-            ->render();
+    $data2 = view('orders.partials._listhistory')
+      ->with(compact('histories', 'customer'))
+      ->render();
 
 
-        return response()->json(['data' => $data2]);
-    }
+    return response()->json(['data' => $data2]);
+  }
 
-    public function orderHistoryDelete(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
-        $id = $data['order_history_id'];
-        $orderService->deleteOrderHistoryDetails($id);
-        return response()->json($id);
-    }
-    public function replyCommentDelete(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
-        $id = $data['reply_comment_id'];
-        $orderService->deleteReplyComments($id);
-        return response()->json($id);
-    }
+  public function orderHistoryDelete(Request $request, OrderService $orderService)
+  {
+    $data = $request->all();
+    $id = $data['order_history_id'];
+    $orderService->deleteOrderHistoryDetails($id);
+    return response()->json($id);
+  }
+  public function replyCommentDelete(Request $request, OrderService $orderService)
+  {
+    $data = $request->all();
+    $id = $data['reply_comment_id'];
+    $orderService->deleteReplyComments($id);
+    return response()->json($id);
+  }
 
-    public function deleteOrderItem(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
-        $id = $data['order_item_id'];
-        $orderService->deleteOrderItem($id);
-        return response()->json($id);
-    }
+  public function deleteOrderItem(Request $request, OrderService $orderService)
+  {
+    $data = $request->all();
+    $id = $data['order_item_id'];
+    $orderService->deleteOrderItem($id);
+    return response()->json($id);
+  }
 
-    public function updateDeliveryByIdHistoryUpdate(Request $request, OrderService $orderService)
-    {
-        $data = $request->all();
-        $orderService->updateOrderDeliveryDetailsByIdUpdate($data);
-        return response()->json($data['order_delivery_id']);
-    }
+  public function updateDeliveryByIdHistoryUpdate(Request $request, OrderService $orderService)
+  {
+    $data = $request->all();
+    $orderService->updateOrderDeliveryDetailsByIdUpdate($data);
+    return response()->json($data['order_delivery_id']);
+  }
 
-    public function commentReplyInsert(Request $request, OrderService $orderService)
-    {
-        $input = $request->all();
-        $orderService->insertCommentReply($input);
-        return response()->json($input['order_id']);
-    }
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+  public function commentReplyInsert(Request $request, OrderService $orderService)
+  {
+    $input = $request->all();
+    $orderService->insertCommentReply($input);
+    return response()->json($input['order_id']);
+  }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Services\EnquiryService;
+use Carbon\Carbon;
 
 class EnquiryController extends BaseController
 {
@@ -13,12 +14,18 @@ class EnquiryController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, EnquiryService $enquiryService)
+    public function index($visitorid, Request $request, EnquiryService $enquiryService)
     {
         //
         $input = $request->all();
 
+        $input['visitorid'] = $visitorid;
+
         $enquiries = $enquiryService->getAllEnquiries($input);
+
+        foreach ($enquiries as $k => $enquiry) {
+            $enquiries[$k]->added_at = date('M d, Y', strtotime($enquiry->created_at));
+        }
 
         return $this->sendResponse($enquiries, 'Enquiries listed successfully.');
     }
@@ -36,6 +43,8 @@ class EnquiryController extends BaseController
         $data = $request->all();
 
         $enquiry = $enquiryService->createEnquiry($data);
+
+        $enquiry->added_at = date('M d, Y', strtotime($enquiry->created_at));
 
         return $this->sendResponse($enquiry, 'Enquiry created successfully.');
     }

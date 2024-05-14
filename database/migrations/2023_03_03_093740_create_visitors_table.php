@@ -15,21 +15,15 @@ return new class extends Migration
     {
         Schema::create('visitors', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('company_id');
-            $table->unsignedBigInteger('customer_id');
+            $table->string('fullname');
+            $table->string('company');
+            $table->string('email')->nullable();
+            $table->string('mobile')->nullable();
             $table->string('codeno');
-            $table->datetime('checkin')->nullable();
-            $table->text('purpose')->nullable();
+            $table->string('qrcode')->nullable();
+            $table->datetime('last_checkin')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
-
-            $table->foreign('customer_id')
-                ->references('id')
-                ->on('customers');
-
-            $table->foreign('company_id')
-                ->references('id')
-                ->on('companies');
         });
     }
 

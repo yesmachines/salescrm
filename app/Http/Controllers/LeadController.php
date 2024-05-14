@@ -15,6 +15,7 @@ use App\Notifications\EmailNotification;
 use Illuminate\Support\Facades\Auth;
 use Notification;
 use Twilio\Rest\Client;
+use App\Models\Company;
 
 class LeadController extends Controller
 {
@@ -22,33 +23,33 @@ class LeadController extends Controller
 
     /**
      * Display a listing of the resource.
-     * 
+     *
      * showing only PENDING LEADS
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, LeadService $leadService, EmployeeManagerService $employeeManagerService)
+    public function index()
     {
         // showing only pending leads
-        $input = $request->all();
+        // $input = $request->all();
+        //
+        // $arrIds = [];
+        // $empid = $request->session()->get('employeeid');
+        // if (Auth::user()->hasAnyRole(['divisionmanager', 'salesmanager'])) {
+        //     $arrIds[] = $empid;
+        // } elseif (Auth::user()->hasRole('coordinators')) {
+        //     $arrIds[] = $empid;
+        //
+        //     $managers = $employeeManagerService->getManagers($empid);
+        //     $arrIds = array_merge($arrIds, $managers);
+        // }
+        // if (!empty($arrIds)) $input['assigned_to'] = $arrIds;
+        //
+        // $input['status_id'] = array(1, 2, 3, 4, 5); // exclude converted leads
+        //
+        // $leads = $leadService->getAllLead($input);
 
-        $arrIds = [];
-        $empid = $request->session()->get('employeeid');
-        if (Auth::user()->hasAnyRole(['divisionmanager', 'salesmanager'])) {
-            $arrIds[] = $empid;
-        } elseif (Auth::user()->hasRole('coordinators')) {
-            $arrIds[] = $empid;
-
-            $managers = $employeeManagerService->getManagers($empid);
-            $arrIds = array_merge($arrIds, $managers);
-        }
-        if (!empty($arrIds)) $input['assigned_to'] = $arrIds;
-
-        $input['status_id'] = array(1, 2, 3, 4, 5); // exclude converted leads
-
-        $leads = $leadService->getAllLead($input);
-
-        return view('leads.index', compact('leads'));
+        return view('leads.index');
     }
 
     /**
@@ -89,19 +90,27 @@ class LeadController extends Controller
         UserService $userService
     ) {
 
-        // $this->validate($request, [
-        //     'company'       => 'required',
-        //     'fullname'      => 'required',
-        //     'country_id'    => 'required',
-        //     'email'         => 'email|unique:users,email',
-        //     'phone'         => 'required',
-        //     'lead_type'     => 'required',
-        // ]);
+        $this->validate($request, [
+            'company'       => 'required',
+            'fullname'      => 'required',
+            'country_id'    => 'required',
+            'email'         => 'email',
+            'phone'         => 'required',
+            'lead_type'     => 'required',
+            'enquiry_date'  => 'required|date',
+            'assigned_to'   => 'required',
+            'assigned_on'   => 'required',
+            'status_id'     => 'required',
+            'details'       => 'required'
+        ]);
 
         $data = $request->all();
 
+        // if company exists
         if ($request->has('company_id')) {
+
             if ($request->filled('company_id')) {
+
                 // update company
                 $company = $custService->getCompany($data['company_id']);
                 $custService->updateCompany($company, $data);
@@ -112,7 +121,7 @@ class LeadController extends Controller
                 $data['company_id'] = $company->id;
             }
         }
-
+        // if customer exists
         if ($request->has('customer_id')) {
             if ($request->filled('customer_id')) {
                 // update customer
@@ -150,7 +159,7 @@ class LeadController extends Controller
 
             $user = $userService->getUser($employee->user_id);
 
-            Notification::send($user, new EmailNotification($project));
+            //Notification::send($user, new EmailNotification($project));
         }
 
 
@@ -195,7 +204,9 @@ class LeadController extends Controller
 
         $countries =  $countryService->getAllCountry();
 
-        $companies = $custService->getCompanies();
+        //  $companies = $custService->getCompanies();
+        $cinput['status'] = 1;
+        $companies = $custService->getAllCompany($cinput);
 
         $customers = $custService->getAllCustomer(['company_id' => $lead->company_id, 'status' => 1]);
 
@@ -222,14 +233,19 @@ class LeadController extends Controller
     public function update(Request $request, $id, LeadService $leadService, CustomerService $custService, LeadHistoryService $historyService)
     {
         //
-        // $this->validate($request, [
-        //     'name'          => 'required',
-        //     'email'         => 'required|email|unique:users,email,' . $request->input('user_id'),
-        //     'password'      => 'same:confirm-password',
-        //     'roles'         => 'required',
-        //     'designation'   => 'required',
-        //     'image_url'     =>  'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        // ]);
+        $this->validate($request, [
+            'company'       => 'required',
+            'fullname'      => 'required',
+            'country_id'    => 'required',
+            'email'         => 'email',
+            'phone'         => 'required',
+            'lead_type'     => 'required',
+            'enquiry_date'  => 'required|date',
+            'assigned_to'   => 'required',
+            'assigned_on'   => 'required',
+            // 'status_id'     => 'required',
+            'details'       => 'required'
+        ]);
         $data = $request->all();
 
         if ($request->has('company_id')) {
@@ -260,7 +276,7 @@ class LeadController extends Controller
 
         $leadService->updateLead($lead, $data);
 
-        // For status 
+        // For status
         // if ($request->has('status_id')) {
         //     $status = $leadService->getLeadStatusById($data['status_id']);
 
@@ -335,7 +351,7 @@ class LeadController extends Controller
                     'actionURL' => url('leads/' . $id)
                 ];
 
-                Notification::send($user, new EmailNotification($project));
+                //  Notification::send($user, new EmailNotification($project));
             }
         }
 
@@ -351,27 +367,43 @@ class LeadController extends Controller
     }
 
     // showing only converted leads
-    public function convertedLeads(Request $request, LeadService $leadService, EmployeeManagerService $employeeManagerService)
+    public function convertedLeads()
     {
         //
-        $input = $request->all();
+        // $input = $request->all();
+        //
+        // $arrIds = [];
+        // $empid = $request->session()->get('employeeid');
+        // if (Auth::user()->hasAnyRole(['divisionmanager', 'salesmanager'])) {
+        //     $arrIds[] = $empid;
+        // } elseif (Auth::user()->hasRole('coordinators')) {
+        //     $arrIds[] = $empid;
+        //
+        //     $managers = $employeeManagerService->getManagers($empid);
+        //     $arrIds = array_merge($arrIds, $managers);
+        // }
+        // if (!empty($arrIds)) $input['assigned_to'] = $arrIds;
+        //
+        // $input['status_id'] = array(6); // only converted leads
+        //
+        // $leads = $leadService->getAllLead($input);
 
-        $arrIds = [];
-        $empid = $request->session()->get('employeeid');
-        if (Auth::user()->hasAnyRole(['divisionmanager', 'salesmanager'])) {
-            $arrIds[] = $empid;
-        } elseif (Auth::user()->hasRole('coordinators')) {
-            $arrIds[] = $empid;
+        return view('leads.converted');
+    }
+    public function leadStatusList(LeadService $leadService)
+    {
 
-            $managers = $employeeManagerService->getManagers($empid);
-            $arrIds = array_merge($arrIds, $managers);
-        }
-        if (!empty($arrIds)) $input['assigned_to'] = $arrIds;
+        $leadList = $leadService->leadStatus();
 
-        $input['status_id'] = array(6); // only converted leads
+        return view('lead-status.leadStatus', compact('leadList'));
+    }
+    public function checkCompany(Request $request)
+    {
+        $companyName = $request->input('companyName');
+        $companyExists = Company::where('company', 'LIKE', $companyName)
+            ->where('status', 1)
+            ->exists();
 
-        $leads = $leadService->getAllLead($input);
-
-        return view('leads.converted', compact('leads'));
+        return response()->json(['exists' => $companyExists]);
     }
 }

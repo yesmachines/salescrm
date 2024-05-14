@@ -77,6 +77,9 @@
                             <li class="nav-item">
                                 <ul class="nav flex-column">
                                     <li class="nav-item">
+                                        <a class="nav-link" href="{{route('leads.create')}}"><span class="nav-link-text">Create New</span></a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link" href="{{route('leads.index')}}"><span class="nav-link-text">Pending</span></a>
                                     </li>
                                     <li class="nav-item">
@@ -118,7 +121,7 @@
                         </ul>
                     </li>
                     @canany(['visitors.index', 'enquiries.index'])
-                    <li class="nav-item">
+                    <li class="nav-item d-none">
                         <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_scrumboard">
                             <span class="nav-icon-wrap position-relative">
                                 <!-- <span class="badge badge-sm badge-primary badge-sm badge-pill position-top-end-overflow">3</span> -->
@@ -149,67 +152,42 @@
                         </ul>
                     </li>
                     @endcanany
+
+
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_contact">
-                            <span class="nav-icon-wrap">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_scrumboard">
+                            <span class="nav-icon-wrap position-relative">
+                                <!-- <span class="badge badge-sm badge-primary badge-sm badge-pill position-top-end-overflow">3</span> -->
                                 <span class="svg-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notebook" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-kanban" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18" />
-                                        <line x1="13" y1="8" x2="15" y2="8" />
-                                        <line x1="13" y1="12" x2="15" y2="12" />
+                                        <line x1="4" y1="4" x2="10" y2="4" />
+                                        <line x1="14" y1="4" x2="20" y2="4" />
+                                        <rect x="4" y="8" width="6" height="12" rx="2" />
+                                        <rect x="14" y="8" width="6" height="6" rx="2" />
                                     </svg>
                                 </span>
                             </span>
-                            <span class="nav-link-text">Contacts</span>
+                            <span class="nav-link-text">Products</span>
                         </a>
-                        <ul id="dash_contact" class="nav flex-column collapse  nav-children">
+                        <ul id="dash_scrumboard" class="nav flex-column collapse  nav-children">
                             <li class="nav-item">
                                 <ul class="nav flex-column">
-                                    @can('employees.index')
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{route('employees.index')}}"><span class="nav-link-text">Employees</span></a>
+                                        <a class="nav-link" href="{{route('products.index')}}"><span class="nav-link-text">List Product</span></a>
                                     </li>
-                                    @endcan
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{route('customers.index')}}"><span class="nav-link-text">Customers</span></a>
+                                        <a class="nav-link" href="{{route('products.create')}}"><span class="nav-link-text">Create Product</span></a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('products.import')}}"><span class="nav-link-text">Bulk Import</span></a>
+                                    </li>
+
                                 </ul>
                             </li>
                         </ul>
                     </li>
-                    @canany(['roles.index', 'permissions.index'])
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_file">
-                            <span class="nav-icon-wrap">
-                                <span class="svg-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M16 11h6m-3 -3v6" />
-                                    </svg>
-                                </span>
-                            </span>
-                            <span class="nav-link-text">User Controls</span>
-                        </a>
-                        <ul id="dash_file" class="nav flex-column collapse  nav-children">
-                            <li class="nav-item">
-                                <ul class="nav flex-column">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('roles.index')}}"><span class="nav-link-text">Assign Roles</span></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('permissions.index')}}"><span class="nav-link-text">Permissions</span></a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    @endcanany
-
-
-                    <li class="nav-item">
+                    <li class="nav-item d-none">
                         <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#reports_list">
                             <span class="nav-icon-wrap">
                                 <span class="svg-icon">
@@ -245,52 +223,14 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('reports.employees')}}"><span class="nav-link-text">Employee Performance Report</span></a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('reports.customers')}}"><span class="nav-link-text">Customer Report</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
                     </li>
-                    @canany(['categories.index', 'countries.index', 'regions.index', 'suppliers.index'])
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_invoice">
-                            <span class="nav-icon-wrap">
-                                <span class="svg-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="4" y="4" width="6" height="5" rx="2" />
-                                        <rect x="4" y="13" width="6" height="7" rx="2" />
-                                        <rect x="14" y="4" width="6" height="16" rx="2" />
-                                    </svg>
-                                </span>
-                            </span>
-                            <span class="nav-link-text">Components</span>
-                        </a>
-                        <ul id="dash_invoice" class="nav flex-column collapse  nav-children">
-                            <li class="nav-item">
-                                <ul class="nav flex-column">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('categories.index')}}"><span class="nav-link-text">Category</span></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('countries.index')}}"><span class="nav-link-text">Country</span></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('regions.index')}}"><span class="nav-link-text">Regions</span></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('suppliers.index')}}"><span class="nav-link-text">Supplier</span></a>
-                                    </li>
-                                    <!-- <li class="nav-item">
-                                        <a class="nav-link" href=""><span class="nav-link-text">Lead Status</span></a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href=""><span class="nav-link-text">Quotation Status</span></a>
-                                    </li> -->
 
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    @endcanany
                     @canany(['orders.index', 'orders.completed'])
                     <li class="nav-item">
                         <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_orders">
@@ -315,6 +255,121 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('orders.completed')}}"><span class="nav-link-text">Closed Orders</span></a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    @endcanany
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_contact">
+                            <span class="nav-icon-wrap">
+                                <span class="svg-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notebook" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18" />
+                                        <line x1="13" y1="8" x2="15" y2="8" />
+                                        <line x1="13" y1="12" x2="15" y2="12" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="nav-link-text">Contacts</span>
+                        </a>
+                        <ul id="dash_contact" class="nav flex-column collapse  nav-children">
+                            <li class="nav-item">
+                                <ul class="nav flex-column">
+                                    @can('employees.index')
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('employees.index')}}"><span class="nav-link-text">Employees</span></a>
+                                    </li>
+                                    @endcan
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('customers.index')}}"><span class="nav-link-text">Customers</span></a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    @canany(['categories.index', 'countries.index', 'regions.index', 'suppliers.index'])
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_invoice">
+                            <span class="nav-icon-wrap">
+                                <span class="svg-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <rect x="4" y="4" width="6" height="5" rx="2" />
+                                        <rect x="4" y="13" width="6" height="7" rx="2" />
+                                        <rect x="14" y="4" width="6" height="16" rx="2" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="nav-link-text">Additions</span>
+                        </a>
+                        <ul id="dash_invoice" class="nav flex-column collapse  nav-children">
+                            <li class="nav-item">
+                                <ul class="nav flex-column">
+                                    <!-- <li class="nav-item">
+                                        <a class="nav-link" href="{{route('categories.index')}}"><span class="nav-link-text">Category</span></a>
+                                    </li> -->
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('countries.index')}}"><span class="nav-link-text">Country</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('regions.index')}}"><span class="nav-link-text">Regions</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('suppliers.index')}}"><span class="nav-link-text">Supplier</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('divisions.index')}}"><span class="nav-link-text">Divisions</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('departments.index')}}"><span class="nav-link-text">Departments</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('leadStatus')}}"><span class="nav-link-text">Lead Status</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('quotationStatus')}}"><span class="nav-link-text">Quotation Status</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('currency.index')}}"><span class="nav-link-text">Currency</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('currency-conversion.index')}}"><span class="nav-link-text">Currency Conversion</span></a>
+                                    </li>
+
+
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    @endcanany
+
+                    @canany(['roles.index', 'permissions.index'])
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_file">
+                            <span class="nav-icon-wrap">
+                                <span class="svg-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                        <path d="M16 11h6m-3 -3v6" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="nav-link-text">User Controls</span>
+                        </a>
+                        <ul id="dash_file" class="nav flex-column collapse  nav-children">
+                            <li class="nav-item">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('roles.index')}}"><span class="nav-link-text">Assign Roles</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('permissions.index')}}"><span class="nav-link-text">Permissions</span></a>
                                     </li>
                                 </ul>
                             </li>

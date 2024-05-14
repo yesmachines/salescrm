@@ -17,8 +17,8 @@
                         <div class="v-separator d-sm-inline-block d-none"></div>
                         <nav class="ms-1 ms-sm-0" aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{route('orders.index')}}">All Order</a></li>
-                                <li class="breadcrumb-item"><a href="">View Details</a></li>
+                                <li class="breadcrumb-item"><a href="{{route('orders.index')}}">Order</a></li>
+                                <li class="breadcrumb-item"><a href="">Edit Details</a></li>
                                 <li class="breadcrumb-item active" aria-current="page">{{$order->company->company}}</li>
                             </ol>
                         </nav>
@@ -31,13 +31,12 @@
                             </span>
                         </a>
                     </div>
-
                 </header>
                 <div class="integrations-body">
                     <div data-simplebar class="nicescroll-bar">
                         <div class="container mt-md-7 mt-3">
                             <div class="row">
-                                <div class="col-xxl-10 col-lg-10">
+                                <div class="col-xxl-8 col-lg-7">
                                     <div class="media">
                                         <div class="media-head me-3">
                                             <div class="avatar avatar-logo">
@@ -47,14 +46,29 @@
                                             </div>
                                         </div>
                                         <div class="media-body">
-                                            <h3 class="hd-bold mb-0">{{$order->company->company}}</h3>
-                                            <span>by {{$order->customer->fullname}}</span>
+                                            <h3 class="hd-bold mb-0">{{$order->company->company}}&nbsp;
+                                                <span class="badge badge-warning" style="font-size: 12px;"> {{$order->os_number}}</span>
+                                            </h3>
+                                            <div class="text-dark fw-medium">by <i>{{$order->customer->fullname}}</i></div>
+                                            <span>{{$order->customer->email}} | {{$order->customer->phone}}</span><br />
+                                            <span>{{isset($order->company->region)? $order->company->region->state: ''}}, {{isset($order->company->country)? $order->company->country->name: ''}}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-xxl-4 col-lg-5 mt-lg-0 mt-3">
+                                    <div class="d-flex mt-3">
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-secondary btn-block ms-2 mt-0">
+                                            <span><span class="icon"><span class="feather-icon"><i data-feather="eye"></i></span></span><span>View</span></span>
+                                        </a>
+                                        <button class="btn btn-light btn-sm btn-block ms-2 mt-0" onclick="history.back();">
+                                            <span><span class="icon"><span class="feather-icon"><i data-feather="chevron-left"></i></span></span><span>Back To List</button>
+                                    </div>
+
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="col-xxl-10 col-lg-10">
+                                <div class="col-xxl-12 col-lg-12">
                                     <input type="hidden" id="get_order_id" name="get_order_id" class="form-control" value="{{$order->id}}">
                                     <div class="separator"></div>
                                     <ul class="nav nav-light nav-pills nav-pills-rounded justify-content-center">
@@ -65,15 +79,16 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" id="tab_2" data-bs-toggle="pill" href="#tabit_2">
-                                                <span class="nav-link-text">Order Items</span>
+                                                <span class="nav-link-text">Items & Delivery</span>
                                             </a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" id="tab_3" data-bs-toggle="pill" href="#tabit_3">
-                                                <span class="nav-link-text">Order Updates</span>
+                                                <span class="nav-link-text">Supplier Details</span>
                                             </a>
                                         </li>
                                     </ul>
+
                                     <div class="tab-content py-7">
                                         <div class="tab-pane fade show active" id="tabit_1">
                                             <!-- Basic Details -->
@@ -82,18 +97,16 @@
                                         </div>
                                         <div class="tab-pane fade" id="tabit_2">
                                             <!-- Basic Details -->
-                                            @include('orders._edit._orderitems')
+                                            @include('orders._edit._client')
                                             <!-- End User Details -->
                                         </div><!-- -->
                                         <div class="tab-pane fade" id="tabit_3">
-                                            @include('orders._edit._history')
+                                            @include('orders._edit._supplier')
                                         </div>
                                     </div>
                                 </div>
 
                             </div>
-
-
 
                         </div>
                     </div>
@@ -103,444 +116,539 @@
         </div>
     </div>
 
-
-
-
-    <script type="text/javascript">
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        $(".reply-box").hide();
-        // step 1
-        $("form#frmsummary").submit(function(e) {
-            e.preventDefault();
-
-            let formData = new FormData($(this)[0]);
-
-            if (!$('#shipping_term').val()) {
-                $("#summary-errors").show();
-                $("#summary-errors").addClass('alert alert-danger').text("Please enter shipment term!");
-                return false;
-            }
-            if (!$('#payment_term').val()) {
-                $("#summary-errors").show();
-                $("#summary-errors").addClass('alert alert-danger').text("Please enter payment term!");
-                return false;
-            }
-            if (!$('#delivery_time').val()) {
-                $("#summary-errors").show();
-                $("#summary-errors").addClass('alert alert-danger').text("Please enter promised delivery time!");
-                return false;
-            }
-
-            $('#ajxloader').html('Please wait..');
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('order-details.update') }}",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    $(".summary_error_msg").removeClass('alert alert-danger');
-                    $(".summary_error_msg").hide();
-                    $("#frmspecs").removeClass('alert alert-danger');
-                    $("#frmspecs").hide();
-                    if ($.isEmptyObject(data)) {
-                        console.log("Empty Result ", data);
-
-                    } else {
-                        Swal.fire(
-                            'Success!',
-                            'Order Summary Updated!',
-                            'success'
-                        ).then((result) => {
-                            if (result.isConfirmed) {
-                                skipStep1();
-                            } else if (result.isDenied) {
-                                // alert(2)
-                                obj.hide();
-                            }
-                        });
-                        //
-
-                    }
-                },
-                error: function(data) {
-                    $(".summary_error_msg").show();
-                    $("#frmspecs").removeClass('alert alert-danger');
-                    $("#frmspecs").hide();
-                    let err_str = '';
-                    if (data.responseJSON.errors) {
-                        err_str =
-                            '<dl class="row"><dt class="col-sm-3"></dt><dt class="col-sm-9"><p><b>Whoops!</b> There were some problems with your input.</p></dt>';
-                        $.each(data.responseJSON.errors, function(key, val) {
-                            err_str += '<dt class="col-sm-3">' + key.replace("_",
-                                    " ") + ' </dt><dd class="col-sm-9">' + val +
-                                '</dd>';
-                        });
-                        err_str += '</dl>';
-                        $('.summary_error_msg').addClass('alert alert-danger').html(err_str);
-
-                        return false;
-                    }
-                }
-            });
-
-
-        });
-
-        function skipStep1() {
-            $('#tab_1').removeClass('active');
-            $('#tab_2').addClass('active');
-            $('#tabit_2').addClass('active');
-            $('#tabit_2').addClass('show');
-            $('#tabit_1').removeClass('active');
-            $('#tabit_1').removeClass('show');
+</div>
+@push('scripts')
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
-
-        // step 2
-        $(document).ready(function() {
-            $(".addCF").click(function() {
-                $("#customFields").append(`<tr valign="top">
-                <td><input type="text" class="form-control" id="itemcustomFieldName" name="item[]" value="" placeholder="Item" /> </td>
-                <td><input type="text" class="form-control" id="partcustomFieldValue" name="part_no[]" value="" placeholder="Part No" /></td>
-                <td><input type="number" class="form-control" id="qtycustomFieldValue" name="qty[]" value="" placeholder="Qty" /> </td>
-                <td><input type="date" class="form-control" id="delivered" name="delivered[]" value="" placeholder="Delivered On" /></td>
-                <td><select class="form-control" name="status[]" id="status"><option value="0">Not Delivered</option><option value="1">Delivered</option></select></td>
-                <td><textarea rows="2" id="remarks" name="remarks[]" placeholder="Remarks" class="form-control"></textarea></td>
-                <td><a href="javascript:void(0);" class="remCF" title="DELETE ROW"><i class="fa fa-trash"></i></a></td></tr>`);
-            });
-
-            $("#customFields").on('click', '.remCF', function() {
-                $(this).parent().parent().remove();
-            });
-        });
-        $(document).ready(function() {
-            $(".addemails").click(function() {
-                $("#customEmailFields").append(`<tr valign="top"> <td cols="8"></td>
-                <td><input type="text" class="form-control" id="itememailcustomFieldName" name="emails[]" value="" placeholder="Emails" /> </td>
-                 <td><a href="javascript:void(0);" class="rememailCF" title="DELETE ROW"><i class="fa fa-trash"></i></a></td></tr>`);
-            });
-
-            $("#customEmailFields").on('click', '.rememailCF', function() {
-                $(this).parent().parent().remove();
-            });
-        });
-        // list item table
-        function RefreshTable(deliveryid) {
-
-            $.ajax({
-                type: 'post',
-                url: "{{ route('order-data-delivery-history.load') }}",
-                data: {
-                    order_delivery_id: deliveryid,
-                },
-                success: function(res) {
-
-                    $('#load-item-tbl').html(res.data);
-
-                }
-            });
+    });
+    $('.todaydatepick').daterangepicker({
+        singleDatePicker: true,
+        "cancelClass": "btn-secondary",
+        locale: {
+            format: 'YYYY-MM-DD'
         }
+    });
+    $('.datepick').daterangepicker({
+        singleDatePicker: true,
+        autoUpdateInput: false,
+        "cancelClass": "btn-secondary",
+        locale: {
+            format: 'YYYY-MM-DD'
+        }
+    });
+    $('.datepick').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+    });
 
-        // add items
-        $("form#add_delivery_item").submit(function(e) {
-            e.preventDefault();
-
-            let formData = new FormData($(this)[0]);
-
-            $('#ajxloader').html('Please wait..');
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('order-delivery-details.update') }}",
-                data: formData,
-                processData: false,
-                contentType: false,
-
-                success: function(data) {
-                    $("#frmspecs").removeClass('alert alert-danger');
-                    $("#frmspecs").hide();
-                    $(".error_msg").removeClass('alert alert-danger');
-                    $(".error_msg").hide();
-                    $(".summary_error_msg").removeClass('alert alert-danger');
-                    $(".summary_error_msg").hide();
-
-                    if ($.isEmptyObject(data)) {
-                        console.log("Empty Result ", data);
-
-                    } else {
-                        Swal.fire(
-                            'Success!',
-                            'Order Item Added!',
-                            'success'
-                        ).then((result) => {
-                            if (result.isConfirmed) {
-
-                                $('#add_delivery_item')[0].reset();
-                                RefreshTable(data);
-                                // skipStep2();
-
-                            } else if (result.isDenied) {
-                                // alert(2)
-                                obj.hide();
-                            }
-                        });
-                        //
-
-                    }
-
-                },
-                error: function(data) {
-                    $(".error_msg").show();
-                    $("#frmspecs").removeClass('alert alert-danger');
-                    $(".summary_error_msg").removeClass('alert alert-danger');
-                    $(".summary_error_msg").hide();
-                    $("#frmspecs").hide();
-                    let err_str = '';
-                    if (data.responseJSON.errors) {
-                        err_str =
-                            '<dl class="row"><dt class="col-sm-3"></dt><dt class="col-sm-9"><p><b>Whoops!</b> There were some problems with your input.</p></dt>';
-                        $.each(data.responseJSON.errors, function(key, val) {
-                            err_str += '<dt class="col-sm-3">' + key.replace("_",
-                                    " ") + ' </dt><dd class="col-sm-9">' + val +
-                                '</dd>';
-                        });
-                        err_str += '</dl>';
-                        $('.error_msg').addClass('alert alert-danger').html(err_str);
-
-                        return false;
-                    }
-                }
-            });
+    // STEPS
+    $(function() {
+        $('.nav-item').on('click', function() {
+            $('.nav-link').removeClass('active');
+            $(this).find('.nav-link').addClass('active').blur();
         });
 
-        function skipStep2() {
+        $('.next-step, .prev-step').on('click', function(e) {
+            var $activeTab = $('.tab-pane.active');
 
-            $('#tab_2').removeClass('active');
-            $('#tab_3').addClass('active');
-            $('#tabit_3').addClass('active');
-            $('#tabit_3').addClass('show');
-            $('#tabit_2').removeClass('active');
-            $('#tabit_2').removeClass('show');
-        }
-        // delete items
-        $(document).delegate('a.delete-order-delivery-row', 'click', function(e) {
-            e.preventDefault();
-            var rowCount = $(".edit_table_data>tbody tr").length;
-            if (rowCount <= 1) {
+            // $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+            $('.nav-item').find('.nav-link').removeClass('active');
 
-                $("#frmtable").show();
-                $("#frmtable").addClass('alert alert-danger').text("You should atleast one item for this order to exist!!");
-                return false;
-
+            if ($(e.target).hasClass('next-step')) {
+                var nextTab = $activeTab.next('.tab-pane').attr('id');
+                $('[href="#' + nextTab + '"]').addClass('btn-info').removeClass('btn-default');
+                $('[href="#' + nextTab + '"]').tab('show');
             } else {
-                $("#frmtable").removeClass('alert alert-danger');
-                $("#frmtable").hide();
-
-                let rid = jQuery(this).attr('data-id');
-                rid = parseInt(rid);
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('order-data-item-history.delete') }}",
-                    data: {
-                        order_item_id: rid,
-                    },
-                    success: function() {
-                        $("#row-" + rid).remove();
-
-                    }
-                });
-
+                var prevTab = $activeTab.prev('.tab-pane').attr('id');
+                $('[href="#' + prevTab + '"]').addClass('btn-info').removeClass('btn-default');
+                $('[href="#' + prevTab + '"]').tab('show');
             }
-
         });
-        // step 3
+    });
 
-        // load history
-        function LoadRefreshHistory() {
-            $(".reply-box").hide();
-            let order_id = $("#get_order_id").val();
+    function nextStep() {
+        var $activeTab = $('.tab-pane.active');
+        var nextTab = $activeTab.next('.tab-pane').attr('id');
+        $('[href="#' + nextTab + '"]').addClass('btn-info').removeClass('btn-default');
+        $('[href="#' + nextTab + '"]').tab('show');
+    }
 
-            $.ajax({
-                type: 'post',
-                url: "{{ route('order-history.load') }}",
-                data: {
-                    order_id: order_id,
-                },
-                success: function(res) {
-                    $('.list-his').html(res.data);
+    /**************************************
+     * Payment Term Client Dynamic Rows
+     *****************************************/
+    var iter = $("#paymentcustomFields").find("tbody >tr").length;
+
+    $(".addPT").click(function() {
+
+        ++iter;
+        let dropdwn = createDropDown(iter);
+
+        $("#paymentcustomFields").append(`<tr valign="top">
+      <td><input type="hidden" name="clientpayment[${iter}][payment_id]"  />
+      <textarea class="form-control" name="clientpayment[${iter}][payment_term]" placeholder="Payment Term"></textarea></td>
+      <td><input type="text" class="form-control datepick" name="clientpayment[${iter}][expected_date]" placeholder="Expected Date" /></td>
+      <td>${dropdwn}</td>
+      <td><textarea rows="2" name="clientpayment[${iter}][remarks]" placeholder="Remarks" class="form-control"></textarea></td>
+      <td><a href="javascript:void(0);" class="remPT" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
+    });
+
+    $("#paymentcustomFields").on('click', '.remPT', function() {
+        var url = "{{ route('orders.deletePayment') }}";
+        let obj = $(this);
+        let cpid = obj.data('id');
+
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are sure to delete the payment term!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                // ajax delete existing payment id
+                if (cpid) {
+
+                    const formDataDel = new FormData();
+                    formDataDel.append("paymentId", cpid);
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: formDataDel,
+                        dataType: 'JSON',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log(response);
+
+                            if (response.data) {
+                                iter--;
+                                obj.parents('tr').remove();
+                            }
+                        },
+                        error: function(response) {
+                            var errors = response.responseJSON;
+
+                            let errorsHtml = '<div class="alert alert-danger"><ul>';
+                            $.each(errors.errors, function(k, v) {
+                                errorsHtml += '<li>' + v + '</li>';
+                            });
+                            errorsHtml += '</ul></di>';
+                            $('.summary_error_msg').html(errorsHtml);
+
+                            console.log(response);
+                        }
+                    });
+                } else {
+                    // if not exists in db, remove only
+                    iter--;
+                    obj.parents('tr').remove();
                 }
-            });
+            }
+        });
+    });
+
+
+    function createDropDown(i) {
+        let ddlPStatus = `<select class=" form-control" name="clientpayment[${i}][status]">
+        <option value="0">Not Received</option>
+        <option value ="1">Received</option>
+        <option value ="2">Partially Received</option></select>`;
+        return ddlPStatus;
+    }
+    /**************************************
+     * Summary Save - Step1
+     *****************************************/
+    $('#frmosummary').on('submit', function(event) {
+
+        event.preventDefault();
+        var orderId = $("#get_order_id").val();
+
+        var url = "{{ route('orders.editstep1', ['id' => ':id']) }}".replace(':id', orderId);
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: new FormData(this),
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                if (response.data) {
+                    if (response.isPayment == 1) { // payment section if updated
+
+                        let orderPayment = response.data;
+                        // updated row to the payment terms -client
+                        if (orderPayment != null || orderPayment.trim() != "") {
+                            $("#paymentcustomFields").find("tbody").html(orderPayment);
+                        }
+                        // reassign value of num of rows
+                        iter = $("#paymentcustomFields").find("tbody >tr").length;
+                    }
+                    nextStep();
+                }
+            },
+            error: function(response) {
+                var errors = response.responseJSON;
+
+                let errorsHtml = '<div class="alert alert-danger"><ul>';
+                $.each(errors.errors, function(k, v) {
+                    errorsHtml += '<li>' + v + '</li>';
+                });
+                errorsHtml += '</ul></di>';
+                $('.summary_error_msg').html(errorsHtml);
+
+                console.log(response);
+            }
+        });
+    });
+
+    /**************************************
+     * Items Dynamic Rows
+     *****************************************/
+    var iter2 = $("#itemcustomFields").find("tbody >tr").length;
+
+    $(".addIT").click(function() {
+
+        ++iter2;
+        let dropdwn = createDropDown2(iter2);
+
+        $("#itemcustomFields").append(`<tr valign="top">
+      <td><input type="hidden" name="item[${iter2}][product_id]" />
+      <textarea class="form-control" name="item[${iter2}][item_name]" placeholder="Item"></textarea></td>
+      <td><input type="text" class="form-control" name="item[${iter2}][partno]" placeholder="Part No" /></td>
+      <td> <input type="number" class="form-control" name="item[${iter2}][quantity]" placeholder="Quantity" /></td>
+      <td><input type="text" class="form-control" name="item[${iter2}][yes_number]" placeholder="YesNo." /></td>
+      <td><input type="number" class="form-control" name="item[${iter2}][total_amount]" placeholder="Total Amount" /></td>
+      <td><input type="text" class="form-control datepick" name="item[${iter2}][expected_delivery]" placeholder="Expected Delivery" /></td>
+      <td>${dropdwn}</td>
+      <td><textarea rows="2" name="item[${iter2}][remarks]" placeholder="Remarks" class="form-control"></textarea></td>
+      <td><a href="javascript:void(0);" class="remIT" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
+    });
+
+    $("#itemcustomFields").on('click', '.remIT', function() {
+        // if (confirm('Are you sure to delete the Item?')) {
+        //     iter2--;
+        //     $(this).parents('tr').remove();
+        // } else {
+        //     return false;
+        // }
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are sure to delete the order item!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                iter2--;
+                $(this).parents('tr').remove();
+            }
+        });
+    });
+
+    function createDropDown2(i) {
+        let ddlPStatus = `<select class=" form-control" name="item[${i}][status]">
+        <option value="0">Not Delivered</option>
+        <option value ="1">Delivered</option></select>`;
+        return ddlPStatus;
+    }
+    /**************************************
+     * Item Save - Step2
+     *****************************************/
+    $('#add_delivery_item').on('submit', function(event) {
+        event.preventDefault();
+        var orderId = $("#get_order_id").val();
+        var url = "{{ route('orders.editstep2', ['id' => ':id']) }}".replace(':id', orderId);
+
+        // let order_id = $("#order_id_step2").val().trim();
+        // console.log(order_id );
+        // if (order_id == '') {
+        //     alert("Please complete & save step 1 details");
+        //     return false;
+        // }
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: new FormData(this),
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                // $(form).trigger("reset");
+                // alert(response.success)
+                if (response.data) {
+                    let order = response.data;
+
+                    nextStep();
+                }
+                console.log(response.success);
+            },
+            error: function(response) {
+                var errors = response.responseJSON;
+
+                let errorsHtml = '<div class="alert alert-danger"><ul>';
+                $.each(errors.errors, function(k, v) {
+                    errorsHtml += '<li>' + v + '</li>';
+                });
+                errorsHtml += '</ul></di>';
+                $('.client_error_msg').html(errorsHtml);
+
+                console.log(response);
+            }
+        });
+    });
+
+    /**************************************
+     * Supplier Payment Dynamic Rows
+     *****************************************/
+    var iter3 = $("#supplierpaymentFields").find("tbody >tr").length;
+
+    $(".addST").click(function() {
+
+        ++iter3;
+        let dropdwn = createDropDown3(iter3);
+
+        $("#supplierpaymentFields").append(`<tr valign="top">
+      <td><input type="hidden" name="supplierpayment[${iter3}][payment_id]"  />
+      <textarea class="form-control" name="supplierpayment[${iter3}][payment_term]" placeholder="Payment Term"></textarea></td>
+      <td><input type="text" class="form-control datepick" name="supplierpayment[${iter3}][expected_date]" placeholder="Expected Date" /></td>
+      <td>${dropdwn}</td>
+      <td><textarea rows="2" name="supplierpayment[${iter3}][remarks]" placeholder="Remarks" class="form-control"></textarea></td>
+      <td><a href="javascript:void(0);" class="remST" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
+    });
+
+    $("#supplierpaymentFields").on('click', '.remST', function() {
+
+        var url = "{{ route('orders.deletePayment') }}";
+        let obj = $(this);
+        let spid = obj.data('id');
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are sure to delete the supplier term!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ajax delete existing payment id
+                if (spid) {
+
+                    const formDataDel = new FormData();
+                    formDataDel.append("paymentId", spid);
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: formDataDel,
+                        dataType: 'JSON',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log(response);
+
+                            if (response.data) {
+                                iter3--;
+                                obj.parents('tr').remove();
+                            }
+                        },
+                        error: function(response) {
+                            var errors = response.responseJSON;
+
+                            let errorsHtml = '<div class="alert alert-danger"><ul>';
+                            $.each(errors.errors, function(k, v) {
+                                errorsHtml += '<li>' + v + '</li>';
+                            });
+                            errorsHtml += '</ul></di>';
+                            $('.summary_error_msg').html(errorsHtml);
+
+                            console.log(response);
+                        }
+                    });
+                } else {
+                    // if not exists in db, remove only
+                    iter3--;
+                    obj.parents('tr').remove();
+                }
+            }
+        });
+    });
+
+    function createDropDown3(i) {
+        let ddlSPStatus = `<select class=" form-control" name="supplierpayment[${i}][status]">
+        <option value="0">Not Done</option>
+        <option value="1">Done</option>
+        <option value="2">Partially Done</option></select>`;
+        return ddlSPStatus;
+    }
+    /**************************************
+     * Additional Charges Dynamic Rows
+     *****************************************/
+    var iter4 = $("#chargespaymentFields").find("tbody >tr").length;
+
+    $(".addAC").click(function() {
+
+        ++iter4;
+
+        $("#chargespaymentFields").append(`<tr valign="top">
+      <td><input type="hidden" name="charges[${iter4}][charge_id]"/>
+      <input type="text" class="form-control" name="charges[${iter4}][title]" placeholder="Customs Clearance Charge" /></td>
+      <td><input type="number" class="form-control" name="charges[${iter4}][considered]" placeholder="Considered Cost" /></td>
+      <td><textarea rows="2" name="charges[${iter4}][remarks]" placeholder="Remarks" class="form-control"></textarea></td>
+      <td><a href="javascript:void(0);" class="remAC" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
+    });
+
+    $("#chargespaymentFields").on('click', '.remAC', function() {
+        var url = "{{ route('orders.deleteCharge') }}";
+        let obj = $(this);
+        let acid = obj.data('id');
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are sure to delete the Additional Charges!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                // ajax delete existing charge id
+                if (acid) {
+
+                    const formDataDel = new FormData();
+                    formDataDel.append("chargeId", acid);
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: formDataDel,
+                        dataType: 'JSON',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log(response);
+
+                            if (response.data) {
+                                iter4--;
+                                obj.parents('tr').remove();
+                            }
+                        },
+                        error: function(response) {
+                            var errors = response.responseJSON;
+
+                            let errorsHtml = '<div class="alert alert-danger"><ul>';
+                            $.each(errors.errors, function(k, v) {
+                                errorsHtml += '<li>' + v + '</li>';
+                            });
+                            errorsHtml += '</ul></di>';
+                            $('.summary_error_msg').html(errorsHtml);
+
+                            console.log(response);
+                        }
+                    });
+                } else {
+                    // if not exists in db, remove only
+                    iter4--;
+                    obj.parents('tr').remove();
+                }
+                // iter4--;
+                // $(this).parents('tr').remove();
+            }
+        });
+    });
+
+    /**************************************
+     * Supplier Save - Step3
+     *****************************************/
+    $('#add_supplier_details').on('submit', function(event) {
+        event.preventDefault();
+        var orderId = $("#get_order_id").val();
+        var url = "{{ route('orders.editstep3', ['id' => ':id']) }}".replace(':id', orderId);
+
+        let order_id = $("#order_id_step3").val().trim();
+        if (order_id == '') {
+            alert("Please complete and save step2 details");
+            return false;
         }
 
-        $("form#frmComments").submit(function(e) {
-            e.preventDefault();
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: new FormData(this),
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                // $(form).trigger("reset");
+                // alert(response.success)
+                if (response.data) {
+                    if (response.isPayment == 1) { // payment section if updated
 
-            let formData = new FormData($(this)[0]);
+                        let orderPayment = response.data;
+                        // updated row to the payment terms -supplier
+                        if (orderPayment != null || orderPayment.trim() != "") {
+                            $("#supplierpaymentFields").find("tbody").html(orderPayment);
+                        }
+                        // reassign value of num of rows
+                        iter3 = $("#supplierpaymentFields").find("tbody >tr").length;
 
-            if (!$('#comment').val()) {
-                $("#frmql").show();
-                $("#frmql").addClass('alert alert-danger').text("Please enter Comments!");
-                return false;
-            }
-
-            $('#ajxloader').html('Please wait..');
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('order-history-details.insert') }}",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    $("#frmql").removeClass('alert alert-danger');
-                    $("#frmql").hide();
-
-                    if ($.isEmptyObject(data)) {
-                        console.log("Empty Result ", data);
-
-                    } else {
-                        Swal.fire(
-                            'Success!',
-                            'Order Status Updated!',
-                            'success'
-                        ).then((result) => {
-                            if (result.isConfirmed) {
-                                $('#frmComments')[0].reset();
-                                // $('.mediarow').remove();
-                                LoadRefreshHistory();
-
-                            } else if (result.isDenied) {
-                                // alert(2)
-                                obj.hide();
-                            }
-                        });
-                        //
-
+                        /**************** for additional charges *************/
+                        let addCharges = response.data2;
+                        // updated row to the charges
+                        if (addCharges != null || addCharges.trim() != "") {
+                            $("#chargespaymentFields").find("tbody").html(addCharges);
+                        }
+                        // reassign value of num of rows
+                        iter4 = $("#chargespaymentFields").find("tbody >tr").length;
                     }
+
+                    Swal.fire({
+                        title: "Good job!",
+                        text: "You have created order successfully!",
+                        icon: "success"
+                    });
+                    setTimeout(() => {
+                        window.location.href = "{{route('orders.index')}}";
+                    }, 2000);
+
                 }
-            });
+            },
+            error: function(response) {
+                var errors = response.responseJSON;
 
-
-        });
-
-        // delete items
-        $(document).delegate('a.delete-order-comment-row', 'click', function(e) {
-            e.preventDefault();
-            var rowCount = $(".list-his > div.mediarow").length;
-            if (rowCount > 0) {
-
-                let rid = jQuery(this).attr('data-id');
-                rid = parseInt(rid);
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('order-history.delete') }}",
-                    data: {
-                        order_history_id: rid,
-                    },
-                    success: function() {
-                        $("#crow-" + rid).remove();
-
-                    }
+                let errorsHtml = '<div class="alert alert-danger"><ul>';
+                $.each(errors.errors, function(k, v) {
+                    errorsHtml += '<li>' + v + '</li>';
                 });
+                errorsHtml += '</ul></di>';
+                $('.supplier_error_msg').html(errorsHtml);
 
+                console.log(response);
             }
-
         });
+    });
+</script>
+@endpush
 
-        $(document).delegate('a.reply-order-comment-row', 'click', function(e) {
-            e.preventDefault();
-            var id = jQuery(this).attr('data-id');
-            $("#reply-box-" + id).toggle();
-
-        });
-
-        $("form#frmReplys").submit(function(e) {
-            e.preventDefault();
-
-            let parent_id = $(this).data('id');
-            let order_id = $("#order_id" + parent_id).val();
-            let reply = $("#reply" + parent_id).val();
-
-            let formData = new FormData($(this)[0]);
-
-            if (!reply) {
-                $("#frmql").show();
-                $("#frmql").addClass('alert alert-danger').text("Please enter Reply!");
-                return false;
-            }
-
-            $('#ajxloader').html('Please wait..');
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('comment-reply.insert') }}",
-                // data: {
-                //     parent_id: parent_id,
-                //     main_parent_id: main_parent_id,
-                //     order_id: order_id,
-                //     reply: reply,
-                // },
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-
-                    $("#frmql").removeClass('alert alert-danger');
-                    $("#frmql").hide();
-                    if ($.isEmptyObject(data)) {
-                        console.log("Empty Result ", data);
-
-                    } else {
-                        Swal.fire(
-                            'Success!',
-                            'You have Replied to the comment',
-                            'success'
-                        ).then((result) => {
-                            if (result.isConfirmed) {
-
-                                $("#reply" + parent_id).val("");
-                                $("#reply-box-" + parent_id).hide();
-
-                                // $('.mediarow').remove();
-                                LoadRefreshHistory();
-
-                            } else if (result.isDenied) {
-                                // alert(2)
-                                obj.hide();
-                            }
-                        });
-                        //
-
-                    }
-                }
-            });
-
-
-        });
-
-        $(document).delegate('a.delete-order-reply-row', 'click', function(e) {
-            e.preventDefault();
-
-
-            let rid = jQuery(this).attr('data-id');
-            rid = parseInt(rid);
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('reply-comment.delete') }}",
-                data: {
-                    reply_comment_id: rid,
-                },
-                success: function() {
-                    $("#crow-" + rid).remove();
-
-                }
-            });
-
-
-
-        });
-    </script>
-
-    @endsection
+@endsection

@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-4">
-                                <div class="form-group" style="{{Auth::user()->hasRole('admin')? '': 'display:none'}}">
+                                <div class="form-group">
                                     <label class="form-label">ACL</label>
                                     <select class="form-select" name="roles">
                                         <option value="">--</option>

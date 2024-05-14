@@ -106,8 +106,8 @@
                                     <form method="GET">
                                         <label class="form-label">Search By Submitted Date</label>
                                         <div class="input-group mb-3">
-                                            <input type="text" class="form-control" name="closing_start_date" placeholder="From" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['start_date'])? $input['start_date']:'' }}">
-                                            <input type="text" class="form-control" name="closing_end_date" placeholder="To" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['end_date'])? $input['end_date']:'' }}">
+                                            <input type="text" class="form-control" name="closing_start_date" placeholder="From" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['closing_start_date'])? $input['closing_start_date']:'' }}">
+                                            <input type="text" class="form-control" name="closing_end_date" placeholder="To" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['closing_end_date'])? $input['closing_end_date']:'' }}">
                                             <button class="btn btn-primary" type="submit">Search</button>
                                             <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/winstanding'">Reset</button>
                                         </div>

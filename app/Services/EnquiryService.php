@@ -34,18 +34,18 @@ class EnquiryService
 
         return $enquiries;
     }
+
     public function allEnquiries($data = []): Object
     {
         $sql = DB::table('enquiries as e')
             ->leftJoin('visitors as v', 'e.visitorid', '=', 'v.id')
-            ->leftJoin('customers as u', 'v.customer_id', '=', 'u.id')
-            ->leftJoin('companies as c', 'v.company_id', '=', 'c.id')
             ->select(
                 'e.*',
-                'c.company',
-                'u.fullname',
-                'u.email',
-                'u.phone'
+                'v.company',
+                'v.fullname',
+                'v.email',
+                'v.mobile',
+                'v.codeno'
             );
 
         $sql->orderBy('id', 'desc');

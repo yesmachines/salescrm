@@ -32,7 +32,7 @@
                         <th class="w-25">Brand</th>
                         <th>Sales Value (AED)</th>
                         <th>Gross Margin (AED)</th>
-
+                        <th>Expected Closing</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,6 +61,7 @@
                         <td>
                             <span class="badge badge-soft-secondary  my-1  me-2"> {{$sales->gross_margin}}</span>
                         </td>
+                        <td> {{$sales->closure_date}}</td>
                     </tr>
                     @endforeach
                 </tbody>

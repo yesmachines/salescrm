@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Lead;
 use App\Models\Supplier;
+use App\Models\SalesCommission;
 
 class Employee extends Model
 {
@@ -33,5 +34,9 @@ class Employee extends Model
     public function lead()
     {
         return $this->hasOne(Lead::class, 'assigned_to');
+    }
+    public function salescommission()
+    {
+        return $this->hasMany(SalesCommission::class, 'manager_id');
     }
 }

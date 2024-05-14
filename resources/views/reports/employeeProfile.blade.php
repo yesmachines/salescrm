@@ -24,7 +24,7 @@
                             <i class="bi-check-circle-fill fs-6 text-blue" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Top endorsed"></i>
                         </h4>
                         <p>
-                            {{$employee->designation}} / {{$employee->division}}
+                            {{$employee->designation}} - <span class="text-uppercase">{{$employee->division}}</span>
                         </p>
                         <ul class="list-inline fs-7 mt-2 mb-0">
                             <li class="list-inline-item d-sm-inline-block d-block mb-sm-0 mb-1 me-3">
@@ -35,6 +35,10 @@
                             <li class="list-inline-item d-sm-inline-block d-block mb-sm-0 mb-1 me-3">
                                 <i class="bi bi-geo-alt me-1"></i>
                                 <a href="#">{{$employee->user->last_login_ip}}</a>
+                            </li>
+                            <li class="list-inline-item d-sm-inline-block d-block mb-sm-0 mt-1 me-3">
+                                <i class="bi bi-cash-coin me-1"></i>
+                                My Monthly Target : <b>{{$target->target_value}} AED</b>
                             </li>
                         </ul>
                     </div>

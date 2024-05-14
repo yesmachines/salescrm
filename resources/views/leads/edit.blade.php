@@ -25,6 +25,9 @@
                     </ul>
                 </div>
                 @endif
+                <div class="mt-2">
+                    @include('layouts.partials.messages')
+                </div>
                 {!! Form::model($lead, ['method' => 'PATCH','enctype' => 'multipart/form-data', 'route' => ['leads.update', $lead->id]]) !!}
 
                 <div class="row gx-3">
@@ -33,22 +36,33 @@
                         <div class="row gx-3 mt-4">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Existing Company</label>
+                                    <label class="form-label">Search Existing Company</label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <select class="form-select select2" name="company_id" id="companyid">
                                         <option value="">--</option>
-                                        @foreach($companies as $id => $comp)
-                                        <option value="{{$id}}" {{($lead->company_id == $id)? "selected": ""}}>{{$comp}}</option>
+                                        @foreach($companies as $i => $comp)
+                                        @php
+                                        $display = $comp->company;
+                                        if ($comp->region_id > 0) {
+                                        $display .= ($comp->region) ? ', ' . $comp->region->state : '';
+                                        }
+                                        if ($comp->country_id > 0) {
+                                        $display .= ($comp->country) ? ', ' . $comp->country->name : '';
+                                        }
+                                        @endphp
+                                        <option value="{{$comp->id}}" {{($lead->company_id == $comp->id)? "selected": ""}}>
+                                            {{$display}}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Existing Customer</label>
+                                    <label class="form-label">Search Existing Customer</label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -61,29 +75,31 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="separator"></div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Company</label>
+                                    <label class="form-label">Company <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <input class="form-control" type="text" name="company" id="company" value="{{$lead->company->company}}" />
+                                    <input class="form-control" type="text" name="company" id="company" value="{{$lead->company->company}}" required />
+                                </div>
+                                <div id="companyErrorMessage" class="text-danger" style="display: none;color:red;">Similar name found ! Duplicate entries will invite penalties. Verify with CRM Manager.</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Full Name</label>
+                                    <input class="form-control" type="text" name="fullname" id="fullname" value="{{ $lead->customer->fullname}}" required />
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <input class="form-control" type="text" name="fullname" id="fullname" value="{{ $lead->customer->fullname}}" />
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="form-label">Country</label>
+                                    <label class="form-label">Country <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -100,7 +116,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Region</label>
+                                    <label class="form-label">Region/ City</label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -143,12 +159,12 @@
                             </div>
                             <div class=" col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Phone</label>
+                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class=" col-sm-6">
                                 <div class="form-group">
-                                    <input class="form-control" type="text" name="phone" id="phone" value="{{$lead->customer->phone}}" />
+                                    <input class="form-control" type="text" name="phone" id="phone" value="{{$lead->customer->phone}}" required />
                                 </div>
                             </div>
                         </div>
@@ -158,12 +174,12 @@
                         <div class="row gx-3 mt-4">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Enquiry Source</label>
+                                    <label class="form-label">Enquiry Source <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <select class="form-select" name="lead_type">
+                                    <select class="form-select" name="lead_type" required>
                                         <option value="">--</option>
                                         <option value="internal" {{($lead->lead_type == "internal")? "selected": "" }}>Internal/ Inside</option>
                                         <option value="external" {{($lead->lead_type == "external")? "selected": "" }}>External/ Outside</option>
@@ -172,22 +188,22 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Enquiry Date</label>
+                                    <label class="form-label">Enquiry Date <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <input class="form-control" type="date" name="enquiry_date" value="{{ $lead->enquiry_date }}" />
+                                    <input class="form-control" type="date" name="enquiry_date" value="{{ $lead->enquiry_date }}" required />
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Assigned To</label>
+                                    <label class="form-label">Assigned To <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <select class="form-select" name="assigned_to">
+                                    <select class="form-select" name="assigned_to" required>
                                         <option value="">--</option>
                                         @foreach($employees as $emp)
                                         <option value="{{$emp->id}}" {{($emp->id == $lead->assigned_to)? "selected": "" }}>{{ $emp->user->name}}</option>
@@ -197,12 +213,12 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Assigned On</label>
+                                    <label class="form-label">Assigned On <span class="text-danger">*</span></label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <input class="form-control" type="date" name="assigned_on" value="{{$lead->assigned_on}}" />
+                                    <input class="form-control" type="date" name="assigned_on" value="{{$lead->assigned_on}}" required />
                                 </div>
                             </div>
 
@@ -218,7 +234,8 @@
                             </div>
                             <div class="col-sm-12">
                                 <div class="form-group">
-                                    <textarea class="form-control" placeholder="Enter Enquiry Details" name="details" row="10">{{$lead->details}}</textarea>
+                                    <label class="form-label">Enquiry Details <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" placeholder="Enter Enquiry Details" name="details" row="10" required>{{$lead->details}}</textarea>
                                 </div>
                             </div>
 
@@ -313,8 +330,8 @@
                 });
                 $('#customerid').html(opt);
             });
-
-
+            var validationMessage = document.getElementById('companyErrorMessage');
+            validationMessage.style.display = 'none';
 
         });
 
@@ -328,6 +345,37 @@
                 $('#email').val(data.email);
                 $('#phone').val(data.phone);
             });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var companyInput = document.getElementById('company');
+        var companyErrorMessage = document.getElementById('companyErrorMessage');
+        companyInput.addEventListener('input', function() {
+            var companyName = this.value.trim();
+
+            if (companyName !== '') {
+
+                $.ajax({
+                    url: '/check-company',
+                    method: 'get',
+                    data: {
+                        companyName: companyName
+                    },
+                    success: function(response) {
+
+                        if (response.exists) {
+                            companyErrorMessage.style.display = 'block';
+
+                        } else {
+                            companyErrorMessage.style.display = 'none';
+
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
         });
     });
 </script>

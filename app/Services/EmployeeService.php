@@ -76,12 +76,17 @@ class EmployeeService
 
     public function getAllEmployee($data = []): Object
     {
+        $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators'];
 
-        $sql = Employee::with('user'); //->orderBy('id', 'desc');
+        $sql = Employee::with('user')->with('user.roles')->whereHas('user.roles', function ($query) use ($authorizedRoles) {
+            $query->whereIn('name', $authorizedRoles);
+        });
 
-        if (isset($data['status']) && !empty($data['status'])) {
-            $sql->where('status', '=', $data['status']);
-        }
+        // if (isset($data['status']) && !empty($data['status'])) {
+        //     $sql->where('status', '=', $data['status']);
+        // }
+        $sql->where('status', '=', 1);
+
         $employees = $sql->get()->sortBy('user.name');
 
         return $employees;

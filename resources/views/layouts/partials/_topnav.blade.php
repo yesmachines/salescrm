@@ -335,9 +335,11 @@
                                 </div>
                             </div>
                             <div class="dropdown-divider"></div>
-                            @if (Auth::user()->hasRole('admin'))
+                           
+                            @if (Auth::user()->hasRole('superadmin'))
                             <a class="dropdown-item" href="">Profile</a>
                             @else
+                      
                             <a class="dropdown-item" href="{{route('employees.edit', Session::get('employeeid'))}}">Profile</a>
                             @endif
                             <a class="dropdown-item" href="{{route('cache.clear')}}">Clear Cache</a>

@@ -1,7 +1,7 @@
-@if(Session::get('success', false))
-<?php $data = Session::get('success'); ?>
-@if (is_array($data))
-@foreach ($data as $msg)
+@if(\Session::has('success'))
+
+@if (is_array(\Session::get('success')))
+@foreach (\Session::get('success') as $msg)
 <div class="alert alert-success" role="alert">
     <i class="fa fa-check"></i>
     {{ $msg }}
@@ -10,7 +10,7 @@
 @else
 <div class="alert alert-success" role="alert">
     <i class="fa fa-check"></i>
-    {{ $data }}
+    {!! \Session::get('success') !!}
 </div>
 @endif
 @endif

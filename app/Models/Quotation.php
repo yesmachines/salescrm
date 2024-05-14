@@ -10,7 +10,10 @@ use App\Models\Employee;
 use App\Models\QuotationStatus;
 use App\Models\Category;
 use App\Models\Supplier;
+use App\Models\Country;
+use App\Models\QuotationItem;
 use Carbon\Carbon;
+use App\Models\SalesCommission;
 
 class Quotation extends Model
 {
@@ -36,7 +39,13 @@ class Quotation extends Model
         'lead_type',
         'quote_for',
         'reminder',
-        'product_models'
+        'win_date',
+        'quote_from',
+        'is_vat',
+        'vat_amount',
+        'preferred_currency',
+        'currency_rate',
+        'price_basis',
     ];
 
     public function category()
@@ -47,9 +56,14 @@ class Quotation extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
     public function quoteStatus()
     {
         return $this->belongsTo(QuotationStatus::class, 'status_id', 'id');
+    }
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'country_id');
     }
     public function customer()
     {
@@ -63,10 +77,15 @@ class Quotation extends Model
     {
         return $this->belongsTo(Employee::class, 'assigned_to', 'id');
     }
-    public function setSubmittedDateAttribute($value)
+    public function salescommission()
     {
-        $this->attributes['submitted_date'] = ($value) ? date("Y-m-d", strtotime($value)) : null;
+        return $this->hasMany(SalesCommission::class, 'quotation_id');
     }
+    public function quotationItem()
+    {
+        return $this->hasMany(QuotationItem::class, 'quotation_id');
+    }
+
     public function setClosureDateAttribute($value)
     {
         $this->attributes['closure_date'] = ($value) ? date("Y-m-d", strtotime($value)) : null;
@@ -102,5 +121,9 @@ class Quotation extends Model
     public function setWinningProbabilityAttribute($value)
     {
         return $this->attributes['winning_probability'] = ($value) ? (float)$value : 0;
+    }
+    public function setWinDateAttribute($value)
+    {
+        $this->attributes['win_date'] = ($value) ? date("Y-m-d", strtotime($value)) : null;
     }
 }

@@ -58,9 +58,10 @@
                                         </td>
                                     </tr>
                                     @endforeach
-                                    {!! $roles->links() !!}
+                                  
                                 </tbody>
                             </table>
+                              {!! $roles->links() !!}
                         </div>
                     </div>
                 </div>

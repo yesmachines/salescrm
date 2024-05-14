@@ -14,18 +14,17 @@ class Visitor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'company_id',
-        'customer_id',
+        'fullname',
+        'company',
+        'email',
+        'mobile',
         'codeno',
-        'checkin',
-        'purpose',
+        'qrcode',
+        'last_checkin',
         'status'
     ];
 
-    public function setCheckinAttribute($value)
-    {
-        $this->attributes['checkin'] = date("Y-m-d", strtotime($value));
-    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);

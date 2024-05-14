@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Services\LeadService;
 use App\Services\QuotationService;
 use App\Services\EmployeeService;
+use App\Services\CustomerService;
+use App\Services\CountryService;
 
 class ReportController extends Controller
 {
@@ -19,14 +21,21 @@ class ReportController extends Controller
      */
     public function __construct()
     {
-        $this->this_start_month = Carbon::now()->startOfMonth();
-        $this->this_end_month = Carbon::now()->endOfMonth();
+        $this->middleware('auth');
+        $this->this_start_month = Carbon::now()->startOfMonth()->format('Y-m-d');
+        $this->this_end_month = Carbon::now()->endOfMonth()->format('Y-m-d');
     }
 
     public function leadsSummary(Request $request, LeadService $leadService)
     {
         //
         $input = $request->all();
+        if (empty($input)) {
+            $input = [
+                'start_date' => $this->this_start_month,
+                'end_date'   => $this->this_end_month
+            ];
+        }
 
         $leadsEmpSummary = $leadService->leadsByEmployee($input);
 
@@ -37,6 +46,12 @@ class ReportController extends Controller
     {
         //
         $input = $request->all();
+        if (empty($input)) {
+            $input = [
+                'start_date' => $this->this_start_month,
+                'end_date'   => $this->this_end_month
+            ];
+        }
 
         $quoteSummary = $quotationService->salesValueByEmployee($input);
 
@@ -45,9 +60,13 @@ class ReportController extends Controller
 
     public function employeeWinStanding(Request $request, QuotationService $quotationService)
     {
-        //
+        // $input = [];
+        // $winSummary = [];
         $input = $request->all();
-
+        if (empty($input)) {
+            $input['closing_start_date'] = $this->this_start_month;
+            $input['closing_end_date']   = $this->this_end_month;
+        }
         $winSummary = $quotationService->winByEmployee($input);
 
 
@@ -58,6 +77,12 @@ class ReportController extends Controller
     {
         //
         $input = $request->all();
+        if (empty($input)) {
+            $input = [
+                'start_date' => $this->this_start_month,
+                'end_date'   => $this->this_end_month
+            ];
+        }
 
         $brandSummary = $quotationService->salesValueByBrands($input);
 
@@ -68,6 +93,13 @@ class ReportController extends Controller
     {
         //
         $input = $request->all();
+        $arStatus = $quotationService->getQuoteStatus(false);
+
+        if (empty($input)) {
+            $input['closing_start_date'] = $this->this_start_month;
+            $input['closing_end_date']   = $this->this_end_month;
+        }
+        $input['status_id']  = array_keys($arStatus);
 
         $probabilitySummary = $quotationService->winProbability($input);
 
@@ -111,7 +143,7 @@ class ReportController extends Controller
         ];
         $leads = $leadService->leadsByType($data);
 
-        // Brand vs Enquiry Count 
+        // Brand vs Enquiry Count
         $data1 = [
             'manager_id' => $id,
         ];
@@ -170,4 +202,8 @@ class ReportController extends Controller
             'productMonth'
         ));
     }
+    public function customerReports() {
+      return view('reports.customerReports');
+  }
+
 }

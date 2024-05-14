@@ -107,9 +107,18 @@ class CustomerController extends Controller
 
         $customers = [];
         foreach ($data as $i => $cust) {
+
+            $display =  $cust->company;
+            if ($cust->region_id > 0) {
+                $display .= ($cust->region) ? ', ' . $cust->region->state : '';
+            }
+            if ($cust->country_id > 0) {
+                $display .= ($cust->country) ? ', ' . $cust->country->name : '';
+            }
+
             $customers[$i] = [
                 'value' => $cust->id,
-                'label' => $cust->company
+                'label' => $display
             ];
         }
 

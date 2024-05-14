@@ -63,7 +63,7 @@ class LoginController extends Controller
                 'last_login_ip' => $request->getClientIp()
             ]);
             // if it is not super admin, please check employee 
-            if (!$user->hasRole('admin')) {
+            if (!$user->hasRole('superadmin')) {
                 $employee = $employeeService->getEmployeeByUserId(auth()->user()->id);
 
                 if (!empty($employee)) {

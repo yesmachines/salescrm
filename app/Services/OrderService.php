@@ -6,388 +6,446 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use DB;
 use Illuminate\Support\Arr;
-use App\Models\Orders;
-use App\Models\OrderDeliveries;
-use App\Models\OrderItems;
-use App\Models\OrderHistories;
 use App\Models\Customer;
-use Faker\Core\Number;
-use Ramsey\Uuid\Type\Integer;
-use App\Models\CustomerComment;
+use App\Models\Company;
+use App\Models\Order;
+use App\Models\OrderHistory;
+use App\Models\OrderItem;
+use App\Models\OrderClient;
+use App\Models\OrderSupplier;
+use App\Models\OrderPayment;
+use App\Models\OrderCharge;
 
 class OrderService
 {
-    public function getOrder($data): Object
-    {
-        if (!empty($data)) {
-            if (isset($data['status']) && $data['status']) {
-                $sql = Orders::whereIn('status', $data['status']);
-            }
 
-            return $sql->orderBy('created_at', 'desc')->get();
+    public function insertOrder(array $userData): Object
+    {
+        $insert = [
+            'company_id'        => $userData['company_id'],
+            'customer_id'       => $userData['customer_id'],
+            'quotation_id'      => $userData['quotation_id'],
+            'os_date'           => $userData['os_date'],
+            'po_number'         => (isset($userData['po_number']) && !is_null($userData['po_number'])) ? $userData['po_number'] : '',
+            'po_date'           => (isset($userData['po_date']) && !is_null($userData['po_date'])) ? $userData['po_date'] : '',
+            'po_received'       => (isset($userData['po_received']) && !is_null($userData['po_received'])) ? $userData['po_received'] : '',
+            'currency'          => (isset($userData['currency']) && !is_null($userData['currency'])) ? $userData['currency'] : 'aed',
+            'selling_price'     => $userData['selling_price'],
+            'created_by'        => $userData['created_by'],
+        ];
+
+        $isexist = Order::where("quotation_id", $userData['quotation_id']);
+
+        if ($isexist->count() > 0) {
+            // already created
+            $order = $isexist->first();
+            $order->update($insert);
         } else {
-            return Orders::orderBy('created_at', 'desc')->get();
+            // not created
+            $osno = $this->getReferenceNumber();
+            $insert["os_number"] = $osno;
+            $order = Order::create($insert);
         }
-    }
-    public function getOrderById($id): Object
-    {
-        $order =  Orders::find($id);
-
-        $order->orderHistory = OrderHistories::with(['user', 'replies', 'replies.replies', 'replies.replies.user'])
-            ->where('parent_id', 0)
-            ->where('order_id', $id)
-            ->orderBy('id', 'desc')
-            ->get();
 
         return $order;
     }
 
-    public function updateOrderDetails(array $userData): void
+    public function getReferenceNumber(): ?string
     {
-        $id = $userData['order_id'];
-        $orders = Orders::find($id);
+        $StartNo = 475;
+        Order::lockForUpdate()->get();
+
+        $lastRow = Order::whereYear('os_date', '=', date('Y'))
+            //->where('os_number', 'not like', "%Rev%")
+            ->orderBy("id", "desc")
+            ->first();
+
+        $last = 0;
+        if ($lastRow) {
+            $alast = explode("/", $lastRow->os_number);
+            $last = (count($alast) > 0) ? (int) $alast[3] : 0;
+        }
+        $lastId = ($last) ? ($StartNo + $last) : $StartNo;
+
+        $randStr =  "YES/OS/" . date('y') . '/' . $lastId;
+
+        return $randStr;
+    }
+
+    public function updateOrder(array $userData, $id): Object
+    {
+        $order = Order::find($id);
+
         $update = [];
-        if (isset($userData['po_number'])) {
+        if (isset($userData['company_id']) && !is_null($userData['company_id'])) {
+            $update['company_id'] = $userData['company_id'];
+        }
+        if (isset($userData['customer_id']) && !is_null($userData['customer_id'])) {
+            $update['customer_id'] = $userData['customer_id'];
+        }
+        if (isset($userData['quotation_id']) && !is_null($userData['quotation_id'])) {
+            $update['quotation_id'] = $userData['quotation_id'];
+        }
+        if (isset($userData['os_number']) && !is_null($userData['os_number'])) {
+            $update['os_number'] = $userData['os_number'];
+        }
+        if (isset($userData['os_date']) && !is_null($userData['os_date'])) {
+            $update['os_date'] = $userData['os_date'];
+        }
+        if (isset($userData['po_number']) && !is_null($userData['po_number'])) {
             $update['po_number'] = $userData['po_number'];
         }
-        if (isset($userData['yespo_no'])) {
-            $update['yespo_no'] = $userData['yespo_no'];
-        }
-        if (isset($userData['po_date'])) {
+        if (isset($userData['po_date']) && !is_null($userData['po_date'])) {
             $update['po_date'] = $userData['po_date'];
         }
-        if (isset($userData['po_received'])) {
+        if (isset($userData['po_received']) && !is_null($userData['po_received'])) {
             $update['po_received'] = $userData['po_received'];
         }
-        if (isset($userData['status'])) {
+        if (isset($userData['selling_price']) && !is_null($userData['selling_price'])) {
+            $update['selling_price'] = $userData['selling_price'];
+        }
+        if (isset($userData['buying_price']) && !is_null($userData['buying_price'])) {
+            $update['buying_price'] = $userData['buying_price'];
+        }
+        if (isset($userData['projected_margin']) && !is_null($userData['projected_margin'])) {
+            $update['projected_margin'] = $userData['projected_margin'];
+        }
+        if (isset($userData['actual_margin']) && !is_null($userData['actual_margin'])) {
+            $update['actual_margin'] = $userData['actual_margin'];
+        }
+        if (isset($userData['material_status']) && !is_null($userData['material_status'])) {
+            $update['material_status'] = $userData['material_status'];
+        }
+        if (isset($userData['material_details']) && !is_null($userData['material_details'])) {
+            $update['material_details'] = $userData['material_details'];
+        }
+        if (isset($userData['created_by']) && !is_null($userData['created_by'])) {
+            $update['created_by'] = $userData['created_by'];
+        }
+        if (isset($userData['status']) && !is_null($userData['status'])) {
             $update['status'] = $userData['status'];
         }
-        if ($orders->short_link_code == "") {
-            $orders->short_link_code  = strtotime("now");
-        }
-        $orders->update($update);
+
+        $order->update($update);
+
+        return $order;
     }
 
-    public function updateOrderDeliveryDetails(array $userData): void
+    public function saveOrderClient(array $userData): Object
     {
-        $id = $userData['order_id'];
-        $ordDelivExists = OrderDeliveries::where('order_id', $id)->count();
-        if ($ordDelivExists > 0) {
-            $update = [];
-            $orderdeliveries = OrderDeliveries::where('order_id', $id)->first();
-
-            if (isset($userData['shipping_term'])) {
-                $update['shipping_term'] = $userData['shipping_term'];
-            }
-            if (isset($userData['payment_term'])) {
-                $update['payment_term'] = $userData['payment_term'];
-            }
-            if (isset($userData['advance_received'])) {
-                $update['advance_received'] = $userData['advance_received'];
-            }
-            if (isset($userData['delivery_time'])) {
-                $update['delivery_time'] = $userData['delivery_time'];
-            }
-            if (isset($userData['delivery_target'])) {
-                $update['delivery_target'] = $userData['delivery_target'];
-            }
-            if (isset($userData['emails'])) {
-                $emails = "";
-                $count = count($userData['emails']);
-                for ($i = 0; $i < $count; $i++) {
-                    $emails .= $userData['emails'][$i] . ",";
-                }
-                $update['otp_emails'] = rtrim($emails, ',');
-            }
-
-            $orderdeliveries->update($update);
-        } else {
-            $orderdeliveries = new OrderDeliveries;
-            $orderdeliveries->order_id   = $id;
-            $orderdeliveries->shipping_term      =  $userData['shipping_term'];
-            $orderdeliveries->payment_term       =  $userData['payment_term'];
-            $orderdeliveries->advance_received   =  $userData['advance_received'];
-            $orderdeliveries->delivery_time      =  $userData['delivery_time'];
-            $orderdeliveries->delivery_target    =  $userData['delivery_target'];
-            if (isset($userData['emails'])) {
-                $emails = "";
-                $count = count($userData['emails']);
-                for ($i = 0; $i < $count; $i++) {
-                    $emails .= $userData['emails'][$i] . ",";
-                }
-                $orderdeliveries->otp_emails  = rtrim($emails, ',');
-            }
-
-            $orderdeliveries->userid  =   Auth::id();
-
-            $orderdeliveries->save();
-        }
-    }
-
-    public function updateOrderItems(array $userData): void
-    {
-        $deliveryid = $userData['order_delivery_id'];
-
-        if (!empty($userData["item"]) && !empty($userData["qty"])) {
-
-            foreach ($userData["item"] as $key => $value) {
-                $orderItems = new OrderItems();
-                $orderItems->order_delivery_id = $deliveryid;
-                $orderItems->item = $value;
-                $orderItems->partno = $userData["part_no"][$key];
-                $orderItems->quantity = $userData["qty"][$key];
-                $orderItems->remarks = $userData["remarks"][$key];
-                $orderItems->delivered = $userData["delivered"][$key];
-                $orderItems->status = $userData["status"][$key];
-                $orderItems->save();
-            }
-        }
-    }
-
-    public function insertOrderHistoryDetails(array $userData): void
-    {
-        $id = $userData['order_id'];
-        $orderhistories = new OrderHistories();
-        $orderhistories->order_id   = $id;
-        $orderhistories->comment   =  $userData['comment'];
-        $orderhistories->userid    =  Auth::id();
-        $orderhistories->save();
-    }
-    public function loadOrderHistories($id): Object
-    {
-        return OrderHistories::where('order_id', $id)->orderBy('id', 'desc')->get();
-    }
-    public function loadOrderItems($id): Object
-    {
-        return OrderItems::where('order_delivery_id', $id)->orderBy('id', 'asc')->get();
-    }
-
-    public function loadOrderDeliveryHistoryDetails($id): Object
-    {
-        return OrderDeliveries::where('order_id', $id)->orderBy('id', 'desc')->get();
-    }
-
-    public function deleteOrderHistoryDetails($id): void
-    {
-        // delete all children
-        $children = OrderHistories::where('parent_id', $id);
-        foreach ($children->get() as $child) {
-            OrderHistories::where('parent_id', $child->id)->delete();
-        }
-        $children->delete();
-
-        $orderHistories = OrderHistories::find($id);
-        $orderHistories->delete();
-    }
-
-    public function deleteReplyComments($id): void
-    {
-        $orderHistories = OrderHistories::find($id);
-        $orderHistories->delete();
-    }
-
-
-    public function loadOrderDeliveryHistoryDetailsById($id): Object
-    {
-        return OrderDeliveries::where('id', $id)->first();
-    }
-
-    public function  deleteOrderItem($id): void
-    {
-        $orderitems = OrderItems::find($id);
-        $orderitems->delete();
-    }
-
-    public function updateOrderDeliveryDetailsByIdUpdate(array $userData): void
-    {
-        $id = $userData['order_delivery_id'];
-        $orderdeliveries = OrderDeliveries::find($id);
-        $orderdeliveries->shipping_term   =  $userData['shipment_term'];
-        $orderdeliveries->payment_term    =  $userData['payment_term'];
-        $orderdeliveries->delivery_on    =  $userData['delivery_date'];
-        $orderdeliveries->save();
-
-        OrderItems::where('order_delivery_id', $id)->delete();
-
-        if (isset($userData["item"])) {
-
-            foreach ($userData["item"] as $key => $value) {
-                $orderItems = new OrderItems();
-                $orderItems->order_delivery_id = $orderdeliveries->id;
-                $orderItems->item = $value;
-                $orderItems->partno = $userData["part_no"][$key];
-                $orderItems->quantity = $userData["qty"][$key];
-                $orderItems->save();
-            }
-        }
-    }
-    public function loadOrderHistoryDetails($id): Object
-    {
-        return OrderHistories::with(['user', 'replies', 'replies.replies', 'replies.replies.user'])
-            ->where('parent_id', 0)
-            ->where('order_id', $id)
-            ->orderBy('id', 'desc')
-            ->get();
-    }
-    // public function getPonumber($id): array
-    // {
-
-    //     $get_order_id = Orders::where('po_number', $id)->first();
-    //     $orders = Orders::where('id', $get_order_id->id)->first();
-    //     $orderDeliveries = OrderDeliveries::where('order_id', $get_order_id->id)->get();
-    //     // $orderDeliveries=OrderDeliveries::where('order_id', $get_order_id->id)->get();
-    //     foreach ($orderDeliveries as $orderDelivery) {
-    //         $orderItems = OrderItems::where('order_delivery_id', $orderDelivery->id)->get();
-    //     }
-    //     $orderHistories = OrderHistories::where('order_id', $get_order_id->id)->get();
-
-    //     return array(
-    //         'orders' => $orders,
-    //         'orderDeliveries' => $orderDeliveries,
-    //         'orderHistories' => $orderHistories,
-    //         '$orderItems' => $orderItems,
-    //     );
-    // }
-    public function isPonumberExist($id): int
-    {
-        return Orders::where('po_number', $id)->count();
-    }
-
-
-    public function isOtpvalid($ponumber, $otp): int
-    {
-        $get_order = Orders::where('po_number', $ponumber)->where('otp_code', $otp)->first();
-        $expiry_date_time = $get_order->otp_expire_date_time;
-        $date = date('Y-m-d H:i:s');
-        $dateTimestamp1 = strtotime($date);
-        $dateTimestamp2 = strtotime($expiry_date_time);
-        if ($dateTimestamp1 > $dateTimestamp2) {
-            return 0;
-        } else {
-            return Orders::where('po_number', $ponumber)->where('otp_code', $otp)->count();
-        }
-    }
-
-    public function isNumbervalid($number): int
-    {
-
-        return Orders::where('short_link_code', $number)->count();
-    }
-
-
-
-    public function getPonumber($id): array
-    {
-        $orders = Orders::where('po_number', $id)->first();
-
-        $orders->company = $orders->company;
-        $orders->customer = $orders->customer;
-
-        $get_order_id = $orders->id;
-
-        $orderDeliveries = OrderDeliveries::with('orderItems')->where('order_id', $get_order_id)->first();
-
-        $orderHistories = OrderHistories::with(['user', 'replies', 'replies.replies', 'replies.replies.user'])
-            ->where('parent_id', 0)
-            ->where('order_id', $get_order_id)
-            ->orderBy('id', 'desc')
-            ->get();
-
-
-        // OrderHistories::where('order_id', $get_order_id)->with('user')->get();
-
-        return array(
-            'orders' => $orders,
-            'orderDeliveries' => $orderDeliveries,
-            'orderHistories' => $orderHistories
-        );
-    }
-
-
-    public function getPonumberValue($id): array
-    {
-        $orders = Orders::where('short_link_code', $id)->first();
-        return array(
-            'orders' => $orders,
-
-        );
-    }
-
-
-    public function updateOtp($orderData): array
-    {
-
-        $po_number = $orderData['po_number'];
-        $orders = Orders::where('po_number', $po_number)->first();
-        $orderDeliveries = OrderDeliveries::find($orders->id);
         $update = [];
-        $random = substr(str_shuffle("0123456789"), 0, 6);
-        $get_count = Orders::where('otp_code', $random)->get();
-        if (count($get_count) >= 1) {
-            $update['otp_code'] = substr(str_shuffle("0123456789"), 0, 6);
-        } else {
-            $update['otp_code'] = $random;
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
         }
-        $date = date('Y-m-d H:i:s');
-        $newDate = date('Y-m-d H:i:s', strtotime($date . ' +720 seconds'));
-        $update['otp_expire_date_time'] = $newDate;
-        $orders->update($update);
-        $orderDeliveries = OrderDeliveries::with('orderItems')->where('order_id', $orders->id)->first();
-        $customer = Customer::where('id', $orders->customer_id)->first();
-        $customer_email = $customer->email;
-        if ($orderDeliveries->otp_emails != "") {
-            $emails = $customer_email . ',' . $orderDeliveries->otp_emails;
-        } else {
-            $emails = $customer_email;
+        if (isset($userData['price_basis']) && !is_null($userData['price_basis'])) {
+            $update['price_basis'] = $userData['price_basis'];
+        }
+        if (isset($userData['delivery_term']) && !is_null($userData['delivery_term'])) {
+            $update['delivery_term'] = $userData['delivery_term'];
+        }
+        if (isset($userData['promised_delivery']) && !is_null($userData['promised_delivery'])) {
+            $update['promised_delivery'] = $userData['promised_delivery'];
+        }
+        if (isset($userData['targeted_delivery']) && !is_null($userData['targeted_delivery'])) {
+            $update['targeted_delivery'] = $userData['targeted_delivery'];
+        }
+        if (isset($userData['installation_training']) && !is_null($userData['installation_training'])) {
+            $update['installation_training'] = $userData['installation_training'];
+        }
+        if (isset($userData['service_expert']) && !is_null($userData['service_expert'])) {
+            $update['service_expert'] = $userData['service_expert'];
+        }
+        if (isset($userData['estimated_installation']) && !is_null($userData['estimated_installation'])) {
+            $update['estimated_installation'] = $userData['estimated_installation'];
+        }
+        if (isset($userData['delivery_address']) && !is_null($userData['delivery_address'])) {
+            $update['delivery_address'] = $userData['delivery_address'];
+        }
+        if (isset($userData['contact_person']) && !is_null($userData['contact_person'])) {
+            $update['contact_person'] = $userData['contact_person'];
+        }
+        if (isset($userData['contact_email']) && !is_null($userData['contact_email'])) {
+            $update['contact_email'] = $userData['contact_email'];
+        }
+        if (isset($userData['contact_phone']) && !is_null($userData['contact_phone'])) {
+            $update['contact_phone'] = $userData['contact_phone'];
+        }
+        if (isset($userData['remarks']) && !is_null($userData['remarks'])) {
+            $update['remarks'] = $userData['remarks'];
+        }
+        if (isset($userData['is_demo'])) {
+            $update['is_demo'] = $userData['is_demo'];
+        }
+        if (isset($userData['demo_by']) && !is_null($userData['demo_by'])) {
+            $update['demo_by'] = $userData['demo_by'];
         }
 
+        $isexist = OrderClient::where("order_id", $userData['order_id']);
 
-        return array(
-            'otp_emails' => $orderDeliveries->otp_emails,
-            'customer_email' => $customer_email,
-            'otp' => $update['otp_code'],
+        if ($isexist->count() > 0) {
+            // if already created
+            $orderclient = $isexist->first();
+            $orderclient->update($update);
+        } else {
+            // newly created
+            $orderclient = OrderClient::create($update);
+        }
 
-        );
+        return $orderclient;
     }
-    // public function getDeliveryDetails($id): array
-    // {
 
-    //     $orderDeliveries = OrderDeliveries::where('id', $id)->first();
-
-
-    //     return array(
-
-    //         'orderDeliveries' => $orderDeliveries,
-    //         'orderItems' => $orderDeliveries->orderItems,
-    //         'fail'  => '0',
-    //     );
-    // }
-    public function createCustomerComments(array $comments): Object
+    public function insertOrderPayment(array $userData): void
     {
-        return OrderHistories::create([
+        $update = [];
 
-            'order_id' => $comments['order_id'],
-            'username' => isset($comments['username']) ? $comments['username'] : null,
-            'parent_id' => $comments['parent_id'],
-            'comment' => $comments['comment'],
-        ]);
+        $isexist = OrderPayment::where("order_id", $userData['order_id'])
+            ->where('section_type', $userData['section_type']);
+
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+        if (isset($userData['section_type']) && !is_null($userData['section_type'])) {
+            $update['section_type'] = $userData['section_type'];
+        }
+
+        if ($isexist->count() > 0) {
+            // delete existing entries
+            $isexist->delete();
+        }
+        foreach ($userData['payment_term'] as $payment) {
+            $isempty = array_values($payment);
+            if (is_null($isempty[0]) || empty($isempty[0])) { // payment term field check
+                //  array item not exists
+                break;
+            } else {
+                // array item exists
+                $insert = array_merge($update, $payment);
+                // create new entry to db
+                OrderPayment::create($insert);
+            }
+        }
     }
-    public function geteCustomerComments(int $orderId): Object
-    {
-        return OrderHistories::with(['replies'])->where('order_id', $orderId)
-            ->orderBy('id', 'desc')->get();
 
-        // Category::with(['products', 'childs.products'])->where('parent_id', 0)->get()
-        //     ->sortBy('products.priority', SORT_REGULAR, false);
-    }
-    public function insertCommentReply(array $userData): void
+    public function saveOrderItems(array $userData): void
     {
-        $id = $userData['order_id'];
-        $orderhistories = new OrderHistories();
-        $orderhistories->order_id   = $id;
-        $orderhistories->parent_id   = $userData['parent_id'];
-        $orderhistories->comment   =  $userData['reply'];
-        $orderhistories->userid    =  Auth::id();
-        $orderhistories->save();
+        $update = [];
+
+        $isexist = OrderItem::where("order_id", $userData['order_id']);
+
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+
+        if ($isexist->count() > 0) {
+
+            // delete existing entry, not product
+            // OrderItem::where("order_id", $userData['order_id'])
+            //     ->whereNull('product_id')
+            //     ->delete();
+
+            foreach ($userData['item'] as $item) {
+                // update exsting
+                $isempty = array_values($item);
+                if (is_null($isempty[0]) || empty($isempty[0])) { // check for product id is null
+                    //  array item not exists
+                    break;
+                } else {
+                    // array item exists
+                    $insert = array_merge($update, $item);
+
+                    if (!is_null($item['product_id']) && $item['product_id'] != 0) {
+                        // if its an existing product, update
+                        OrderItem::where("order_id", $userData['order_id'])
+                            ->where('product_id', $item['product_id'])
+                            ->update($insert);
+                    } else {
+                        // create new entry to db
+                        OrderItem::create($insert);
+                    }
+                }
+            }
+        } else {
+            //create new
+            foreach ($userData['item'] as $item) {
+                $isempty = array_values($item);
+                if (is_null($isempty[0]) || empty($isempty[0])) { // check for product id is null
+                    //  array item not exists
+                    break;
+                } else {
+                    // array item exists
+                    $insert = array_merge($update, $item);
+                    // create new entry to db
+                    OrderItem::create($insert);
+                }
+            }
+        }
+    }
+
+    public function saveOrderSupplier(array $userData)
+    {
+        $update = [];
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+        $isexist = OrderSupplier::where("order_id", $userData['order_id']);
+
+        if ($isexist->count() > 0) {
+            // if already created           
+            foreach ($userData['supplier'] as $supplier) {
+                $ordersupplier = OrderSupplier::where("order_id", $userData['order_id'])
+                    ->where('supplier_id', $supplier['supplier_id'])
+                    ->update($supplier);
+            }
+        } else {
+            // newly created
+            foreach ($userData['supplier'] as $supplier) {
+                $insert = array_merge($update, $supplier);
+                $ordersupplier = OrderSupplier::create($insert);
+            }
+        }
+
+        return $ordersupplier;
+    }
+
+    public function insertOrderCharges(array $userData): void
+    {
+        $update = [];
+
+        $isexist = OrderCharge::where("order_id", $userData['order_id']);
+
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+
+        if ($isexist->count() > 0) {
+            // delete existing entry
+            $isexist->delete();
+        }
+
+        foreach ($userData['charges'] as $charge) {
+            $isempty = array_values($charge);
+            if (is_null($isempty[0]) && is_null($isempty[1])) {
+                //  array item not exists
+                break;
+            } else {
+                // array item exists
+                $insert = array_merge($update, $charge);
+                // create new entry to db
+                OrderCharge::create($insert);
+            }
+        }
+    }
+
+    public function getOrder($id): Object
+    {
+        return Order::find($id);
+    }
+
+    public function updateOrderPayment(array $userData): void
+    {
+        $update = [];
+
+        $isexist = OrderPayment::where("order_id", $userData['order_id'])
+            ->where('section_type', $userData['section_type']);
+
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+        if (isset($userData['section_type']) && !is_null($userData['section_type'])) {
+            $update['section_type'] = $userData['section_type'];
+        }
+
+        // if ($isexist->count() > 0) {
+        //     // delete existing entries
+        //     $isexist->delete();
+        // }
+        foreach ($userData['payment_term'] as $payment) {
+
+
+            $isempty = array_values($payment);
+
+            if (is_null($isempty[1]) || empty($isempty[1])) { // payment term field check              
+                //  array item not exists
+                break;
+            } else {
+                if (isset($payment['payment_id']) && !empty($payment['payment_id']) && $payment['payment_id'] != 0) {
+
+                    $cpayment = OrderPayment::find($payment['payment_id']);
+
+                    $cpayment->payment_term     = $payment['payment_term'];
+                    $cpayment->expected_date    = $payment['expected_date'];
+                    $cpayment->status           = $payment['status'];
+                    $cpayment->remarks          = $payment['remarks'];
+
+                    $cpayment->save();
+                } else {
+                    // array item exists
+                    $insert = array_merge($update, $payment);
+
+                    // create new entry to db
+                    OrderPayment::create($insert);
+                }
+            }
+        }
+    }
+    public function getOrderPayment($userData): Object
+    {
+        return OrderPayment::where("order_id", $userData['order_id'])
+            ->where('section_type', $userData['section_type'])->get();
+    }
+
+    public function deletePaymentTerm($id): void
+    {
+        OrderPayment::find($id)->delete();
+    }
+
+    public function updateOrderCharges(array $userData): void
+    {
+        $update = [];
+
+        $isexist = OrderCharge::where("order_id", $userData['order_id']);
+
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+
+        // if ($isexist->count() > 0) {
+        //     // delete existing entry
+        //     $isexist->delete();
+        // }
+
+        foreach ($userData['charges'] as $charge) {
+            $isempty = array_values($charge);
+            if (is_null($isempty[1]) || empty($isempty[1])) { // additional items field
+                //  array item not exists
+                break;
+            } else {
+                if (isset($charge['charge_id']) && !empty($charge['charge_id']) && $charge['charge_id'] != 0) {
+
+                    $extrapayment = OrderCharge::find($charge['charge_id']);
+
+                    $extrapayment->title         = $charge['title'];
+                    $extrapayment->considered    = $charge['considered'];
+                    $extrapayment->remarks       = $charge['remarks'];
+
+                    $extrapayment->save();
+                } else {
+                    // array item exists
+                    $insert = array_merge($update, $charge);
+                    // create new entry to db
+                    OrderCharge::create($insert);
+                }
+            }
+        }
+    }
+
+    public function getOrderCharges($orderid): Object
+    {
+        return OrderCharge::where("order_id", $orderid)->get();
+    }
+
+    public function deleteOrderCharge($id): void
+    {
+        OrderCharge::find($id)->delete();
     }
 }

@@ -182,4 +182,8 @@ class LeadService
 
         return $sql->get();
     }
+      public function leadStatus()
+    {
+        return LeadStatus::where('status',1)->get();
+    }
 }

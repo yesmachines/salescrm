@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('company_id');
             $table->unsignedBigInteger('customer_id');
-            $table->string('yespo_no')->nullable();
-            $table->string('po_number');
+            $table->string('yespo_no'); // OS NO
+            $table->string('po_number')->nullable();
             $table->date('po_date')->nullable();
             $table->date('po_received')->nullable();
             $table->string('otp_code')->nullable();

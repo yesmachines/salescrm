@@ -1,6 +1,9 @@
 @extends('layouts.default')
 
 @section('content')
+
+
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <div class="container-xxl">
     <!-- Page Header -->
     <div class="hk-pg-header pt-7 pb-4">
@@ -23,16 +26,22 @@
                     </ul>
                 </div>
                 @endif
+                <div class="mt-2">
+                    @include('layouts.partials.messages')
+                </div>
                 <form method="POST" action="{{ route('leads.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row gx-3">
                         <div class="col-6">
-                            <div class="title title-xs title-wth-divider text-primary text-uppercase"><span>Customer Info</span></div>
+                            <div class="title title-xs title-wth-divider text-primary text-uppercase">
+                                <span>Customer Info</span>
+                            </div>
+                            <p class="text-warning">Please search a company in the existing database first, then if its not there create a new entry. </p>
                             <div class="row gx-3 mt-4">
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Existing Company</label>
+                                        <label class="form-label">Search Existing Company</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -43,13 +52,13 @@
                                             <option value="{{$id}}">{{$comp}}</option>
                                             @endforeach
                                         </select> -->
-                                        <input class="typeahead form-control" id="company_id" type="hidden" name="company_id">
-                                        <input class="typeahead form-control" id="search-company" type="text" placeholder="Search By Company">
+                                        <input id="company_id" type="hidden" name="company_id" class="form-control">
+                                        <input class="typeahead form-control" id="search-company" type="text" placeholder="Search By Company Name">
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Existing Customers</label>
+                                        <label class="form-label">Search Existing Customers</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -59,19 +68,21 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="separator"></div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">New Company</label>
+                                        <label class="form-label">New Company <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <input class="form-control" type="text" name="company" id="company" required />
                                     </div>
+                                    <div id="companyErrorMessage" class="text-danger" style="display: none;color:red;">Similar name found ! Duplicate entries will invite penalties. Verify with CRM Manager.</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Full Name</label>
+                                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -81,7 +92,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Country</label>
+                                        <label class="form-label">Country <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -98,7 +109,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Region</label>
+                                        <label class="form-label">Region/ City</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -111,17 +122,17 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Email ID</label>
+                                        <label class="form-label">Email ID <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control" type="email" name="email" id="email" />
+                                        <input class="form-control" type="email" name="email" id="email" required />
                                     </div>
                                 </div>
                                 <div class=" col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Phone</label>
+                                        <label class="form-label">Phone <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class=" col-sm-6">
@@ -136,7 +147,7 @@
                             <div class="row gx-3 mt-4">
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Enquiry Source</label>
+                                        <label class="form-label">Enquiry Source <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -150,7 +161,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Enquiry Date</label>
+                                        <label class="form-label">Enquiry Date <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -160,7 +171,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Assigned To</label>
+                                        <label class="form-label">Assigned To <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -175,7 +186,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Assigned On</label>
+                                        <label class="form-label">Assigned On <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -185,7 +196,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label class="form-label">Status</label>
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -210,6 +221,7 @@
                                 </div>
                                 <div class="col-sm-12">
                                     <div class="form-group">
+                                        <label class="form-label">Enquiry Details <span class="text-danger">*</span></label>
                                         <textarea class="form-control" placeholder="Enter Enquiry Details" name="details" row="10" required></textarea>
                                     </div>
                                 </div>
@@ -230,6 +242,7 @@
     </div>
     <!-- /Page Body -->
 </div>
+
 <script type="text/javascript">
     $(document).ready(function() {
 
@@ -313,6 +326,7 @@
     var path = "{{ route('customers.loadcompanies') }}";
 
     $("#search-company").autocomplete({
+        minLength: 2,
         source: function(request, response) {
             $.ajax({
                 url: path,
@@ -334,8 +348,7 @@
             }
         },
         select: function(event, ui) {
-            $("#search-company").val(ui.item.label); // display the selected text
-            $("#company_id").val(ui.item.value);
+            $("#search-company").val(ui.item.label); // display the selected text           
 
             customersByCompanyId(ui.item.value);
             // console.log(ui.item);
@@ -382,6 +395,7 @@
             // reset forms
             resetCustomers();
 
+            $("#company_id").val(data.id);
             $('#company').val(data.company);
             if (data.region_id) {
                 $('#regid').html(data.region_id);
@@ -402,6 +416,46 @@
             $('#customerid').html(opt);
         });
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        var companyInput = document.getElementById('company');
+        var companyErrorMessage = document.getElementById('companyErrorMessage');
+        companyInput.addEventListener('input', function() {
+            var companyName = this.value.trim();
+
+            if (companyName !== '') {
+
+                $.ajax({
+                    url: '/check-company',
+                    method: 'get',
+                    data: {
+                        companyName: companyName
+                    },
+                    success: function(response) {
+
+                        if (response.exists) {
+                            companyErrorMessage.style.display = 'block';
+                            companyInput.classList.add('is-invalid');
+                        } else {
+                            companyErrorMessage.style.display = 'none';
+                            companyInput.classList.remove('is-invalid');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('search-company');
+        var validationMessage = document.getElementById('companyErrorMessage');
+        var companyInput = document.getElementById('company');
+        searchInput.addEventListener('input', function() {
+            validationMessage.style.display = 'none';
+            companyInput.classList.remove('is-invalid');
+        });
+    });
 </script>
 
 @endsection

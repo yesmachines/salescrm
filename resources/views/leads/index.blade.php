@@ -47,62 +47,7 @@
                             <div class="mt-2">
                                 @include('layouts.partials.messages')
                             </div>
-                            <table id="datable_1" class="table nowrap w-100 mb-5">
-                                <thead>
-                                    <tr>
-                                        <th><span class="form-check mb-0">
-                                                <input type="checkbox" class="form-check-input check-select-all" id="customCheck1">
-                                                <label class="form-check-label" for="customCheck1"></label>
-                                            </span></th>
-                                        <th width="15%">Company</th>
-                                        <th width="10%">Phone</th>
-                                        <th width="30%">Details</th>
-                                        <th width="10%">Status</th>
-                                        @hasanyrole('divisionmanager|salesmanager')
-                                        @else
-                                        <th width="10%">Assigned</th>
-                                        @endhasanyrole
-                                        <th width="10%">Date On</th>
-                                        <th width="15%">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($leads as $lead)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <span class="contact-star marked"><span class="feather-icon"><i data-feather="star"></i></span></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {{$lead->company->company}}
-                                        </td>
-                                        <td class="text-truncate"><span title="{{$lead->customer->phone}}">{{$lead->customer->phone}}</span></td>
-                                        <td>{{ Str::limit($lead->details, 50) }}</td>
-                                        <td><span class="badge badge-soft-violet my-1  me-2">{{$lead->lead_type}}</span>/<span class="badge badge-soft-danger  my-1  me-2">{{$lead->leadStatus->name}}</span></td>
-                                        @hasanyrole('divisionmanager|salesmanager')
-                                        @else
-                                        <td>{{$lead->assigned->user->name}}</td>
-                                        @endhasanyrole
-                                        <td>{{$lead->enquiry_date}}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="d-flex">
-                                                    <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="View" href="{{ route('leads.show', $lead->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="eye"></i></span></span></a>
-                                                    <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Edit" href="{{ route('leads.edit', $lead->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span></a>
-                                                    <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover del-button" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Delete" href="javascript:void(0);" onclick="event.preventDefault();
-                                        document.getElementById('delete-form-{{ $lead->id }}').submit();"><span class="icon"><span class="feather-icon"><i data-feather="trash"></i></span></span></a>
-                                                    {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead->id],'style'=>'display:none',
-                                                    'id' => 'delete-form-'.$lead->id]) !!}
-                                                    {!! Form::close() !!}
-                                                </div>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                @livewire('leads-table')
                         </div>
                     </div>
                 </div>

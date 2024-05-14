@@ -4,53 +4,7 @@
 
 <div class="hk-pg-body py-0">
     <div class="integrationsapp-wrap integrationsapp-sidebar-toggle">
-        <!-- <nav class=" integrationsapp-sidebar">
-        <div data-simplebar class="nicescroll-bar">
-            <div class="menu-content-wrap">
-                <div class="nav-header">
-                    <span>Browse</span>
-                </div>
-                <div class="menu-group">
-                    <ul class="nav nav-light navbar-nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{route('leads.index')}}">
-                                <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="grid"></i></span></span>
-                                <span class="nav-link-text">All Enquiries</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="javascript:void(0);">
-                                <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="trash"></i></span></span>
-                                <span class="nav-link-text">Delete</span>
-                            </a>
-                        </li>
-                        <div class="menu-gap"></div>
-                        <li class="nav-item">
-                            <a class="nav-link" href="javascript:void(0);">
-                                <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="upload"></i></span></span>
-                                <span class="nav-link-text">Exports</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="javascript:void(0);">
-                                <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="download"></i></span></span>
-                                <span class="nav-link-text">Imports</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="javascript:void(0);">
-                                <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="printer"></i></span></span>
-                                <span class="nav-link-text">Print</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="menu-gap"></div>
 
-            </div>
-        </div>
-
-        </nav> -->
         <div class="integrationsapp-content">
             <div class="integrationsapp-detail-wrap">
                 <header class="integrations-header">
@@ -100,9 +54,11 @@
                                     </div>
                                 </div>
                                 <div class="col-xxl-4 col-lg-5 mt-lg-0 mt-3">
-                                    <div class="{{($lead->status_id == 6)? 'd-none': ''}}">
+                                    <div class="">
                                         @can('leads.convert')
-                                        <a href="javascript:void(0);" id="convert-leads-to" data-id="{{$lead->id}}" class="btn btn-primary btn-block">Convert</a>
+                                        @if($lead->status_id != 6)
+                                        <a href="javascript:void(0);" id="convert-leads-to" data-id="{{$lead->id}}" class="btn btn-primary btn-block">Convert To Quotation</a>
+                                        @endif
                                         @endcan
                                         <div class="d-flex mt-3">
                                             <a href="mailto:{{$lead->customer->email}}" class="btn btn-sm btn-light btn-block">
@@ -127,14 +83,10 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" data-bs-toggle="pill" href="#tabit_2">
-                                                <span class="nav-link-text">Qualify</span>
+                                                <span class="nav-link-text">Qualify Leads</span>
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" data-bs-toggle="pill" href="#tabit_3">
-                                                <span class="nav-link-text">Products</span>
-                                            </a>
-                                        </li>
+
                                     </ul>
                                     <div class="tab-content py-7">
                                         <div class="tab-pane fade show active" id="tabit_1">
@@ -292,12 +244,7 @@
 
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="tabit_3">
-                                            <div class="review-block">
 
-
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-xxl-4 col-lg-5">
@@ -408,6 +355,8 @@
 
         let converturl = "{{ route('leads.convert', ':id') }}";
         converturl = converturl.replace(':id', leadid);
+        // direct convert leads
+        // window.location.href = converturl;
 
         $.get(url, function(data, status) {
             // alert("Data: " + data + "\nStatus: " + status);
@@ -418,7 +367,7 @@
                 } else {
                     Swal.fire(
                         'QUALIFY',
-                        "You are not yet qualified to convert the lead, please check with your manager",
+                        "You have not yet qualified the lead, please qualify yourself before proceeding",
                         'info'
                     );
                 }

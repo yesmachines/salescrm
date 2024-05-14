@@ -46,19 +46,26 @@
                                             </div>
                                         </div>
                                         <div class="media-body">
-                                            <h3 class="hd-bold mb-0">{{$order->yespo_no}}</h3>
-                                            <span>by <i>{{$order->company->company}}</i></span>
+                                            <h3 class="hd-bold mb-0">{{$order->company->company}}&nbsp;
+                                                <span class="badge badge-warning" style="font-size: 12px;"> {{$order->os_number}}</span>
+                                            </h3>
+                                            <span>by <i>{{$order->customer->fullname}}</i></span>
 
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-xxl-4 col-lg-5 mt-lg-0 mt-3">
+                                    <a href="{{route('orders.download', $order->id)}}" title="Download OS" class="btn btn-sm btn-primary btn-block ms-2 mt-0">
+                                        <span><span class="icon"><span class="feather-icon"><i data-feather="download"></i></span></span><span>Download OS</span></span>
+                                    </a>
                                     <div class="d-flex mt-3">
-                                        <button class="btn btn-secondary btn-block" onclick="history.back();">Back To List</button>
-                                        <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-light btn-block ms-2 mt-0">
+                                        <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-secondary btn-block ms-2 mt-0">
                                             <span><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span><span>Edit</span></span>
                                         </a>
+                                        <button class="btn btn-sm btn-light btn-block ms-2 mt-0" onclick="history.back();">
+                                            <span><span class="icon"><span class="feather-icon"><i data-feather="chevron-left"></i></span></span><span>Back To List</button>
                                     </div>
+
                                 </div>
                             </div>
                             <div class="row">
@@ -66,100 +73,39 @@
                                     <input type="hidden" id="get_order_id" name="get_order_id" class="form-control" value="{{$order->id}}">
                                     <div class="separator"></div>
                                     <ul class="nav nav-light nav-pills nav-pills-rounded justify-content-center">
-                                        <!-- <li class="nav-item">
-                                            <a class="nav-link active" id="tab_1" data-bs-toggle="pill" href="#tabit_1">
-                                                <span class="nav-link-text">Order Details</span>
-                                            </a>
-                                        </li> -->
                                         <li class="nav-item">
-                                            <a class="nav-link active" id="tab_2" data-bs-toggle="pill" href="#tabit_2">
+                                            <a class="nav-link active" id="tab_1" data-bs-toggle="pill" href="#tabit_1">
                                                 <span class="nav-link-text">Order Summary</span>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="tab_3" data-bs-toggle="pill" href="#tabit_3">
-                                                <span class="nav-link-text">Order Updates </span>
+                                            <a class="nav-link" id="tab_2" data-bs-toggle="pill" href="#tabit_2">
+                                                <span class="nav-link-text">Items & Delivery</span>
                                             </a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="tab_3" data-bs-toggle="pill" href="#tabit_3">
+                                                <span class="nav-link-text">Supplier Details</span>
+                                            </a>
+                                        </li>
+
                                     </ul>
+
                                     <div class="tab-content py-7">
-                                        <!-- <div class="tab-pane fade show active" id="tabit_1">
-                                            <h5>Order Details</h5>
-                                            <p>Please refer the below Order and customer information :</p>
-                                            <div class="row my-4">
-
-                                                <div class="col-xxl-12">
-                                                    <div class="row mb-2">
-                                                        <div class="col-4">
-                                                            <h6>Po No.</h6>
-                                                        </div>
-                                                        <div class="col-8">
-
-                                                            <p>{{$order->po_number}}</p>
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4">
-                                                            <h6>Po Date.</h6>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            <p>{{$order->po_date}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4">
-                                                            <h6>Po Recieved.</h6>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            <p>{{$order->po_received}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4">
-                                                            <h6>Status:</h6>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            <p>{{$order->status}}</p>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                    </div>
-                                </div> -->
-                                        <div class="tab-pane fade show active" id="tabit_2">
-
-                                            <h5>Delivery Details</h5>
-                                            <div class="row my-4">
-
-                                                <div class="col-xxl-12">
-                                                    @if(isset($order->orderDelivery) && !empty($order->orderDelivery))
-                                                    @include('orders.partials._delivery',['order_delivery' => $order->orderDelivery])
-                                                    @else
-                                                    <p class="text-muted small">-- No information --</p>
-                                                    @endif
-                                                </div>
-                                            </div>
-
+                                        <div class="tab-pane fade show active" id="tabit_1">
+                                            <!-- Basic Details -->
+                                            @include('orders._show._summary')
+                                            <!-- End User Details -->
                                         </div>
-
-
+                                        <div class="tab-pane fade" id="tabit_2">
+                                            <!-- Basic Details -->
+                                            @include('orders._show._client')
+                                            <!-- End User Details -->
+                                        </div><!-- -->
                                         <div class="tab-pane fade" id="tabit_3">
-                                            <div class="title title-lg mb-4"><span>Latest Order Updates </span></div>
-                                            <div class="comment-block ">
-
-                                                <div class="list-his">
-                                                    @if(isset($order->orderHistory) && !empty($order->orderHistory))
-                                                    @include('orders.partials._listhistory',['histories' => $order->orderHistory,
-                                                    'customer' => $order->customer->fullname, 'showOnly' => true])
-                                                    @else
-                                                    <p class="text-muted small">-- No information --</p>
-                                                    @endif
-                                                </div>
-
-
-                                            </div>
+                                            @include('orders._show._supplier')
                                         </div>
+
                                     </div>
                                 </div>
                                 <div class="col-xxl-4 col-lg-5">
@@ -177,28 +123,18 @@
                                                         <div class="text-dark fw-medium">{{$order->customer->fullname}}</div>
                                                     </li>
                                                     <li class="mb-3">
-                                                        <div class="fs-7">Customer PO No</div>
-                                                        <div class="text-dark fw-medium">{{$order->po_number}}</div>
+                                                        <div class="fs-7">Customer Email</div>
+                                                        <div class="text-dark fw-medium">{{$order->customer->email}}</div>
                                                     </li>
                                                     <li class="mb-3">
-                                                        <div class="fs-7">YES PO No</div>
-                                                        <div class="text-dark fw-medium">{{$order->yespo_no}}</div>
+                                                        <div class="fs-7">Contact Mobile</div>
+                                                        <div class="text-dark fw-medium">{{$order->customer->phone}}</div>
                                                     </li>
                                                     <li class="mb-3">
-                                                        <div class="fs-7">PO Date</div>
-                                                        <div class="text-dark fw-medium">{{$order->po_date}}</div>
+                                                        <div class="fs-7">Country</div>
+                                                        <div class="text-dark fw-medium">{{isset($order->company->country)? $order->company->country->name: ''}}</div>
                                                     </li>
-                                                    <li class="mb-3">
-                                                        <div class="fs-7">PO Received On</div>
-                                                        <div class="text-dark fw-medium">{{$order->po_received}}</div>
-                                                    </li>
-                                                    <li class="mb-3">
-                                                        <div class="fs-7">Order Status</div>
-                                                        <div class="text-dark fw-medium">
-                                                            <span class="badge badge-soft-danger my-1 me-2">
-                                                                {{$order->status}}</span>
-                                                        </div>
-                                                    </li>
+
                                                 </ul>
                                             </div>
                                         </div>
@@ -216,5 +152,46 @@
     </div>
 
 </div>
+@push('scripts')
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    // STEPS
+    $(function() {
+        $('.nav-item').on('click', function() {
+            $('.nav-link').removeClass('active');
+            $(this).find('.nav-link').addClass('active').blur();
+        });
+
+        $('.next-step, .prev-step').on('click', function(e) {
+            var $activeTab = $('.tab-pane.active');
+
+            // $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+            $('.nav-item').find('.nav-link').removeClass('active');
+
+            if ($(e.target).hasClass('next-step')) {
+                var nextTab = $activeTab.next('.tab-pane').attr('id');
+                $('[href="#' + nextTab + '"]').addClass('btn-info').removeClass('btn-default');
+                $('[href="#' + nextTab + '"]').tab('show');
+            } else {
+                var prevTab = $activeTab.prev('.tab-pane').attr('id');
+                $('[href="#' + prevTab + '"]').addClass('btn-info').removeClass('btn-default');
+                $('[href="#' + prevTab + '"]').tab('show');
+            }
+        });
+    });
+
+    function nextStep() {
+        var $activeTab = $('.tab-pane.active');
+        var nextTab = $activeTab.next('.tab-pane').attr('id');
+        $('[href="#' + nextTab + '"]').addClass('btn-info').removeClass('btn-default');
+        $('[href="#' + nextTab + '"]').tab('show');
+    }
+</script>
+@endpush
 
 @endsection

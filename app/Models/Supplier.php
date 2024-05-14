@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Country;
 use App\Models\Employee;
 use App\Models\Quotation;
+use App\Models\QuotationItem;
 
 class Supplier extends Model
 {
@@ -33,5 +34,9 @@ class Supplier extends Model
     public function quotations()
     {
         return $this->hasMany(Quotation::class);
+    }
+    public function quotationItem()
+    {
+        return $this->hasMany(QuotationItem::class);
     }
 }

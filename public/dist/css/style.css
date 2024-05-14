@@ -97503,3 +97503,11 @@ div.dataTables_wrapper div.dataTables_filter {
 .delivery_shw div>span:last-child {
   color: #262a2e;
 }
+
+.ui-widget.ui-widget-content {
+  border: 1px solid #c5c5c5;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-width: 85%;
+}
