@@ -15,6 +15,9 @@ use App\Models\OrderClient;
 use App\Models\OrderSupplier;
 use App\Models\OrderPayment;
 use App\Models\OrderCharge;
+use App\Models\User;
+use App\Models\Quotation;
+use App\Models\Stock;
 
 class OrderService
 {
@@ -50,27 +53,45 @@ class OrderService
         return $order;
     }
 
+    // public function getReferenceNumber(): ?string
+    // {
+    //     $StartNo = 001;
+    //     Order::lockForUpdate()->get();
+    //
+    //     $lastRow = Order::whereYear('os_date', '=', date('Y'))
+    //         //->where('os_number', 'not like', "%Rev%")
+    //         ->orderBy("id", "desc")
+    //         ->first();
+    //
+    //     $last = 0;
+    //     if ($lastRow) {
+    //         $alast = explode("/", $lastRow->os_number);
+    //         $last = (count($alast) > 0) ? (int) $alast[3] : 0;
+    //     }
+    //     $lastId = ($last) ? ($StartNo + $last) : $StartNo;
+    //
+    //     $randStr =  "YES/OS/" . date('y') . '/' . $lastId;
+    //
+    //     return $randStr;
+    // }
     public function getReferenceNumber(): ?string
-    {
-        $StartNo = 475;
-        Order::lockForUpdate()->get();
+   {
+    $currentYear = date('y'); // Current year
 
-        $lastRow = Order::whereYear('os_date', '=', date('Y'))
-            //->where('os_number', 'not like', "%Rev%")
-            ->orderBy("id", "desc")
-            ->first();
+    // Fetch the latest order and stock records for the current year
+    $latestOrder = Order::whereYear('os_date', '=', date('Y'))->latest()->first();
+    $latestStock = Stock::whereYear('created_at', '=', date('Y'))->latest()->first();
 
-        $last = 0;
-        if ($lastRow) {
-            $alast = explode("/", $lastRow->os_number);
-            $last = (count($alast) > 0) ? (int) $alast[3] : 0;
-        }
-        $lastId = ($last) ? ($StartNo + $last) : $StartNo;
+    // Determine the maximum sequential number among the latest order and stock
+    $lastOrderSequentialNumber = $latestOrder ? (int)explode('/', $latestOrder->os_number)[3] : 0;
+    $lastStockSequentialNumber = $latestStock ? (int)explode('/', $latestStock->os_number)[3] : 0;
+    $sequentialNumber = max($lastOrderSequentialNumber, $lastStockSequentialNumber) + 1;
 
-        $randStr =  "YES/OS/" . date('y') . '/' . $lastId;
+    // Format the reference number
+    $randStr = "YES/OS/{$currentYear}/" . str_pad($sequentialNumber, 3, '0', STR_PAD_LEFT);
 
-        return $randStr;
-    }
+    return $randStr;
+  }
 
     public function updateOrder(array $userData, $id): Object
     {
@@ -290,7 +311,7 @@ class OrderService
         $isexist = OrderSupplier::where("order_id", $userData['order_id']);
 
         if ($isexist->count() > 0) {
-            // if already created           
+            // if already created
             foreach ($userData['supplier'] as $supplier) {
                 $ordersupplier = OrderSupplier::where("order_id", $userData['order_id'])
                     ->where('supplier_id', $supplier['supplier_id'])
@@ -341,6 +362,7 @@ class OrderService
         return Order::find($id);
     }
 
+
     public function updateOrderPayment(array $userData): void
     {
         $update = [];
@@ -364,7 +386,7 @@ class OrderService
 
             $isempty = array_values($payment);
 
-            if (is_null($isempty[1]) || empty($isempty[1])) { // payment term field check              
+            if (is_null($isempty[1]) || empty($isempty[1])) { // payment term field check
                 //  array item not exists
                 break;
             } else {

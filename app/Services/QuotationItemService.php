@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\QuotationAvailability;
 use App\Models\QuotatationPaymentTerm;
 use App\Models\QuotationInstallation;
+use App\Models\QuotationOptionalItem;
 use Illuminate\Database\Eloquent\Collection;
 use DB;
 
@@ -33,6 +34,7 @@ class QuotationItemService
     $marginPrice = $userData['margin_amount_row'];
     $quoteCurrency = $userData['quote_currency'];
     $totalAfterDiscounts = $userData['total_after_discount'];
+    $discountStatus = $userData['discount_status'];
 
     //foreach ($totalAfterDiscounts as $index => $totalAfterDiscount) {
     for ($index = 0; $index < count($itemIds); $index++) {
@@ -50,6 +52,7 @@ class QuotationItemService
         'total_after_discount' => $totalAfterDiscounts[$index],
         'brand_id' =>  $brand[$index],
         'margin_price' =>  $marginPrice[$index],
+        'discount_status' => $discountStatus[$index],
       ]);
     }
     // charges entry
@@ -148,7 +151,7 @@ class QuotationItemService
       }
     }
 
-    // installation 
+    // installation
     $insertInstall = [];
     if (isset($userData['installation_by']) && !is_null($userData['installation_by'])) {
       $insertInstall["installation_by"] = $userData['installation_by'];
@@ -174,6 +177,16 @@ class QuotationItemService
 
       $newQuotationTerms = QuotationInstallation::create($insertInstall);
     }
+    foreach ($userData['optional_name'] as $index => $optionalName) {
+      if ($optionalName !== null) {
+        $optionalItems = QuotationOptionalItem::create([
+          'quotation_id' => $quotes->id,
+          'item_name' => $optionalName,
+          'quantity' => $userData['optional_quantity'][$index],
+          'amount' => $userData['optional_amount'][$index],
+        ]);
+      }
+    }
   }
 
   public function getQuotionItem($id): Collection
@@ -190,6 +203,7 @@ class QuotationItemService
 
   public function updateQuoteItem($userData)
   {
+  
     $quotationId = $userData['quotation_id'];
     // delete all quotation items
     QuotationItem::where('quotation_id', $quotationId)->delete();
@@ -211,6 +225,7 @@ class QuotationItemService
           'total_after_discount' => $userData['total_after_discount'][$index],
           'brand_id' =>   $userData['brand_id'][$index],
           'margin_price' =>  $userData['margin_amount_row'][$index],
+          'discount_status' => $userData['discount_status'][$index],
         ]);
       }
     }
@@ -260,7 +275,7 @@ class QuotationItemService
     // Payment Terms
     QuotationTerm::where('quotation_id', $quotationId)->where('group_title', 'payment_terms')->delete();
     QuotatationPaymentTerm::where('quotation_id', $quotationId)->delete();
-
+    if(isset($userData['payment_name'])){
     foreach ($userData['payment_name'] as $index => $paymentTerm) {
       if ($paymentTerm !== null) {
 
@@ -281,6 +296,7 @@ class QuotationItemService
         ]);
       }
     }
+  }
 
     // Quotation Availability
     QuotationTerm::where('quotation_id', $quotationId)->where('group_title', 'availability')->delete();
@@ -331,6 +347,18 @@ class QuotationItemService
         ['quotation_id' => $quotationId],
         $insertInstall
       );
+    }
+
+    QuotationOptionalItem::where('quotation_id', $quotationId)->delete();
+    foreach ($userData['optional_name'] as $index => $optionalName) {
+      if ($optionalName !== null) {
+        $optionalItems = QuotationOptionalItem::create([
+          'quotation_id' =>$quotationId,
+          'item_name' => $optionalName,
+          'quantity' => $userData['optional_quantity'][$index],
+          'amount' => $userData['optional_amount'][$index],
+        ]);
+      }
     }
   }
   public function getQuotionItemData($id): Collection

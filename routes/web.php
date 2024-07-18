@@ -24,6 +24,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
+use App\Http\Controllers\StockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,7 +72,7 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('orders', OrderController::class);
     Route::resource('departments', DepartmentController::class);
     Route::resource('currency', CurrencyController::class);
-    Route::resource('currency-conversion', ConversionController::class);
+    Route::resource('conversion', ConversionController::class);
 
 
     Route::get('orders/createnew/{id}', [OrderController::class, 'createNewFromQuote'])->name('orders.createnew');
@@ -167,6 +168,8 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::post('saveProduct', [ProductController::class, 'saveAjaxProduct'])->name('products.ajaxsave');
 
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
+    Route::resource('stock', StockController::class);
+    Route::get('stock/download/{id}', [StockController::class, 'downloadStockOS'])->name('stock.download');
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
 Route::post('qrcode-form', [QrCodeController::class, 'store'])->name('qrcodeScanning');

@@ -23,11 +23,11 @@ class CustomerController extends Controller
 
         $companies = $custService->getCompanies();
 
-        $customers = $custService->getAllCustomer($input);
+        // $customers = $custService->getAllCustomer($input);
 
         $countries = $countryService->getAllCountry();
 
-        return view('customers.index', compact('customers', 'companies', 'countries'));
+        return view('customers.index', compact('companies', 'countries'));
     }
 
     /**

@@ -94,7 +94,7 @@ class ConversionController extends Controller
 
         $conversionService->updateConversion($conversion, $input);
 
-        return redirect()->route('currency-conversion.index')->with('success', 'Conversion updated successfully');
+        return redirect()->route('conversion.index')->with('success', 'Conversion updated successfully');
     }
 
     /**

@@ -230,7 +230,11 @@
                   <input class="form-control" type="file" name="image" />
                 </div>
                 <div class="col-sm-10 form-group">
-                  <img src="{{ asset('storage/' . $product->image_url) }}" style="width:60px" alt="Product Image">
+                  @if(isset($product->image_url))
+                  <img src="{{ asset('storage/' . $product->image_url) }}" style="width: 60px;" alt="Product Image">
+
+                  <input type="checkbox" name="remove_image" id="remove_image"> Remove Image<br>
+                  @endif
                 </div>
               </div>
               <div class="col-md-6">

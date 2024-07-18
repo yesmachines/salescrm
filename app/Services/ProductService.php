@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Employee;
+use App\Models\Supplier;
 use App\Models\ProductPriceHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class ProductService
         File::makeDirectory($productsFolderPath, 0775, true, true);
       }
 
-      $image = Image::read($file);
+      $image = Image::make($file);
 
       $image->resize(300, 300, function ($constraint) {
         $constraint->aspectRatio();
@@ -91,9 +92,29 @@ class ProductService
   }
   public function getAllProduct($data = []): Object
   {
-    $products = Product::orderBy('created_at', 'desc')->paginate('100');
+      $searchTerm = isset($data['query']) ? $data['query'] : null;
+      $brandId = isset($data['brand_id']) ? $data['brand_id'] : null;
 
-    return $products;
+      $products = Product::where('status', 'active')->orderBy('created_at', 'desc');
+
+      if ($searchTerm) {
+          $products->where(function ($query) use ($searchTerm) {
+              $query->where('title', 'like', "%{$searchTerm}%")
+                    ->orWhere('modelno', 'like', "%{$searchTerm}%")
+                    ->orWhere('part_number', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('supplier', function ($query) use ($searchTerm) {
+                        $query->where('brand', 'like', "%{$searchTerm}%");
+                    });
+          });
+      }
+
+      if ($brandId) {
+          $products->whereHas('supplier', function ($query) use ($brandId) {
+              $query->where('id', $brandId);
+          });
+      }
+
+      return $products->paginate(50);
   }
   public function getProduct($id): Product
   {
@@ -145,10 +166,11 @@ class ProductService
 
     ];
 
-    if (!empty($imageUrl)) {
+    if (!empty($imageUrl) ||  isset($data['remove_image'])) {
 
       $update['image_url'] = $imageUrl;
     }
+
 
     $product->update($update);
     $changes = $this->getChanges($oldProduct->getAttributes(), $product->only(['selling_price', 'margin_price', 'price_valid_from', 'price_valid_to']));
@@ -173,7 +195,7 @@ class ProductService
   {
 
 
-    $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators'];
+    $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators','admin'];
 
     $sql = Employee::with('user')->with('user.roles')->whereHas('user.roles', function ($query) use ($authorizedRoles) {
       $query->whereIn('name', $authorizedRoles);

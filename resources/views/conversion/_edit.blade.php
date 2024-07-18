@@ -1,4 +1,4 @@
-{!! Form::model($conversion, ['method' => 'PATCH', 'route' => ['currency-conversion.update', $conversion->id]]) !!}
+{!! Form::model($conversion, ['method' => 'PATCH', 'route' => ['conversion.update', $conversion->id]]) !!}
 <div class="modal-body">
   <h5 class="modal-title" id="exampleModalLabel">Update Currency Conversion</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">

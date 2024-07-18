@@ -27,7 +27,7 @@
                             <b>{{$orderDetails->os_number}}</b>
                         </td>
                         <td style="border:0; border-right: 1px solid black;" width="25%">OS Date</td>
-                        <td style="border:0;">{{$orderDetails->os_number}}</td>
+                        <td style="border:0;">{{$orderDetails->os_date}}</td>
                     </tr>
                 </table>
             </td>
@@ -81,6 +81,12 @@
                                 {{($item->product)? $item->product->modelno.' (ModelNo.)': ''}}, {{$item->yes_number}}
                             </p>
                             @endforeach
+                            @if($optionalItems->isNotEmpty())
+                            @foreach($optionalItems as $value)
+                            <p>{{$value->item_name}}({{$value->quantity}}qty)<br />
+                            </p>
+                            @endforeach
+                            @endif
                         </td>
                     </tr>
                 </table>
@@ -92,10 +98,19 @@
         <tr>
             <td width="50%">
                 <table>
+                  <?php
+
+                  $optionalItemsSum = $optionalItems->sum('amount');
+                  $totalAmount = $orderDetails->selling_price + $optionalItemsSum;
+                  ?>
                     <tr>
                         <td width="30%" style="border:0; border-right: 1px solid black;">SELLING PRICE (AED)</td>
                         <td style="border:0;">
-                            {{ $orderDetails->selling_price}} AED
+                          @if($optionalItems->isNotEmpty())
+                          {{$totalAmount }} AED
+                          @else
+                          {{ $orderDetails->selling_price}} AED
+                          @endif
                         </td>
                     </tr>
                 </table>
@@ -148,7 +163,7 @@
                     <tr>
                         <td width="30%" style="border:0; border-right: 1px solid black;">SERVICE EXPERTS</td>
                         <td style="border:0; ">
-                            {{ $orderDetails->orderClient->service_experts }}
+                            {{ $orderDetails->orderClient->service_expert }}
                         </td>
                     </tr>
                 </table>
@@ -561,7 +576,7 @@
                 <table width="100%">
                     <tr>
                         <td width="33%" style="border:0; border-right: 1px solid black;">
-                            NAME: {{$orderDetails->user->name ?? ''}}
+                            NAME: {{$orderDetails->assigned->user->name}}
                         </td>
                         <td width="33%" style="border:0; border-right: 1px solid black;">
                             NAME
@@ -584,5 +599,30 @@
                 </table>
             </td>
         </tr>
+        @if(isset($salesCommission))
+        <tr>
+            <td align="left" colspan="2">
+                <h6 style="padding:2px;">SALES COMMISIONS</h6>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="100%">
+                <table width="100%">
+              @foreach($salesCommission as $sale)
+                    <tr>
+                        <td width="50%" style="border:0; border-right: 1px solid black;">
+                            NAME: {{$sale->manager->user->name}}
+                        </td>
+                        <td width="105.6%" style="border:0; border-right: 0px solid black;">
+                        {{$sale->percent}}%
+                        </td>
+
+                    </tr>
+                @endforeach
+
+                </table>
+            </td>
+        </tr>
+        @endif
     </tbody>
 </table>

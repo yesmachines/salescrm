@@ -100,70 +100,7 @@
                             <div class="mt-2">
                                 @include('layouts.partials.messages')
                             </div>
-                            <table id="datable_1" class="table nowrap w-100 mb-5">
-                                <thead>
-                                    <tr>
-                                        <th><span class="form-check mb-0">
-                                                <input type="checkbox" class="form-check-input check-select-all" id="customCheck1">
-                                                <label class="form-check-label" for="customCheck1"></label>
-                                            </span></th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Company</th>
-                                        <th>Country</th>
-                                        <th>RefNo.</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($customers as $cust)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <span class="contact-star marked"><span class="feather-icon"><i data-feather="star"></i></span></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="media align-items-center">
-                                                <div class="media-head me-2">
-                                                    <div class="avatar avatar-xs avatar-rounded">
-                                                        <img src="{{asset('dist/img/avatar1.jpg')}}" alt="user" class="avatar-img">
-                                                    </div>
-                                                </div>
-                                                <div class="media-body">
-                                                    <span class="d-block text-high-em">{{$cust->fullname}}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-truncate" title="{{$cust->email}}">{{$cust->email}}</td>
-                                        <td>{{$cust->phone}}</td>
-                                        <td><span class="badge badge-soft-violet my-1  me-2">{{$cust->company->company}}</span></td>
-                                        <td>
-                                            {{($cust->company->region_id)? $cust->company->region->state: ''}}
-                                            {{ ($cust->company->region_id && $cust->company->country_id)?", ": ""}}
-                                            {{($cust->company->country_id)? $cust->company->country->name: '--'}}
-                                        </td>
-                                        <td><span class="badge badge-soft-danger my-1  me-2">
-                                                {{$cust->company->reference_no}}</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="d-flex">
-                                                    <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Edit" href="{{ route('customers.edit', $cust->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span></a>
-                                                    <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover del-button" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Delete" href="javascript:void(0);" onclick="event.preventDefault();
-                                        document.getElementById('delete-form-{{ $cust->id }}').submit();"><span class="icon"><span class="feather-icon"><i data-feather="trash"></i></span></span></a>
-                                                    {!! Form::open(['method' => 'DELETE','route' => ['customers.destroy', $cust->id],'style'=>'display:none',
-                                                    'id' => 'delete-form-'.$cust->id]) !!}
-                                                    {!! Form::close() !!}
-                                                </div>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                               @livewire('customer-list')
                         </div>
                     </div>
                 </div>

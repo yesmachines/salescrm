@@ -16,6 +16,7 @@ use App\Models\QuotationTerm;
 use App\Models\QuotationAvailability;
 use App\Models\QuotatationPaymentTerm;
 use App\Models\QuotationInstallation;
+use App\Models\QuotationOptionalItem;
 
 class QuotationService
 {
@@ -43,9 +44,10 @@ class QuotationService
       'reminder'            => $userData['reminder'],
       'is_vat'              => $userData['vat_option'],
       'price_basis'         => $userData['price_basis'],
-      'vat_amount'          => $userData['vat_amount'],
+      'vat_amount'          => isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'],
       'preferred_currency'  => $userData['quote_currency'],
-      'currency_rate'       => $userData['currency_rate']
+      'currency_rate'       => $userData['currency_rate'],
+      'total_status'       => $userData['total_status'],
     ]);
   }
   public function roundUpToAny($n, $x = 5)
@@ -269,9 +271,9 @@ class QuotationService
     if (isset($userData['vat_option'])) {
       $update['is_vat'] = $userData['vat_option'];
     }
-    if (isset($userData['vat_amount'])) {
-      $update['vat_amount'] = $userData['vat_amount'];
-    }
+    if (isset($userData['vat_amount']) || isset($userData['vat_service'])) {
+       $update['vat_amount'] = isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'];
+      }
     if (isset($userData['price_basis'])) {
       $update['price_basis'] = $userData['price_basis'];
     }
@@ -281,6 +283,10 @@ class QuotationService
     if (isset($userData['currency_rate'])) {
       $update['currency_rate'] = $userData['currency_rate'];
     }
+    if (isset($userData['total_status'])) {
+      $update['total_status'] = $userData['total_status'];
+    }
+
 
     $quote->update($update);
   }
@@ -398,6 +404,14 @@ class QuotationService
         $termRow = $terms->replicate();
         $termRow->quotation_id  = $newquote->id;
         $termRow->save();
+      }
+    }
+    $optionalItems = QuotationOptionalItem::where('quotation_id', $quotation->id)->get();
+    if (count($optionalItems) > 0) {
+      foreach ($optionalItems as $optionalItem) {
+        $optionalRow = $optionalItem->replicate();
+        $optionalRow->quotation_id  = $newquote->id;
+        $optionalRow->save();
       }
     }
 

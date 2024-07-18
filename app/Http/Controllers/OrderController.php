@@ -19,6 +19,8 @@ use App\Models\OrderPayment;
 use App\Models\OrderCharge;
 use App\Models\Quotation;
 use App\Models\QuotationCharge;
+use App\Models\QuotationOptionalItem;
+use App\Models\SalesCommission;
 use DB;
 
 class OrderController extends Controller
@@ -54,20 +56,22 @@ class OrderController extends Controller
     $quote_clientpayment = QuotatationPaymentTerm::where("quotation_id", $quotation->id)->get();
     $quote_charges = QuotationCharge::where("quotation_id", $quotation->id)->get();
 
-    $items = QuotationItem::with('product')
-      ->join("suppliers", "suppliers.id", "=", "quotation_items.brand_id")
-      ->select("quotation_items.*", "suppliers.brand")
-      ->where("quotation_id", $quotation->id);
-    $quote_items = $items->get();
+    $quote_items = QuotationItem::where("quotation_id", $quotation->id)->get();
+    // ->join("suppliers", "suppliers.id", "=", "quotation_items.brand_id")
+    //->select("quotation_items.*", "suppliers.brand")
+    //->where("quotation_id", $quotation->id);
+    //$quote_items = $items->get();
 
     $customProductType = false;
+    $selectedSuppliers = [];
     foreach ($quote_items as $item) {
+      $selectedSuppliers[] = $item->brand_id;
       if ($item->product->product_type == 'custom') {
         $customProductType = true;
       }
     }
 
-    $selectedSuppliers =  $items->pluck('brand_id')->toArray();
+    //$selectedSuppliers =  $items->pluck('brand_id')->toArray();
 
     $terms =  PaymentTerm::where("status", 1)->where("parent_id", 0)->get();
     $suppliers = Supplier::whereIn("id", $selectedSuppliers)->get();
@@ -162,7 +166,7 @@ class OrderController extends Controller
     ];
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 
-    // update order client 
+    // update order client
     $cupdate = [
       'order_id'               => $input['order_id'],
       'installation_training'  => $input['installation_training'],
@@ -178,7 +182,7 @@ class OrderController extends Controller
     ];
     $orderService->saveOrderClient($cupdate);
 
-    // order Items save        
+    // order Items save
     if (isset($input['item'])) {
       $items = [
         'order_id'      => $input['order_id'],
@@ -253,14 +257,17 @@ class OrderController extends Controller
 
   public function downloadOS($id, OrderService $orderService)
   {
-    // $header = view('orders.partials.header_pdf')            
+    // $header = view('orders.partials.header_pdf')
     //     ->render();
 
     $orderDetails = $orderService->getOrder($id);
+    $optionalItems = QuotationOptionalItem::where('quotation_id',$orderDetails->quotation_id)->get();
+    $salesCommission = SalesCommission::where('quotation_id',$orderDetails->quotation_id)->get();
+
 
     $body = view('orders.os_summary')
       ->with(compact(
-        'orderDetails'
+        'orderDetails','optionalItems','salesCommission'
       ))
       ->render();
 

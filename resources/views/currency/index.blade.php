@@ -126,7 +126,7 @@
                             </div>
                             <div class="modal-footer align-items-center">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard</button>
-                                <button type="submit" class="btn btn-primary">Create Department</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </div>
                     </form>

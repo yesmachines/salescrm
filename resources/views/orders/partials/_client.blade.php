@@ -26,7 +26,7 @@
         <div class="col-6">
             <select class="form-control" name="material_status" id="material_status" required>
                 <option value="">-Select Status-</option>
-                <option value="is_stock" {{($quote_avail && ($quote_avail->stock_status == 'is_stock'))? 'selected': ''}}>Is Stock</option>
+                <option value="is_stock" {{($quote_avail && ($quote_avail->stock_status == 'is_stock'))? 'selected': ''}}>In Stock</option>
                 <option value="out_stock" {{( $quote_avail && ($quote_avail->stock_status == 'out_stock'))? 'selected': ''}}>Out Stock</option>
             </select>
         </div>
@@ -37,7 +37,7 @@
             <h6>Material Details *</h6>
         </div>
         <div class="col-6">
-            <textarea rows="2" id="material_details" name="material_details" class="form-control" required>@if($quote_avail)Material will delivery within {{$quote_avail->working_weeks}} working {{$quote_avail->working_period}} {{$quote_avail->working_weeks > 1? 's': ''}}@endif</textarea>
+            <textarea rows="2" id="material_details" name="material_details" class="form-control" required>@if($quote_avail)Material will delivery within {{$quote_avail->working_weeks}} working {{$quote_avail->working_period}}{{$quote_avail->working_weeks > 1? 's': ''}}@endif</textarea>
         </div>
         <div class="col-2"></div>
     </div>
@@ -174,8 +174,7 @@
                     <tr valign="top">
                         <td width="15%">
                             <input type="hidden" name="item[{{$x}}][product_id]" value="{{$item->item_id}}" />
-                            <span class="text-warning">{{isset($item->product)? $item->product->modelno : ''}} / {{$item->brand}}</span>
-                            <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item">{{$item->brand}} {{isset($item->product)? $item->product->modelno : ''}} {{isset($item->description)? $item->description : ''}}</textarea>
+                            <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item">{{isset($item->description)? $item->description : ''}}</textarea>
                         </td>
                         <td>
                             <input type="text" class="form-control" name="item[{{$x}}][partno]" placeholder="Part No" value="{{isset($item->product)? $item->product->part_number : ''}}" />

@@ -62,7 +62,9 @@
                   <div class="alert alert-inv alert-inv-success text-center" role="alert">
                     <b>You have Won the Order !!</b>
                   </div>
-                  <!-- <a href="{{route('orders.createnew', $quotation->id) }}" class="btn btn-primary btn-block">Create OS</a> -->
+                    @if (Auth::user()->hasRole('superadmin'))
+                  <a href="{{route('orders.createnew', $quotation->id) }}" class="btn btn-primary btn-block">Create OS</a>
+                  @endif
                   @else
                   @can('quotation.status')
                   <a href="javascript:void(0);" id="update-win" class="btn btn-primary btn-block">Update to Win</a>

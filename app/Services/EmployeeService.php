@@ -76,11 +76,12 @@ class EmployeeService
 
     public function getAllEmployee($data = []): Object
     {
-        $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators'];
+        $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators','admin'];
 
-        $sql = Employee::with('user')->with('user.roles')->whereHas('user.roles', function ($query) use ($authorizedRoles) {
-            $query->whereIn('name', $authorizedRoles);
-        });
+        $sql = Employee::with('user')
+            ->with('user.roles')->whereHas('user.roles', function ($query) use ($authorizedRoles) {
+                $query->whereIn('name', $authorizedRoles);
+            });
 
         // if (isset($data['status']) && !empty($data['status'])) {
         //     $sql->where('status', '=', $data['status']);
@@ -108,7 +109,7 @@ class EmployeeService
     {
         // delete image
         if ($image_url) {
-            $image_path = storage_path('app/public/') . $image_url; // upload path  
+            $image_path = storage_path('app/public/') . $image_url; // upload path
             if (File::exists($image_path)) {
                 File::delete($image_path);
             }
@@ -152,7 +153,7 @@ class EmployeeService
                     'fiscal_year'   => $userData['fiscal_year']
                 ]);
             } else {
-                // new 
+                // new
                 Target::create([
                     'employee_id'   => $employee->id,
                     'target_value'  => $userData['target_value'],

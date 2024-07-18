@@ -23,7 +23,7 @@
             <h6>Buying Price (AED) From Supplier *</h6>
         </div>
         <div class="col-6">
-            <input type="text" class="form-control" id="buying_price" name="buying_price" required>
+            <input type="text" class="form-control" id="buying_price" name="buying_price" step="any" required>
         </div>
         <div class="col-2"></div>
     </div>
@@ -173,7 +173,7 @@
                             <input type="text" class="form-control" name="charges[{{$ix}}][title]" placeholder="Packing Charge" value="VAT" />
                         </td>
                         <td width="20%">
-                            <input type="text" class="form-control" name="charges[{{$ix}}][considered]" placeholder="Considered Cost" value="{{$vat_amount}}" />
+                            <input type="text" class="form-control" name="charges[{{$ix}}][considered]" placeholder="Considered Cost"  step="any" value="{{$vat_amount}}" />
                         </td>
                         <td width="30%">
                             <textarea rows="2" name="charges[{{$ix}}][remarks]" placeholder="Remarks" class="form-control"></textarea>

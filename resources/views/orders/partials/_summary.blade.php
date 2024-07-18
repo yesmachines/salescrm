@@ -126,7 +126,7 @@
                 <h6>Promised Delivery Time</h6>
             </div>
             <div class="col-6">
-                <textarea rows="2" id="promised_delivery" name="promised_delivery" class="form-control">@if($quote_avail){{$quote_avail->working_weeks}} {{$quote_avail->working_period}} {{$quote_avail->working_weeks > 1? 's': ''}} @endif</textarea>
+                <textarea rows="2" id="promised_delivery" name="promised_delivery" class="form-control">@if($quote_avail){{$quote_avail->working_weeks}} {{$quote_avail->working_period}}{{$quote_avail->working_weeks > 1? 's': ''}} @endif</textarea>
             </div>
             <div class="col-2"></div>
         </div>

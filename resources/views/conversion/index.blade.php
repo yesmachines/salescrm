@@ -77,7 +77,7 @@
 
                                                     <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover del-button" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Delete" href="javascript:void(0);" onclick="event.preventDefault();
                                         document.getElementById('delete-form-{{ $value->id }}').submit();"><span class="icon"><span class="feather-icon"><i data-feather="trash"></i></span></span></a>
-                                                    {!! Form::open(['method' => 'DELETE','route' => ['currency-conversion.destroy', $value->id],'style'=>'display:none',
+                                                    {!! Form::open(['method' => 'DELETE','route' => ['conversion.destroy', $value->id],'style'=>'display:none',
                                                     'id' => 'delete-form-'.$value->id]) !!}
                                                     {!! Form::close() !!}
                                                 </div>
@@ -94,7 +94,7 @@
             <!-- Create Info -->
             <div id="add_new_currency" class="modal fade add-new-contact" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                    <form method="POST" action="{{ route('currency.store') }}">
+                    <form method="POST" action="{{ route('conversion.store') }}">
                         @csrf
                         <div class="modal-content">
                             <div class="modal-body">
@@ -134,7 +134,7 @@
                             </div>
                             <div class="modal-footer align-items-center">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard</button>
-                                <button type="submit" class="btn btn-primary">Create Department</button>
+                                <button type="submit" class="btn btn-primary">Save </button>
                             </div>
                         </div>
                     </form>
@@ -170,7 +170,7 @@
             $('#editConversion').html('');
             $('#modal-loader').show();
 
-            let eurl = "{{ route('currency-conversion.edit', ':conversionid') }}";
+            let eurl = "{{ route('conversion.edit', ':conversionid') }}";
             eurl = eurl.replace(':conversionid', cid);
 
             $.ajax({

@@ -48,6 +48,34 @@
               <div class="mt-2">
                 @include('layouts.partials.messages')
               </div>
+              <form action="{{ route('products.index') }}" method="GET" class="form-inline mb-3">
+                @csrf
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <input type="text" name="query" class="form-control" placeholder="Search products" value="{{ request()->query('query') }}" aria-label="Search products" aria-describedby="button-search">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <select class="form-control select2" name="brand_id" id="brandInput">
+                        <option value="">Select Suppliers</option>
+                        @foreach ($suppliers as $sup)
+                        <option value="{{ $sup->id }}" {{ request()->query('brand_id') == $sup->id ? 'selected' : '' }}>
+                          {{ $sup->brand }}
+                        </option>
+                        @endforeach
+                      </select>
+                      <div class="invalid-data" style="display: none;">Please select a brand.</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="input-group">
+                      <button class="btn" type="submit" id="button-search" style="background-color: #007D88; color: white;">Search</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
               <div class="table-responsive">
                 <table class="table table-striped table-bordered" style="width:100%;">
                   <thead>
@@ -69,12 +97,20 @@
                     $count = 0;
                     @endphp
                     @foreach ($products as $index => $product)
-                    <tr>
-                      <td>{{$index+1}}</td>
+                    @php
+                    $count++;
+                    if($count %2 == 0){
+                      $rowtype = "even";
+                    }else{
+                      $rowtype = "odd";
+                    }
+                    @endphp
+                    <tr class="{{$rowtype}}">
+                      <td>{{$index + $products->firstItem()}}</td>
                       <td>{{$product->title}} &nbsp;<span class="badge badge-soft-danger">{{$product->product_type}}</span></td>
                       <td> {{ $product->supplier->brand ?? '' }}</td>
                       <td>{{$product->modelno  ?? ''}}</td>
-                        <td>{{$product->part_number ?? ''}}</td>
+                      <td>{{$product->part_number ?? ''}}</td>
                       <td>{{$product->selling_price}} {{$product->currency}}</td>
                       <td>{{$product->margin_percent}} %<br />
                         <small class="text-muted">({{$product->margin_price}} {{$product->currency}})</small>
@@ -101,7 +137,7 @@
                   </tbody>
 
                 </table>
-                {{$products->links()}}
+                {{ $products->appends(request()->query())->links() }}
               </div>
             </div>
           </div>
@@ -112,11 +148,11 @@
   </div>
 </div>
 <script>
-  function confirmDelete(productId) {
-    if (confirm("Are you sure you want to delete this product?")) {
-      document.getElementById('delete-form-' + productId).submit();
-    }
+function confirmDelete(productId) {
+  if (confirm("Are you sure you want to delete this product?")) {
+    document.getElementById('delete-form-' + productId).submit();
   }
+}
 </script>
 
 

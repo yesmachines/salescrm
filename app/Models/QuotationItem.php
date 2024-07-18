@@ -18,7 +18,8 @@ class QuotationItem extends Model
     'discount',
     'total_after_discount',
     'brand_id',
-    'margin_price'
+    'margin_price',
+    'discount_status',
   ];
   public function product()
   {

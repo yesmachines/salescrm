@@ -41,6 +41,7 @@ use App\Models\QuotationInstallation;
 use App\Models\ProductPriceHistory;
 use App\Models\QuotatationPaymentTerm;
 use App\Models\QuotationAvailability;
+use App\Services\QuotationOptionalService;
 
 class QuotationController extends Controller
 {
@@ -307,6 +308,7 @@ class QuotationController extends Controller
     QuotationItemService $quotationItemService,
     QuotationTermService  $quotationTermService,
     DivisionService $divisionService,
+    QuotationOptionalService $quotationOptionalService,
   ) {
 
     $quotation = $quotationService->getQuote($id);
@@ -342,6 +344,7 @@ class QuotationController extends Controller
     $quotationItems = $quotationItemService->getQuotionItem($id);
     $quotationCharge = $quotationChargeService->getQuotionCharge($id);
     $quotationTermsList  = $quotationTermService->getQuotionTerm($id);
+    $optionalItems = $quotationOptionalService->quotationOptionalItem($id);
     $paymentCycleList = QuotatationPaymentTerm::where('quotation_id', $id)->get();
     //$quotationTermService->getPaymentCycle($id);
 
@@ -442,7 +445,8 @@ class QuotationController extends Controller
       'products',
       'paymentTermList',
       'installation',
-      'availability'
+      'availability',
+      'optionalItems'
     ));
   }
 
@@ -531,9 +535,11 @@ class QuotationController extends Controller
     $isManager = array_filter($data['manager_id'], function ($var) {
       return !empty($var);
     });
+    if (isset($data['commission_amount']) && is_array($data['commission_amount'])) {
     $isCommision = array_filter($data['commission_amount'], function ($var) {
       return !empty($var);
     });
+    }
     $fields = [];
     $commission = 0;
     $percent = 0;
@@ -751,19 +757,22 @@ class QuotationController extends Controller
     CreateWordDocxService $wordService,
     QuotationItemService $quotationItems,
     QuotationChargeService $quotationCharges,
-    QuotationTermService $quoteTermService
+    QuotationTermService $quoteTermService,
+    QuotationOptionalService $quotationOptionalService,
   ) {
 
     $quotation = $quotationService->getQuote($id);
     $quotationItems = $quotationItems->getQuotionItemData($id);
     $quotationCharges = $quotationCharges->getQuotionCharge($id);
     $quotationTerms = $quoteTermService->getQuotationTerms($id);
+    $optionalItems = $quotationOptionalService->quotationOptionalItem($id);
 
     $wordService->generatepdf(
       $quotation,
       $quotationItems,
       $quotationCharges,
-      $quotationTerms
+      $quotationTerms,
+      $optionalItems
     );
     //$wordService->sample();
   }

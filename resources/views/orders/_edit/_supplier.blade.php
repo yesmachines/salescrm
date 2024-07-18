@@ -23,7 +23,7 @@
       <h6>Buying Price (AED) From Supplier *</h6>
     </div>
     <div class="col-6">
-      <input type="number" class="form-control" id="buying_price" name="buying_price" value="{{ $order->buying_price ?? '' }}">
+      <input type="number" class="form-control" id="buying_price" name="buying_price" step="any" value="{{ $order->buying_price ?? '' }}">
     </div>
     <div class="col-2"></div>
   </div>
@@ -152,10 +152,10 @@
     <div class="col-xxl-12">
       <h6> <b>Additional Charges</b>
         <input type="hidden" name="isadditionalcharges" value="{{$customProductType}}">
-        @if($customProductType)
+
         <a href="javascript:void(0);" class="addAC btn btn-primary btn-sm" style="float: right;">
           <i data-feather="plus"></i> Add Row</a>
-        @endif
+      
       </h6>
       <table class="table form-table" id="chargespaymentFields">
         <thead>
@@ -174,7 +174,7 @@
               <input type="text" class="form-control" name="charges[{{$key}}][title]" placeholder="Packing Charge" value="{{ $value->title ?? '' }}" />
             </td>
             <td width="20%">
-              <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost" value="{{ $value->considered ?? '' }}" />
+              <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost"  step="any" value="{{ $value->considered ?? '' }}" />
             </td>
             <td width="30%">
               <textarea rows="2" name="charges[{{$key}}][remarks]" placeholder="Remarks" class="form-control">{{ $value->remarks ?? '' }}</textarea>

@@ -46,6 +46,7 @@ class Quotation extends Model
         'preferred_currency',
         'currency_rate',
         'price_basis',
+        'total_status',
     ];
 
     public function category()

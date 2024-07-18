@@ -256,6 +256,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('orders.completed')}}"><span class="nav-link-text">Closed Orders</span></a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('stock.index')}}"><span class="nav-link-text">Stock List</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -337,9 +340,8 @@
                                         <a class="nav-link" href="{{route('currency.index')}}"><span class="nav-link-text">Currency</span></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{route('currency-conversion.index')}}"><span class="nav-link-text">Currency Conversion</span></a>
+                                        <a class="nav-link" href="{{route('conversion.index')}}"><span class="nav-link-text">Currency Conversion</span></a>
                                     </li>
-
 
                                 </ul>
                             </li>

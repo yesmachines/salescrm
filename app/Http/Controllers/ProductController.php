@@ -25,13 +25,13 @@ class ProductController extends Controller
    *
    * @return \Illuminate\Http\Response
    */
-  public function index(Request $request, ProductService $productService)
+  public function index(Request $request, ProductService $productService,SupplierService $supplierService)
   {
 
     $input = $request->all();
     $products = $productService->getAllProduct($input);
-
-    return view('products.index', compact('products'));
+    $suppliers = $supplierService->getAllSupplier();
+    return view('products.index', compact('products','suppliers'));
   }
 
   /**
@@ -151,6 +151,10 @@ class ProductController extends Controller
     if (!empty($request->file('image'))) {
       ($product->image_url) ? $productService->deleteImage($product->image_url) : '';
       $image_url = $productService->uploadImage($request);
+    }
+    if (isset($request->remove_image)) {
+      ($product->image_url) ? $productService->deleteImage($product->image_url) : '';
+
     }
 
     $productService->updateProduct($product, $input, $image_url);

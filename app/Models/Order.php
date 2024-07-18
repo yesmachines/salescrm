@@ -80,8 +80,12 @@ class Order extends Model
     {
         return $this->hasMany(OrderCharge::class, 'order_id', 'id');
     }
-    public function user()
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class, 'created_by', 'id');
+    // }
+    public function assigned()
     {
-        return $this->belongsTo(User::class, 'created_by', 'id');
+        return $this->belongsTo(Employee::class, 'created_by', 'id');
     }
 }

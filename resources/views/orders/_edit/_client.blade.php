@@ -26,7 +26,7 @@
     <div class="col-6">
       <select class="form-control" name="material_status" id="material_status" required>
         <option value="">Select Status</option>
-        <option value="is_stock" {{($order->material_status == 'is_stock')? 'selected': ''}}>Is Stock</option>
+        <option value="is_stock" {{($order->material_status == 'is_stock')? 'selected': ''}}>In Stock</option>
         <option value="out_stock" {{($order->material_status == 'out_stock')? 'selected': ''}}>Out Stock</option>
       </select>
     </div>
@@ -168,8 +168,8 @@
           <tr valign="top">
             <td width="15%">
               <input type="hidden" name="item[{{$x}}][product_id]" value="{{$item->product_id}}" />
-              <span class="text-warning">{{isset($item->product)? $item->product->modelno : ''}} / {{isset($item->product->supplier)? $item->product->supplier->brand : ''}}</span>
               <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item">{{$item->item_name}}</textarea>
+
             </td>
             <td>
               <input type="text" class="form-control" name="item[{{$x}}][partno]" placeholder="Part No" value="{{$item->partno}}" />
@@ -181,7 +181,7 @@
               <input type="text" class="form-control" name="item[{{$x}}][yes_number]" placeholder="YesNo." value="{{$item->yes_number}}" />
             </td>
             <td>
-              <input type="number" class="form-control" name="item[{{$x}}][total_amount]" value="{{$item->total_amount}}" placeholder="Total Amount" />
+              <input type="number" class="form-control" name="item[{{$x}}][total_amount]" value="{{$item->total_amount}}"  step="any" placeholder="Total Amount" />
             </td>
             <td width="8%">
               <input type="text" class="form-control datepick" name="item[{{$x}}][expected_delivery]" placeholder="Expected Delivery" value="{{$item->expected_delivery}}" />

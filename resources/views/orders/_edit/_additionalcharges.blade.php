@@ -5,7 +5,7 @@
         <input type="text" class="form-control" name="charges[{{$key}}][title]" placeholder="Packing Charge" value="{{ $value->title ?? '' }}" />
     </td>
     <td width="20%">
-        <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost" value="{{ $value->considered ?? '' }}" />
+        <input type="number" class="form-control" name="charges[{{$key}}][considered]" step="any" placeholder="Considered Cost" value="{{ $value->considered ?? '' }}" />
     </td>
     <td width="30%">
         <textarea rows="2" name="charges[{{$key}}][remarks]" placeholder="Remarks" class="form-control">{{ $value->remarks ?? '' }}</textarea>
