@@ -81,39 +81,21 @@
                                 {{($item->product)? $item->product->modelno.' (ModelNo.)': ''}}, {{$item->yes_number}}
                             </p>
                             @endforeach
-                            @if($optionalItems->isNotEmpty())
-                            @foreach($optionalItems as $value)
-                            <p>{{$value->item_name}}({{$value->quantity}}qty)<br />
-                            </p>
-                            @endforeach
-                            @endif
                         </td>
                     </tr>
                 </table>
             </td>
             <td width="50%">
-              @foreach($orderDetails->orderItem as $item)
-              <p>{{$item->remarks}}<br />
-              </p>
-              @endforeach
+
             </td>
         </tr>
         <tr>
             <td width="50%">
                 <table>
-                  <?php
-
-                  $optionalItemsSum = $optionalItems->sum('amount');
-                  $totalAmount = $orderDetails->selling_price + $optionalItemsSum;
-                  ?>
                     <tr>
                         <td width="30%" style="border:0; border-right: 1px solid black;">SELLING PRICE (AED)</td>
                         <td style="border:0;">
-                          @if($optionalItems->isNotEmpty())
-                          {{$totalAmount }} AED
-                          @else
-                          {{ $orderDetails->selling_price}} AED
-                          @endif
+                            {{ $orderDetails->selling_price}} AED
                         </td>
                     </tr>
                 </table>
@@ -602,30 +584,5 @@
                 </table>
             </td>
         </tr>
-        @if(isset($salesCommission))
-        <tr>
-            <td align="left" colspan="2">
-                <h6 style="padding:2px;">SALES COMMISIONS</h6>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" width="100%">
-                <table width="100%">
-              @foreach($salesCommission as $sale)
-                    <tr>
-                        <td width="50%" style="border:0; border-right: 1px solid black;">
-                            NAME: {{$sale->manager->user->name}}
-                        </td>
-                        <td width="105.6%" style="border:0; border-right: 0px solid black;">
-                        {{$sale->percent}}%
-                        </td>
-
-                    </tr>
-                @endforeach
-
-                </table>
-            </td>
-        </tr>
-        @endif
     </tbody>
 </table>

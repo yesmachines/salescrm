@@ -26,6 +26,7 @@ class QuotationService
     return Quotation::create([
       'company_id'          => $userData['company_id'],
       'customer_id'         => $userData['customer_id'],
+      'quote_from'          => $userData['quote_from'],
       //  'category_id'       => $userData['category_id'],
       // 'supplier_id'         =>implode(',', $userData['supplier_id']),
       //'product_models'      => (isset($userData['product_models']) && !empty($userData['product_models'])) ? $userData['product_models'] : '',
@@ -210,6 +211,7 @@ class QuotationService
   {
 
     $update = [];
+
     if (isset($userData['company_id'])) {
       $update['company_id'] = $userData['company_id'];
     }
@@ -272,8 +274,8 @@ class QuotationService
       $update['is_vat'] = $userData['vat_option'];
     }
     if (isset($userData['vat_amount']) || isset($userData['vat_service'])) {
-       $update['vat_amount'] = isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'];
-      }
+      $update['vat_amount'] = isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'];
+    }
     if (isset($userData['price_basis'])) {
       $update['price_basis'] = $userData['price_basis'];
     }

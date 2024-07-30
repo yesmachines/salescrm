@@ -27,6 +27,7 @@ class OrderService
         $insert = [
             'company_id'        => $userData['company_id'],
             'customer_id'       => $userData['customer_id'],
+            'order_for'         => $userData['order_for'],
             'quotation_id'      => $userData['quotation_id'],
             'os_date'           => $userData['os_date'],
             'po_number'         => (isset($userData['po_number']) && !is_null($userData['po_number'])) ? $userData['po_number'] : '',
@@ -75,23 +76,23 @@ class OrderService
     //     return $randStr;
     // }
     public function getReferenceNumber(): ?string
-   {
-    $currentYear = date('y'); // Current year
+    {
+        $currentYear = date('y'); // Current year
 
-    // Fetch the latest order and stock records for the current year
-    $latestOrder = Order::whereYear('os_date', '=', date('Y'))->latest()->first();
-    $latestStock = Stock::whereYear('created_at', '=', date('Y'))->latest()->first();
+        // Fetch the latest order and stock records for the current year
+        $latestOrder = Order::whereYear('os_date', '=', date('Y'))->latest()->first();
+        $latestStock = Stock::whereYear('created_at', '=', date('Y'))->latest()->first();
 
-    // Determine the maximum sequential number among the latest order and stock
-    $lastOrderSequentialNumber = $latestOrder ? (int)explode('/', $latestOrder->os_number)[3] : 0;
-    $lastStockSequentialNumber = $latestStock ? (int)explode('/', $latestStock->os_number)[3] : 0;
-    $sequentialNumber = max($lastOrderSequentialNumber, $lastStockSequentialNumber) + 1;
+        // Determine the maximum sequential number among the latest order and stock
+        $lastOrderSequentialNumber = $latestOrder ? (int)explode('/', $latestOrder->os_number)[3] : 0;
+        $lastStockSequentialNumber = $latestStock ? (int)explode('/', $latestStock->os_number)[3] : 0;
+        $sequentialNumber = max($lastOrderSequentialNumber, $lastStockSequentialNumber) + 1;
 
-    // Format the reference number
-    $randStr = "YES/OS/{$currentYear}/" . str_pad($sequentialNumber, 3, '0', STR_PAD_LEFT);
+        // Format the reference number
+        $randStr = "YES/OS/{$currentYear}/" . str_pad($sequentialNumber, 3, '0', STR_PAD_LEFT);
 
-    return $randStr;
-  }
+        return $randStr;
+    }
 
     public function updateOrder(array $userData, $id): Object
     {

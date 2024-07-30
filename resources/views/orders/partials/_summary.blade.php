@@ -20,6 +20,7 @@
 
 <input type="hidden" name="customer_id" value="{{$quotation->customer_id}}" />
 <input type="hidden" name="company_id" value="{{$quotation->company_id}}" />
+<input type="hidden" name="order_for" value="{{$quotation->quote_from}}" />
 <input type="hidden" name="quotation_id" value="{{$quotation->id}}" />
 <input type="hidden" name="currency" value="aed" />
 <input type="hidden" name="created_by" value="{{$quotation->assigned_to}}" />

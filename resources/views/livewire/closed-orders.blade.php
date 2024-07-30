@@ -64,7 +64,7 @@
         @endphp
         <tr class="{{$rowtype}}">
           <td class="text-truncate overflow-hidden">
-            <span style="cursor:pointer;" class="badge badge-primary badge-outline" onclick="copyText(this);">{{$order->os_number}}</span>
+            <span style="cursor:pointer;" class="badge badge-outline {{$order->order_for == 'yesclean'? 'ycref': 'ymref'}}" onclick="copyText(this);">{{$order->os_number}}</span>
             <a href="{{route('orders.download', $order->id)}}" title="Download OS"><i class="fa fa-download" aria-hidden="true"></i></a>
           </td>
           <td class="text-truncate overflow-hidden" title="{{$order->os_date }}">{{$order->os_date }}</td>

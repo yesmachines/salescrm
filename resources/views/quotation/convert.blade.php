@@ -145,6 +145,19 @@
               <div class="row gx-3 mt-4">
                 <div class="col-sm-6">
                   <div class="form-group">
+                    <label class="form-label">Company <span class="text-danger">*</span></label>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <select class="form-select" name="quote_from" required id="from_company">
+                      <option value="yesmachinery">Yesmachinery</option>
+                      <option value="yesclean">Yesclean</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group">
                     <label class="form-label">Quotation For <span class="text-danger">*</span></label>
                   </div>
                 </div>

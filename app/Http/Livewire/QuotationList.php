@@ -93,6 +93,8 @@ class QuotationList extends Component
     $query->when($trimmedSearch, function ($query) use ($trimmedSearch) {
       return $query->whereHas('company', function ($subquery) use ($trimmedSearch) {
         $subquery->where('company', 'like', $trimmedSearch . '%');
+      })->orWhereHas('supplier', function ($subquery) use ($trimmedSearch) {
+       $subquery->where('brand', 'like', $trimmedSearch . '%');
       })
         ->orWhere('reference_no', 'like', $trimmedSearch . '%');
     });

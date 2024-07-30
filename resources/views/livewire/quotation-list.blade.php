@@ -80,7 +80,9 @@
               <span class="contact-star marked"> </span>
             </div>
           </td>
-          <td><span style="cursor:pointer;" class="badge badge-info badge-outline" onclick="copyText(this);">{{$quote->reference_no}}</span> </td>
+          <td><span class="badge  badge-outline {{$quote->quote_from == 'yesclean'? 'ycref': 'ymref'}}" onclick="copyText(this);">{{$quote->reference_no}}</span>
+
+          </td>
           <td title="{{$quote->company->company}}">
             {{ Str::limit($quote->company->company, 40) }}
             <!-- <span class="feather-icon text-warning"><i data-feather="bell"></i></span><span> -->

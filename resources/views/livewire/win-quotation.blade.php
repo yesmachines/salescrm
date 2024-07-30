@@ -53,7 +53,7 @@
       <tbody>
         @foreach($quotations as $quote)
         <tr>
-          <td class="text-truncate overflow-hidden"><span style="cursor:pointer;" class="badge badge-info badge-outline" onclick="copyText(this);">{{$quote->reference_no}}</span> </td>
+          <td class="text-truncate overflow-hidden"><span class="badge badge-outline {{$quote->quote_from == 'yesclean'? 'ycref': 'ymref'}}" onclick="copyText(this);">{{$quote->reference_no}}</span> </td>
           <td class="text-truncate overflow-hidden" title="{{$quote->company->company}}">
             {{ Str::limit($quote->company->company, 50) }}
           </td>

@@ -79,18 +79,9 @@
     </label>
 
   </div>:
-  @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
   <div class="col-sm-3 text-align-left">
     <label class="form-check-label" id="vatAmountLabel"></label>
   </div>
-  @else
-  <div class="col-sm-3 text-align-left">
-    <input type="text" class="form-control" name="vat_service" value="" id="vatAmountLabelService">
-  </div>
-  @endif
-  <!-- <div class="col-sm-3 text-align-left">
-  <label class="form-check-label" id="vatAmountLabel"></label>
-</div> -->
 </div>
 
 <div class="row" style="margin-top: 21px">
@@ -104,24 +95,7 @@
     <input type="text" id="totalValue" name="total_value" class="form-control" readonly>
     <input type="hidden" id="totalMarginValue" name="total_margin_value" class="form-control">
     <!-- <input type="hidden" name="total_amount" class="form-control" />
-      <input type="hidden" name="gross_margin" class="form-control" /> -->
-  </div>
-</div>
-<div class="row" style="padding-top:12px;">
-  <div class="col-sm-5">
-  </div>
-  <div class="col-sm-5 text-align-left" style="width: 28.5%;">
-    <label>Do you want to display the total amount in quotation?</label>
-  </div>:
-  <div class="col-sm-3">
-    <input type="radio" id="is_total_yes" name="total_status" value="1" checked>
-    <label class="form-check-label" for="is_total_yes">
-      yes
-    </label>
-    <input type="radio" id="is_total_no" name="total_status" value="0">
-    <label class="form-check-label" for="is_total_no">
-      No
-    </label>
+    <input type="hidden" name="gross_margin" class="form-control" /> -->
   </div>
 </div>
 <div class="title title-xs title-wth-divider text-primary text-uppercase my-2" style="padding-top:21px;"><span>Availability</span></div>
@@ -280,7 +254,7 @@
     </div>
     <div class="col-sm-4" style="padding-top:3px;">
       <label><input type="radio" name="buyer_site" id="buyer_sites" value="ready"> Buyer is suppose to keep the site ready & necessary materials available for installation</label>
-      <label><input type="radio" name="buyer_site" id="buyer_sites" value="not_ready">In Case this is not ready within maximum 30 days from the date of delivery our company is authorize to claim open payments linked to installation
+      <label><input type="radio" name="buyer_site" id="buyer_sites" value="not_ready">In Case this is not ready within maximum 30 days from the date of delivery the Yesmachinery is authorize to claim open payments linked to installation
       </label>
     </div>
   </div>
@@ -357,9 +331,6 @@
       addItemRow();
       updateTextarea();
     });
-    $('#vatAmountLabelService').on('input', function() {
-      calculateOverallTotal();
-    });
 
     document.getElementById('durationSelect').addEventListener('change', function() {
       var selectedValue = this.value;
@@ -372,7 +343,7 @@
       var selectedValue = $('#delivery-terms1').is(':checked') ? 'In Stock' : 'Out of Stock';
       var selectedValueId = $('input[name="delivery_terms"]:checked').val();
       var selectedPeriod = $('select[name="working_period"]').val();
-      var selectedPeriod = selectedPeriod + (weeksValue != 1 ? 's' : '');
+
       if (selectedValueId == 'is_stock') {
         var deliveryText = 'On stock subject to prior sale. Delivery available within ' + weeksValue + ' ' + selectedPeriod;
       } else {
@@ -431,7 +402,7 @@
       if (buyerSite === 'ready') {
         sentences.push('Buyer is supposed to keep the site ready & necessary materials available for installation.');
       } else if (buyerSite === 'not_ready') {
-        sentences.push('If, for any reason, the site/space/power/other utilities/materials that are necessary for installation are not ready at the client site within 30 days from the arrival of the machine at the buyer factory, the seller (Our Company) is authorized to invoice the balance payment linked to the installation and commissioning.');
+        sentences.push('If, for any reason, the site/space/power/other utilities/materials that are necessary for installation are not ready at the client site within 30 days from the arrival of the machine at the buyer factory, the seller (YES Machinery) is authorized to invoice the balance payment linked to the installation and commissioning.');
       }
       var resultTextarea = document.getElementById('result');
       resultTextarea.value = sentences.join('\n');
@@ -530,23 +501,23 @@
   function addQuotationTerms() {
 
     var newQuotationTerms = `
-    <div class="row">
-    <div class="col-sm-5">
-    <div class="form-group" style="margin-right: -11px;">
-    <input type="text" class="form-control title" name="term_title[]" placeholder="Title"/>
-    </div>
-    </div>
-    <div class="col-sm-6" style="width: 46%;">
-    <div class="form-group">
-    <textarea class="form-control" name="term_description[]" placeholder="Description" rows="2"></textarea>
-    </div>
-    </div>
-    <div class="col-sm-1">
-    <button type="button" onclick="removeQuotationTerms(this)" class="remove-button">
-    <i class="fas fa-trash"></i>
-    </button>
-    </div>
-    </div>`;
+  <div class="row">
+  <div class="col-sm-5">
+  <div class="form-group" style="margin-right: -11px;">
+  <input type="text" class="form-control title" name="term_title[]" placeholder="Title"/>
+  </div>
+  </div>
+  <div class="col-sm-6" style="width: 46%;">
+  <div class="form-group">
+  <textarea class="form-control" name="term_description[]" placeholder="Description" rows="2"></textarea>
+  </div>
+  </div>
+  <div class="col-sm-1">
+  <button type="button" onclick="removeQuotationTerms(this)" class="remove-button">
+  <i class="fas fa-trash"></i>
+  </button>
+  </div>
+  </div>`;
     $('#quotationTermsContainer').append(newQuotationTerms);
   }
 
@@ -557,28 +528,27 @@
   function addQuotationCharge() {
     var rowId = Date.now();
     var newRows = `
-    <div class="row" id="row-${rowId}">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-5">
-    <div class="form-group">
-    <select class="form-control charge-name-input title-input" name="charge_name[]" placeholder="Charge Type" data-row-id="${rowId}"></select>
-    </div>
-    </div>
-    <div class="col-sm-3">
-    <div class="form-group">
-    <input class="form-control" name="charge_amount[]" placeholder="Amount" />
-    </div>
-    </div>
-    <div class="col-sm-1">
-    <button type="button" onclick="removeQuotationCharge(${rowId})" class="remove-button">
-    <i class="fas fa-trash"></i>
-    </button>
-    </div>
-    </div>`;
+  <div class="row" id="row-${rowId}">
+  <div class="col-sm-3"></div>
+  <div class="col-sm-5">
+  <div class="form-group">
+  <select class="form-control charge-name-input title-input" name="charge_name[]" placeholder="Charge Type" data-row-id="${rowId}"></select>
+  </div>
+  </div>
+  <div class="col-sm-3">
+  <div class="form-group">
+  <input class="form-control" name="charge_amount[]" placeholder="Amount" />
+  </div>
+  </div>
+  <div class="col-sm-1">
+  <button type="button" onclick="removeQuotationCharge(${rowId})" class="remove-button">
+  <i class="fas fa-trash"></i>
+  </button>
+  </div>
+  </div>`;
     $('#quotationChargesContainer').append(newRows);
     initializeAutocomplete(rowId);
   }
-
   function addOptionalItem() {
     var rowId = Date.now();
     var newRows = `
@@ -590,9 +560,9 @@
     </div>
     </div>
     <div class="col-sm-1">
-    <div class="form-group">
-    <input type="text" class="form-control optional-quantity" name="optional_quantity[]" placeholder="Quantity" value="" />
-    </div>
+      <div class="form-group">
+        <input type="text" class="form-control optional-quantity" name="optional_quantity[]" placeholder="Quantity" value="" />
+      </div>
     </div>
     <div class="col-sm-2">
     <div class="form-group">
