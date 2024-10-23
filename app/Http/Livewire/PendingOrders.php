@@ -38,7 +38,7 @@ class PendingOrders extends Component
     $search = $this->search;
     $trimmedSearch = trim($this->search);
 
-    $data = array('status' => ['open', 'partial']);
+    $data = array('status' => ['open', 'partial', 'draft']);
     // $orders = $orderService->getOrder($data);
     if (isset($data['status']) && $data['status']) {
       $query = Order::whereIn('status', $data['status']);
@@ -50,7 +50,7 @@ class PendingOrders extends Component
       return $query->whereHas('company', function ($subquery) use ($trimmedSearch) {
         $subquery->where('company', 'like', $trimmedSearch . '%');
       })
-        ->orWhere('os_number', 'like', $trimmedSearch . '%')
+        ->orWhere('os_number', 'like', '%' . $trimmedSearch . '%')
         ->orWhere('po_number', 'like', $trimmedSearch . '%');
     });
     $query->orderBy('id', 'desc');

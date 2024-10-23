@@ -172,7 +172,7 @@
   <input class="form-check-input" type="hidden" name="vat_amount" value="{{ $quotation->vat_amount }}">
   @else
   <div class="col-sm-3">
-    <input type="text" class="form-control" name="vat_service"  value="{{ $quotation->vat_amount}}" id="vatAmountLabelService">
+    <input type="text" class="form-control" name="vat_service" value="{{ $quotation->vat_amount}}" id="vatAmountLabelService">
   </div>
   @endif
 
@@ -200,14 +200,14 @@
   <div class="col-sm-5">
   </div>
   <div class="col-sm-5 text-align-left" style="width: 28.5%;">
-    <label>Do you  want  to display the total amount in quotation?</label>
+    <label>Do you want to display the total amount in quotation?</label>
   </div>:
   <div class="col-sm-3">
-    <input type="radio" id="is_total_yes" name="total_status" value="1" {{ $quotation->total_status == 1 ? 'checked' : '' }} >
+    <input type="radio" id="is_total_yes" name="total_status" value="1" {{ $quotation->total_status == 1 ? 'checked' : '' }}>
     <label class="form-check-label" for="is_total_yes">
       yes
     </label>
-    <input type="radio" id="is_total_no" name="total_status" value="0" {{ $quotation->total_status == 0 ? 'checked' : '' }} >
+    <input type="radio" id="is_total_no" name="total_status" value="0" {{ $quotation->total_status == 0 ? 'checked' : '' }}>
     <label class="form-check-label" for="is_total_no">
       No
     </label>
@@ -408,89 +408,89 @@
     <div class="form-group">
       @if ($index === 1)
       <textarea class="form-control term-description" id="quotation_payment-term" data-value="{{ $quotationTerm->description ?? '' }}" name="term_description[]" rows="2">
-        {{ $quotationTerm->description ?? '' }}
+      {{ $quotationTerm->description ?? '' }}
       </textarea>
       @elseif ($index === 2)
       <textarea class="form-control term-description" id="quotation_terms_delivery" data-value="{{ $quotationTerm->description ?? '' }}" name="term_description[]" rows="2">
-        {{ $quotationTerm->description ?? '' }}
+      {{ $quotationTerm->description ?? '' }}
       </textarea>
       @elseif ($index === 3)
       <textarea class="form-control term-description" id="result" data-value="{{ $quotationTerm->description ?? '' }}" name="term_description[]" rows="2">
-        {{ $quotationTerm->description ?? '' }}</textarea>
+      {{ $quotationTerm->description ?? '' }}</textarea>
 
-        @else
-        <textarea class="form-control term-description {{ $index === 0 ? 'currency-label-terms' : '' }}" name="term_description[]" rows="2">{{ $quotationTerm->description ?? '' }}</textarea>
-        @endif
+      @else
+      <textarea class="form-control term-description {{ $index === 0 ? 'currency-label-terms' : '' }}" name="term_description[]" rows="2">{{ $quotationTerm->description ?? '' }}</textarea>
+      @endif
 
+    </div>
+  </div>
+  @if ($loop->first)
+  <div class="col-sm-1" style="margin-left: 2px;">
+    <button type="button" class="btn btn-success" onclick="addQuotationTerms()" style="background-color: #007D88;">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+  @endif
+  <div class="col-sm-1">
+    @if (!$loop->first)
+    <button type="button" onclick="removeQuotationTerms(this)" style="color: #007D88; border: 1px solid #007D88; border-radius: 4px; background-color: transparent; padding: 4px 8px; cursor: pointer;">
+      <i class="fas fa-trash"></i>
+    </button>
+    @endif
+  </div>
+</div>
+@endforeach
+@else
+<div>
+  @foreach($quotationTerms as $index=> $quotationTermsData)
+  <div class="row">
+    <div class="col-md-5">
+      <div class="form-group">
+        <input type="text" class="form-control title" name="term_title[]" value="{{ $quotationTermsData->title }}" />
       </div>
     </div>
-    @if ($loop->first)
-    <div class="col-sm-1" style="margin-left: 2px;">
-      <button type="button" class="btn btn-success" onclick="addQuotationTerms()" style="background-color: #007D88;">
-        <i class="fas fa-plus"></i>
-      </button>
+    :
+    <div class="col-md-5" style="align-items: center;">
+      <input type="hidden" name="payment_title[]" id="paymentTitle" />
+
+      <textarea class="form-control {{ $index === 0 ? ' currency-label-terms' : '' }}" name="term_description[]" rows="1">{{ $quotationTermsData->description ?? '' }}</textarea>
     </div>
-    @endif
-    <div class="col-sm-1">
-      @if (!$loop->first)
+    <div class="col-md-1">
       <button type="button" onclick="removeQuotationTerms(this)" style="color: #007D88; border: 1px solid #007D88; border-radius: 4px; background-color: transparent; padding: 4px 8px; cursor: pointer;">
         <i class="fas fa-trash"></i>
       </button>
-      @endif
     </div>
   </div>
   @endforeach
-  @else
-  <div>
-    @foreach($quotationTerms as $index=> $quotationTermsData)
-    <div class="row">
-      <div class="col-md-5">
-        <div class="form-group">
-          <input type="text" class="form-control title" name="term_title[]" value="{{ $quotationTermsData->title }}" />
-        </div>
-      </div>
-      :
-      <div class="col-md-5" style="align-items: center;">
-        <input type="hidden" name="payment_title[]" id="paymentTitle" />
-
-        <textarea class="form-control {{ $index === 0 ? ' currency-label-terms' : '' }}" name="term_description[]" rows="1">{{ $quotationTermsData->description ?? '' }}</textarea>
-      </div>
-      <div class="col-md-1">
-        <button type="button" onclick="removeQuotationTerms(this)" style="color: #007D88; border: 1px solid #007D88; border-radius: 4px; background-color: transparent; padding: 4px 8px; cursor: pointer;">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    @endforeach
-  </div>
-  <div style="text-align: justify; margin-top: 20px; color: #007D88; padding-bottom: 10px;">
-    Additional Terms
-  </div>
-  <div class="row">
-    <input type="hidden" name="row_term_ids[]">
-    <div class="col-sm-5">
-      <div class="form-group">
-        <input type="text" class="form-control title" name="term_title[]" placeholder="Title" value="" />
-      </div>
-    </div>
-    <div class="col-sm-5">
-      <div class="form-group">
-        <textarea class="form-control" name="term_description[]" placeholder="Description" rows="1"></textarea>
-      </div>
-    </div>
-    <div class="col-sm-1" style="margin-left: 2px;">
-      <button type="button" class="btn btn-success" onclick="addQuotationTerms()" style="background-color: #007D88;">
-        <i class="fas fa-plus"></i>
-      </button>
+</div>
+<div style="text-align: justify; margin-top: 20px; color: #007D88; padding-bottom: 10px;">
+  Additional Terms
+</div>
+<div class="row">
+  <input type="hidden" name="row_term_ids[]">
+  <div class="col-sm-5">
+    <div class="form-group">
+      <input type="text" class="form-control title" name="term_title[]" placeholder="Title" value="" />
     </div>
   </div>
-  @endif
-  <div class="row" id="quotationTermsContainer">
+  <div class="col-sm-5">
+    <div class="form-group">
+      <textarea class="form-control" name="term_description[]" placeholder="Description" rows="1"></textarea>
+    </div>
   </div>
+  <div class="col-sm-1" style="margin-left: 2px;">
+    <button type="button" class="btn btn-success" onclick="addQuotationTerms()" style="background-color: #007D88;">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+</div>
+@endif
+<div class="row" id="quotationTermsContainer">
+</div>
 
 
 
-  <script>
+<script>
   $(document).ready(function() {
 
     $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"], input[name="margin[]"]', function() {
@@ -781,21 +781,21 @@
 
   function addItemRow() {
     var newRow = '<div class="row" style="padding-top:15px;">' +
-    '<div class="col-sm-6"></div>' +
-    '<div class="col-sm-2" style="display: flex; align-items: center;">' +
-    '<div style="text-align: left;">' +
-    '<input type="text" class="form-control" name="payment_description[]" placeholder="payment" value="">' +
-    '</div>' +
-    '</div>' +
-    '<div class="col-sm-3" style="align-items: center;">' +
-    '<input  type="text" class="form-control" name="payment_name[]" placeholder="Title" value="">' +
-    '</div>' +
-    '<div class="col-sm-1">' +
-    '<button type="button" onclick="removePayments(this)" class="remove-button">' +
-    '<i class="fas fa-trash"></i>' +
-    '</button>' +
-    '</div>' +
-    '</div>';
+      '<div class="col-sm-6"></div>' +
+      '<div class="col-sm-2" style="display: flex; align-items: center;">' +
+      '<div style="text-align: left;">' +
+      '<input type="text" class="form-control" name="payment_description[]" placeholder="payment" value="">' +
+      '</div>' +
+      '</div>' +
+      '<div class="col-sm-3" style="align-items: center;">' +
+      '<input  type="text" class="form-control" name="payment_name[]" placeholder="Title" value="">' +
+      '</div>' +
+      '<div class="col-sm-1">' +
+      '<button type="button" onclick="removePayments(this)" class="remove-button">' +
+      '<i class="fas fa-trash"></i>' +
+      '</button>' +
+      '</div>' +
+      '</div>';
     $('#payment-cycles').append(newRow);
     var newPaymentDescription = $('#payment-cycles').find('input[name="payment_description[]"]').last();
     var newPaymentName = $('#payment-cycles').find('input[name="payment_name[]"]').last();
@@ -873,6 +873,7 @@
     $('#quotationChargesContainer').append(newRows);
     initializeAutocomplete(rowId);
   }
+
   function addOptionalItem() {
     var rowId = Date.now();
     var newRows = `
@@ -916,6 +917,7 @@
     var rowToRemove = $('[data-charge-id="' + rowId + '"]');
     rowToRemove.remove();
   }
+
   function removeChargeRow(button) {
     var row = button.closest('.row.charge-row');
     if (row) {
@@ -926,6 +928,7 @@
   function removeItem(rowId) {
     $('#row-' + rowId).remove();
   }
+
   function removeItems(rowId) {
     var rowToRemove = $('[data-charge-id="' + rowId + '"]');
     rowToRemove.remove();
@@ -939,25 +942,25 @@
     paymentRowToRemove.remove();
   }
 
-  function removeQuotationRow(button) {
-    var row = $(button).closest('.row');
-    var totalAmountInput = $('input[name="total_value"]');
-    var totalAmount = parseFloat(totalAmountInput.val()) || 0;
-    var overallTotal = 0;
-    var vatRate = 0.05;
-    var sumAfterDiscount = 0;
-    var rowTotal = parseFloat(row.find('input[name="total_after_discount[]"]').val()) || 0;
-    var newTotalAmount = totalAmount - rowTotal;
-    totalAmountInput.val(newTotalAmount.toFixed(2));
-    row.remove();
-    $('input[name="total_after_discount[]"]').each(function() {
-      var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
-      overallTotal += rowTotalAfterDiscount;
-      vatAmount = overallTotal * vatRate;
-      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+  // function removeQuotationRow(button) {
+  //   var row = $(button).closest('.row');
+  //   var totalAmountInput = $('input[name="total_value"]');
+  //   var totalAmount = parseFloat(totalAmountInput.val()) || 0;
+  //   var overallTotal = 0;
+  //   var vatRate = 0.05;
+  //   var sumAfterDiscount = 0;
+  //   var rowTotal = parseFloat(row.find('input[name="total_after_discount[]"]').val()) || 0;
+  //   var newTotalAmount = totalAmount - rowTotal;
+  //   totalAmountInput.val(newTotalAmount.toFixed(2));
+  //   row.remove();
+  //   $('input[name="total_after_discount[]"]').each(function() {
+  //     var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
+  //     overallTotal += rowTotalAfterDiscount;
+  //     vatAmount = overallTotal * vatRate;
+  //     $('#vatAmountLabel').text(vatAmount.toFixed(2));
 
-    });
-  }
+  //   });
+  // }
 
   function initializeAutocomplete(rowId) {
     var chargeNameInput = $(`.charge-name-input[data-row-id="${rowId}"]`);

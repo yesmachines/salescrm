@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BuyingPrice;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
@@ -21,6 +22,7 @@ use App\Models\Quotation;
 use App\Models\QuotationCharge;
 use App\Models\QuotationOptionalItem;
 use App\Models\SalesCommission;
+use App\Services\CurrencyService;
 use DB;
 
 class OrderController extends Controller
@@ -35,8 +37,11 @@ class OrderController extends Controller
   }
 
   //
-  public function createNewFromQuote($id,  QuotationService $quotationService)
-  {
+  public function createNewFromQuote(
+    $id,
+    QuotationService $quotationService,
+    CurrencyService $currencyService
+  ) {
     $quotation = $quotationService->getQuote($id);
 
     $selling_price = $quotation->total_amount;
@@ -57,19 +62,32 @@ class OrderController extends Controller
     $quote_charges = QuotationCharge::where("quotation_id", $quotation->id)->get();
 
     $quote_items = QuotationItem::where("quotation_id", $quotation->id)->get();
-    // ->join("suppliers", "suppliers.id", "=", "quotation_items.brand_id")
-    //->select("quotation_items.*", "suppliers.brand")
-    //->where("quotation_id", $quotation->id);
-    //$quote_items = $items->get();
 
     $customProductType = false;
     $selectedSuppliers = [];
+    $buyingPrice = [];
     foreach ($quote_items as $item) {
       $selectedSuppliers[] = $item->brand_id;
       if ($item->product->product_type == 'custom') {
         $customProductType = true;
       }
+      // calculate buying price - OS
+      if (!empty($item->product->buyingPrice) && isset($item->product->buyingPrice[0])) {
+        $bprice = $item->product->buyingPrice[0]->buying_price;
+        $bcurrency = $item->product->buyingPrice[0]->buying_currency;
+
+        $item->buying_price = $bprice * $item->quantity;
+        $item->buying_price = number_format((float)$item->buying_price, 2, '.', '');
+        $item->buying_currency = $bcurrency;
+
+        // bp currency conversion
+        $currency_rate_buying = DB::table('currency_conversion')->where('currency', $bcurrency)->first();
+        if ($currency_rate_buying) {
+          $buyingPrice[] = $item->buying_price * $currency_rate_buying->standard_rate;
+        }
+      }
     }
+    $buying_price = number_format((float)array_sum($buyingPrice), 2, '.', '');
 
     //$selectedSuppliers =  $items->pluck('brand_id')->toArray();
 
@@ -79,7 +97,8 @@ class OrderController extends Controller
       ->where("status", 1)
       ->get();
 
-    $currencies = DB::table('currency')->where('status', 1)->orderBy("code", "asc")->get();
+    $currencies =   $currencyService->getAllCurrency();
+
 
     return view('orders.createnew', compact(
       'quotation',
@@ -95,7 +114,8 @@ class OrderController extends Controller
       'service_employee',
       'quote_charges',
       'currencies',
-      'customProductType'
+      'customProductType',
+      'buying_price'
     ));
   }
 
@@ -155,6 +175,8 @@ class OrderController extends Controller
       'item.*.item_name'      => 'required',
       'item.*.quantity'       => 'required',
       'item.*.total_amount'   => 'required|decimal:0,4',
+      // 'item.*.buying_price'   => 'required|decimal:0,4',
+      // 'item.*.buying_currency' => 'required',
     ]);
 
     $input =  $request->all();
@@ -162,8 +184,11 @@ class OrderController extends Controller
     // update order
     $oupdate = [
       'material_status'  => $input['material_status'],
-      'material_details' => $input['material_details']
+      'material_details' => $input['material_details'],
     ];
+    if (isset($input['status'])) {
+      $oupdate['status'] = $input['status'];
+    }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 
     // update order client
@@ -189,9 +214,31 @@ class OrderController extends Controller
         'item'          => $input['item'],
       ];
       $orderService->saveOrderItems($items);
+
+      // Recalculate buying price total
+
+      $buyingPrice = [];
+      foreach ($input['item'] as $item) {
+
+        // calculate buying price - OS
+        if (!empty($item['buying_price']) && isset($item['buying_price'])) {
+          $bprice = $item['buying_price'];
+          $bcurrency =  $item['buying_currency'];
+
+          $currency_rate = DB::table('currency_conversion')->where('currency', $bcurrency)->first();
+          if ($currency_rate) {
+            $buyingPrice[] = $bprice * $currency_rate->standard_rate;
+          }
+        }
+      }
+      $buying_price = number_format((float)array_sum($buyingPrice), 2, '.', '');
     }
 
-    return response()->json(['success' => 'Items and delivery added successfully', 'data' => $order]);
+    return response()->json([
+      'success' => 'Items and delivery added successfully',
+      'data' => $order,
+      'buyingPrice' => $buying_price
+    ]);
   }
 
   public function saveSupplierTermStep3(Request $request, OrderService $orderService)
@@ -199,7 +246,7 @@ class OrderController extends Controller
 
     $validate = [
       'order_id'          => 'required',
-      'buying_price'      => 'required|decimal:0,4',
+      'buying_price_total'      => 'required|decimal:0,4',
       'projected_margin'  => 'required|decimal:0,4',
       'supplier.*.country_id'    => 'required',
       'supplier.*.supplier_id'   => 'required',
@@ -219,9 +266,12 @@ class OrderController extends Controller
     // update order
     $oupdate = [
       'order_id'         => $input['order_id'],
-      'buying_price'     => $input['buying_price'],
+      'buying_price'     => $input['buying_price_total'],
       'projected_margin' => $input['projected_margin']
     ];
+    if (isset($input['status'])) {
+      $oupdate['status'] = $input['status'];
+    }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 
     // Supplier delivery term
@@ -261,13 +311,19 @@ class OrderController extends Controller
     //     ->render();
 
     $orderDetails = $orderService->getOrder($id);
-    $optionalItems = QuotationOptionalItem::where('quotation_id',$orderDetails->quotation_id)->get();
-    $salesCommission = SalesCommission::where('quotation_id',$orderDetails->quotation_id)->get();
-
+    $optionalItems = QuotationOptionalItem::where('quotation_id', $orderDetails->quotation_id)->get();
+    $salesCommission = SalesCommission::where('quotation_id', $orderDetails->quotation_id)->get();
+    if ($orderDetails->status == 'draft') {
+      $watermark = "DRAFT COPY";
+    } else {
+      $watermark = "YESMACHINERY";
+    }
 
     $body = view('orders.os_summary')
       ->with(compact(
-        'orderDetails','optionalItems','salesCommission'
+        'orderDetails',
+        'optionalItems',
+        'salesCommission'
       ))
       ->render();
 
@@ -288,7 +344,8 @@ class OrderController extends Controller
     ]);
 
     $mpdf->useSubstitutions = true;
-    $mpdf->SetWatermarkText("YESMACHINERY", 0.1);
+
+    $mpdf->SetWatermarkText($watermark, 0.1);
     $mpdf->showWatermarkText = true;
     $mpdf->SetTitle('OS-' . $orderDetails->os_number . '.pdf');
     // $mpdf->WriteHTML($header);
@@ -296,7 +353,7 @@ class OrderController extends Controller
     $mpdf->Output('OS-' . $orderDetails->os_number . '.pdf', 'I');
   }
 
-  public function edit(OrderService $orderService, $id, QuotationService $quotationService)
+  public function edit(OrderService $orderService, $id, QuotationService $quotationService, CurrencyService $currencyService)
   {
 
     $order = $orderService->getOrder($id);
@@ -321,7 +378,7 @@ class OrderController extends Controller
         $customProductType = true;
       }
     }
-    $currencies = DB::table('currency')->where('status', 1)->orderBy("code", "asc")->get();
+    $currencies = $currencyService->getAllCurrency();
 
     return view('orders.edit', compact(
       'paymentTermsClient',
@@ -372,6 +429,7 @@ class OrderController extends Controller
 
     $input =  $request->all();
 
+
     $order = $orderService->updateOrder($input, $input['order_id']);
 
     if ($order && !empty($order)) {
@@ -417,6 +475,9 @@ class OrderController extends Controller
       'material_status'  => $input['material_status'],
       'material_details' => $input['material_details']
     ];
+    if (isset($input['status'])) {
+      $oupdate['status'] = $input['status'];
+    }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
     $cupdate = [
       'order_id'               => $input['order_id'],
@@ -449,9 +510,12 @@ class OrderController extends Controller
 
     $oupdate = [
       'order_id'         => $input['order_id'],
-      'buying_price'     => $input['buying_price'],
+      'buying_price'     => $input['buying_price_total'],
       'projected_margin' => $input['projected_margin']
     ];
+    if (isset($input['status'])) {
+      $oupdate['status'] = $input['status'];
+    }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 
     if (isset($input['supplier'])) {

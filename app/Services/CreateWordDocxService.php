@@ -155,7 +155,7 @@ class CreateWordDocxService
           $txt_tmp = '';
           $modelno = $value->product->modelno ? $value->product->modelno : ($value->product->part_number ? $value->product->part_number : '');
           if (!$modelno) {
-            $modelno = $value->description;
+            $modelno =  $value->product->title;
           }
           $mArr[] =  htmlspecialchars($modelno);
           // '<ul style="' . $commonStyle . '"><li>' . htmlspecialchars($modelno) . '</li></ul>';
@@ -305,11 +305,17 @@ class CreateWordDocxService
         $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . $s_no . '</td>';
         $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">';
         if (isset($value->product->image_url)) {
-          $html .= '<img src="' . asset('storage/' .  $value->product->image_url) . '" style="width:150px; height:100px;" alt="Product Image"><br>';
+          $html .= '<img src="' . asset('storage/' .  $value->product->image_url) . '" style="width:60px; height:60px;" alt="Product Image"><br>';
         }
         $html .= '<br>' . $brand . '<br>' . nl2br($title) . '</td>';
-        $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . htmlspecialchars(number_format($value['unit_price'], 2)) . ' ' . $quotation->preferred_currency . '</td>';
+        if (collect($quotationItems)->contains('discount_status', 1)) {
+          $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . htmlspecialchars(number_format($value['unit_price'], 2)) . ' ' . $quotation->preferred_currency . '</td>';
+        } else {
+          $unitprice = $value['total_after_discount'] / $value['quantity'];
+          $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . htmlspecialchars(number_format($unitprice, 2)) . ' ' . $quotation->preferred_currency . '</td>';
+        }
         $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . htmlspecialchars($value['quantity']) . '</td>';
+
         if (collect($quotationItems)->contains('discount_status', 1)) {
           $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">';
           if ($value->discount_status != '0') {

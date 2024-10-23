@@ -620,30 +620,44 @@
     $('#row-' + rowId).remove();
   }
 
-  function removeQuotationRow(row) {
 
+  function removeQuotationRow(row) {
+    // total amount
     var totalAmountInput = $('input[name="total_value"]');
     var totalAmount = parseFloat(totalAmountInput.val()) || 0;
+    // total margin
+    var marginAmountInput = $('input[name="total_margin_value"]');
+    var marginAmount = parseFloat(marginAmountInput.val()) || 0;
 
-    var overallTotal = 0;
-    var vatRate = 0.05;
-    var vatIncluded = $('input[name="vat_option"]:checked').val();
-    var sumAfterDiscount = 0;
+    // reduce row total & update total amount
     var rowTotal = parseFloat(row.find('input[name="total_after_discount[]"]').val()) || 0;
-
     var newTotalAmount = totalAmount - rowTotal;
     totalAmountInput.val(newTotalAmount.toFixed(2));
 
+    // reduce row margin & update total margin
+    var rowMargin = parseFloat(row.find('input[name="margin_amount_row[]"]').val()) || 0;
+    var newMarginAmount = marginAmount - rowMargin;
+    marginAmountInput.val(newMarginAmount.toFixed(2));
+
+    // is vat available
+    var vatRate = 0.05;
+    var vatIncluded = $('input[name="vat_option"]:checked').val();
+
+    // sum all row total & reduce deleted row total
+    var overallTotal = 0;
     $('input[name="total_after_discount[]"]').each(function() {
       var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
       overallTotal += rowTotalAfterDiscount;
-
-      if (vatIncluded == 1) {
-        vatAmount = overallTotal * vatRate;
-        $('#vatAmountLabel').text(vatAmount.toFixed(2));
-      }
     });
+    overallTotal = overallTotal - rowTotal;
+    overallTotal = parseFloat(overallTotal);
 
+    // calculate & update vat amount
+    var vatAmount = 0;
+    if (vatIncluded == 1) {
+      vatAmount = overallTotal * vatRate;
+      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+    }
   }
 
   function initializeAutocomplete(rowId) {

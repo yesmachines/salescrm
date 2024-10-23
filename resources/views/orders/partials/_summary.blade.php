@@ -215,13 +215,14 @@
             </div>
         </div>
         <div class="row mb-2 mt-4">
-            <div class="col-4"></div>
-            <div class="col-4">
-                <button type="submit" id="order_details_button" class="btn btn-success m-2">Save & Continue</button>
+            <div class="col-3"></div>
+            <div class="col-6">
+                <button type="submit" id="order_details_draft" class="btn btn-secondary m-2" value="save-step1-draft">Draft & Continue</button>
+                <button type="submit" id="order_details_button" class="btn btn-success m-2" value="save-step1">Save & Continue</button>
                 <!-- <a href="javascript:void(0);" onclick="skipStep1();" class="">Skip here</a> -->
                 <button type="button" class="btn btn-default next-step m-2">Next <i class="fa fa-chevron-right"></i></button>
             </div>
-            <div class="col-4"></div>
+            <div class="col-3"></div>
         </div>
     </div>
 

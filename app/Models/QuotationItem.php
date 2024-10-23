@@ -25,6 +25,7 @@ class QuotationItem extends Model
   {
     return $this->belongsTo(Product::class, 'item_id', 'id');
   }
+
   public function supplier()
   {
     return $this->belongsTo(Supplier::class, 'brand_id', 'id');

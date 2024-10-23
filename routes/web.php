@@ -17,7 +17,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\PurchaseRequisitionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\DivisionController;
@@ -74,7 +74,10 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('currency', CurrencyController::class);
     Route::resource('conversion', ConversionController::class);
 
-
+    Route::resource('purchaserequisition', PurchaseRequisitionController::class);
+    Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');
+    Route::get('purchaserequisition/createstock/{id}', [PurchaseRequisitionController::class, 'stockPR'])->name('purchaserequisition.createstock');
+    Route::get('purchaserequisition/download/{id}', [PurchaseRequisitionController::class, 'downloadPR'])->name('purchaserequisition.download');
     Route::get('orders/createnew/{id}', [OrderController::class, 'createNewFromQuote'])->name('orders.createnew');
     Route::post('orders/savestep1', [OrderController::class, 'saveOrderStep1'])->name('orders.savestep1');
     Route::post('orders/savestep2', [OrderController::class, 'saveOrderItemStep2'])->name('orders.savestep2');
@@ -159,17 +162,19 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::post('productImportSave', [ProductController::class, 'importSave'])->name('import.excel');
     Route::get('downloadExcelTemplate', [ProductController::class, 'downloadExcelTemplate'])->name('download.excel.template');
     Route::get('/check-company', [LeadController::class, 'checkCompany']);
-
-
     Route::resource('products', ProductController::class);
-
     Route::resource('divisions', DivisionController::class);
-
     Route::post('saveProduct', [ProductController::class, 'saveAjaxProduct'])->name('products.ajaxsave');
+    Route::post('saveBuyingPrice', [ProductController::class, 'saveAjaxBuyingPrice'])->name('products.savebuyingprice');
 
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
     Route::resource('stock', StockController::class);
     Route::get('stock/download/{id}', [StockController::class, 'downloadStockOS'])->name('stock.download');
+    Route::post('buyingPriceSave', [ProductController::class, 'buyingPriceSave'])->name('buyingPriceSave');
+
+    Route::get('buyingprice', [ProductController::class, 'buyingPriceByProduct'])->name('products.buyingprice');
+
+    Route::get('reports/summary-report', [ReportController::class, 'summaryNumber'])->name('reports.summarynumber');
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
 Route::post('qrcode-form', [QrCodeController::class, 'store'])->name('qrcodeScanning');

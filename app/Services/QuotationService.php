@@ -26,7 +26,7 @@ class QuotationService
     return Quotation::create([
       'company_id'          => $userData['company_id'],
       'customer_id'         => $userData['customer_id'],
-      'quote_from'          => $userData['quote_from'],
+      'quote_from'           => $userData['quote_from'],
       //  'category_id'       => $userData['category_id'],
       // 'supplier_id'         =>implode(',', $userData['supplier_id']),
       //'product_models'      => (isset($userData['product_models']) && !empty($userData['product_models'])) ? $userData['product_models'] : '',
@@ -169,14 +169,19 @@ class QuotationService
     if (isset($data['closing_start_date']) && isset($data['closing_end_date'])) {
       $sql->whereBetween('closure_date', array($data['closing_start_date'], $data['closing_end_date']));
     }
-    if (isset($data['assigned_to'])) {
+    if (isset($data['start_date']) && isset($data['end_date'])) {
+      $sql->whereBetween('submitted_date', array($data['start_date'], $data['end_date']));
+    }
+    if (isset($data['assigned_to']) && !empty($input['assigned_to'])) {
+      $data['assigned_to'] =  (array)  $data['assigned_to'];
       $sql->whereIn('assigned_to', $data['assigned_to']);
     }
 
     if (isset($data['isPagination']) && $data['isPagination']) {
       return $sql->paginate(10);
     } else {
-      return $sql->get();
+
+      return $sql->lazy();
     }
   }
 
@@ -211,16 +216,15 @@ class QuotationService
   {
 
     $update = [];
-
     if (isset($userData['company_id'])) {
       $update['company_id'] = $userData['company_id'];
     }
     if (isset($userData['customer_id'])) {
       $update['customer_id'] = $userData['customer_id'];
     }
-    // if (isset($userData['category_id'])) {
-    //   $update['category_id'] = $userData['category_id'];
-    // }
+    if (isset($userData['quote_from'])) {
+      $update['quote_from'] = $userData['quote_from'];
+    }
     // if (isset($userData['supplier_id'])) {
     //     $update['supplier_id'] = $userData['supplier_id'];
     // }
@@ -263,6 +267,7 @@ class QuotationService
     if (isset($userData['quote_for'])) {
       $update['quote_for'] = $userData['quote_for'];
     }
+
     if (isset($userData['reminder']) && $userData['reminder']) {
       $date = strtotime($userData['reminder']);
       $update['reminder'] = date('Y-m-d H:i:s', $date);
@@ -437,6 +442,9 @@ class QuotationService
     return $sql->get()->count();
   }
 
+  /************************
+   * NEED TO DELETE THIS FUNCTION
+   * **********************************/
   public function salesValueByEmployee($data = []): Object
   {
     // $sql = DB::table('quotations as q')

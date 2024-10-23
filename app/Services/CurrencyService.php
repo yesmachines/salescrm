@@ -9,10 +9,8 @@ class CurrencyService
 {
     public function getAllCurrency($data = []): Object
     {
-      return Currency::where('status', 1)
-    ->orderByDesc('created_at')
-    ->get();
-
+        return Currency::where('status', 1)
+            ->orderBy("code", "asc")->get();
     }
     public function getCurrency($id): Object
     {

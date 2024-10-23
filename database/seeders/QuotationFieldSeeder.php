@@ -108,7 +108,22 @@ class QuotationFieldSeeder extends Seeder
         'field_type' => 'payment_terms',
         'status' => '1',
       ],
+      [
+        'title' => 'Import Code',
 
+        'description' => 'Sharjah import code is mandatory in case of generating a code an additional service fee of 150 AED is applicable (subject to receipt of required supporting documents)',
+        'is_default' => '1',
+        'field_type' => 'quotation_terms',
+        'status' => '1',
+      ],
+      [
+        'title' => 'Minimum order value',
+
+        'description' => 'Minimum order value is 3000 AED, if the value if lesser an additional delivery charge of 150 AED will be applied',
+        'is_default' => '1',
+        'field_type' => 'quotation_terms',
+        'status' => '1',
+      ],
     );
     foreach ($charges as $charge) {
       DB::table('quotation_fields')->insert($charge);

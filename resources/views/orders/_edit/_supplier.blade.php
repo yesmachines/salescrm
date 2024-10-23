@@ -23,7 +23,7 @@
       <h6>Buying Price (AED) From Supplier *</h6>
     </div>
     <div class="col-6">
-      <input type="number" class="form-control" id="buying_price" name="buying_price" step="any" value="{{ $order->buying_price ?? '' }}">
+      <input type="number" class="form-control" id="buying_price_total" name="buying_price_total" step="any" value="{{ $order->buying_price ?? '' }}">
     </div>
     <div class="col-2"></div>
   </div>
@@ -155,7 +155,7 @@
 
         <a href="javascript:void(0);" class="addAC btn btn-primary btn-sm" style="float: right;">
           <i data-feather="plus"></i> Add Row</a>
-      
+
       </h6>
       <table class="table form-table" id="chargespaymentFields">
         <thead>
@@ -174,7 +174,7 @@
               <input type="text" class="form-control" name="charges[{{$key}}][title]" placeholder="Packing Charge" value="{{ $value->title ?? '' }}" />
             </td>
             <td width="20%">
-              <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost"  step="any" value="{{ $value->considered ?? '' }}" />
+              <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost" step="any" value="{{ $value->considered ?? '' }}" />
             </td>
             <td width="30%">
               <textarea rows="2" name="charges[{{$key}}][remarks]" placeholder="Remarks" class="form-control">{{ $value->remarks ?? '' }}</textarea>
@@ -188,12 +188,13 @@
     </div>
   </div>
   <div class="row mb-2">
-    <div class="col-4"></div>
-    <div class="col-4">
+    <div class="col-2"></div>
+    <div class="col-8">
       <button type="button" class="btn btn-default prev-step m-2"><i class="fa fa-chevron-left"></i> Back</button>
+      <button type="submit" id="order_delivery_draft m-2" class="btn btn-secondary" value="save-step3-draft">Save as Draft</button>
       <button type="submit" id="order_delivery_details_button m-2" class="btn btn-success" value="save">Save & Finish</button>
-      <!-- <button type="submit" id="order_summary_download m-2" class="btn btn-primary" value="save-os">Save & Download OS</button> -->
+      <button type="submit" id="save_os_create_pr m-2" class="btn btn-primary" value="create-pr">Save & Create PR</button>
     </div>
-    <div class="col-4"></div>
+    <div class="col-2"></div>
   </div>
 </form>

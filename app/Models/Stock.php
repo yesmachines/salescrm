@@ -18,4 +18,23 @@ class Stock extends Model
         return $this->belongsTo(Employee::class, 'assigned_to', 'id');
     }
 
+    public function stockSupplier()
+    {
+        return $this->hasMany(StockSupplier::class, 'stock_id', 'id');
+    }
+    public function stockItem()
+    {
+        return $this->hasMany(StockItem::class, 'stock_id', 'id');
+    }
+    public function getStockSupplierAttribute()
+    {
+
+        return $this->stockSupplier()->get()->map(function ($stockSupplier) {
+            return $stockSupplier->supplier ? $stockSupplier->supplier->brand : 'Unknown';
+        })->implode(', ');
+    }
+    public function getStockProductAttribute()
+    {
+        return $this->stockItem ? $this->stockItem->pluck('item_name')->implode(', ') : '';
+    }
 }

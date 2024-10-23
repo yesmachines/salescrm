@@ -1,4 +1,3 @@
-
 <div class="row mb-2">
   <div class="col-4">
     <h6>OS Type </h6>
@@ -37,54 +36,102 @@
 
 </div>
 <div class="row my-4">
-    <div class="col-xxl-12">
-        <div class="row mb-2">
-            <div class="col-4">
-                <h6>Manager *</h6>
-            </div>
-            <div class="col-6">
-              <select class="form-select" name="assigned_to" required>
-                  <option value="">--</option>
-                  @foreach($employees as $emp)
-                  <option value="{{$emp->id}}" {{($emp->id == $stock->assigned_to)? "selected": "" }}>{{ $emp->user->name}}</option>
-                  @endforeach
-              </select>
-            </div>
-            <div class="col-2"></div>
-        </div>
+  <div class="col-xxl-12">
+    <div class="row mb-2">
+      <div class="col-4">
+        <h6>Manager *</h6>
+      </div>
+      <div class="col-6">
+        <select class="form-select" name="assigned_to" required>
+          <option value="">--</option>
+          @foreach($employees as $emp)
+          <option value="{{$emp->id}}" {{($emp->id == $stock->assigned_to)? "selected": "" }}>{{ $emp->user->name}}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-2"></div>
     </div>
+  </div>
 
 </div>
 <div class="row mb-2">
-    <div class="col-12">
-        <div class="separator"></div>
-    </div>
+  <div class="col-12">
+    <div class="separator"></div>
+  </div>
 </div>
+<!-- Supplier & Delivery Terms -->
+<div class="row mb-2">
+  <div class="col-xxl-12">
+    <h6> <b>Supplier & Delivery Terms</b></h6>
+    <table class="table form-table" id="supplierFields">
+      <thead>
+        <tr>
+          <th>Supplier *</th>
+          <th>Price Basis *</th>
+          <th>Delivery Term *</th>
+          <th>Supplier Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr valign="top">
+          <td width="30%">
+            <select class="form-control supplier-dropdown" name="supplier_id" id="supplier" required disabled>
+              @foreach($suppliers as $sup)
+              <option value="{{$sup->id}}" {{ $stockSuppliers->supplier_id == $sup->id ? 'selected' : '' }}>{{$sup->brand}}</option>
+              @endforeach
+            </select>
+          </td>
+          <td width="20%">
+            <select class="form-control" name="price_basis" required>
+              <option value="">-Select-</option>
+              @foreach($currencies as $cur)
+              <option value="{{$cur->code}}" {{ $stockSuppliers->price_basis == $cur->code ? 'selected' : '' }}>{{strtoupper($cur->code)}}</option>
+              @endforeach
+            </select>
+          </td>
+          <td width="20%">
+            <select class="form-control" name="delivery_term" required>
+              <option value="">-Select-</option>
+              @foreach($terms as $term)
+              <option value="{{$term->short_code}}" {{ $stockSuppliers->delivery_term == $term->short_code ? 'selected' : '' }}>{{$term->title}}</option>
+              @endforeach
+            </select>
+          </td>
+          <td width="30%">
+            <textarea rows="2" name="supplier_remark" placeholder="Supplier Remarks" class="form-control">{{ $stockSuppliers->remarks }}</textarea>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  var otherOption = document.getElementById('otherOption');
-  var descriptionBox = document.getElementById('descriptionBox');
+  document.addEventListener('DOMContentLoaded', function() {
+    var otherOption = document.getElementById('otherOption');
+    var descriptionBox = document.getElementById('descriptionBox');
 
-  otherOption.addEventListener('change', function () {
-    if (this.checked) {
-      descriptionBox.style.display = 'block';
-    }
+    otherOption.addEventListener('change', function() {
+      if (this.checked) {
+        descriptionBox.style.display = 'block';
+      }
+    });
+
+    var otherPurchaseOption = document.getElementById('otherPurchaseOption');
+    var stockOption = document.getElementById('stockOption');
+
+    otherPurchaseOption.addEventListener('change', function() {
+      if (this.checked) {
+        descriptionBox.style.display = 'none';
+      }
+    });
+
+    stockOption.addEventListener('change', function() {
+      if (this.checked) {
+        descriptionBox.style.display = 'none';
+      }
+    });
+
   });
-
-  var otherPurchaseOption = document.getElementById('otherPurchaseOption');
-  var stockOption = document.getElementById('stockOption');
-
-  otherPurchaseOption.addEventListener('change', function () {
-    if (this.checked) {
-      descriptionBox.style.display = 'none';
-    }
-  });
-
-  stockOption.addEventListener('change', function () {
-    if (this.checked) {
-      descriptionBox.style.display = 'none';
-    }
-  });
-
-});
 </script>

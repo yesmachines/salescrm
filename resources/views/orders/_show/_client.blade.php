@@ -83,7 +83,8 @@
                     <th>Part No</th>
                     <th>Qty</th>
                     <th>YesNo.</th>
-                    <th>Amount (AED)</th>
+                    <th>Selling</th>
+                    <th>Buying</th>
                     <th>Expected<br />Delivery</th>
                     <th>Status</th>
                     <th>Item<br />Remarks</th>
@@ -108,7 +109,10 @@
                         {{$item->yes_number}}
                     </td>
                     <td>
-                        {{$item->total_amount}}
+                        {{$item->total_amount}} <span class="text-primary">AED</span>
+                    </td>
+                    <td>
+                        {{$item->buying_price}} <span class="text-primary">{{$item->buying_currency}}</span>
                     </td>
                     <td width="8%">
                         {{$item->expected_delivery}}

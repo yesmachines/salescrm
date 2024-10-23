@@ -152,6 +152,19 @@
             <div class="row gx-3 mt-4">
               <div class="col-sm-6">
                 <div class="form-group">
+                  <label class="form-label">For Company <span class="text-danger">*</span></label>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <select class="form-select" name="quote_from" required id="from_company">
+                    <option value="yesmachinery" {{($quotation->quote_from == "yesmachinery")? "selected": "" }}>Yesmachinery</option>
+                    <option value="yesclean" {{($quotation->quote_from == "yesclean")? "selected": "" }}>Yesclean</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
                   <label class="form-label">Lead Type <span class="text-danger">*</span></label>
                 </div>
               </div>
@@ -164,6 +177,7 @@
                   </select>
                 </div>
               </div>
+
               <div class="col-sm-6">
                 <div class="form-group">
                   <label class="form-label">Quotation For <span class="text-danger">*</span></label>
@@ -404,7 +418,7 @@
                     <input type="number" class="form-control percentage" id="percent_0" name="percent[]" value="{{ isset($sc->percent)? $sc->percent : ''}}" placeholder="Percentage %" maxlength="2" />
                   </td>
                   <td>
-                    <input type="number" class="form-control" id="commission_amount_0" name="commission_amount[]" value="{{ isset($sc->commission_amount)? $sc->commission_amount : ''}}" placeholder="Sales Commision (AED)" step="any"/>
+                    <input type="number" class="form-control" id="commission_amount_0" name="commission_amount[]" value="{{ isset($sc->commission_amount)? $sc->commission_amount : ''}}" placeholder="Sales Commision (AED)" step="any" />
                   </td>
                   <td>
                     @if($sc->manager_id != $quotation->assigned_to)
@@ -426,7 +440,7 @@
                     <input type="number" class="form-control percentage" id="percent_0" name="percent[]" value="" placeholder="Percentage %" maxlength="2" />
                   </td>
                   <td>
-                    <input type="number" class="form-control" id="commission_amount_0" name="commission_amount[]" value="" placeholder="Sales Commision (AED)" step="any"/>
+                    <input type="number" class="form-control" id="commission_amount_0" name="commission_amount[]" value="" placeholder="Sales Commision (AED)" step="any" />
                   </td>
                 </tr>
 
@@ -463,13 +477,19 @@
         <div class="modal-body">
           <form id="productForm">
             <input type="hidden" name="allowed_discount" id="allowed_discount" value="0" />
+            <input type="hidden" name="product_type" value="custom" />
+            <input type="hidden" name="status" value="active" />
+            <div class="row gx-3">
+              <div class="col-12">
+                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Product Details</span></div>
+              </div>
+            </div>
+
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group">
                   <label class="form-label">Title <span class="text-danger">*</span></label>
-
                 </div>
-
                 <div class="form-group">
                   <input class="form-control" type="text" id="titleInput" name="title" />
                   <div class="invalid-feedback">Please enter a title.</div>
@@ -506,10 +526,9 @@
                   <div class="invalid-feedback">Please enter a brand.</div>
                 </div>
               </div>
-
             </div>
-            <div class="row">
 
+            <div class="row">
               <div class="col-md-4">
                 <div class="form-group">
                   <label class="form-label">Model No</label>
@@ -526,7 +545,6 @@
                   <input class="form-control" type="text" name="part_number" />
                 </div>
               </div>
-
               <div class="col-md-4">
                 <div class="form-group">
                   <label class="form-label">Description </label>
@@ -536,143 +554,7 @@
 
                 </div>
               </div>
-
             </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Product Type</label>
-                </div>
-                <div class="form-group">
-                  <input type="text" readonly class="form-control" name="product_type" value="custom" />
-                  <!-- <select class="form-control" name="product_type" disabled>
-                                    <option value="standard">Standard Price Product</option>
-                                    <option value="custom" selected>Custom Price Product</option>
-                                </select> -->
-                  <!-- <div class="invalid-feedback">Please enter a product type.</div> -->
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Payment Term<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="product_payment_term">
-                    @foreach($paymentTerms as $paymentTerm)
-                    <option value="{{ $paymentTerm->short_code }}">{{ $paymentTerm->title }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a product payment term.</div>
-
-                </div>
-
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Currency<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="currency" id="currencyInput">
-                    <option value="">-Select Currency-</option>
-                    @foreach($currencies as $currency)
-                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a product currency.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <!-- <div class="form-group">
-                <label class="form-label">Currency Conversion</label>
-              </div>
-              <div class="form-group">
-              <input class="form-control" type="text" name="currency_rate" />
-              <div class="invalid-feedback">Please enter a currency rate.</div>
-            </div> -->
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Manager<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-select" name="manager_id" id="managerInput">
-                    <option value="" selected="">--</option>
-                    @foreach ($managers as $key => $row)
-                    <option value="{{ $row->id }}">
-                      {{ $row->user->name }}
-                    </option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please select product manager.</div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
-                  <div class="invalid-feedback">Please enter a price.</div>
-                </div>
-              </div>
-
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">MOSP<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
-                  <div class="invalid-feedback">Please enter a MOSP.</div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Margin Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="margin_price" id="marginPrice">
-                  <div class="invalid-feedback">Please enter a margin price.</div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="form-group">
-                  <label class="form-label">Image</label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="file" name="image" />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="date" id="durationSelect">
-                    <option value="1" selected>1 Month</option>
-                    <option value="3">3 Month</option>
-                    <option value="6">6 Month</option>
-                    <option value="9">9 Month</option>
-                    <option value="12">12 Month</option>
-                  </select>
-                  <div class="invalid-feedback">Please select an date.</div>
-                </div>
-                <div class="form-group" id="dateRangeGroup" style="display: none;">
-                  <label class="form-label">Dates:</label>
-                  <span id="dateRange"></span>
-                  <input type="hidden" name="start_date" id="startDateInput" />
-                  <input type="hidden" name="end_date" id="endDateInput" />
-                </div>
-              </div>
-            </div>
-
-
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group">
@@ -691,18 +573,206 @@
               </div>
               <div class="col-md-4">
                 <div class="form-group">
-                  <label class="form-label">Status<span class="text-danger">*</span></label>
+                  <label class="form-label">Manager<span class="text-danger">*</span></label>
                 </div>
                 <div class="form-group">
-                  <select class="form-control" name="status">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                  <select class="form-select" name="manager_id" id="managerInput">
+                    <option value="" selected="">--</option>
+                    @foreach ($managers as $key => $row)
+                    <option value="{{ $row->id }}">
+                      {{ $row->user->name }}
+                    </option>
+                    @endforeach
                   </select>
+                  <div class="invalid-feedback">Please select product manager.</div>
                 </div>
               </div>
-              <div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label class="form-label">Image</label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="file" name="image" />
+                </div>
               </div>
             </div>
+
+
+
+            <div class="row gx-3 mt-2 mb-2">
+              <div class="col-12">
+                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Payment Term<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <select class="form-control" name="product_payment_term">
+                    @foreach($paymentTerms as $paymentTerm)
+                    <option value="{{ $paymentTerm->short_code }}">{{ $paymentTerm->title }}</option>
+                    @endforeach
+                  </select>
+                  <div class="invalid-feedback">Please enter a product payment term.</div>
+
+                </div>
+
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Currency<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <select class="form-control" name="currency" id="currencyInput">
+                    <option value="">-Select Currency-</option>
+                    @foreach($currencies as $currency)
+                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                    @endforeach
+                  </select>
+                  <div class="invalid-feedback">Please enter a product currency.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
+                  <div class="invalid-feedback">Please enter a price.</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">MOSP<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
+                  <div class="invalid-feedback">Please enter a MOSP.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Margin Price<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="margin_price" id="marginPrice">
+                  <div class="invalid-feedback">Please enter a margin price.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <select class="form-control" name="date" id="durationSelect">
+                    <option value="1" selected>1 Month</option>
+                    <option value="3">3 Month</option>
+                    <option value="6">6 Month</option>
+                    <option value="9">9 Month</option>
+                    <option value="12">12 Month</option>
+                  </select>
+                  <div class="invalid-feedback">Please select an date.</div>
+                </div>
+                <div class="form-group small" id="dateRangeGroup" style="display: none;">
+                  <label class="form-label">Dates:</label>
+                  <span id="dateRange"></span>
+                  <input type="hidden" name="start_date" id="startDateInput" />
+                  <input type="hidden" name="end_date" id="endDateInput" />
+                </div>
+              </div>
+            </div>
+
+
+            <div class="row gx-3 mt-2 mb-2">
+              <div class="col-12">
+                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <select class="form-control" name="buying_currency" id="buying_currency" required>
+                    <option value="">-Select Currency-</option>
+                    @foreach($currencies as $currency)
+                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                    @endforeach
+                  </select>
+                  <div class="invalid-feedback">Please select a currency.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="gross_price" id="gross_price" required />
+
+                  <div class="invalid-feedback">Please enter a gross price.</div>
+                </div>
+              </div>
+              <div class="col-md-4" id="purchase_discount_percent">
+                <div class="form-group">
+                  <label class="form-label">Purchase Discount(%)</label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="number" name="discount" id="purchase_discount">
+                  <div class="invalid-feedback">Please enter a purchase discount.</div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4" id="purchase_discount_price">
+                <div class="form-group">
+                  <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
+                  <div class="invalid-feedback">Please enter a purchase discount price.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="buying_price" id="buying_price" required />
+                  <div class="invalid-feedback">Please enter a buying price.</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-group">
+                  <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
+                    <option value="">Select</option>
+                    <option value="1" selected>1 Month</option>
+                    <option value="3">3 Month</option>
+                    <option value="6">6 Month</option>
+                    <option value="9">9 Month</option>
+                    <option value="12">12 Month</option>
+                  </select>
+                  <div class="invalid-feedback">Please choose a date.</div>
+                </div>
+
+                <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
+                  <label class="form-label">Dates:</label>
+                  <span id="purchasedateRange"></span>
+                  <input type="hidden" name="validity_from" id="validity_from" />
+                  <input type="hidden" name="validity_to" id="validity_to" />
+                </div>
+              </div>
+            </div>
+
+
 
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
@@ -935,64 +1005,170 @@
       //
       //   });
 
-        /**************************************
-         * PO Dynamic Rows
-         *****************************************/
-        var iter = 0;
+      $("#purchasedurationSelect").on("change", function(e) {
+        let selectedValue = $(this).val();
+        setPurchaseDateRange(selectedValue);
+      });
+      // default purchase date range
+      setPurchaseDateRange(1);
 
-        $(".addSC").click(function() {
-          iter++;
-          let dropdwn = createDropDown(iter);
-          $("#customFieldsSC").append(`<tr valign="top">
+      $('#purchase_discount').on('input', function() {
+        var gross_price = $('#gross_price').val();
+        if (gross_price.trim() === '') {
+          alert('Please enter the gross price first.');
+          $(this).val(''); // Clear the margin price input
+        }
+      });
+      $('#purchase_discount_amount').on('input', function() {
+        var gross_price = $('#gross_price').val();
+        if (gross_price.trim() === '') {
+          alert('Please enter the gross price first.');
+          $(this).val(''); // Clear the margin price input
+        }
+      });
+
+      document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
+      document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
+      document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+      $('#gross_price, #purchase_discount').on('input', function() {
+        updateBuyingPrice();
+      });
+
+      /**************************************
+       * PO Dynamic Rows
+       *****************************************/
+      var iter = 0;
+
+      $(".addSC").click(function() {
+        iter++;
+        let dropdwn = createDropDown(iter);
+        $("#customFieldsSC").append(`<tr valign="top">
       <td>${dropdwn}</td>
       <td><input type="number" class="form-control percentage" id="percent_${iter}" name="percent[]" value="" onkeyup="percentage();"/></td>
       <td><input type="number" class="form-control" id="commission_amount_${iter}" name="commission_amount[]" value="" step="any" /></td>
       <td><a href="javascript:void(0);" class="remSC" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
-        });
+      });
 
-        $("#customFieldsSC").on('click', '.remSC', function() {
-          const obj = $(this);
-          if (confirm('Are you sure to delete the collaborator?')) {
+      $("#customFieldsSC").on('click', '.remSC', function() {
+        const obj = $(this);
+        if (confirm('Are you sure to delete the collaborator?')) {
 
-            let scid = obj.data("id");
-            scid = parseInt(scid);
-            if (scid) {
-              $.ajax({
-                type: 'POST',
-                url: "{{ route('salescommission.delete') }}",
-                data: {
-                  commision_id: scid,
-                  quotation_id: $("#quotation_id").val()
-                },
-                success: function() {
-                  obj.parent().parent().remove();
-                  location.reload();
-                }
-              });
-            } else {
-              iter--;
-              obj.parent().parent().remove();
-            }
+          let scid = obj.data("id");
+          scid = parseInt(scid);
+          if (scid) {
+            $.ajax({
+              type: 'POST',
+              url: "{{ route('salescommission.delete') }}",
+              data: {
+                commision_id: scid,
+                quotation_id: $("#quotation_id").val()
+              },
+              success: function() {
+                obj.parent().parent().remove();
+                location.reload();
+              }
+            });
           } else {
-            return false;
+            iter--;
+            obj.parent().parent().remove();
           }
-
-        });
-
-
-        function createDropDown(i) {
-          let ddlCustomers = `<select class="form-select" name="manager_id[]" id="managerid_${i}"><option value="">--</option>`;
-          //Add the Options to the DropDownList.
-          let json = JSON.parse(employees);
-          for (let x in json) {
-            ddlCustomers += `<option value="${json[x].id}">${json[x].username}</option>`;
-          }
-          ddlCustomers += `</select>`;
-
-          return ddlCustomers;
+        } else {
+          return false;
         }
+
+      });
+
+
+      function createDropDown(i) {
+        let ddlCustomers = `<select class="form-select" name="manager_id[]" id="managerid_${i}"><option value="">--</option>`;
+        //Add the Options to the DropDownList.
+        let json = JSON.parse(employees);
+        for (let x in json) {
+          ddlCustomers += `<option value="${json[x].id}">${json[x].username}</option>`;
+        }
+        ddlCustomers += `</select>`;
+
+        return ddlCustomers;
+      }
       // });
     });
+
+    function updateBuyingPriceWithAmount() {
+      let gross_price = $('#gross_price').val(); // Get the value using jQuery
+      let purchase_discount = $('#purchase_discount_amount').val(); // Get the value using jQuery
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_price');
+
+      if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+        let calculatedDPrice = basePrice - dAmount;
+        let dpercent = (dAmount / basePrice) * 100;
+        dpercent = parseFloat(dpercent).toFixed(2);
+        $('#purchase_discount').val(dpercent);
+
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+
+    function updateBuyingPrice() {
+      let gross_price = $('#gross_price').val(); // Get the value using jQuery
+      let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_price');
+
+      if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+        let calculatedDPrice = basePrice * (dPercentage / 100);
+        $('#purchase_discount_amount').val(calculatedDPrice);
+        calculatedDPrice = basePrice - calculatedDPrice;
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      } else if (!isNaN(basePrice)) {
+        let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+
+    function setPurchaseDateRange(selectedValue) {
+      let currentDate = new Date();
+      let validity_from = document.getElementById('validity_from');
+      let validity_to = document.getElementById('validity_to');
+      let dateRangeGroup = document.getElementById('purchasedateRangeGroup');
+
+      if (selectedValue !== "") {
+        let startDate = new Date(currentDate);
+        let endDate = new Date(currentDate);
+        endDate.setMonth(currentDate.getMonth() + parseInt(selectedValue));
+
+        let startDateFormatted = startDate.toISOString().split('T')[0];
+        let endDateFormatted = endDate.toISOString().split('T')[0];
+
+        validity_from.value = startDateFormatted;
+        validity_to.value = endDateFormatted;
+
+        let dateRange = `${startDateFormatted} to ${endDateFormatted}`;
+
+        document.getElementById('purchasedateRange').innerText = dateRange;
+        dateRangeGroup.style.display = 'block';
+
+      } else {
+        validity_from.value = '';
+        validity_to.value = '';
+        document.getElementById('purchasedateRange').innerText = "";
+        dateRangeGroup.style.display = 'none';
+      }
+    }
   </script>
 
 

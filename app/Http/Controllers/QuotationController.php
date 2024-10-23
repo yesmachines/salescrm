@@ -42,6 +42,8 @@ use App\Models\ProductPriceHistory;
 use App\Models\QuotatationPaymentTerm;
 use App\Models\QuotationAvailability;
 use App\Services\QuotationOptionalService;
+use App\Models\Currency;
+use App\Services\CurrencyService;
 
 class QuotationController extends Controller
 {
@@ -123,6 +125,7 @@ class QuotationController extends Controller
     ProductService $productService,
     QuotationChargeService $quotationChargeService,
     DivisionService $divisionService,
+    CurrencyService $currencyService
   ) {
 
 
@@ -137,7 +140,7 @@ class QuotationController extends Controller
     $quotationCharges = $quotationChargeService->getQuotationCharge();
     $quotationTerms = $quotationChargeService->getQuotationTerms();
     $paymentTerms =  PaymentTerm::where('parent_id', 0)->get();
-    $currencies = DB::table('currency')->get();
+    $currencies = $currencyService->getAllCurrency();
     $currencyConversions = DB::table('currency_conversion')->get();
     $suppliers = $supplierService->getAllSupplier();
     $divisions = $divisionService->getDivisionList();
@@ -309,6 +312,7 @@ class QuotationController extends Controller
     QuotationTermService  $quotationTermService,
     DivisionService $divisionService,
     QuotationOptionalService $quotationOptionalService,
+    CurrencyService $currencyService
   ) {
 
     $quotation = $quotationService->getQuote($id);
@@ -321,6 +325,7 @@ class QuotationController extends Controller
     $quoteStatuses = $quotationService->getQuoteStatus();
 
     $employees = $employeeService->getAllEmployee();
+
 
     $userInfo = [];
     foreach ($employees as $i => $emp) {
@@ -357,7 +362,7 @@ class QuotationController extends Controller
     //   ->where('quotation_id', $id)
     //   ->first();
     $paymentCycles = $quotationChargeService->getPaymentCyclesList();
-    $currencies = DB::table('currency')->get();
+    $currencies = $currencyService->getAllCurrency();
 
     $unitPrice = [];
     $total = [];
@@ -434,7 +439,7 @@ class QuotationController extends Controller
       'paymentCycles',
       //  'deliveryTerms',
       'paymentCycleList',
-      'currencies',
+
       // 'unitPrice',
       // 'subtotal',
       // 'total',
@@ -536,9 +541,9 @@ class QuotationController extends Controller
       return !empty($var);
     });
     if (isset($data['commission_amount']) && is_array($data['commission_amount'])) {
-    $isCommision = array_filter($data['commission_amount'], function ($var) {
-      return !empty($var);
-    });
+      $isCommision = array_filter($data['commission_amount'], function ($var) {
+        return !empty($var);
+      });
     }
     $fields = [];
     $commission = 0;
@@ -922,7 +927,7 @@ class QuotationController extends Controller
 
     //$category = $request->input('category');
     $input = $request->all();
-    $supplier_ids = $input['supplier_id'];
+    $supplier_ids = is_array($input['supplier_id']) ? $input['supplier_id'] : (array) $input['supplier_id'];
 
     $results = Product::with('supplier')
       ->whereIn('brand_id', $supplier_ids)

@@ -3,19 +3,28 @@
     td {
         border: 1px solid black;
         padding: 1px;
+        page-break-inside: auto;
     }
 
     table {
         font-size: 12px;
         border-spacing: 0;
         border-collapse: collapse;
+        page-break-inside: auto
+    }
+
+    @media print {
+        tr {
+            page-break-inside: initial;
+            display: block;
+        }
     }
 </style>
 <table>
     <tbody>
         <tr>
             <td align="center" colspan="2">
-                <h2>ORDER SUMMARY</h2>
+                <h2>ORDER SUMMARY </h2>
             </td>
         </tr>
         <tr>
@@ -24,7 +33,7 @@
                     <tr>
                         <td style="border:0; border-right: 1px solid black;" width="25%">OS No.</td>
                         <td style="border:0; border-right: 1px solid black;">
-                            <b>{{$orderDetails->os_number}}</b>
+                            <b>{{$orderDetails->os_number}} </b>
                         </td>
                         <td style="border:0; border-right: 1px solid black;" width="25%">OS Date</td>
                         <td style="border:0;">{{$orderDetails->os_date}}</td>
@@ -70,50 +79,60 @@
             </td>
         </tr>
         <tr>
-            <td width="50%">
-                <table>
-                    <tr>
-                        <td width="30%" style="border:0; border-right: 1px solid black;">ITEM SHORT, DESCRIPTION, BRAND, MODEL, MAKE</td>
-                        <td style="border:0; ">
-                            @foreach($orderDetails->orderItem as $item)
-                            <p>{{$item->item_name}}<br />
-                                {{$item->quantity}} (qty), {{$item->partno? $item->partno. ' (PartNo.)' : ''}},
-                                {{($item->product)? $item->product->modelno.' (ModelNo.)': ''}}, {{$item->yes_number}}
-                            </p>
-                            @endforeach
-                            @if($optionalItems->isNotEmpty())
-                            @foreach($optionalItems as $value)
-                            <p>{{$value->item_name}}({{$value->quantity}}qty)<br />
-                            </p>
-                            @endforeach
-                            @endif
-                        </td>
-                    </tr>
-                </table>
+            <td colspan="2" align="center">
+                <p style="border:0; border-right: 1px solid black;">
+                    ITEM SHORT, DESCRIPTION, BRAND, MODEL, MAKE, REMARKS</p>
             </td>
-            <td width="50%">
-              @foreach($orderDetails->orderItem as $item)
-              <p>{{$item->remarks}}<br />
-              </p>
-              @endforeach
+
+        </tr>
+        @foreach($orderDetails->orderItem as $item)
+        <tr>
+            <td width="60%">
+                <p> {!! nl2br(e($item->item_name)) !!},
+                    {{$item->quantity}} {{$item->quantity>0? "(qty)": "" }}
+                </p>
+                <p> {{$item->partno? $item->partno. ' (PartNo.),' : ''}}
+                    {{($item->product && isset($item->product->modelno))? $item->product->modelno.' (ModelNo.),': ''}}
+                    {{$item->yes_number}}
+                </p>
             </td>
+            <td width="40%">
+                <p>{{$item->remarks}}</p>
+            </td>
+        </tr>
+        @endforeach
+        @if($optionalItems->isNotEmpty())
+        @foreach($optionalItems as $value)
+        <tr>
+            <td width="50%">
+                <p>{{$value->item_name}} {{$value->quantity}} {{$value->quantity>0? "(qty)": "" }}</p>
+            </td>
+            <td width="50%"></td>
+        </tr>
+        @endforeach
+        @endif
+        <tr>
+            <td width="50%">
+                &nbsp;
+            </td>
+            <td width="50%"></td>
         </tr>
         <tr>
             <td width="50%">
                 <table>
-                  <?php
+                    <?php
 
-                  $optionalItemsSum = $optionalItems->sum('amount');
-                  $totalAmount = $orderDetails->selling_price + $optionalItemsSum;
-                  ?>
+                    $optionalItemsSum = $optionalItems->sum('amount');
+                    $totalAmount = $orderDetails->selling_price + $optionalItemsSum;
+                    ?>
                     <tr>
                         <td width="30%" style="border:0; border-right: 1px solid black;">SELLING PRICE (AED)</td>
                         <td style="border:0;">
-                          @if($optionalItems->isNotEmpty())
-                          {{$totalAmount }} AED
-                          @else
-                          {{ $orderDetails->selling_price}} AED
-                          @endif
+                            @if($optionalItems->isNotEmpty())
+                            {{$totalAmount }} AED
+                            @else
+                            {{ $orderDetails->selling_price}} AED
+                            @endif
                         </td>
                     </tr>
                 </table>
@@ -277,7 +296,9 @@
                         <td style="border:0;" align="center">
                             @foreach($orderDetails->orderSupplier as $sup)
                             <p> {{$sup->delivery_term}}</p>
+
                             @endforeach
+
                         </td>
                     </tr>
                 </table>
@@ -295,7 +316,9 @@
                 </table>
             </td>
             <td width="50%">
-
+                @foreach($orderDetails->orderSupplier as $sup)
+                <p> {{$sup->remarks}}</p>
+                @endforeach
             </td>
         </tr>
         <tr>
@@ -611,17 +634,17 @@
         <tr>
             <td colspan="2" width="100%">
                 <table width="100%">
-              @foreach($salesCommission as $sale)
+                    @foreach($salesCommission as $sale)
                     <tr>
                         <td width="50%" style="border:0; border-right: 1px solid black;">
                             NAME: {{$sale->manager->user->name}}
                         </td>
                         <td width="105.6%" style="border:0; border-right: 0px solid black;">
-                        {{$sale->percent}}%
+                            {{$sale->percent}}%
                         </td>
 
                     </tr>
-                @endforeach
+                    @endforeach
 
                 </table>
             </td>

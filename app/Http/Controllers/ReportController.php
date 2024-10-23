@@ -9,6 +9,7 @@ use App\Services\QuotationService;
 use App\Services\EmployeeService;
 use App\Services\CustomerService;
 use App\Services\CountryService;
+use App\Services\SupplierService;
 
 class ReportController extends Controller
 {
@@ -42,20 +43,42 @@ class ReportController extends Controller
         return view('reports.leadSummary', compact('leadsEmpSummary', 'input'));
     }
 
-    public function quotationSummary(Request $request, QuotationService $quotationService)
-    {
+    public function quotationSummary(
+        Request $request,
+        QuotationService $quotationService,
+        EmployeeService $employeeService,
+        SupplierService $supplierService,
+        CountryService $countryService
+    ) {
         //
         $input = $request->all();
+
+        // if (!empty($input['supplier_id'])) {
+        //     $input['assigned_to'] =  (array)  $input['assigned_to'];
+        // }
+
+
         if (empty($input)) {
+
             $input = [
                 'start_date' => $this->this_start_month,
                 'end_date'   => $this->this_end_month
             ];
         }
+        $employees = $employeeService->getAllEmployee($input);
+        $suppliers = $supplierService->getAllSupplier();
+        $countries = $countryService->getAllCountry();
 
-        $quoteSummary = $quotationService->salesValueByEmployee($input);
+        $quoteSummary = $quotationService->getAllQuotes($input);
 
-        return view('reports.quotationSummary', compact('quoteSummary', 'input'));
+
+        return view('reports.quotationSummary', compact(
+            'quoteSummary',
+            'input',
+            'employees',
+            'suppliers',
+            'countries'
+        ));
     }
 
     public function employeeWinStanding(Request $request, QuotationService $quotationService)
@@ -202,8 +225,12 @@ class ReportController extends Controller
             'productMonth'
         ));
     }
-    public function customerReports() {
-      return view('reports.customerReports');
-  }
-
+    public function customerReports()
+    {
+        return view('reports.customerReports');
+    }
+    public function summaryNumber()
+    {
+        return view('reports.summaryReports');
+    }
 }

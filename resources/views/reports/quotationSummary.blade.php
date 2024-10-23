@@ -5,75 +5,20 @@
 
 
 <!-- Page Body -->
+<div class="pageLoader" id="pageLoader"></div>
 <div class="hk-pg-body py-0">
     <div class="contactapp-wrap  contactapp-sidebar-toggle">
-        <!-- <nav class="contactapp-sidebar">
-            <div data-simplebar class="nicescroll-bar">
-                <div class="menu-content-wrap">
-                    <button type="button" class="btn btn-primary btn-rounded btn-block mb-4" data-bs-toggle="modal" data-bs-target="#add_new_visitor">
-                        Add new customer
-                    </button>
-                    <div class="menu-group">
-                        <ul class="nav nav-light navbar-nav flex-column">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="javascript:void(0);">
-                                    <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="inbox"></i></span></span>
-                                    <span class="nav-link-text">All Enquiries</span>
-                                </a>
-                            </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:void(0);">
-                                    <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="trash-2"></i></span></span>
-                                    <span class="nav-link-text">Deleted</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="separator separator-light"></div>
-                    <div class="menu-group">
-                        <ul class="nav nav-light navbar-nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:void(0);">
-                                    <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="upload"></i></span></span>
-                                    <span class="nav-link-text">Export</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:void(0);">
-                                    <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="download"></i></span></span>
-                                    <span class="nav-link-text">Import</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:void(0);">
-                                    <span class="nav-icon-wrap"><span class="feather-icon"><i data-feather="printer"></i></span></span>
-                                    <span class="nav-link-text">Print</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-            </div>
-
-        </nav> -->
         <div class="contactapp-content">
             <div class="contactapp-detail-wrap">
                 <header class="contact-header">
                     <div class="d-flex align-items-center">
                         <div class="dropdown">
                             <a class="contactapp-title link-dark" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                <h1>Quotation Summary</h1>
+                                <h1>Quotation Report</h1>
                             </a>
                         </div>
-                        <!-- <div class="dropdown ms-3">
-                            <button class="btn btn-sm btn-outline-secondary flex-shrink-0 dropdown-toggle d-lg-inline-block d-none" data-bs-toggle="dropdown">Create New</button>
-                            <div class="dropdown-menu">
 
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add_new_visitor">Add New Customers</a>
-                            </div>
-                        </div> -->
                     </div>
                     <div class="contact-options-wrap">
 
@@ -101,54 +46,120 @@
                             <div class="mt-2">
                                 @include('layouts.partials.messages')
                             </div>
-                            <div class="row">
-                                <div class="col">
-                                    <form method="GET">
-                                        <label class="form-label">Search By Submitted Date</label>
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control" name="start_date" placeholder="From" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['start_date'])? $input['start_date']:'' }}">
-                                            <input type="text" class="form-control" name="end_date" placeholder="To" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['end_date'])? $input['end_date']:'' }}">
-                                            <button class="btn btn-primary" type="submit">Search</button>
-                                            <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/quotations'">Reset</button>
-                                        </div>
-                                    </form>
+                            <form method="GET">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="form-label"> Submitted From</label>
+
+                                        <input type="text" class="form-control" name="start_date" placeholder="From" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['start_date'])? $input['start_date']:'' }}">
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="form-label"> Submitted To</label>
+                                        <input type="text" class="form-control" name="end_date" placeholder="To" onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ isset($input['end_date'])? $input['end_date']:'' }}">
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="form-label"> Manager</label>
+                                        <select name="assigned_to" class="form-control">
+                                            <option value="">-- Select --</option>
+                                            @foreach($employees as $emp)
+                                            <option value="{{$emp->id}}">{{ $emp->user->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-2">
+                                        <!-- <label class="form-label"> Country</label>
+                                        <select name="country_id" class="form-control">
+                                            <option value="">-- Select --</option>
+                                            @foreach($countries as $ct)
+                                            <option value="{{$ct->id}}">{{ $ct->name}}</option>
+                                            @endforeach
+                                        </select> -->
+                                    </div>
+
+                                    <div class="col-2">
+                                        <!-- <label class="form-label"> Supplier</label>
+                                        <select name="supplier_id" class="form-control text-capitalize">
+                                            <option value="">-- Select --</option>
+                                            @foreach($suppliers as $sup)
+                                            <option value="{{$sup->id}}">{{ $sup->brand }}</option>
+                                            @endforeach
+                                        </select> -->
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                        <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/quotations'">Reset</button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="dropdown-divider mt-2 mb-4"></div>
-                                </div>
-                            </div>
-                            <table id="rdatable_1" class="table nowrap w-100 mb-5">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Employee</th>
-                                        <th>No. of Quotes</th>
-                                        <th>Sales Value (AED)</th>
-                                        <th>Gross Margin (AED)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($quoteSummary as $i => $quote)
-                                    <tr>
-                                        <td>{{ $i + 1}}</td>
-                                        <td>{{$quote->employee}}</td>
-                                        <td>{{$quote->quotecount}}</td>
-                                        <td>{{$quote->salesvalue}}</td>
-                                        <td>{{$quote->margin}}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                            </form>
                         </div>
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="dropdown-divider mt-2 mb-4"></div>
+                            </div>
+                        </div>
+                        <table id="rdatable_1" class="table nowrap w-100 mb-5">
+                            <thead>
+                                <tr>
+                                    <th width="5%">QuoteNo.</th>
+                                    <th width="10%">Company</th>
+                                    <th width="5%">Country</th>
+                                    <th width="5%">Customer</th>
+                                    <th width="5%">Contact Email</th>
+                                    <th width="5%">Contact No.</th>
+                                    <th width="25%">Product</th>
+                                    <th width="10%">Sales Value (AED)</th>
+                                    <th width="10%">Manager</th>
+                                    <th width="5%">Submitted On</th>
+                                    <th width="5%">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($quoteSummary as $i => $quote)
+                                <tr>
+                                    <td class="text-primary">{{ $quote->reference_no }}</td>
+                                    <td>{{ $quote->company->company }}</td>
+                                    <td>{{ $quote->company->country->name }}</td>
+                                    <td>{{ $quote->customer->fullname }}</td>
+                                    <td>{{$quote->customer->email}}</td>
+                                    <td>{{$quote->customer->phone}}</td>
+                                    <td width="20%" class="text-truncate overflow-hidden">@if($quote->product_model && $quote->supplier_id != 0)
+                                        {{ $quote->product_model }} /{{ $quote->supplier->brand}}
+                                        @else
+                                        @foreach($quote->quotationItem as $item)
+
+                                        <b>{{$item->product->supplier->brand}}</b><br />
+                                        {{$item->product->title}}
+                                        @endforeach
+                                        @endif
+                                    </td>
+                                    <td>{{ $quote->total_amount }}</td>
+                                    <td>{{ $quote->assigned->user->name }}</td>
+                                    <td>{{date("d-m-Y", strtotime($quote->created_at))}}</td>
+                                    <td><span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">{{$quote->status_id == 6? 'WON': 'PENDING'}}</span></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-
         </div>
+
     </div>
+</div>
 </div>
 <!-- /Page Body -->
 
 @endsection
+<script>
+    $(window).on('beforeunload', function() {
+
+        $('#pageLoader').show();
+
+    });
+
+    $(function() {
+
+        $('#pageLoader').hide();
+    })
+</script>

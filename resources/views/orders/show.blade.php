@@ -55,9 +55,13 @@
                                     </div>
                                 </div>
                                 <div class="col-xxl-4 col-lg-5 mt-lg-0 mt-3">
+                                    @if($order->status == 'draft')
+                                    <p class="text-danger">Your order summary is only a draft version. Kindly finish it in order to begin the download process.</p>
+                                    @endif
                                     <a href="{{route('orders.download', $order->id)}}" title="Download OS" class="btn btn-sm btn-primary btn-block ms-2 mt-0">
                                         <span><span class="icon"><span class="feather-icon"><i data-feather="download"></i></span></span><span>Download OS</span></span>
                                     </a>
+
                                     <div class="d-flex mt-3">
                                         <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-secondary btn-block ms-2 mt-0">
                                             <span><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span><span>Edit</span></span>

@@ -24,20 +24,23 @@ class StockService
   public function insertStock(array $userData): Object
   {
 
-    $createdBy=Auth::id();
+    $createdBy = Auth::id();
     $insert = [
       'purchase_mode'  => $userData['purchase_mode'],
-      'os_number'  =>  $this->getReferenceNumber(),
-      'os_date'  => $userData['os_date'],
-      'buying_price'  => $userData['buying_price'],
-      'created_by'  =>  $createdBy,
-      'assigned_to'  => $userData['assigned_to'],
+      'order_for'      => $userData['order_for'],
+      'os_number'      => $this->getReferenceNumber(),
+      'os_date'        => $userData['os_date'],
+      'buying_price'   => $userData['total_buying_price'],
+      'created_by'     => $createdBy,
+      'assigned_to'    => $userData['assigned_to'],
     ];
     $stock = Stock::create($insert);
-    if(isset($userData['item_name'])){
+
+    if (isset($userData['item_name'])) {
       foreach ($userData['item_name'] as $key => $itemName) {
         $stockItem = new StockItem();
-        $stockItem->stock_id =   $stock->id ;
+        $stockItem->stock_id =   $stock->id;
+        $stockItem->item_id =  $userData['item_id'][$key];
         $stockItem->item_name = $itemName;
         $stockItem->partno = $userData['partno'][$key];
         $stockItem->quantity = $userData['quantity'][$key];
@@ -47,11 +50,10 @@ class StockService
         $stockItem->status = $userData['status'][$key];
         $stockItem->remarks = $userData['item_remark'][$key];
         $stockItem->save();
-
       }
     }
 
-    if(isset($userData['supplier_id'])){
+    if (isset($userData['supplier_id'])) {
       $stockSupplier = StockSupplier::create([
         'stock_id' =>  $stock->id,
         'supplier_id' => $userData['supplier_id'],
@@ -61,7 +63,7 @@ class StockService
 
       ]);
     }
-    if(isset($userData['charges'])){
+    if (isset($userData['charges'])) {
       foreach ($userData['charges'] as $index => $stockCharges) {
         $stockCharges = StockCharge::create([
           'stock_id' => $stock->id,
@@ -73,7 +75,7 @@ class StockService
         ]);
       }
     }
-    if(isset($userData['payment_term'])){
+    if (isset($userData['payment_term'])) {
       foreach ($userData['payment_term'] as $index => $stockPayments) {
 
         $stockPayments = StockPayment::create([
@@ -84,8 +86,6 @@ class StockService
           'remarks' =>  $userData['payment_remark'][$index],
 
         ]);
-
-
       }
     }
 
@@ -139,13 +139,14 @@ class StockService
   public function updateStock($id, array $userData)
   {
     $stock = Stock::findOrFail($id);
-    $createdBy=Auth::id();
+    $createdBy = Auth::id();
+
     $stock->update([
       'purchase_mode' => $userData['purchase_mode'],
-      'os_date' => $userData['os_date'],
-      'buying_price' => $userData['buying_price'],
-      'created_by' =>  $createdBy,
-      'assigned_to'  => $userData['assigned_to'],
+      'os_date'       => $userData['os_date'],
+      'buying_price'  => $userData['total_buying_price'],
+      'created_by'    => $createdBy,
+      'assigned_to'   => $userData['assigned_to'],
     ]);
 
     if (isset($userData['item_name'])) {
@@ -153,6 +154,7 @@ class StockService
       foreach ($userData['item_name'] as $key => $itemName) {
         StockItem::create([
           'stock_id' => $stock->id,
+          'item_id' => $userData['item_id'][$key],
           'item_name' => $itemName,
           'partno' => $userData['partno'][$key],
           'quantity' => $userData['quantity'][$key],
@@ -202,6 +204,4 @@ class StockService
 
     return $stock;
   }
-
-
 }

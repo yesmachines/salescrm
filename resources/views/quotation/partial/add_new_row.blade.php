@@ -42,6 +42,8 @@
 <script>
   $(document).ready(function() {
 
+    var asset_url = `{{ env('APP_URL') }}`;
+
     $('input[name="sub_delivery_input"]').on('input', function() {
       // You can add any additional logic here if needed
       var subDeliveryInputValue = $(this).val();
@@ -118,6 +120,7 @@
     // on change/ selection of product
     jQuery('#product_item_search').on('change', function(e) {
       e.preventDefault();
+      let asset_url = `{{ env('APP_URL') }}`;
       let selProductId = $(this).val();
       let currencyRate = $("#currency_factor").val();
       let currency = document.getElementById("currencyDropdown").value;
@@ -179,7 +182,7 @@
           rowExists.remove();
         }
         newRow += '<tr id="irow-' + selProductId + '">';
-        newRow += '<td><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
+        newRow += '<td><img src="' + asset_url + 'storage/' + productData[selProductId].image_url + '" width="30" /><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
         newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '" readonly/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
         newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" step="any" min="1" value="' + qty + '"/></td>';
         newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';
@@ -420,6 +423,7 @@
 
       // If all fields pass validation, submit the form
       if (isValid) {
+
         saveAdditionalFieldsHandler(isValid);
       }
     });
@@ -457,8 +461,14 @@
         '#productcategoryInput',
         '#durationSelect',
         '#currencyInput',
-        '#managerInput'
+        '#managerInput',
+        '#buying_currency',
+        '#gross_price',
+        '#purchase_discount',
+        '#purchase_discount_amount',
+        '#buying_price'
       ];
+
 
       // Validate each field based on its value
       requiredFields.forEach(function(field) {
@@ -832,6 +842,7 @@
 
   function saveAdditionalFieldsHandler(isValid) {
     if (isValid) {
+
       $(this).prop('disabled', true);
       let sellingPrice = $('#sellingPriceHistory').val();
       let marginPercentage = $('#marginPercentageHistory').val();
@@ -1009,6 +1020,7 @@
   }
 
   function createNewProduct(isValid) {
+    let asset_url = `{{ env('APP_URL') }}`;
     if (isValid) {
       let formData = new FormData($('#productForm')[0]);
 
@@ -1030,10 +1042,17 @@
       formData.append('start_date', $('input[name=start_date]').val());
       formData.append('end_date', $('input[name=end_date]').val());
       formData.append('product_category', $('select[name=product_category]').val());
-      formData.append('status', $('select[name=status]').val());
+      formData.append('status', $('input[name=status]').val());
       formData.append('allowed_discount', $('input[name=allowed_discount]').val());
       formData.append('part_number', $('input[name=part_number]').val());
 
+      formData.append('buying_currency', $('select[name=buying_currency]').val());
+      formData.append('gross_price', $('input[name=gross_price]').val());
+      formData.append('discount', $('input[name=discount]').val());
+      formData.append('discount_amount', $('input[name=discount_amount]').val());
+      formData.append('buying_price', $('input[name=buying_price]').val());
+      formData.append('validity_from', $('input[name=validity_from]').val());
+      formData.append('validity_from', $('input[name=validity_from]').val());
       //
       $.ajax({
         url: "{{ route('products.ajaxsave') }}",
@@ -1087,7 +1106,7 @@
               rowExists.remove();
             }
             newRow += '<tr id="irow-' + selProductId + '">';
-            newRow += '<td><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
+            newRow += '<td><img src="' + asset_url + 'storage/' + newProductData.image_url + '" width="30" /><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
             newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '" readonly/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
             newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" min="1" value="' + qty + '"/></td>';
             newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';

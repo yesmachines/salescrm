@@ -2,7 +2,6 @@
 
 @section('content')
 
-
 <!-- Page Body -->
 <div class="hk-pg-body py-0">
   <div class="contactapp-wrap contactapp-sidebar-toggle">
@@ -47,7 +46,7 @@
               <div class="row">
                 <div class="col-sm-9">
                 </div>
-              
+
               </div>
               @livewire('pending-orders')
             </div>
@@ -64,20 +63,20 @@
   </div>
 </div>
 <script>
-function copyText(e) {
+  function copyText(e) {
 
-  let copyText = e.innerHTML;
+    let copyText = e.innerHTML;
 
-  navigator.clipboard.writeText(copyText).then(() => {
+    navigator.clipboard.writeText(copyText).then(() => {
 
-    Swal.fire(
-      'Copied!',
-      "You are copied the order no: " + copyText,
-      'info'
-    );
-  })
-  /* Resolved - text copied to clipboard successfully */
+      Swal.fire(
+        'Copied!',
+        "You are copied the order no: " + copyText,
+        'info'
+      );
+    })
+    /* Resolved - text copied to clipboard successfully */
 
-}
+  }
 </script>
 @endsection

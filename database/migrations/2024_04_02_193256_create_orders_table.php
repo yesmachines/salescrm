@@ -32,7 +32,7 @@ return new class extends Migration
             $table->text('material_details')->nullable();
 
             $table->integer('created_by')->default(0);
-            $table->enum('status', ['open', 'partial', 'closed']);
+            $table->enum('status', ['open', 'partial', 'closed', 'draft']);
             $table->timestamps();
 
             $table->foreign('customer_id')

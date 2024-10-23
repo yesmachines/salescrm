@@ -62,7 +62,7 @@
                   <div class="alert alert-inv alert-inv-success text-center" role="alert">
                     <b>You have Won the Order !!</b>
                   </div>
-                    @if (Auth::user()->hasRole('superadmin'))
+                  @if (Auth::user()->hasRole('superadmin'))
                   <a href="{{route('orders.createnew', $quotation->id) }}" class="btn btn-primary btn-block">Create OS</a>
                   @endif
                   @else
@@ -421,7 +421,12 @@
                           <tbody>
                             @foreach ($quotationItems as $item)
                             <tr>
-                              <td style="border: 1px solid #dddddd; padding: 8px;">{{ $item->supplier->brand }} <br /> {{ $item->description }}</td>
+                              <td style="border: 1px solid #dddddd; padding: 8px;">{{ $item->supplier->brand }}
+                                @if($item->product->image_url)
+                                <img src="{{ asset('storage/'. $item->product->image_url) }}" width="50" />
+                                @endif
+                                <br /> {{ $item->description }}
+                              </td>
                               <td style="border: 1px solid #dddddd; padding: 8px;">{{ $item->unit_price }} {{$quotation->preferred_currency? $quotation->preferred_currency : 'aed'}}</td>
                               <td style="border: 1px solid #dddddd; padding: 8px;">{{ $item->quantity }}</td>
                               <td style="border: 1px solid #dddddd; padding: 8px;">{{ $item->discount }}</td>

@@ -154,7 +154,7 @@
                         <th>Part No</th>
                         <th>Qty *</th>
                         <th>YESNO</th>
-                        <th>Amount (AED) *</th>
+                        <th>Amount*</th>
                         <th>Expected<br />Delivery</th>
                         <th>Status</th>
                         <th>Item<br />Remarks</th>
@@ -171,8 +171,9 @@
                     $item_total = $item_total * $currency_rate->standard_rate;
                     }
                     @endphp
-                    <tr valign="top">
+                    <tr valign="top" id="row-p{{$item->item_id}}" data-index="{{$x}}">
                         <td width="15%">
+                            <b>{{$item->supplier->brand}}</b><br />
                             <input type="hidden" name="item[{{$x}}][product_id]" value="{{$item->item_id}}" />
                             <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item">{{isset($item->description)? $item->description : ''}}</textarea>
                         </td>
@@ -180,13 +181,28 @@
                             <input type="text" class="form-control" name="item[{{$x}}][partno]" placeholder="Part No" value="{{isset($item->product)? $item->product->part_number : ''}}" />
                         </td>
                         <td>
-                            <input type="number" class="form-control" name="item[{{$x}}][quantity]" value="{{$item->quantity}}" placeholder="Quantity" />
+                            <input type="number" class="form-control quantity" name="item[{{$x}}][quantity]" value="{{$item->quantity}}" placeholder="Quantity" />
                         </td>
                         <td>
                             <input type="text" class="form-control" name="item[{{$x}}][yes_number]" placeholder="YesNo." />
                         </td>
-                        <td>
+                        <td width="12%">
+                            <label class="text-primary small">Selling Price (AED)</label>
                             <input type="text" class="form-control" name="item[{{$x}}][total_amount]" value="{{$item_total}}" placeholder="Total Amount" />
+                            <div class="purchase mt-3">
+                                @if(isset($item->buying_currency) && $item->buying_currency != '')
+                                <label class="text-primary small">Buying Price ({{$item->buying_currency}})</label>
+                                @else
+                                <label class="text-primary small">Buying Price <span class="buying_currency"></span></label>
+                                @endif
+                                @if(isset($item->buying_price) && $item->buying_price != 0)
+
+                                <input type="hidden" class="form-control" name="item[{{$x}}][buying_currency]" value="{{$item->buying_currency}}" />
+                                <input type="text" class="form-control" name="item[{{$x}}][buying_price]" value="{{ $item->buying_price }}" readonly />
+                                @else
+                                <a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm" data-pid="{{$item->item_id}}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>
+                                @endif
+                            </div>
                         </td>
                         <td width="8%">
                             <input type="text" class="form-control datepick" name="item[{{$x}}][expected_delivery]" placeholder="Expected Delivery" />
@@ -203,37 +219,7 @@
                         <td></td>
                     </tr>
                     @empty
-                    <tr valign="top">
-                        <td width="15%">
-                            <input type="hidden" name="item[{{$icnt}}][product_id]" />
-                            <textarea class="form-control" name="item[{{$icnt}}][item_name]" placeholder="Item"></textarea>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="item[{{$icnt}}][partno]" placeholder="Part No" />
-                        </td>
-                        <td>
-                            <input type="number" class="form-control" name="item[{{$icnt}}][quantity]" placeholder="Quantity" />
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="item[{{$icnt}}][yes_number]" placeholder="YesNo." />
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="item[{{$icnt}}][total_amount]" placeholder="Total Amount" />
-                        </td>
-                        <td width="8%">
-                            <input type="text" class="form-control datepick" name="item[{{$icnt}}][expected_delivery]" placeholder="Expected Delivery" />
-                        </td>
-                        <td width="10%">
-                            <select class="form-control" name="item[{{$icnt}}][status]" id="status">
-                                <option value="0">Not Delivered</option>
-                                <option value="1">Delivered</option>
-                            </select>
-                        </td>
-                        <td width="15%">
-                            <textarea rows="2" id="remarks" name="item[{{$icnt}}][remarks]" placeholder="Remarks" class="form-control"></textarea>
-                        </td>
-                        <td></td>
-                    </tr>
+
                     @endforelse
                 </tbody>
             </table>
@@ -242,14 +228,121 @@
         </div>
     </div>
     <div class="row mb-2">
-        <div class="col-4"></div>
-        <div class="col-4">
+        <div class="col-3"></div>
+        <div class="col-6">
 
             <!-- <a href="javascript:void(0);" onclick="skipStep2();" class="ms-2">Skip here</a> -->
             <button type="button" class="btn btn-default prev-step m-2"><i class="fa fa-chevron-left"></i> Back</button>
-            <button type="submit" id="order_delivery_details_button" class="btn btn-success m-2">Save & Continue</button>
+            <button type="submit" id="order_client_draft" class="btn btn-secondary m-2" value="save-step2-draft">Draft & Continue</button>
+            <button type="submit" id="order_delivery_details_button" class="btn btn-success m-2" value="save-step2">Save & Continue</button>
+
             <button type="button" class="btn btn-default next-step m-2">Next <i class="fa fa-chevron-right"></i></button>
         </div>
-        <div class="col-4"></div>
+        <div class="col-3"></div>
     </div>
 </form>
+
+<!-- Add New Product -->
+<div class="modal fade" id="addpurchase" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="padding: 16px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Add Buying Price</h5>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" name="product_id" id="product_id" />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" name="buying_currency" id="buying_currency" required>
+                                    <option value="">-Select Currency-</option>
+                                    @foreach($currencies as $currency)
+                                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">Please select a currency.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="gross_price" id="gross_price" required />
+
+                                <div class="invalid-feedback">Please enter a gross price.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4" id="purchase_discount_percent">
+                            <div class="form-group">
+                                <label class="form-label">Purchase Discount(%)</label>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" type="number" name="discount" id="purchase_discount">
+                                <div class="invalid-feedback">Please enter a purchase discount.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" id="purchase_discount_price">
+                            <div class="form-group">
+                                <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
+                                <div class="invalid-feedback">Please enter a purchase discount price.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="buying_price" id="buying_price" required />
+                                <div class="invalid-feedback">Please enter a buying price.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
+                                    <option value="">Select</option>
+                                    <option value="1" selected>1 Month</option>
+                                    <option value="3">3 Month</option>
+                                    <option value="6">6 Month</option>
+                                    <option value="9">9 Month</option>
+                                    <option value="12">12 Month</option>
+                                </select>
+                                <div class="invalid-feedback">Please choose a date.</div>
+                            </div>
+
+                            <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
+                                <label class="form-label">Dates:</label>
+                                <span id="purchasedateRange"></span>
+                                <input type="hidden" name="validity_from" id="validity_from" />
+                                <input type="hidden" name="validity_to" id="validity_to" />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
+                    </div>
+            </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

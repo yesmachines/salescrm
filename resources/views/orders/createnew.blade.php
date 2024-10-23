@@ -212,11 +212,18 @@
         event.preventDefault();
 
         var url = "{{route('orders.savestep1')}}";
+        let submitter = event.originalEvent.submitter.value;
+
+        let formdata = new FormData(this);
+
+        if (submitter == 'save-step1-draft') {
+            formdata.set('status', 'draft');
+        }
 
         $.ajax({
             url: url,
             method: 'POST',
-            data: new FormData(this),
+            data: formdata,
             dataType: 'JSON',
             contentType: false,
             cache: false,
@@ -307,6 +314,14 @@
 
         var url = "{{route('orders.savestep2')}}";
 
+        let submitter = event.originalEvent.submitter.value;
+
+        let formdata = new FormData(this);
+
+        if (submitter == 'save-step2-draft') {
+            formdata.append('status', 'draft');
+        }
+
         let order_id = $("#order_id_step2").val().trim();
         if (order_id == '') {
             alert("Please complete & save step 1 details");
@@ -316,7 +331,7 @@
         $.ajax({
             url: url,
             method: 'POST',
-            data: new FormData(this),
+            data: formdata,
             dataType: 'JSON',
             contentType: false,
             cache: false,
@@ -328,6 +343,10 @@
                     let order = response.data;
                     // $("#order_id_step2").val(order.id);
                     $("#order_id_step3").val(order.id);
+
+                    if (response.buyingPrice) {
+                        $("#buying_price_total").val(response.buyingPrice);
+                    }
 
                     nextStep();
                 }
@@ -440,7 +459,14 @@
      *****************************************/
     $('#add_supplier_details').on('submit', function(event) {
         event.preventDefault();
+        let submitter = event.originalEvent.submitter.value;
 
+
+        let formdata = new FormData(this);
+
+        if (submitter == 'save-step3-draft') {
+            formdata.append('status', 'draft');
+        }
         var url = "{{route('orders.savestep3')}}";
 
         let order_id = $("#order_id_step3").val().trim();
@@ -449,45 +475,286 @@
             return false;
         }
 
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: new FormData(this),
-            dataType: 'JSON',
-            contentType: false,
-            cache: false,
-            processData: false,
-            success: function(response) {
-                // $(form).trigger("reset");
-                // alert(response.success)
-                if (response.data) {
-                    let order = response.data;
+        Swal.fire({
+            title: "Do you really want to move forward with the buying price and margin?",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            denyButtonText: `Don't save`
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formdata,
+                    dataType: 'JSON',
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(response) {
+                        // $(form).trigger("reset");
+                        // alert(response.success)
+                        if (response.data) {
+                            let order = response.data;
 
-                    Swal.fire({
-                        title: "Good job!",
-                        text: "You have created order successfully!",
-                        icon: "success"
-                    });
-                    setTimeout(() => {
-                        window.location.href = "{{route('orders.index')}}";
-                    }, 2000);
+                            Swal.fire({
+                                title: "Good job!",
+                                text: "You have created order successfully!",
+                                icon: "success"
+                            });
+                            setTimeout(() => {
+                                if (submitter == 'create-pr') {
+                                    let pr_url = "{{ route('purchaserequisition.createnew', ':id') }}";
+                                    window.location.href = pr_url.replace(":id", order.id);
+                                } else {
+                                    window.location.href = "{{route('orders.index')}}";
+                                }
+                            }, 2000);
 
-                }
-            },
-            error: function(response) {
-                var errors = response.responseJSON;
+                        }
+                    },
+                    error: function(response) {
+                        var errors = response.responseJSON;
 
-                let errorsHtml = '<div class="alert alert-danger"><ul>';
-                $.each(errors.errors, function(k, v) {
-                    errorsHtml += '<li>' + v + '</li>';
+                        let errorsHtml = '<div class="alert alert-danger"><ul>';
+                        $.each(errors.errors, function(k, v) {
+                            errorsHtml += '<li>' + v + '</li>';
+                        });
+                        errorsHtml += '</ul></di>';
+                        $('.supplier_error_msg').html(errorsHtml);
+
+                        console.log(response);
+                    }
                 });
-                errorsHtml += '</ul></di>';
-                $('.supplier_error_msg').html(errorsHtml);
-
-                console.log(response);
+            } else if (result.isDenied) {
+                Swal.fire("Changes are not saved", "", "info");
             }
         });
+
+
     });
+
+    /*******************************
+     * Buying price Modal
+     * **************************/
+    $('#addpurchase').on('show.bs.modal', function(e) {
+        let btn = $(e.relatedTarget);
+        let pid = btn.data('pid');
+        $(this).find('input[name="product_id"]').val(pid);
+
+        $(this).appendTo("body")
+
+    });
+
+    $('#saveProduct').on('click', function(e) {
+        e.preventDefault();
+        var isValid = true;
+        // Remove the is-invalid class and hide the invalid feedback for all elements
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').hide();
+
+        // Define the required fields by their IDs
+        var requiredFields = [
+            '#product_id',
+            '#buying_currency',
+            '#gross_price',
+            '#purchase_discount',
+            '#purchase_discount_amount',
+            '#buying_price'
+        ];
+
+
+        // Validate each field based on its value
+        requiredFields.forEach(function(field) {
+            var value = $(field).val().trim();
+
+            // Check if the field value is empty
+            if (value === '') {
+                $(field).addClass('is-invalid').next('.invalid-feedback').show();
+                isValid = false;
+            }
+        });
+
+        // If all fields pass validation, submit the form
+        if (isValid) {
+            createNewProduct(isValid);
+        }
+
+    });
+
+    function createNewProduct(isValid) {
+        let asset_url = `{{ env('APP_URL') }}`;
+        if (isValid) {
+            let formData = new FormData($('#productForm')[0]);
+
+            formData.append('product_id', $('input[name=product_id]').val());
+            formData.append('buying_currency', $('select[name=buying_currency]').val());
+            formData.append('gross_price', $('input[name=gross_price]').val());
+            formData.append('discount', $('input[name=discount]').val());
+            formData.append('discount_amount', $('input[name=discount_amount]').val());
+            formData.append('buying_price', $('input[name=buying_price]').val());
+            formData.append('validity_from', $('input[name=validity_from]').val());
+            formData.append('validity_from', $('input[name=validity_from]').val());
+            //
+            $.ajax({
+                url: "{{ route('products.savebuyingprice') }}",
+                method: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.data) {
+                        let newPurchaseData = response.data;
+
+                        let row = $("#row-p" + newPurchaseData.product_id);
+                        let indx = $("#row-p" + newPurchaseData.product_id).data("index");
+
+                        let qty = row.find('.quantity').val(),
+                            line_buying_price = newPurchaseData.buying_price * qty;
+                        line_buying_price = parseFloat(line_buying_price).toFixed(2);
+
+                        let input = '<input type="hidden" class="form-control" name="item[' + indx + '][buying_currency]" value="' + newPurchaseData.buying_currency + '" />';
+                        input += '<input type="text" class="form-control" name="item[' + indx + '][buying_price]" value="' + line_buying_price + '" readonly />';
+
+                        row.find('.purchase').append(input); // add currency and buying price as input 
+
+                        row.find('.buying_currency').html(' (' + newPurchaseData.buying_currency + ')'); // display b currency
+                        row.find('.b-price-add').addClass('d-none'); // hide add button
+
+                        // reset modal
+                        let modal = $("#addpurchase");
+                        modal.find('input[type=text], input[type=number], textarea').val('');
+                        modal.find('select').val('').trigger('change');
+
+                        modal.modal('hide');
+
+                    }
+                },
+            });
+        }
+    }
+
+    /**** Buying Price Popup *****/
+
+    $(document).ready(function() {
+
+        $("#purchasedurationSelect").on("change", function(e) {
+            let selectedValue = $(this).val();
+            setPurchaseDateRange(selectedValue);
+        });
+        // default purchase date range
+        setPurchaseDateRange(1);
+
+        $('#purchase_discount').on('input', function() {
+            var gross_price = $('#gross_price').val();
+            if (gross_price.trim() === '') {
+                alert('Please enter the gross price first.');
+                $(this).val(''); // Clear the margin price input
+            }
+        });
+        $('#purchase_discount_amount').on('input', function() {
+            var gross_price = $('#gross_price').val();
+            if (gross_price.trim() === '') {
+                alert('Please enter the gross price first.');
+                $(this).val(''); // Clear the margin price input
+            }
+        });
+
+        document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
+        document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
+        document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+        $('#gross_price, #purchase_discount').on('input', function() {
+
+            updateBuyingPrice();
+
+        });
+    });
+
+
+    function updateBuyingPriceWithAmount() {
+        let gross_price = $('#gross_price').val(); // Get the value using jQuery
+        let purchase_discount = $('#purchase_discount_amount').val(); // Get the value using jQuery
+
+        let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+        let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+        let buyingPriceInput = $('#buying_price');
+
+        if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+            let calculatedDPrice = basePrice - dAmount;
+            let dpercent = (dAmount / basePrice) * 100;
+            dpercent = parseFloat(dpercent).toFixed(2);
+            $('#purchase_discount').val(dpercent);
+
+            let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+            buyingPriceInput.val(formattedMarginPrice);
+        }
+    }
+
+    function updateBuyingPrice() {
+        let gross_price = $('#gross_price').val(); // Get the value using jQuery
+        let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
+
+        let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+        let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+        let buyingPriceInput = $('#buying_price');
+
+        if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+            let calculatedDPrice = basePrice * (dPercentage / 100);
+            $('#purchase_discount_amount').val(calculatedDPrice);
+            calculatedDPrice = basePrice - calculatedDPrice;
+            let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+            buyingPriceInput.val(formattedMarginPrice);
+        } else if (!isNaN(basePrice)) {
+            let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+            buyingPriceInput.val(formattedMarginPrice);
+        }
+    }
+
+    function setPurchaseDateRange(selectedValue) {
+        let currentDate = new Date();
+        let validity_from = document.getElementById('validity_from');
+        let validity_to = document.getElementById('validity_to');
+        let dateRangeGroup = document.getElementById('purchasedateRangeGroup');
+
+        if (selectedValue !== "") {
+            let startDate = new Date(currentDate);
+            let endDate = new Date(currentDate);
+            endDate.setMonth(currentDate.getMonth() + parseInt(selectedValue));
+
+            let startDateFormatted = startDate.toISOString().split('T')[0];
+            let endDateFormatted = endDate.toISOString().split('T')[0];
+
+            validity_from.value = startDateFormatted;
+            validity_to.value = endDateFormatted;
+
+            let dateRange = `${startDateFormatted} to ${endDateFormatted}`;
+
+            document.getElementById('purchasedateRange').innerText = dateRange;
+            dateRangeGroup.style.display = 'block';
+
+        } else {
+            validity_from.value = '';
+            validity_to.value = '';
+            document.getElementById('purchasedateRange').innerText = "";
+            dateRangeGroup.style.display = 'none';
+        }
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 </script>
 @endpush
 @endsection

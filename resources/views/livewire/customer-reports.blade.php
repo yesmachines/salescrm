@@ -2,10 +2,10 @@
   <div class="row">
     <div class="col-md-5">
       <div class="input-group mb-1">
-        <select class="form-control" wire:model="selectedCountry" >
+        <select class="form-control" wire:model="selectedCountry">
           <option value="">Select Country</option>
           @foreach ($countries as $country)
-          <option value="{{ $country->id }}" >{{ $country->name }}</option>
+          <option value="{{ $country->id }}">{{ $country->name }}</option>
           @endforeach
         </select>
       </div>
@@ -39,17 +39,15 @@
           @php
           $count++;
           if($count %2 == 0){
-            $rowtype = "even";
+          $rowtype = "even";
           }else{
-            $rowtype = "odd";
+          $rowtype = "odd";
           }
           @endphp
-
-
           <tr class="{{$rowtype}}">
-            <td class="text-truncate overflow-hidden"> {{$index + $customersData->firstItem()}}</td>
+            <td class="text-truncate overflow-hidden">{{$index + $customersData->firstItem()}}</td>
             <td class="text-truncate overflow-hidden" title="{{$value->fullname}}">{{$value->fullname}}</td>
-            <td class="text-truncate overflow-hidden"  title="{{$value->company_name}}">{{$value->company_name}}</td>
+            <td class="text-truncate overflow-hidden" title="{{$value->company_name}}">{{$value->company_name}}</td>
             <td class="text-truncate overflow-hidden" title="{{$value->country_name ?? ''}}">{{$value->country_name ?? ''}}</td>
             <td class="text-truncate overflow-hidden" title="{{ $value->email ?? '' }}">{{ $value->email ?? '' }}</td>
             <td class="text-truncate overflow-hidden" title="{{ $value->phone ?? '' }}">{{ $value->phone ?? '' }}</td>
@@ -68,44 +66,44 @@
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initial icons replacement
-      feather.replace();
-
-      // Listen for Livewire update and load events
-      document.addEventListener('livewire:update', function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initial icons replacement
         feather.replace();
-      });
 
-      Livewire.hook('message.processed', (message, component) => {
-        feather.replace();
+        // Listen for Livewire update and load events
+        document.addEventListener('livewire:update', function() {
+          feather.replace();
+        });
+
+        Livewire.hook('message.processed', (message, component) => {
+          feather.replace();
+        });
       });
-    });
     </script>
     <script>
-    function updateStatus(customerId) {
-      var checkbox = $('#toggleActionButtons_' + customerId);
-      var status = checkbox.is(':checked') ? 1 : 0;
+      function updateStatus(customerId) {
+        var checkbox = $('#toggleActionButtons_' + customerId);
+        var status = checkbox.is(':checked') ? 1 : 0;
 
-      $.ajax({
-        url: '/customers/' + customerId,
-        type: 'PATCH',
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        contentType: 'application/json',
-        data: JSON.stringify({
-          status: status
-        }),
-        success: function(response) {
-          console.log(response.message); // Log success message
-          // You can also update the UI or do something else on success
-        },
-        error: function(xhr, status, error) {
-          console.error('Error:', error); // Log error status
-          // Handle errors here
-        }
-      });
-    }
+        $.ajax({
+          url: '/customers/' + customerId,
+          type: 'PATCH',
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          contentType: 'application/json',
+          data: JSON.stringify({
+            status: status
+          }),
+          success: function(response) {
+            console.log(response.message); // Log success message
+            // You can also update the UI or do something else on success
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', error); // Log error status
+            // Handle errors here
+          }
+        });
+      }
     </script>
   </div>

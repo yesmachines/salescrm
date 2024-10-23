@@ -36,6 +36,7 @@ class OrderService
             'currency'          => (isset($userData['currency']) && !is_null($userData['currency'])) ? $userData['currency'] : 'aed',
             'selling_price'     => $userData['selling_price'],
             'created_by'        => $userData['created_by'],
+            'status'            => (isset($userData['status']) && !is_null($userData['status'])) ? $userData['status'] : 'open',
         ];
 
         $isexist = Order::where("quotation_id", $userData['quotation_id']);
@@ -276,6 +277,7 @@ class OrderService
                     $insert = array_merge($update, $item);
 
                     if (!is_null($item['product_id']) && $item['product_id'] != 0) {
+
                         // if its an existing product, update
                         OrderItem::where("order_id", $userData['order_id'])
                             ->where('product_id', $item['product_id'])

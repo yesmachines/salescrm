@@ -57,6 +57,7 @@ class Order extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
     public function orderHistory()
     {
         return $this->hasMany(OrderHistory::class, 'order_id', 'id');
@@ -88,5 +89,30 @@ class Order extends Model
     public function assigned()
     {
         return $this->belongsTo(Employee::class, 'created_by', 'id');
+    }
+    public function getProductNamesAttribute()
+    {
+        return $this->orderItem ? $this->orderItem->pluck('item_name')->implode(' , ') : '';
+    }
+    public function getSupplierBrandsAttribute()
+    {
+        return $this->orderSupplier->map(function ($orderSupplier) {
+            return $orderSupplier->supplier ? $orderSupplier->supplier->brand : 'Unknown';
+        })->implode(', ');
+    }
+    public function quotation()
+    {
+        return $this->belongsTo(Quotation::class);
+    }
+    public function getProductCategoriesAttribute()
+    {
+        $categories = $this->orderItem->map(function ($item) {
+            return optional($item->product)->product_category;
+        });
+        return $categories->filter()->unique()->implode(', ');
+    }
+    public function purchaseRequisition()
+    {
+        return $this->hasOne(PurchaseRequisition::class);
     }
 }

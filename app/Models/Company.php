@@ -42,6 +42,10 @@ class Company extends Model
     {
         return $this->hasOne(Visitor::class);
     }
+    public function purchaseRequisition()
+    {
+        return $this->hasMany(PurchaseRequisition::class);
+    }
 
     public function region()
     {

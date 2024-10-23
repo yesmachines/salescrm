@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\BuyingPrice;
+use App\Models\OrderItem;
 
 class Product extends Model
 {
@@ -33,6 +36,11 @@ class Product extends Model
     'part_number'
 
   ];
+  public function buyingPrice(): HasMany
+  {
+    return $this->hasMany(BuyingPrice::class, "product_id", "id")->orderBy('id', 'desc');
+  }
+
   public function supplier()
   {
     return $this->belongsTo(Supplier::class, 'brand_id', 'id');
@@ -50,5 +58,14 @@ class Product extends Model
   {
     $b = str_replace(',', '', $value);
     return $this->attributes['margin_price'] = ($value) ? (float)$b : 0;
+  }
+
+  public function prItem()
+  {
+    return $this->hasMany(PrItem::class, 'product_id', 'id');
+  }
+  public function orderItem()
+  {
+    return $this->hasMany(OrderItem::class, 'product_id', 'id');
   }
 }

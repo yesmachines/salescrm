@@ -25,7 +25,7 @@ class CustomerReports extends Component
     $query = $this->getCustomerQuery($request, $custService, $countryService);
     $countries = $countryService->getAllCountry();
     $customers = $query->paginate(100, ['*'], 'page', $this->page); // Manually set the current page
-    return view('livewire.customer-reports', ['customersData' => $customers,'countries'=>$countries]);
+    return view('livewire.customer-reports', ['customersData' => $customers, 'countries' => $countries]);
   }
 
   protected function getCustomerQuery(Request $request, CustomerService $custService, CountryService $countryService)
@@ -38,15 +38,15 @@ class CustomerReports extends Component
     //   $query->where('location', $this->selectedCountry);
     // }
     $query = Customer::query()
-    ->leftJoin('companies', 'customers.company_id', '=', 'companies.id')
-    ->leftJoin('countries', 'companies.country_id', '=', 'countries.id')
-    ->where('customers.status', $input['status'])
-    ->select(
-      'customers.*',
-      'companies.company as company_name',
-      'companies.reference_no as company_reference_no',
-      'countries.name as country_name',
-    );
+      ->leftJoin('companies', 'customers.company_id', '=', 'companies.id')
+      ->leftJoin('countries', 'companies.country_id', '=', 'countries.id')
+      ->where('customers.status', $input['status'])
+      ->select(
+        'customers.*',
+        'companies.company as company_name',
+        'companies.reference_no as company_reference_no',
+        'countries.name as country_name',
+      );
 
     if (!empty($this->selectedCountry)) {
       $query->where('companies.country_id', $this->selectedCountry);
@@ -57,9 +57,9 @@ class CustomerReports extends Component
   public function exportToExcel()
   {
     $query = $this->getCustomerQuery(request(), new CustomerService(), new CountryService());
-    $customerData = $query->get();
+    $customerData = $query->lazy();
     $selectedCustomerIds = $this->getSelectedCustomerIds();
-    if(isset(  $selectedCustomerIds)){
+    if (isset($selectedCustomerIds)) {
       $customerData = Customer::whereIn('id', $selectedCustomerIds)->get();
     }
     return (new CustomerReportExport($customerData))->download('customer-reports.xlsx');
@@ -72,10 +72,7 @@ class CustomerReports extends Component
   {
     logger('Country Changed:', [$value]);
   }
-  protected function getSelectedCustomerIds()
-  {
-
-  }
+  protected function getSelectedCustomerIds() {}
 
   public function gotoPage($page)
   {

@@ -61,6 +61,9 @@
         }else{
         $rowtype = "odd";
         }
+        if($order->status == 'draft'){
+        $rowtype .= " lightOrange";
+        }
         @endphp
 
         @switch($order->status)
@@ -70,12 +73,17 @@
         @case('partial')
         @php $clsStat = 'warning';@endphp
         @break
+        @default:
+        @php $clsStat = 'secondary';@endphp
+        @break
 
         @endswitch
         <tr class="{{$rowtype}}">
-          <td class="text-truncate overflow-hidden">
+          <td>
             <span style="cursor:pointer;" class="badge badge-outline {{$order->order_for == 'yesclean'? 'ycref': 'ymref'}}" onclick="copyText(this);">{{$order->os_number}}</span>
+
             <a href="{{route('orders.download', $order->id)}}" title="Download OS"><i class="fa fa-download" aria-hidden="true"></i></a>
+
           </td>
           <td class="text-truncate overflow-hidden" title="{{$order->os_date }}">{{$order->os_date }}</td>
           <td class="text-truncate overflow-hidden" title="{{$order->company->company}}">{{$order->company->company}}</td>
@@ -98,6 +106,10 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{{ route('orders.show', $order->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>View</span></a>
               <a class="dropdown-item" href="{{route('orders.edit',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
+              @if($order->status != 'draft')
+              <a class="dropdown-item" href="{{route('purchaserequisition.createnew',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="plus-circle"></i></span><span>Create PR</span></a>
+              @endif
+
             </div>
           </td>
         </tr>

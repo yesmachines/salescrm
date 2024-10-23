@@ -97461,6 +97461,21 @@ div.hopscotch-bubble .hopscotch-bubble-container .hopscotch-actions .emailapp-wr
   background-color: #f3e6e5;
 }
 
+.lightOrange {
+  background-color: #ffc1079e;
+}
+
+.pageLoader {
+  /* background: url(../img/giphy.gif) no-repeat center center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 9999999;
+  background-color: #ffffff8c; */
+
+}
 
 @media (min-width: 1400px) {
 

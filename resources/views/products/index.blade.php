@@ -83,6 +83,7 @@
                       <th style="font-size: 16px;">Sl.No</th>
                       <th style="font-size: 16px;">Title</th>
                       <th style="font-size: 16px;">Brand</th>
+                      <th style="font-size: 16px;">Buying Price</th>
                       <th style="font-size: 16px;">Model</th>
                       <th style="font-size: 16px;">Part Number</th>
                       <th style="font-size: 16px;">Selling Price</th>
@@ -100,16 +101,21 @@
                     @php
                     $count++;
                     if($count %2 == 0){
-                      $rowtype = "even";
+                    $rowtype = "even";
                     }else{
-                      $rowtype = "odd";
+                    $rowtype = "odd";
                     }
                     @endphp
                     <tr class="{{$rowtype}}">
                       <td>{{$index + $products->firstItem()}}</td>
-                      <td>{{$product->title}} &nbsp;<span class="badge badge-soft-danger">{{$product->product_type}}</span></td>
-                      <td> {{ $product->supplier->brand ?? '' }}</td>
-                      <td>{{$product->modelno  ?? ''}}</td>
+                      <td> @if($product->image_url)
+                        <img src="{{ asset('storage/'. $product->image_url) }}" width="50" />
+                        @endif
+                        {{$product->title}} &nbsp;<span class="badge badge-soft-danger">{{$product->product_type}}</span>
+                      </td>
+                      <td>{{ $product->supplier->brand ?? '' }}</td>
+                      <td>{{ $product->buyingPrice[0]->buying_price ?? '' }} {{ $product->buyingPrice[0]->buying_currency ?? '' }}</td>
+                      <td>{{$product->modelno ?? ''}}</td>
                       <td>{{$product->part_number ?? ''}}</td>
                       <td>{{$product->selling_price}} {{$product->currency}}</td>
                       <td>{{$product->margin_percent}} %<br />
@@ -148,11 +154,11 @@
   </div>
 </div>
 <script>
-function confirmDelete(productId) {
-  if (confirm("Are you sure you want to delete this product?")) {
-    document.getElementById('delete-form-' + productId).submit();
+  function confirmDelete(productId) {
+    if (confirm("Are you sure you want to delete this product?")) {
+      document.getElementById('delete-form-' + productId).submit();
+    }
   }
-}
 </script>
 
 

@@ -187,7 +187,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item d-none">
+                    <li class="nav-item">
                         <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#reports_list">
                             <span class="nav-icon-wrap">
                                 <span class="svg-icon">
@@ -205,22 +205,26 @@
                         <ul id="reports_list" class="nav flex-column collapse  nav-children">
                             <li class="nav-item">
                                 <ul class="nav flex-column">
-                                    <li class="nav-item">
+                                    <li class="nav-item  d-none">
                                         <a class="nav-link" href="{{route('reports.leads')}}"><span class="nav-link-text">Leads Report</span></a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link" href="{{route('reports.summarynumber')}}"><span class="nav-link-text">Summary & Numbers Report</span></a>
+                                    </li>
+
+                                    <li class="nav-item">
                                         <a class="nav-link" href="{{route('reports.quotations')}}"><span class="nav-link-text">Quotations Report</span></a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item  d-none">
                                         <a class="nav-link" href="{{route('reports.winners')}}"><span class="nav-link-text">Win Standing Report</span></a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item  d-none">
                                         <a class="nav-link" href="{{route('reports.suppliers')}}"><span class="nav-link-text">Suppliers Report</span></a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item  d-none">
                                         <a class="nav-link" href="{{route('reports.probability')}}"><span class="nav-link-text">Probability Report</span></a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item  d-none">
                                         <a class="nav-link" href="{{route('reports.employees')}}"><span class="nav-link-text">Employee Performance Report</span></a>
                                     </li>
                                     <li class="nav-item">
@@ -259,6 +263,34 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('stock.index')}}"><span class="nav-link-text">Stock List</span></a>
                                     </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    @endcanany
+                    @canany(['purchaserequisition.index'])
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#dash_prs">
+                            <span class="nav-icon-wrap">
+                                <span class="svg-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-digit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                        <rect x="9" y="12" width="3" height="5" rx="1"></rect>
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                        <path d="M15 12v5"></path>
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="nav-link-text">Purchase Requisition</span>
+                        </a>
+                        <ul id="dash_prs" class="nav flex-column collapse  nav-children">
+                            <li class="nav-item">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('purchaserequisition.index')}}"><span class="nav-link-text">Pending PR</span></a>
+                                    </li>
+
                                 </ul>
                             </li>
                         </ul>
