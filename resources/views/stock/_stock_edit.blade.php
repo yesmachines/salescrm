@@ -625,43 +625,43 @@
    *****************************************/
   var iter2 = $("#itemcustomFields").find("tbody >tr").length;
 
-  $(".addIT").click(function() {
+  // $(".addIT").click(function() {
 
-    ++iter2;
-    let dropdwn = createDropDown2(iter2);
+  //   ++iter2;
+  //   let dropdwn = createDropDown2(iter2);
 
-    let newRow = $(`<tr valign="top">
-  <td>
-  <textarea class="form-control" name="item_name[]" placeholder="Item"></textarea></td>
-  <td><input type="text" class="form-control" name="partno[]" placeholder="Part No" /></td>
-  <td> <input type="number" class="form-control" name="quantity[]" placeholder="Quantity" /></td>
-  <td><input type="text" class="form-control" name="yes_number[]" placeholder="YesNo." /></td>
-  <td><input type="number" class="form-control" name="total_amount[]" step="any" placeholder="Total Amount" /></td>
-  <td><input type="text" class="form-control datepick" name="expected_delivery[]" placeholder="Expected Delivery" /></td>
-  <td width="10%">
-  <select class="form-control" name="status[]" id="status">
-  <option value="0" {{ 0 ? 'selected' : '' }}>Not Delivered</option>
-  <option value="1" {{ 1 ? 'selected' : '' }}>Delivered</option>
-  </select>
-  </td>
-  <td><textarea rows="2" name="item_remark[]" placeholder="Remarks" class="form-control"></textarea></td>
-  <td><a href="javascript:void(0);" class="remIT" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
-    $("#itemcustomFields").append(newRow);
-    newRow.find('.datepick').daterangepicker({
-      singleDatePicker: true,
-      autoUpdateInput: false,
-      cancelClass: "btn-secondary",
-      locale: {
-        format: 'YYYY-MM-DD'
-      }
-    });
+  //   let newRow = $(`<tr valign="top">
+  // <td>
+  // <textarea class="form-control" name="item_name[]" placeholder="Item"></textarea></td>
+  // <td><input type="text" class="form-control" name="partno[]" placeholder="Part No" /></td>
+  // <td> <input type="number" class="form-control" name="quantity[]" placeholder="Quantity" /></td>
+  // <td><input type="text" class="form-control" name="yes_number[]" placeholder="YesNo." /></td>
+  // <td><input type="number" class="form-control" name="total_amount[]" step="any" placeholder="Total Amount" /></td>
+  // <td><input type="text" class="form-control datepick" name="expected_delivery[]" placeholder="Expected Delivery" /></td>
+  // <td width="10%">
+  // <select class="form-control" name="status[]" id="status">
+  // <option value="0" {{ 0 ? 'selected' : '' }}>Not Delivered</option>
+  // <option value="1" {{ 1 ? 'selected' : '' }}>Delivered</option>
+  // </select>
+  // </td>
+  // <td><textarea rows="2" name="item_remark[]" placeholder="Remarks" class="form-control"></textarea></td>
+  // <td><a href="javascript:void(0);" class="remIT" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
+  //   $("#itemcustomFields").append(newRow);
+  //   newRow.find('.datepick').daterangepicker({
+  //     singleDatePicker: true,
+  //     autoUpdateInput: false,
+  //     cancelClass: "btn-secondary",
+  //     locale: {
+  //       format: 'YYYY-MM-DD'
+  //     }
+  //   });
 
-    // Set the date when a date is selected
-    newRow.find('.datepick').on('apply.daterangepicker', function(ev, picker) {
-      $(this).val(picker.startDate.format('YYYY-MM-DD'));
-    });
-    newRow.find('input[name="total_amount[]"]').on('input', calculateTotalAmount);
-  });
+  //   // Set the date when a date is selected
+  //   newRow.find('.datepick').on('apply.daterangepicker', function(ev, picker) {
+  //     $(this).val(picker.startDate.format('YYYY-MM-DD'));
+  //   });
+  //   newRow.find('input[name="total_amount[]"]').on('input', calculateTotalAmount);
+  // });
 
   $("#itemcustomFields").on('click', '.remIT', function() {
     // if (confirm('Are you sure to delete the Item?')) {
@@ -1008,8 +1008,11 @@
         newRow += '<tr id="irow-' + productid + '">';
         newRow += '<td width="15%"><textarea class="form-control" name="item_name[]" placeholder="Item">' + title + '</textarea></td>';
         newRow += '<td><input type="text" class="form-control" name="partno[]" placeholder="Part No" value="' + part_number + '" /></td>';
+        newRow += `<td><input type="text" class="form-control" placeholder="Unit Price" name="unit_price[]" value="${unit_price}" readonly/></td>`;
+
         newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" min="1" value="' + qty + '"/></td>';
         newRow += '<td><input type="text" class="form-control" name="yes_number[]" placeholder="YesNo." /></td>';
+        newRow += '<td><input type="text" class="form-control linediscount" name="discount[]" placeholder="Discount %" /></td>';
         newRow += '<td><input type="text" class="form-control purchase_amount" readonly name="total_amount[]" placeholder="Total Amount" value="' + buying_price + '"/>' + addBtn + '</td>';
         newRow += '<td><input type="text" class="form-control datepick" name="expected_delivery[]" placeholder="Expected Delivery" /></td>';
         newRow += `<td><select class="form-control" name="status[]" id="status">
@@ -1017,8 +1020,7 @@
           <option value="1"> Delivered </option>
           </select></td>`;
         newRow += '<td><textarea rows="2" name="item_remark[]" placeholder="Remarks" class="form-control"></textarea></td>';
-        newRow += `<td><input type="hidden" name="item_id[]" value="${productid}"/>
-        <input type="hidden" name="unit_price[]" value="${unit_price}"/>
+        newRow += `<td><input type="hidden" name="item_id[]" value="${productid}"/>       
       <a href="javascript:void(0);" class="remIT" title="DELETE ROW" data-id="drow-${productid}"><i class="fa fa-trash"></i></a>
       </td>`;
         newRow += '</tr>';
@@ -1040,8 +1042,39 @@
 
     let quantity = row.find('input[name="quantity[]"]').val() || 0;
     let unitprice = row.find('input[name="unit_price[]"]').val() || 0;
+    let discount = row.find('input[name="discount[]"]').val() || 0;
 
-    let linetotal = parseFloat(unitprice * quantity).toFixed(2)
+    let linetotal = parseFloat(unitprice * quantity).toFixed(2);
+    let discountAmt = 0;
+    if (discount > 0) {
+      discountAmt = linetotal * (discount / 100);
+    }
+    if (discountAmt > 0) {
+      linetotal = parseFloat(linetotal - discountAmt).toFixed(2);
+    }
+
+    row.find('input[name="total_amount[]"]').val(linetotal);
+
+    calculateTotalAmount();
+
+  });
+
+  $(document).on('input change', '.linediscount', function(e) {
+    let row = $(this).closest('tr');
+
+    let quantity = row.find('input[name="quantity[]"]').val() || 0;
+    let unitprice = row.find('input[name="unit_price[]"]').val() || 0;
+    let discount = row.find('input[name="discount[]"]').val() || 0;
+
+    let linetotal = parseFloat(unitprice * quantity).toFixed(2);
+    let discountAmt = 0;
+    if (discount > 0) {
+      discountAmt = linetotal * (discount / 100);
+    }
+    if (discountAmt > 0) {
+      linetotal = parseFloat(linetotal - discountAmt).toFixed(2);
+    }
+
     row.find('input[name="total_amount[]"]').val(linetotal);
 
     calculateTotalAmount();

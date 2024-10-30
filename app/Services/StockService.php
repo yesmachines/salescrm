@@ -43,8 +43,10 @@ class StockService
         $stockItem->item_id =  $userData['item_id'][$key];
         $stockItem->item_name = $itemName;
         $stockItem->partno = $userData['partno'][$key];
+        $stockItem->unit_price = $userData['unit_price'][$key];
         $stockItem->quantity = $userData['quantity'][$key];
         $stockItem->yes_number = $userData['yes_number'][$key];
+        $stockItem->discount = $userData['discount'][$key];
         $stockItem->total_amount = $userData['total_amount'][$key];
         $stockItem->expected_delivery = $userData['expected_delivery'][$key];
         $stockItem->status = $userData['status'][$key];
@@ -157,8 +159,10 @@ class StockService
           'item_id' => $userData['item_id'][$key],
           'item_name' => $itemName,
           'partno' => $userData['partno'][$key],
+          'unit_price' => $userData['unit_price'][$key],
           'quantity' => $userData['quantity'][$key],
           'yes_number' => $userData['yes_number'][$key],
+          'discount' => $userData['discount'][$key],
           'total_amount' => $userData['total_amount'][$key],
           'expected_delivery' => $userData['expected_delivery'][$key],
           'status' => $userData['status'][$key],

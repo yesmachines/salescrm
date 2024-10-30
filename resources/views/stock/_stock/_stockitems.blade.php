@@ -29,8 +29,10 @@
         <tr>
           <th>Item Details *</th>
           <th>Part No</th>
+          <th>Unit (AED)*</th>
           <th>Qty *</th>
           <th>YesNo.</th>
+          <th>Dis (%)</th>
           <th>Amount (AED) *</th>
           <th>Expected<br />Delivery</th>
           <th>Status</th>

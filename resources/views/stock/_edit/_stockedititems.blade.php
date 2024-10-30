@@ -31,8 +31,10 @@
               <tr>
                 <th>Item Details *</th>
                 <th>Part No</th>
+                <th>Unit (AED)*</th>
                 <th>Qty *</th>
                 <th>YesNo.</th>
+                <th>Dis (%)</th>
                 <th>Amount (AED) *</th>
                 <th>Expected<br />Delivery</th>
                 <th>Status</th>
@@ -51,11 +53,25 @@
                   <input type="text" class="form-control" name="partno[]" placeholder="Part No" value="{{ $item->partno }}" />
                 </td>
                 <td>
+                  @php
+                  $unit_price = 0;
+                  if($item->unit_price >0){
+                  $unit_price = $item->unit_price;
+                  }else{
+                  if($item->discount <= 0){
+                    $unit_price=($item->total_amount / $item->quantity);
+                    }
+                    }
+                    @endphp
+                    <input type="text" class="form-control" placeholder="Unit Price" name="unit_price[]" value="{{ $unit_price }}" readonly />
+                </td>
+                <td>
                   <input type="number" class="form-control quantity" name="quantity[]" value="{{ $item->quantity }}" placeholder="Quantity" />
                 </td>
                 <td>
                   <input type="text" class="form-control" name="yes_number[]" placeholder="YesNo." value="{{ $item->yes_number }}" />
                 </td>
+                <td><input type="text" class="form-control linediscount" name="discount[]" value="{{ $item->discount }}" placeholder="Discount %" /></td>
                 <td>
                   <input type="number" class="form-control purchase_amount" name="total_amount[]" value="{{ $item->total_amount }}" step="any" placeholder="Total Amount" />
                 </td>
@@ -72,12 +88,8 @@
                   <textarea rows="2" id="remarks" name="item_remark[]" placeholder="Remarks" class="form-control">{{ $item->remarks }}</textarea>
                 </td>
                 <td>
-                  @php
-                  $unit_price = ($item->total_amount / $item->quantity);
 
-                  @endphp
                   <input type="hidden" name="item_id[]" value="{{ $item->item_id }}" />
-                  <input type="hidden" name="unit_price[]" value="{{ $unit_price }}" />
                   <a href="javascript:void(0);" class="remIT" title="DELETE ROW" data-id="drow-{{ $item->item_id }}"><i class="fa fa-trash"></i></a>
                 </td>
               </tr>

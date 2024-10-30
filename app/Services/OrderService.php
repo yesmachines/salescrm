@@ -473,4 +473,15 @@ class OrderService
     {
         OrderCharge::find($id)->delete();
     }
+
+    public function deleteOrder($id): void
+    {
+        OrderSupplier::where('order_id', $id)->delete();
+        OrderPayment::where('order_id', $id)->delete();
+        OrderItem::where('order_id', $id)->delete();
+        OrderClient::where('order_id', $id)->delete();
+        OrderCharge::where('order_id', $id)->delete();
+
+        Order::find($id)->delete();
+    }
 }

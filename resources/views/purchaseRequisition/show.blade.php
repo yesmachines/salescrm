@@ -59,7 +59,9 @@
                                         <span><span class="icon"><span class="feather-icon"><i data-feather="download"></i></span></span><span>Download PR</span></span>
                                     </a>
                                     <div class="d-flex mt-3">
-
+                                        <a href="{{ route('purchaserequisition.edit', $purchaseRequest->id) }}" class="btn btn-sm btn-secondary btn-block ms-2 mt-0">
+                                            <span><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span><span>Edit</span></span>
+                                        </a>
                                         <button class="btn btn-sm btn-light btn-block ms-2 mt-0" onclick="history.back();">
                                             <span><span class="icon"><span class="feather-icon"><i data-feather="chevron-left"></i></span></span><span>Back To List</button>
                                     </div>
@@ -201,6 +203,25 @@
                                                             @endforeach
                                                         </tbody>
                                                     </table>
+                                                    @if(count($purchaseRequest->purchaseCharge ) >0)
+                                                    <h6> <b>Additional Charges</b></h6>
+                                                    <table class="table form-table mt-3" id="charges_add">
+
+                                                        @foreach($purchaseRequest->purchaseCharge as $charge)
+                                                        <tr>
+                                                            <td width="5%"></td>
+                                                            <td width="10%"></td>
+                                                            <td width="40%">{{$charge->title }} </td>
+                                                            <td width="20%"></td>
+                                                            <td width="5%"></td>
+                                                            <td width="20%">
+                                                                {{$charge->considered}} {{$charge->currency}}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                    @endif
                                                 </div>
                                             </div>
 

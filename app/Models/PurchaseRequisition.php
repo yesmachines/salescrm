@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseRequisition extends Model
 {
-    
     use HasFactory;
     protected $fillable = [
         'supplier_id',
@@ -55,6 +54,10 @@ class PurchaseRequisition extends Model
     public function purchasePaymentTerm()
     {
         return $this->hasMany(PrPaymentTerm::class, 'pr_id', 'id');
+    }
+    public function purchaseCharge()
+    {
+        return $this->hasMany(PrCharge::class, 'pr_id', 'id');
     }
     public function assigned()
     {

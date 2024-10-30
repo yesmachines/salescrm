@@ -150,6 +150,16 @@
             <td align="center">{{$item->total_amount}} </td>
         </tr>
         @endforeach
+
+        @foreach($purchaseRequest->purchaseCharge as $charge)
+        <tr>
+            <td colspan="5" align="right" height="25">{{$charge->title }} </td>
+
+            <td align="center">
+                {{$charge->considered}}
+            </td>
+        </tr>
+        @endforeach
         <tr>
             <td colspan="5" align="right" style="background: #ccc; height:30px; text-transform: uppercase; padding: 4px; ">
                 <b>Total Amount IN {{$purchaseRequest->currency}}</b>

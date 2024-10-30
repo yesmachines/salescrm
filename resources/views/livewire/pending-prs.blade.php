@@ -95,6 +95,7 @@
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{{route('purchaserequisition.download', $pr->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Download</span></a>
                             <a class="dropdown-item " href="{{route('purchaserequisition.show', $pr->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>View</span></a>
+                            <a class="dropdown-item" href="{{route('purchaserequisition.edit',$pr->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
 
                             <a class="dropdown-item del-button d-none" href="#" onclick="deletePR({{$pr->id}});"><span class="feather-icon dropdown-icon"><i data-feather="trash"></i></span><span>Delete</span></a>
                             {!! Form::open(['method' => 'DELETE','route' => ['purchaserequisition.destroy', $pr->id],'style'=>'display:none',
