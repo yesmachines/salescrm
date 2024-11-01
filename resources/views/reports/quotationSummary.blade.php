@@ -126,9 +126,12 @@
                                         {{ $quote->product_model }} /{{ $quote->supplier->brand}}
                                         @else
                                         @foreach($quote->quotationItem as $item)
-
+                                        @if(isset($item->product->supplier) )
                                         <b>{{$item->product->supplier->brand}}</b><br />
+                                        @endif
+                                        @if(isset($item->product->title))
                                         {{$item->product->title}}
+                                        @endif
                                         @endforeach
                                         @endif
                                     </td>

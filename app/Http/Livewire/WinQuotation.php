@@ -35,7 +35,8 @@ class WinQuotation extends Component
       $brand = [];
       if ($quote->supplier_id == 0) {
         foreach ($quote->quotationItem as $item) {
-          $brand[] = $item->supplier->brand;
+          if (isset($item->supplier))
+            $brand[] = $item->supplier->brand;
         }
       }
       $quotations[$x]->suppliername = !empty($brand) ? implode(", ", $brand) : '';
