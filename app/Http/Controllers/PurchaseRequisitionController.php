@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\PurchaseRequisition;
 use App\Services\CurrencyService;
 use Illuminate\Http\Request;
+use DB;
 use App\Services\OrderService;
 use App\Services\ProductService;
 use App\Services\PurchaseRequisitionService;
@@ -25,10 +26,7 @@ class PurchaseRequisitionController extends Controller
     ) {
 
         $currencies = $currencyService->getAllCurrency();
-
         $order = $orderService->getOrder($id);
-
-
         foreach ($order->orderItem as $x => $item) {
 
             $purchase = $productService->buyingPriceByProduct($item->product_id);
@@ -46,6 +44,17 @@ class PurchaseRequisitionController extends Controller
                 $order->orderItem[$x]->line_total = $line_total;
             }
         }
+
+        foreach ($order->orderSupplier as $y => $sup) {
+            $c_rate = 0;
+            $currency_rate = DB::table('currency_conversion')->where('currency', $sup->price_basis)->first();
+            if ($currency_rate) {
+                $c_rate = $currency_rate->standard_rate;
+            }
+
+            $order->orderSupplier[$y]->currency_rate = $c_rate;
+        }
+
 
         return view('purchaseRequisition.create', compact('order',  'currencies'));
     }
@@ -68,7 +77,7 @@ class PurchaseRequisitionController extends Controller
             'supplier.*.supplier_contact'   => 'required',
         ];
         $input = $request->all();
-
+        //  dd($input);
         $selectedCount = 0;
 
         foreach ($input['item'] as $i => $item) {
@@ -145,6 +154,23 @@ class PurchaseRequisitionController extends Controller
                 }
             }
 
+            // PR Charges
+            if (isset($input['charges']) && !empty($input['charges'])) {
+                foreach ($input['charges'] as $charge) {
+                    if (isset($charge['charge_id']) && $charge['charge_id'] != '') {
+                        $insertPRCharge = [
+                            'pr_id'        => $pr->id,
+                            'title'        => $charge['title'],
+                            'currency'     => $charge['currency'],
+                            'considered'   => $charge['considered']
+                        ];
+                        $total_price = $total_price + $charge['considered'];
+                        // insert PR Charges
+                        $prCharge = $purchaseRequest->insertPRCharges($insertPRCharge);
+                    }
+                }
+            }
+
             foreach ($input['payment'] as $payment) {
                 $insertPRPayment = [
                     'pr_id'            => $pr->id,
@@ -165,6 +191,123 @@ class PurchaseRequisitionController extends Controller
         }
 
         return redirect()->route('purchaserequisition.index')->with('success', 'PR created successfully');
+    }
+
+    public function edit(
+        $id,
+        PurchaseRequisitionService $purchaseRequest
+    ) {
+        $purchaseRequest = $purchaseRequest->getPurchaseRequisition($id);
+
+        return view('purchaseRequisition.edit',  compact(
+            'purchaseRequest'
+        ));
+    }
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id, PurchaseRequisitionService $purchaseRequest)
+    {
+        //
+        $valid = [
+            'supplier.supplier_email'     => 'required',
+            'supplier.supplier_contact'   => 'required',
+        ];
+        $input = $request->all();
+        //  dd($input);
+        $selectedCount = 0;
+
+        foreach ($input['item'] as $i => $item) {
+
+            if (isset($item['product_id'])) {
+                $selectedCount++;
+                $valid['item.' . $i . '.unit_price'] = 'required|decimal:0,4';
+            }
+        }
+        if ($selectedCount == 0) {
+            $valid['product_id'] = 'required';
+        }
+        // validation
+        $this->validate($request, $valid);
+
+        // $purchase = $purchaseRequest->getPurchaseRequisition($id);
+
+        $total_price = 0;
+
+        $supdata = $input["supplier"];
+        $insertPRDelivery = [
+            'supplier_email'   => $supdata['supplier_email'],
+            'supplier_contact' => $supdata['supplier_contact'],
+            'shipping_mode'    => $supdata['shipping_mode'],
+            'availability'     => $supdata['availability'],
+            'warranty'         => $supdata['warranty']
+        ];
+        // update Pr delivery
+        $prDelivery = $purchaseRequest->updatePRSupplierDetails($insertPRDelivery, $id);
+
+        $deleteItems = [];
+        foreach ($input['item'] as $item) {
+            if (isset($item['product_id']) && $item['product_id'] != '') {
+
+                $total_price = $total_price + $item['total_amount'];
+
+                $insertPRItem = [
+                    'partno'           => $item['partno'],
+                    'item_description' => $item['item_description'],
+                    'quantity'         => $item['quantity'],
+                    'total_amount'     => $item['total_amount'],
+                    'yes_number'       => $item['yes_number'],
+                ];
+                // Update PR Items
+                $prItem = $purchaseRequest->updatePRItems($insertPRItem, $item['item_id']);
+            } else {
+                $deleteItems[] =   $item['item_id'];
+            }
+        }
+        // delete unchecked items
+        if (!empty($deleteItems)) {
+            $pritems = $purchaseRequest->deletePRItems($deleteItems);
+        }
+
+        // PR Charges
+        if (isset($input['charges'])) {
+            foreach ($input['charges'] as $charge) {
+                if (isset($charge['charge_id']) && $charge['charge_id'] != '') {
+                    $insertPRCharge = [
+                        'title'        => $charge['title'],
+                        'considered'   => $charge['considered']
+                    ];
+                    $total_price = $total_price + $charge['considered'];
+                    // insert PR Charges
+                    $prCharge = $purchaseRequest->updatePRCharges($insertPRCharge, $charge['charge_id']);
+                }
+            }
+        }
+        // PR Payment
+        if (isset($input['payment'])) {
+            foreach ($input['payment'] as $payment) {
+                $insertPRPayment = [
+                    'payment_term'     => $payment['payment_term'],
+                    'remarks'          => $payment['remarks'],
+                    'status'           => $payment['status']
+                ];
+                // insert PR Payment Term
+                $prPayment = $purchaseRequest->updatePRPaymentTerms($insertPRPayment, $payment['payment_id']);
+            }
+        }
+        // Update Price - PR
+        $updatePR = [
+            'pr_id'        => $id,
+            'total_price'  => number_format($total_price, 2, '.')
+        ];
+        $updatepr = $purchaseRequest->updatePR($updatePR);
+
+
+        return redirect()->route('purchaserequisition.index')->with('success', 'PR Updated successfully');
     }
 
     public function show(

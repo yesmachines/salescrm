@@ -106,9 +106,10 @@
                     <tr>
                       <th>S.NO</th>
                       <th>Type</th>
+                      <th width="25%">Supplier</th>
                       <th>OS Number</th>
                       <th>OS Date</th>
-                      <th>Buying Price</th>
+                      <th>Buying Price (AED)</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -122,6 +123,9 @@
                       <td>
                         {{$stock->purchase_mode}}
                       </td>
+                      <td>
+                        {{$stock->getStockSupplierAttribute()}}
+                      </td>
 
                       <td>
                         <span class="badge badge-outline {{$stock->order_for == 'yesclean'? 'ycref': 'ymref'}}">
@@ -134,8 +138,8 @@
                       <td>
                         <div class="d-flex align-items-center">
                           <div class="d-flex">
-                            <a class="dropdown-item" href="{{ route('stock.download', $stock->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Download OS</span></a>
-                            <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Edit" href="{{ route('stock.edit', $stock->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span></a>
+                            <a class="dropdown-item" href="{{ route('stock.download', $stock->id) }}" title="Download OS"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span></a>
+                            <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="Edit" data-bs-original-title="Edit" href="{{ route('stock.edit', $stock->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span></a>
 
                             {!! Form::close() !!}
                           </div>
@@ -146,6 +150,7 @@
                     @endforeach
                   </tbody>
                 </table>
+                {{ $stocks->links() }}
               </div>
 
             </div>

@@ -42,7 +42,8 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "files": ["app/Helpers/ResponseFuns.php"]
     },
     "scripts": {
         "post-autoload-dump": [

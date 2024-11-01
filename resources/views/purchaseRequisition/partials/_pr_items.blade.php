@@ -2,7 +2,7 @@
 @php
 $pr_number = str_replace("OS", "PR", $order->os_number);
 @endphp
-<h6><b>For Supplier </b></h6>
+<h6 class="mt-4 alert alert-primary"><b>For Supplier </b></h6>
 <table class="table form-table" id="supplierFields">
     <tbody>
         <tr valign="top">
@@ -74,21 +74,55 @@ $pr_number = str_replace("OS", "PR", $order->os_number);
                 <input type="text" class="form-control" name="item[{{$x}}][total_amount]" placeholder="Final Price" value="{{$item->line_total}}" readonly />
             </td>
             <td>
-                <div class="form-check form-check-sm mt-2">
-                    <input type="checkbox" id="product_id_{{$x}}" class="form-check-input" name="item[{{$x}}][product_id]" value="{{$item->product_id}}">
-                    <label class="form-check-label" for="product_id_{{$x}}">Select</label>
+                <div class="form-check form-check-md mt-2">
+                    <input type="checkbox" id="product_id_{{$x}}" class="form-check-input product_select" name="item[{{$x}}][product_id]" value="{{$item->product_id}}">
+                    <label class="form-check-label" for="product_id_{{$x}}">SELECT</label>
 
                     <input type="hidden" name="item[{{$x}}][supplierid]" value="{{$item->product->brand_id}}" />
                 </div>
             </td>
         </tr>
-
         @endif
         @empty
         @endforelse
     </tbody>
 </table>
-<div class="row">
+<h6><b>Additional Charges</b></h6>
+<table class="table form-table" id="chargespaymentFields">
+    <thead>
+        <tr>
+            <th>Additional Items *</th>
+            <th>Considered Charges <span class="text-uppercase">({{$sup->price_basis}})</span> *</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($order->orderCharge as $key => $value)
+        @php
+        $charge_amt = $value->considered * $sup->currency_rate;
+        $charge_amt = number_format((float)$charge_amt, 2, '.', '')
+        @endphp
+        <tr valign="top">
+            <td width="30%">
+                <input type="text" class="form-control" name="charges[{{$key}}][title]" placeholder="Packing Charge" value="{{ $value->title ?? '' }}" />
+            </td>
+            <td width="20%">
+                <input type="number" class="form-control" name="charges[{{$key}}][considered]" placeholder="Considered Cost" step="any" value="{{ $charge_amt ?? '' }}" />
+            </td>
+            <td>
+                <div class="form-check form-check-md mt-2">
+                    <input type="hidden" name="charges[{{$key}}][currency]" value="{{$sup->price_basis}}" />
+                    <input type="checkbox" id="charge_id_{{$y}}_{{$key}}" class="form-check-input charge_select" name="charges[{{$key}}][charge_id]" value="{{$value->id}}">
+                    <label class="form-check-label" for="charge_id_{{$y}}_{{$key}}">SELECT</label>
+                </div>
+            </td>
+        </tr>
+        @endforeach
+
+    </tbody>
+</table>
+
+<div class="row mt-4">
     <div class="col-md-3">
         <div class="form-group">
             <label class="form-label">Shipping Mode</label>
@@ -150,7 +184,6 @@ $pr_number = str_replace("OS", "PR", $order->os_number);
             <label class="form-label">Payment Status</label>
         </div>
         <div class="form-group">
-
             <select class=" form-control" name="payment[{{$z}}][status]">
                 <option value="0" {{$payment->status == 0? "selected": ""}}>Not Done</option>
                 <option value="1" {{$payment->status == 1? "selected": ""}}>Done</option>

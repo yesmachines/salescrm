@@ -109,7 +109,10 @@
               @if($order->status != 'draft')
               <a class="dropdown-item" href="{{route('purchaserequisition.createnew',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="plus-circle"></i></span><span>Create PR</span></a>
               @endif
-
+              <a class="dropdown-item del-button d-none" href="#" onclick="deleteOrder({{$order->id}});"><span class="feather-icon dropdown-icon"><i data-feather="trash"></i></span><span>Delete</span></a>
+              {!! Form::open(['method' => 'DELETE','route' => ['orders.destroy', $order->id],'style'=>'display:none',
+              'id' => 'delete-form-'.$order->id]) !!}
+              {!! Form::close() !!}
             </div>
           </td>
         </tr>
@@ -124,6 +127,27 @@
   @endif
 
   <script>
+    function deleteOrder(orid) {
+
+      event.preventDefault();
+
+      if (!orid) return;
+
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You are sure to delete the Order !",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('delete-form-' + orid).submit();
+        }
+      });
+
+    }
     document.addEventListener("livewire:load", function() {
       const dateOptions = document.getElementById("dateOptions");
       const dateRangeInput = document.getElementById("dateRangePicker");

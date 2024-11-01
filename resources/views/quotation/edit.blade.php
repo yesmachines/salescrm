@@ -177,7 +177,6 @@
                   </select>
                 </div>
               </div>
-
               <div class="col-sm-6">
                 <div class="form-group">
                   <label class="form-label">Quotation For <span class="text-danger">*</span></label>

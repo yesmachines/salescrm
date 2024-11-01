@@ -655,4 +655,13 @@ class OrderController extends Controller
     $orderService->insertCommentReply($input);
     return response()->json($input['order_id']);
   }
+  public function destroy($id, OrderService $orderService)
+  {
+
+    $orderService->deleteOrder($id);
+
+
+    return redirect()->back()
+      ->with('success', 'Order deleted successfully');
+  }
 }

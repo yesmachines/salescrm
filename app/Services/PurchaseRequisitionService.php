@@ -11,6 +11,7 @@ use App\Models\PrDeliveryTerm;
 use App\Models\PrPaymentTerm;
 use App\Models\PrItem;
 use App\Models\PurchaseRequisition;
+use App\Models\PrCharge;
 use Faker\Core\Number;
 
 class PurchaseRequisitionService
@@ -31,9 +32,26 @@ class PurchaseRequisitionService
 
         return $purchaseDelivery;
     }
+    public function updatePRSupplierDetails(array $userData, $id): int
+    {
+        $purchaseDelivery = PrDeliveryTerm::where('pr_id', $id)->update($userData);
+
+        return $purchaseDelivery;
+    }
     public function insertPRItems(array $userData): Object
     {
         $purchaseItem = PrItem::create($userData);
+
+        return $purchaseItem;
+    }
+
+    public function deletePRItems($ids): int
+    {
+        return PrItem::whereIn('id', $ids)->delete();
+    }
+    public function updatePRItems(array $userData, $id): int
+    {
+        $purchaseItem = PrItem::find($id)->update($userData);
 
         return $purchaseItem;
     }
@@ -43,7 +61,24 @@ class PurchaseRequisitionService
 
         return $purchasePaymentTerm;
     }
+    public function updatePRPaymentTerms(array $userData, $id): int
+    {
+        $purchasePaymentTerm = PrPaymentTerm::find($id)->update($userData);
 
+        return $purchasePaymentTerm;
+    }
+    public function insertPRCharges(array $userData): Object
+    {
+        $purchaseCharges = PrCharge::create($userData);
+
+        return $purchaseCharges;
+    }
+    public function updatePRCharges(array $userData, $id): int
+    {
+        $purchaseCharges = PrCharge::find($id)->update($userData);
+
+        return $purchaseCharges;
+    }
     public function updatePR(array $userData): Object
     {
         $purchase = PurchaseRequisition::find($userData['pr_id']);

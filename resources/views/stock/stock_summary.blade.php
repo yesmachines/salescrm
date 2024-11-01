@@ -1903,7 +1903,6 @@
             $totalItems = 0;
             @endphp
             @foreach($stockItems as $item)
-
             {!! nl2br(e($item->item_name)) !!}
             @if($item->yes_number)
             YES {{$item->yes_number}}

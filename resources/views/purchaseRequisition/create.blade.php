@@ -71,7 +71,7 @@
                                     <div class="mt-2">
                                         @include('layouts.partials.messages')
                                     </div>
-                                    <form method="POST" action="{{ route('purchaserequisition.store') }}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('purchaserequisition.store') }}" enctype="multipart/form-data" id="frmpr">
                                         @csrf
                                         <input type="hidden" name="os_id" value="{{$order->id}}" />
                                         <input type="hidden" name="pr_for" value="{{$order->order_for}}" />
@@ -122,6 +122,15 @@
         //     //console.log("Line Total", line_total)
         // });
 
+        function CheckProducts() {
+
+            var checkedVals = $('input.product_select:checkbox:checked').map(function() {
+                return this.value;
+            }).get();
+
+            return checkedVals;
+        }
+
         $(document).on('input change', '.quantity', function(e) {
             let row = $(this).closest('tr');
             let rowid = row.attr('id');
@@ -135,6 +144,40 @@
             $("input[name='item[" + irow + "][total_amount]']").val(linetotal);
 
         });
+
+        // $(document).on('submit', 'form', function(event) {
+        //     var form = jQuery("#frmpr");
+        //     event.preventDefault();
+
+        //     let isProduct = CheckProducts();
+
+        //     if (isProduct == '') {
+        //         Swal.fire({
+        //             icon: "error",
+        //             title: "Oops...",
+        //             text: "Products are not selected, please choose.."
+        //         });
+        //         return false;
+        //     }
+        //     return true;
+
+        // Swal.fire({
+        //     title: "Do you really want to create PR with the selected products & quantity?",
+        //     showDenyButton: true,
+        //     showCancelButton: true,
+        //     confirmButtonText: "Save",
+        //     denyButtonText: `Don't save`
+        // }).then((result) => {
+        //     /* Read more about isConfirmed, isDenied below */
+        //     if (result.isConfirmed) {
+
+        //         form.submit();
+        //     } else if (result.isDenied) {
+        //         Swal.fire("Changes are not saved", "", "info");
+        //     }
+        // });
+
+        //});
 
     });
 </script>
