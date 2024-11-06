@@ -91,6 +91,23 @@ class UserController extends Controller {
         $request->user()->currentAccessToken()->delete();
         return successResponse(trans('api.success'));
     }
+    
+    public function changePassword(Request $request) {
+          $rules = [
+            'password' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+        $user = $request->user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+         return successResponse(trans('api.password.changed'));
+    }
 
     public function userData(&$user) {
         $user->with('employee');

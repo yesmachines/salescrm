@@ -120,7 +120,7 @@ class PresentationController extends Controller {
         switch ($division) {
             case 'ST-YC':
                 $db = \DB::connection('yesclean');
-                $data['image_url'] = $this->yc_ur;
+                $data['image_url'] = $this->yc_url;
                 $share_url = env('YC_SHARE_URL', 'https://www.yesclean.ae/');
                 break;
             case 'ST-RF':
@@ -144,7 +144,8 @@ class PresentationController extends Controller {
                         'p.description',
                         's.brand',
                         'c.name as category',
-                        'co.name as country'
+                        'co.name as country',
+                        'co.flag_url as country_image'
                 )
                 ->where('p.id', '=', $id)
                 ->first();
@@ -172,5 +173,27 @@ class PresentationController extends Controller {
             return successResponse(trans('api.success'), $data);
         }
         return errorResponse(trans('api.no_data'));
+    }
+
+    public function references($division, $id) {
+        switch ($division) {
+            case 'ST-YC':
+                $clients = \DB::connection('yesclean');
+                $imgUrl = \DB::raw("CONCAT('$this->yc_url', c.logo_url) as image");
+                break;
+            case 'ST-RF':
+                $clients = \DB::connection('rhinofloor');
+                $imgUrl = \DB::raw("CONCAT('$this->rf_url', c.logo_url) as image");
+                break;
+            default:
+                $clients = \DB::connection('yesmachine');
+                $imgUrl = \DB::raw("CONCAT('$this->ym_url', ym_c.logo_url) as image");
+        }
+        $clients = $clients->table('clients as c')
+                ->select('c.id', 'c.company', $imgUrl,)
+                ->leftJoin('product_clients as pc', 'pc.client_id', '=', 'c.id')
+                ->where('pc.product_id', $id)
+                ->orderBy('c.company', 'ASC');
+        return successResponse(trans('api.success'), new PaginateResource($clients->paginate(10)));
     }
 }

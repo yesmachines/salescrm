@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('stocks', function (Blueprint $table) {
+       Schema::table('stocks', function (Blueprint $table) {
             //
             $table->string('order_for')->nullable()->after('purchase_mode')->default('yesmachinery');
         });

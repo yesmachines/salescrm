@@ -31,10 +31,14 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('profile', 'UserController@profile');
     Route::post('profile', 'UserController@updateProfile');
     Route::post('update-profile-image', 'UserController@updateProfileImage');
+    Route::post('change-password', 'UserController@changePassword');
     Route::get('divisions', 'PresentationController@divisions');
     Route::get('brands/{division}', 'PresentationController@brands');
     Route::get('products/{division}/{brand_id?}', 'PresentationController@products');
     Route::get('product-details/{division}/{id}', 'PresentationController@productDetails');
+    Route::get('product-references/{division}/{id}', 'PresentationController@references');
+    Route::get('democenter/brands', 'DemoCenterController@brands');
+    Route::get('democenter/products/{brand_id?}', 'DemoCenterController@products');
 });
 
 Route::middleware(['cors'])->group(function () {
