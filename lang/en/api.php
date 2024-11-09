@@ -32,4 +32,11 @@ return [
     'invalid_request' => 'Invalid Request',
     'invalid_otp' => 'OTP is Invalid.',
     'otp_expired' => 'OTP expired.',
+    'meeting' => [
+        'note_done' => 'Meeting still not finished..',
+        'created' => 'Meeting created successfully.',
+        'notes_created' => 'Meeting notes created successfully.',
+        'feedback_exist' => 'Already submitted the feedback',
+        'feedback_success' => 'Feedback submitted successfully.Thank you!',
+    ],
 ];
