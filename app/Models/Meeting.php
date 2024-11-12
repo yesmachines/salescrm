@@ -10,13 +10,18 @@ class Meeting extends Model {
 
     protected $primaryKey = 'id';
     public $incrementing = false;
+    protected $hidden = [
+        'user_id',
+        'scheduled_at',
+        'created_at',
+        'updated_at',
+    ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     public function products() {
         return $this->hasMany(MeetingProduct::class, 'meeting_id', 'id');
+    }
+
+    public function shares() {
+        return $this->hasMany(MeetingShare::class, 'meeting_id', 'id');
     }
 }

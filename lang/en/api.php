@@ -38,5 +38,7 @@ return [
         'notes_created' => 'Meeting notes created successfully.',
         'feedback_exist' => 'Already submitted the feedback',
         'feedback_success' => 'Feedback submitted successfully.Thank you!',
+        'already_shared_to' => 'This meeting is laready shared to :name',
+        'shared' => 'Meeting shared successfully.',
     ],
 ];

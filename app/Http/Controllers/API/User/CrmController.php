@@ -21,7 +21,7 @@ class CrmController extends Controller {
         switch ($module) {
             case 'demo':
                 $brands->select('id', 'brand', \DB::raw("CASE WHEN logo_url IS NOT NULL  AND logo_url != '' THEN CONCAT('$this->imgUrl', logo_url) ELSE NULL END as logo"));
-                $brands = new PaginateResource($brands->paginate(10));
+                $brands = new PaginateResource($brands->paginate($this->paginateNumber));
                 break;
             case 'meeting':
                 $brands = $brands->select('id', 'brand')
@@ -45,7 +45,7 @@ class CrmController extends Controller {
                 if (!empty($brand_id)) {
                     $products->where('products.brand_id', $brand_id);
                 }
-                $products = new PaginateResource($products->paginate(10));
+                $products = new PaginateResource($products->paginate($this->paginateNumber));
                 break;
             case 'meeting':
                 $products->select('products.id', \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"));

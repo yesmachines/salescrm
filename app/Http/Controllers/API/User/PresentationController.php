@@ -69,7 +69,7 @@ class PresentationController extends Controller {
         }
 
         $brands->select('id', 'brand', \DB::raw("CONCAT('$imgUrl', logo_url) as logo"))->where('status', 1);
-        $brands = new PaginateResource($brands->paginate(10));
+        $brands = new PaginateResource($brands->paginate($this->paginateNumber));
         /* $brands->getCollection()->transform(function ($brand) use ($imgUrl) {
           $brand->logo_url = $imgUrl . '/' . $brand->logo_url;
           return $brand;
@@ -106,14 +106,15 @@ class PresentationController extends Controller {
                 $imgUrl = \DB::raw("CONCAT('$this->ym_url', ym_p.default_image) as image");
         }
         $brands = $brands->table('products as p')
-                ->select('p.id', 'p.name', $imgUrl, 'c.name as category')
+                ->select('p.id', 'p.name', $imgUrl, 'c.name as category', 's.brand')
                 ->leftJoin('categories as c', 'p.category_id', '=', 'c.id')
+                ->leftJoin('suppliers as s', 'p.brand_id', '=', 's.id')
                 ->where('p.status', 1)
                 ->orderBy('p.name', 'ASC');
         if (!empty($brand_id)) {
             $brands->where('p.brand_id', $brand_id);
         }
-        return successResponse(trans('api.success'), new PaginateResource($brands->paginate(10)));
+        return successResponse(trans('api.success'), new PaginateResource($brands->paginate($this->paginateNumber)));
     }
 
     public function productDetails($division, $id) {
@@ -194,6 +195,6 @@ class PresentationController extends Controller {
                 ->leftJoin('product_clients as pc', 'pc.client_id', '=', 'c.id')
                 ->where('pc.product_id', $id)
                 ->orderBy('c.company', 'ASC');
-        return successResponse(trans('api.success'), new PaginateResource($clients->paginate(10)));
+        return successResponse(trans('api.success'), new PaginateResource($clients->paginate($this->paginateNumber)));
     }
 }

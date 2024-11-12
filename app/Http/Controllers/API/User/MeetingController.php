@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Validator;
 use Image;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PaginateResource;
 use App\Models\Meeting;
 use App\Models\MeetingProduct;
+use App\Models\MeetingShare;
+use App\Models\MeetingSharedProduct;
 
 class MeetingController extends Controller {
 
@@ -95,7 +98,7 @@ class MeetingController extends Controller {
     }
 
     public function list(Request $request, $type) {
-        $requestedTimezone = $request->header('timezone');
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
         $currentTimeInUserTimezone = Carbon::now($requestedTimezone);
         $currentTimeInUTC = $currentTimeInUserTimezone->copy()
                 ->setTimezone('UTC')
@@ -138,11 +141,10 @@ class MeetingController extends Controller {
         }
 
         $meetings = new PaginateResource(
-                $meetingsQuery->paginate(10)->through(function ($meeting) use ($requestedTimezone) {
+                $meetingsQuery->paginate($this->paginateNumber)->through(function ($meeting) use ($requestedTimezone) {
                     $meetingTimeInUserTimezone = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
                     return [
                 'id' => $meeting->id,
-                'shared_id' => null,
                 'title' => $meeting->title,
                 'date' => $meetingTimeInUserTimezone->format('Y-m-d'),
                 'time' => $meetingTimeInUserTimezone->format('h:i A'),
@@ -164,7 +166,7 @@ class MeetingController extends Controller {
             $errorMessage = $validator->messages();
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
-        $userTimezoe = $request->header('timezone');
+        $userTimezoe = $request->header('timezone', config('app.timezone'));
 
         $groupedByDate = [];
 
@@ -182,7 +184,6 @@ class MeetingController extends Controller {
 
                         $groupedByDate[$meetingDate][] = [
                             'id' => $meeting->id,
-                            'shared_id' => null,
                             'title' => $meeting->title,
                             'time' => $formattedTime
                         ];
@@ -226,6 +227,139 @@ class MeetingController extends Controller {
                 return errorResponse(trans('api.meeting.note_done'));
             }
             return errorResponse(trans('api.meeting.feedback_exist'));
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function show(Request $request, $id) {
+        $rules = [
+            'type' => 'required|in:normal,shared'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+        try {
+            $requestedTimezone = $request->header('timezone', config('app.timezone'));
+            switch ($request->type) {
+                case 'normal':
+                    $meeting = Meeting::findOrFail($id);
+                    $meetingTime = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+                    $meeting->products = MeetingProduct::select('meeting_products.id', 'suppliers.brand', 'products.title')
+                            ->join('suppliers', 'suppliers.id', 'meeting_products.supplier_id')
+                            ->join('products', 'products.id', 'meeting_products.product_id')
+                            ->where('meeting_products.meeting_id', $id)
+                            ->get();
+                    $meeting->editable = ($meeting->status < 2) ? true : false;
+                    $meeting->dt_editable = ($meeting->status == 0) ? true : false;
+                    break;
+                case 'shared':
+                    $meeting = MeetingShare::findOrFail($id);
+                    $parentMeeting = Meeting::select('scheduled_at')->where('id', $meeting->meeting_id)->first();
+                    $meetingTime = Carbon::parse($parentMeeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+                    $meeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
+                            ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
+                            ->join('products', 'products.id', 'meeting_shared_products.product_id')
+                            ->where('meeting_shared_products.meetings_shared_id', $id)
+                            ->get();
+                    $meeting->editable = false;
+                    $meeting->dt_editable = false;
+                    break;
+            }
+            $meeting->type = $request->type;
+            $meeting->date = $meetingTime->format('Y-m-d');
+            $meeting->time = $meetingTime->format('h:i A');
+            $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
+
+            return successResponse(trans('api.success'), $meeting);
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function deleteProduct($id) {
+        MeetingProduct::where('id', $id)->delete();
+        return successResponse(trans('api.success'));
+    }
+
+    public function update(Request $request, $id) {
+        try {
+            $meeting = Meeting::findOrFail($id);
+
+            if ($meeting->status > 1) {
+                return errorResponse(trans('api.invalid_request'));
+            }
+            if ($meeting->status == 0) {
+                $rules = [
+                    'meeting_date' => 'required_with:meeting_time,timezone|date_format:Y-m-d',
+                    'meeting_time' => 'required_with:meeting_date,timezone|date_format:H:i',
+                    'timezone' => 'required_with:meeting_date,meeting_time|timezone',
+                ];
+
+                $validator = Validator::make($request->all(), $rules);
+
+                if ($validator->fails()) {
+                    $errorMessage = $validator->messages();
+                    return errorResponse(trans('api.required_fields'), $errorMessage);
+                }
+
+                if (!empty($request->meeting_date)) {
+                    $meetingTime = Carbon::createFromFormat('Y-m-d H:i', $request->meeting_date . ' ' . $request->meeting_time, $request->timezone);
+                    $meetingTimeInUTC = $meetingTime->setTimezone('UTC');
+                    $meeting->scheduled_at = $meetingTimeInUTC;
+                    $meeting->timezone = $request->timezone;
+                }
+            }
+
+            if (!empty($request->title)) {
+                $meeting->title = $request->title;
+            }
+            if (!empty($request->company_name)) {
+                $meeting->company_name = $request->company_name;
+            }
+            if (!empty($request->company_representative)) {
+                $meeting->company_representative = $request->company_representative;
+            }
+            if (!empty($request->phone)) {
+                $meeting->phone = $request->phone;
+            }
+            if (!empty($request->email)) {
+                $meeting->email = $request->email;
+            }
+            if (!empty($request->location)) {
+                $meeting->location = $request->location;
+            }
+            if (!empty($request->scheduled_notes)) {
+                $meeting->scheduled_notes = $request->scheduled_notes;
+            }
+            if (!empty($request->meeting_notes)) {
+                $meeting->meeting_notes = $request->meeting_notes;
+            }
+
+            if ($request->hasfile('business_card')) {
+                $file = $request->file('business_card');
+                $filename = rand(1, time()) . '.' . $file->getClientOriginalExtension();
+                $card = 'meetings/' . $filename;
+                $image = Image::make($file);
+                $image->save(storage_path('app/public/' . $card));
+                if (!empty($meeting->business_card)) {
+                    Storage::delete('public/' . $meeting->business_card);
+                }
+                $meeting->business_card = $card;
+            }
+
+            if (!empty($request->products)) {
+                $this->insertProducts($meeting->id, $request->products);
+            }
+
+            $meeting->save();
+            return successResponse(trans('api.success'));
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
         return errorResponse(trans('api.invalid_request'));
     }

@@ -18,7 +18,7 @@ class DemoCenterController extends Controller {
 
     public function brands() {
         $brands = Supplier::select('id', 'brand', \DB::raw("CASE WHEN logo_url IS NOT NULL  AND logo_url != '' THEN CONCAT('$this->imgUrl', logo_url) ELSE NULL END as logo"))->where('status', 1);
-        $brands = new PaginateResource($brands->paginate(10));
+        $brands = new PaginateResource($brands->paginate($this->paginateNumber));
         return successResponse(trans('api.success'), $brands);
     }
 
@@ -31,7 +31,7 @@ class DemoCenterController extends Controller {
         if (!empty($brand_id)) {
             $products->where('products.brand_id', $brand_id);
         }
-        return successResponse(trans('api.success'), new PaginateResource($products->paginate(10)));
+        return successResponse(trans('api.success'), new PaginateResource($products->paginate($this->paginateNumber)));
     }
 
     public function productDetails($division, $id) {
