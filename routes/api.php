@@ -48,9 +48,13 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('meeting-details/{id}', 'MeetingController@show');
     Route::delete('meeting-product/{id}', 'MeetingController@deleteProduct');
     Route::post('meeting-update/{id}', 'MeetingController@update');
+    Route::post('meeting-notes', 'MeetingController@meetingNotes');
     /* Meting Shares APIs */
     Route::get('employees', 'MeetingShareController@employees');
-    Route::post('share-meeting', 'MeetingShareController@share');
+    Route::post('share-meeting/{id}', 'MeetingShareController@share');
+    Route::get('share-requests/{status}', 'MeetingShareController@requests');
+    Route::post('confirm-share-request/{id}', 'MeetingShareController@confirmRequest');
+    Route::post('shared-list', 'MeetingShareController@sharedList');
 });
 
 Route::middleware(['cors'])->group(function () {

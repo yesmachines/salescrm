@@ -121,17 +121,17 @@ class PresentationController extends Controller {
         switch ($division) {
             case 'ST-YC':
                 $db = \DB::connection('yesclean');
-                $data['image_url'] = $this->yc_url;
+                $image_url = $this->yc_url;
                 $share_url = env('YC_SHARE_URL', 'https://www.yesclean.ae/');
                 break;
             case 'ST-RF':
                 $db = \DB::connection('rhinofloor');
-                $data['image_url'] = $this->rf_url;
+                $image_url = $this->rf_url;
                 $share_url = env('RF_SHARE_URL', 'https://www.rhinofloor.ae/');
                 break;
             default:
                 $db = \DB::connection('yesmachine');
-                $data['image_url'] = $this->ym_url;
+                $image_url = $this->ym_url;
                 $share_url = env('YM_SHARE_URL', 'https://yeswebsite.bigleap.tech/');
         }
         $data['product'] = $db->table('products as p')
@@ -151,6 +151,7 @@ class PresentationController extends Controller {
                 ->where('p.id', '=', $id)
                 ->first();
         if ($data['product']) {
+            $data['product']->image_url =$image_url;
             $data['product']->share_url = $share_url . $data['product']->slug;
             $data['gallery'] = $db->table('product_images as pi')
                     ->where('pi.product_id', $id)
@@ -195,6 +196,7 @@ class PresentationController extends Controller {
                 ->leftJoin('product_clients as pc', 'pc.client_id', '=', 'c.id')
                 ->where('pc.product_id', $id)
                 ->orderBy('c.company', 'ASC');
-        return successResponse(trans('api.success'), new PaginateResource($clients->paginate($this->paginateNumber)));
+        return successResponse(trans('api.success'), $clients->get());
+        //return successResponse(trans('api.success'), new PaginateResource($clients->paginate($this->paginateNumber)));
     }
 }

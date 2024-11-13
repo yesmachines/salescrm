@@ -224,7 +224,7 @@ class MeetingController extends Controller {
                     $meeting->save();
                     return successResponse(trans('api.meeting.feedback_success'));
                 }
-                return errorResponse(trans('api.meeting.note_done'));
+                return errorResponse(trans('api.meeting.not_done'));
             }
             return errorResponse(trans('api.meeting.feedback_exist'));
         }
@@ -362,5 +362,45 @@ class MeetingController extends Controller {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
         return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function meetingNotes(Request $request) {
+        $rules = [
+            'from_dt' => 'required|date_format:Y-m-d',
+            'to_dt' => 'required|date_format:Y-m-d',
+            'type' => 'required|in:notes,feedback'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
+
+        $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
+        $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
+
+        $meetingsQuery = Meeting::whereBetween('scheduled_at', [$fromDate, $toDate])
+                ->where('user_id', $request->user()->id)
+                ->where('status', '>', 0);
+
+        if ($request->type == 'feedback') {
+            $meetingsQuery->whereNotNull('mqs');
+        }
+
+        $meetings = new PaginateResource(
+                $meetingsQuery->paginate($this->paginateNumber)->through(function ($meeting) use ($requestedTimezone) {
+                    $meetingTimeInUserTimezone = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+                    return [
+                'id' => $meeting->id,
+                'title' => $meeting->title,
+                'date' => $meetingTimeInUserTimezone->format('Y-m-d'),
+                'time' => $meetingTimeInUserTimezone->format('h:i A'),
+                    ];
+                })
+        );
+        return successResponse(trans('api.success'), $meetings);
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Validator;
+use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\PaginateResource;
 use App\Models\Meeting;
@@ -38,7 +40,7 @@ class MeetingShareController extends Controller {
         $rules = [
             'type' => 'required|in:normal,shared',
             'meeting_notes' => 'required',
-            'products' => 'array',
+            'products' => 'nullable|array',
             'title' => 'required',
             'company_name' => 'required',
             'company_representative' => 'required',
@@ -60,20 +62,28 @@ class MeetingShareController extends Controller {
             switch ($request->type) {
                 case 'normal':
                     $meeting = Meeting::findOrFail($id);
+                    if ($meeting->status == 0) {
+                        return errorResponse(trans('api.meeting.not_done'));
+                    }
                     $meeting_id = $meeting->id;
                     $parent_id = null;
                     $products = MeetingProduct::select('product_id', 'supplier_id as brand_id')
                             ->whereIn('id', $request->products)
+                            ->get()
                             ->map(function ($item) {
                         return $item->toArray();
                     });
                     break;
                 case 'shared':
                     $meeting = MeetingShare::findOrFail($id);
+                    if ($meeting->status == 0) {
+                        return errorResponse(trans('api.meeting.not_confirmed'));
+                    }
                     $meeting_id = $meeting->meeting_id;
                     $parent_id = $id;
                     $products = MeetingSharedProduct::select('product_id', 'supplier_id as brand_id')
                             ->whereIn('id', $request->products)
+                            ->get()
                             ->map(function ($item) {
                         return $item->toArray();
                     });
@@ -82,7 +92,7 @@ class MeetingShareController extends Controller {
             //Check this meeting is already shared with 
             $alreadyShared = MeetingShare::where('meeting_id', $meeting_id)
                     ->where('shared_to', $request->share_to)
-                    ->where('status', 2)
+                    ->whereIn('status', [0, 1, 2])
                     ->first();
             if ($alreadyShared) {
                 return errorResponse(trans('api.meeting.already_shared_to', ['name' => $shareTo->name]));
@@ -106,12 +116,123 @@ class MeetingShareController extends Controller {
             $meeting->save();
 
             //Save shared products
-            $this->insertSharedProducts($shareMeeting->id, $products);
+            if (!$products->isEmpty()) {
+                $this->insertSharedProducts($shareMeeting->id, $products);
+            }
             //Send push notifiction to share_to
             return successResponse(trans('api.meeting.shared'), ['meeting_id' => $shareMeeting->id]);
         } catch (ModelNotFoundException $e) {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
         return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function requests(Request $request, $status) {
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
+        $meetingsQuery = MeetingShare::select('meeting_shares.id', 'meeting_shares.title', 'users.name as shared_by', 'meetings.scheduled_at', 'meeting_shares.created_at')
+                ->join('users', 'users.id', 'meeting_shares.shared_by')
+                ->join('meetings', 'meetings.id', 'meeting_shares.meeting_id')
+                ->where('meeting_shares.shared_to', $request->user()->id)
+                ->orderBy('meeting_shares.created_at', 'DESC');
+
+        switch ($status) {
+            case 'pending':
+                $meetingsQuery->where('meeting_shares.status', 0);
+                break;
+            case 'accepted':
+                $meetingsQuery->whereIn('meeting_shares.status', [1, 2]);
+                break;
+            case 'rejected':
+                $meetingsQuery->where('meeting_shares.status', 3);
+                break;
+            default:
+                $meetingsQuery->where('meeting_shares.status', 0);
+        }
+
+        $shares = new PaginateResource(
+                $meetingsQuery->paginate($this->paginateNumber)->through(function ($meeting) use ($requestedTimezone) {
+                    $meetingTimeInUserTimezone = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+                    $createdAtInUserTimezone = Carbon::parse($meeting->created_at, config('app.timezone'))->setTimezone($requestedTimezone);
+
+                    return [
+                'id' => $meeting->id,
+                'title' => $meeting->title,
+                'shared_by' => $meeting->shared_by,
+                'date' => $meetingTimeInUserTimezone->format('Y-m-d'),
+                'time' => $meetingTimeInUserTimezone->format('h:i A'),
+                'created_date' => $createdAtInUserTimezone->format('Y-m-d'),
+                'created_time' => $createdAtInUserTimezone->format('h:i A'),
+                    ];
+                })
+        );
+        return successResponse(trans('api.success'), $shares);
+    }
+
+    public function confirmRequest(Request $request, $id) {
+        $rules = [
+            'confirm_status' => 'required|in:accepted,rejected',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+        try {
+            $meeting = MeetingShare::findOrFail($id);
+            if ($meeting->status == 0) {
+                $status = ['accepted' => 1, 'rejected' => 3];
+                $meeting->status = $status[$request->confirm_status];
+                $meeting->save();
+                //Send status notification to shared_by
+                return successResponse(trans('api.success'));
+            }
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function sharedList(Request $request) {
+        $rules = [
+            'from_dt' => 'required|date_format:Y-m-d',
+            'to_dt' => 'required|date_format:Y-m-d',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
+
+        $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
+        $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
+
+        $meetingsQuery = MeetingShare::select('meeting_shares.id', 'meeting_shares.title', 'users.name as shared_to', 'meetings.scheduled_at', 'meeting_shares.status')
+                ->join('users', 'users.id', 'meeting_shares.shared_to')
+                ->join('meetings', 'meetings.id', 'meeting_shares.meeting_id')
+                ->where('meeting_shares.shared_by', $request->user()->id)
+                ->whereBetween('meetings.scheduled_at', [$fromDate, $toDate])
+                ->orderBy('meeting_shares.created_at', 'DESC');
+
+        $status = [0 => 'Pending', 1 => 'Accepted', 2 => ' Accepted', 3 => 'Rejected'];
+        $meetings = new PaginateResource(
+                $meetingsQuery->paginate($this->paginateNumber)->through(function ($meeting) use ($requestedTimezone, $status) {
+                    $meetingTimeInUserTimezone = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+                    return [
+                'id' => $meeting->id,
+                'title' => $meeting->title,
+                'shared_to' => $meeting->shared_to,
+                'date' => $meetingTimeInUserTimezone->format('Y-m-d'),
+                'time' => $meetingTimeInUserTimezone->format('h:i A'),
+                'status' => $status[$meeting->status]
+                    ];
+                })
+        );
+        return successResponse(trans('api.success'), $meetings);
     }
 }

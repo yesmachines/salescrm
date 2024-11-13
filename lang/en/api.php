@@ -33,12 +33,13 @@ return [
     'invalid_otp' => 'OTP is Invalid.',
     'otp_expired' => 'OTP expired.',
     'meeting' => [
-        'note_done' => 'Meeting still not finished..',
+        'not_done' => 'Meeting still not finished..',
         'created' => 'Meeting created successfully.',
         'notes_created' => 'Meeting notes created successfully.',
         'feedback_exist' => 'Already submitted the feedback',
         'feedback_success' => 'Feedback submitted successfully.Thank you!',
-        'already_shared_to' => 'This meeting is laready shared to :name',
+        'already_shared_to' => 'This meeting is already shared to :name',
+        'not_confirmed' => 'This meeting is shared already and not confirmed .',
         'shared' => 'Meeting shared successfully.',
     ],
 ];
