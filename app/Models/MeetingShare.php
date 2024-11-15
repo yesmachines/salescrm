@@ -26,4 +26,8 @@ class MeetingShare extends Model {
     public function sharedProducts() {
         return $this->hasMany(MeetingSharedProduct::class, 'meetings_shared_id', 'id');
     }
+    
+    public function sharedBy() {
+        return $this->hasOne(User::class, 'id', 'shared_by');
+    }
 }

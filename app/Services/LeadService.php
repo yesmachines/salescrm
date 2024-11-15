@@ -23,7 +23,8 @@ class LeadService
             'assigned_to'      => $userData['assigned_to'],
             'assigned_on'      => (isset($userData['assigned_on']) && !empty($userData['assigned_on'])) ? $userData['assigned_on'] : null,
             'respond_on'       => (isset($userData['respond_on']) && !empty($userData['respond_on'])) ? $userData['respond_on'] : null,
-            'status_id'        => $userData['status_id']
+            'status_id'        => $userData['status_id'],
+            'expo_id'        => $userData['expo_id']
         ]);
     }
 
@@ -109,6 +110,11 @@ class LeadService
         }
         if (isset($userData['status_id'])) {
             $update['status_id'] = $userData['status_id'];
+        }
+        if (isset($userData['expo_id'])) {
+            $update['expo_id'] = $userData['expo_id'];
+        }else{
+            $update['expo_id'] = null;
         }
 
         $lead->update($update);

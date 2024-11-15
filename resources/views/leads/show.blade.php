@@ -128,7 +128,7 @@
                                                             <h6>Enquiry Type </h6>
                                                         </div>
                                                         <div class="col-8">
-                                                            <span>{{$lead->lead_type}}</span>
+                                                            <span>{{$lead->lead_type_label}}</span>
                                                         </div>
                                                     </div>
 

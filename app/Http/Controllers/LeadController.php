@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Notification;
 use Twilio\Rest\Client;
 use App\Models\Company;
+use App\Enums\EnquirySource;
 
 class LeadController extends Controller
 {
@@ -71,8 +72,11 @@ class LeadController extends Controller
         $employees = $employeeService->getAllEmployee();
 
         $countries = $countryService->getAllCountry();
+        
+        $enquirySource = EnquirySource::toArray();
+        $expo = \App\Models\Expo::pluck('name','id');
 
-        return view('leads.create', compact('companies', 'leadStatuses', 'employees', 'countries'));
+        return view('leads.create', compact('companies', 'leadStatuses', 'employees', 'countries', 'enquirySource', 'expo'));
     }
 
     /**
@@ -101,7 +105,8 @@ class LeadController extends Controller
             'assigned_to'   => 'required',
             'assigned_on'   => 'required',
             'status_id'     => 'required',
-            'details'       => 'required'
+            'details'       => 'required',
+            'expo_id'       => 'required_if:lead_type,expo'
         ]);
 
         $data = $request->all();
@@ -220,7 +225,9 @@ class LeadController extends Controller
             $regions = $regionService->getAllRegion(['country_id' => $lead->company->country_id]);
         }
 
-        return view('leads.edit',  compact('lead', 'customers', 'employees', 'leadStatuses', 'companies', 'countries', 'regions'));
+        $enquirySource = EnquirySource::toArray();
+        $expo = \App\Models\Expo::pluck('name','id');
+        return view('leads.edit',  compact('lead', 'customers', 'employees', 'leadStatuses', 'companies', 'countries', 'regions', 'enquirySource','expo'));
     }
 
     /**
@@ -244,7 +251,8 @@ class LeadController extends Controller
             'assigned_to'   => 'required',
             'assigned_on'   => 'required',
             // 'status_id'     => 'required',
-            'details'       => 'required'
+            'details'       => 'required',
+            'expo_id'       => 'required_if:lead_type,expo'
         ]);
         $data = $request->all();
 

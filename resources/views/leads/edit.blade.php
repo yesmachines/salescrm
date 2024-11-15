@@ -179,13 +179,34 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <select class="form-select" name="lead_type" required>
+                                    <select class="form-select" name="lead_type" id="lead_type" required>
                                         <option value="">--</option>
-                                        <option value="internal" {{($lead->lead_type == "internal")? "selected": "" }}>Internal/ Inside</option>
-                                        <option value="external" {{($lead->lead_type == "external")? "selected": "" }}>External/ Outside</option>
+                                            @foreach ($enquirySource as $k => $enum)
+                                                 <option value="{{$k}}" {{ ($lead->lead_type == $k)? "selected": "" }}>{{ $enum->label() }}</option>
+                                            @endforeach
                                     </select>
                                 </div>
                             </div>
+                            
+                            <div id="expodiv" class="row" style="padding: 0px; margin: 0px; --bs-gutter-x: 1.0rem; {{ ($lead->lead_type == "expo")? "": "display:none" }};">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Expo</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <select class="form-select" name="expo_id" id="expo_id">
+                                            <option value="">--</option>
+                                            @foreach ($expo as $k => $v)
+                                            <option value="{{$k}}" {{ ($lead->expo_id == $k)? "selected": "" }}>{{ $v }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                </div>
+                            
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label class="form-label">Enquiry Date <span class="text-danger">*</span></label>
@@ -345,6 +366,19 @@
                 $('#email').val(data.email);
                 $('#phone').val(data.phone);
             });
+        });
+        
+        $('#lead_type').on('change', function(e) {
+            var val = $(this).val();
+            if(val == 'expo'){
+                $("#expodiv").show();
+                $("#expo_id").attr("required",true);
+            } else {
+                $("#expodiv").hide();
+                $("#expo_id").attr("required",false);
+                $('#expo_id option').removeAttr('selected');
+            }
+            $("#expo_id").val("");
         });
     });
     document.addEventListener('DOMContentLoaded', function() {

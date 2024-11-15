@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Validator;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\EmailMeetingNotes;
 use App\Http\Resources\PaginateResource;
 use App\Models\Meeting;
 use App\Models\MeetingProduct;
@@ -110,6 +112,7 @@ class MeetingShareController extends Controller {
             $shareMeeting->location = $request->location;
             $shareMeeting->business_card = $request->business_card;
             $shareMeeting->meeting_notes = $request->meeting_notes;
+            $shareMeeting->status = ($shareTo->hasRole('coordinators')) ? 2 : 0;
             $shareMeeting->save();
 
             $meeting->status = 2;
@@ -119,12 +122,32 @@ class MeetingShareController extends Controller {
             if (!$products->isEmpty()) {
                 $this->insertSharedProducts($shareMeeting->id, $products);
             }
-            //Send push notifiction to share_to
+
+            if ($shareTo->hasRole('coordinators')) {
+                //Send Email
+                $this->sendAsEmailToCoordinator($shareTo, $meeting, $shareMeeting);
+            } else {
+                //Send push notifiction to share_to usres
+            }
             return successResponse(trans('api.meeting.shared'), ['meeting_id' => $shareMeeting->id]);
         } catch (ModelNotFoundException $e) {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
         return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function sendAsEmailToCoordinator($shareTo, $meeting, $shareMeeting) {
+        $meetingDate = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone);
+        $shareMeeting->date = $meetingDate->format('M d, Y g:i A') . ' - ' . $meeting->timezone;
+        $shareMeeting->business_card = empty($shareMeeting->business_card) ? null : asset('storage') . '/' . $shareMeeting->business_card;
+
+        $shareMeeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
+                ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
+                ->join('products', 'products.id', 'meeting_shared_products.product_id')
+                ->where('meeting_shared_products.meetings_shared_id', $shareMeeting->id)
+                ->get();
+        //$shareTo->email =  'shainu.giraf@gmail.com';
+        Notification::send($shareTo, new EmailMeetingNotes($shareMeeting));
     }
 
     public function requests(Request $request, $status) {

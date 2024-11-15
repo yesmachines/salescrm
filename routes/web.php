@@ -42,6 +42,7 @@ use App\Http\Controllers\StockController;
 // });
 
 Route::get('/', [LoginController::class, 'showLoginForm']);
+Route::get('test-email-template', [LoginController::class, 'testEmail']);
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');

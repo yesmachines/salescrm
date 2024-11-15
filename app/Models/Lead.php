@@ -24,7 +24,8 @@ class Lead extends Model
         'assigned_on',
         'respond_on',
         'status_id',
-        'created_by'
+        'created_by',
+        'expo_id'
     ];
     public function setEnquiryDateAttribute($value)
     {
@@ -54,5 +55,9 @@ class Lead extends Model
     public function assigned()
     {
         return $this->belongsTo(Employee::class, 'assigned_to', 'id');
+    }
+    public function getLeadTypeLabelAttribute()
+    {
+        return \App\Enums\EnquirySource::from($this->lead_type)->label(); // assuming $this->status contains the string value
     }
 }
