@@ -37,6 +37,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('products/{division}/{brand_id?}', 'PresentationController@products');
     Route::get('product-details/{division}/{id}', 'PresentationController@productDetails');
     Route::get('product-references/{division}/{id}', 'PresentationController@references');
+    //Democenter and Meeting products
     Route::get('crm-brands/{module}', 'CrmController@brands');
     Route::get('crm-products/{module}/{brand_id?}', 'CrmController@products');
     /* Meting APIs */
@@ -55,6 +56,13 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('share-requests/{status}', 'MeetingShareController@requests');
     Route::post('confirm-share-request/{id}', 'MeetingShareController@confirmRequest');
     Route::post('shared-list', 'MeetingShareController@sharedList');
+    /* Inside Enquiries */
+    Route::get('get-enquiry-status', 'EnquiryController@getStatus');
+    Route::get('get-companies', 'EnquiryController@getCompanies');
+    Route::get('get-customers/{company_id}', 'EnquiryController@getCustomers');
+    Route::get('get-expo', 'EnquiryController@getExpo');
+    Route::get('enquiries', 'EnquiryController@index');
+    Route::get('enquiries/{id}', 'EnquiryController@show');
 });
 
 Route::middleware(['cors'])->group(function () {

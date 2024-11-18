@@ -41,7 +41,7 @@ class PasswordResetController extends BaseController {
             }
             return successResponse(trans('api.success'), ['ref_id' => $ref_id]);
         }
-        return errorResponse(trans('api.no_user'));
+        return errorResponse(trans('api.user_not_exist'));
     }
 
     public function resendOtp(Request $request) {

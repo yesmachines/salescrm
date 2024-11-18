@@ -60,4 +60,11 @@ class Lead extends Model
     {
         return \App\Enums\EnquirySource::from($this->lead_type)->label(); // assuming $this->status contains the string value
     }
+    public function expo()
+    {
+        return $this->hasOne(Expo::class, 'id', 'expo_id');
+    }
+     public function calls() {
+        return $this->hasMany(LeadCallHistory::class, 'lead_id', 'id');
+    }
 }
