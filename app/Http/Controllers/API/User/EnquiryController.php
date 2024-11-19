@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Carbon\Carbon;
 use App\Http\Resources\PaginateResource;
 use Validator;
 use App\Enums\EnquirySource;
@@ -89,7 +91,43 @@ class EnquiryController extends Controller {
         return successResponse(trans('api.success'), $enquiry);
     }
 
-    public function show($id) {
+    public function store(Request $request) {
+        $enquiryTypes = array_column(EnquirySource::cases(), 'value');
+        $rules = [
+            'type' => ['required', 'in:' . implode(',', $enquiryTypes)],
+            'expo_id' => 'required_if:type,expo',
+            "company_id" => 'required',
+            "customer_id" => 'required',
+            "status_id" => 'required',
+            "details" => 'required',
+            'enquiry_date' => 'required|date_format:Y-m-d',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+
+        $enquiry = new Lead();
+        $enquiry->company_id = $request->company_id;
+        $enquiry->customer_id = $request->customer_id;
+        $enquiry->lead_type = $request->type;
+        $enquiry->enquiry_date = $request->enquiry_date;
+        $enquiry->details = $request->details;
+        $enquiry->assigned_to = $request->user()->id;
+        $enquiry->assigned_on = date('Y-m-d');
+        $enquiry->status_id = $request->status_id;
+        if (!empty($request->expo_id)) {
+            $enquiry->expo_id = $request->expo_id;
+        }
+        $enquiry->created_by = $request->user()->id;
+        $enquiry->save();
+        return successResponse(trans('api.meeting.created'), ['enquiry_id' => $enquiry->id]);
+    }
+
+    public function show(Request $request, $id) {
         $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'details', 'enquiry_date', 'lead_type', 'expo_id')
                 ->with(['company:id,country_id,region_id,company', 'company.country:id,name', 'company.region:id,state', 'leadStatus:id,name', 'customer:id,fullname,phone'])
                 ->where('id', $id)
@@ -100,6 +138,45 @@ class EnquiryController extends Controller {
                 unset($enquiry->expo);
             }
         }
+
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
+
+        $enquiry->calls->each(function ($call) use ($requestedTimezone) {
+            $meetingTimeInUserTimezone = Carbon::parse($call->called_at, 'UTC')->setTimezone($requestedTimezone);
+            $call->date = $meetingTimeInUserTimezone->format('Y-m-d');
+            $call->time = $meetingTimeInUserTimezone->format('h:i A');
+        });
+
         return successResponse(trans('api.success'), $enquiry);
+    }
+
+    public function callLogs(Request $request) {
+        $rules = [
+            'enquiry_id' => 'required',
+            'call_status' => 'required|in:declined,no-answer,call-busy,connected,unavailable',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+
+        try {
+            $enquiry = Lead::findOrFail($request->enquiry_id);
+            $requestedTimezone = $request->header('timezone', config('app.timezone'));
+            $currentTimeInUserTimezone = Carbon::now($requestedTimezone);
+            $currentTimeInUTC = $currentTimeInUserTimezone->copy()
+                    ->setTimezone('UTC')
+                    ->toDateTimeString();
+            $request['called_at'] = $currentTimeInUTC;
+            $request['timezone'] = $requestedTimezone;
+            $enquiry->calls()->create($request->all());
+            return successResponse(trans('api.success'));
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
     }
 }

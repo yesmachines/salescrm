@@ -10,11 +10,19 @@ class LeadCallHistory extends Model {
 
     protected $primaryKey = 'id';
     public $incrementing = false;
+    protected $fillable = [
+        'lead_id',
+        'called_at',
+        'call_status',
+        'remarks',
+        'timezone'
+    ];
     protected $hidden = [
         'lead_id',
         'called_at',
         'timezone',
         'crated_at',
+        'created_at',
         'updated_at',
     ];
 

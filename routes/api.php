@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     //Democenter and Meeting products
     Route::get('crm-brands/{module}', 'CrmController@brands');
     Route::get('crm-products/{module}/{brand_id?}', 'CrmController@products');
+    Route::get('crm-product-details/{id}', 'CrmController@productDetails');
     /* Meting APIs */
     Route::post('meeting-create', 'MeetingController@store');
     Route::post('meeting-notes-create/{id}', 'MeetingController@notesStore');
@@ -61,8 +62,10 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('get-companies', 'EnquiryController@getCompanies');
     Route::get('get-customers/{company_id}', 'EnquiryController@getCustomers');
     Route::get('get-expo', 'EnquiryController@getExpo');
+    Route::post('create-enquiry', 'EnquiryController@store');
     Route::get('enquiries', 'EnquiryController@index');
     Route::get('enquiries/{id}', 'EnquiryController@show');
+    Route::post('enquiry-call-logs', 'EnquiryController@callLogs');
 });
 
 Route::middleware(['cors'])->group(function () {

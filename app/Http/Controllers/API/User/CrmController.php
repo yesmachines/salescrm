@@ -34,12 +34,12 @@ class CrmController extends Controller {
 
     public function products($module, $brand_id = null) {
         $products = Product::where('products.status', 'active')
-                ->where('product_category','products')
+                ->where('product_category', 'products')
                 ->orderBy('products.title', 'ASC');
 
         switch ($module) {
             case 'demo':
-                $products->select('products.id',  \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"), \DB::raw("CASE WHEN cm_products.image_url IS NOT NULL AND cm_products.image_url != '' THEN CONCAT('$this->imgUrl', cm_products.image_url) ELSE NULL END as image"), 'c.brand')
+                $products->select('products.id', \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"), \DB::raw("CASE WHEN cm_products.image_url IS NOT NULL AND cm_products.image_url != '' THEN CONCAT('$this->imgUrl', cm_products.image_url) ELSE NULL END as image"), 'c.brand')
                         ->leftJoin('suppliers as c', 'products.brand_id', '=', 'c.id')
                         ->where('products.is_demo', 1);
                 if (!empty($brand_id)) {
@@ -58,4 +58,26 @@ class CrmController extends Controller {
         return successResponse(trans('api.success'), $products);
     }
 
+    public function productDetails($id) {
+        $data['product'] = Product::select(
+                        'products.title',
+                        'products.modelno',
+                        'products.part_number',
+                        'products.description',
+                        'products.image_url',
+                        's.brand',
+                        'co.name as country'
+                )
+                ->leftJoin('suppliers as s', 'products.brand_id', '=', 's.id')
+                ->leftJoin('countries as co', 's.country_id', '=', 'co.id')
+                ->where('products.id', '=', $id)
+                ->first();
+        if ($data['product']) {
+            if (!empty($data['product']->image_url)) {
+                $data['product']->image_url = $this->imgUrl . $data['product']->image_url;
+            }
+            return successResponse(trans('api.success'), $data);
+        }
+        return errorResponse(trans('api.no_data'));
+    }
 }
