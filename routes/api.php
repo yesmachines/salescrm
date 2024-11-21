@@ -32,15 +32,23 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::post('profile', 'UserController@updateProfile');
     Route::post('update-profile-image', 'UserController@updateProfileImage');
     Route::post('change-password', 'UserController@changePassword');
+    Route::post('update-device', 'UserController@updateDevice');
+    Route::get('notifications', 'PushNotificationController@index');
+    Route::get('notification-counts', 'PushNotificationController@counts');
+    
+    /*Presentation Controller */
     Route::get('divisions', 'PresentationController@divisions');
     Route::get('brands/{division}', 'PresentationController@brands');
     Route::get('products/{division}/{brand_id?}', 'PresentationController@products');
     Route::get('product-details/{division}/{id}', 'PresentationController@productDetails');
     Route::get('product-references/{division}/{id}', 'PresentationController@references');
-    //Democenter and Meeting products
+    //Democenter,Common APIs and Meeting products
     Route::get('crm-brands/{module}', 'CrmController@brands');
     Route::get('crm-products/{module}/{brand_id?}', 'CrmController@products');
     Route::get('crm-product-details/{id}', 'CrmController@productDetails');
+    Route::get('countries', 'CrmController@countries');
+    Route::post('create-company', 'CrmController@createCompany');
+    Route::post('create-customer', 'CrmController@createCustomer');
     /* Meting APIs */
     Route::post('meeting-create', 'MeetingController@store');
     Route::post('meeting-notes-create/{id}', 'MeetingController@notesStore');

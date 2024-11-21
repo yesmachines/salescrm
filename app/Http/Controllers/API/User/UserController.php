@@ -8,8 +8,11 @@ use Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Services\EmployeeService;
+use \App\Traits\OneSignalTrait;
 
 class UserController extends Controller {
+
+    use OneSignalTrait;
 
     public function login(Request $request) {
         $rules = [
@@ -91,9 +94,9 @@ class UserController extends Controller {
         $request->user()->currentAccessToken()->delete();
         return successResponse(trans('api.success'));
     }
-    
+
     public function changePassword(Request $request) {
-          $rules = [
+        $rules = [
             'password' => 'required',
         ];
 
@@ -106,12 +109,42 @@ class UserController extends Controller {
         $user = $request->user();
         $user->password = Hash::make($request->password);
         $user->save();
-         return successResponse(trans('api.password.changed'));
+        return successResponse(trans('api.password.changed'));
     }
 
     public function userData(&$user) {
         $user->with('employee');
         $user->employee->image_url = !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null;
         return $user;
+    }
+
+    public function updateDevice(Request $request) {
+        $validator = Validator::make($request->all(), [
+                    'device_id' => 'required',
+                    'device_type' => 'required|in:android,ios',
+        ]);
+
+        if ($validator->fails()) {
+            $allMessage = $validator->messages();
+            $errorMessage = $validator->errors()->first();
+            return errorResponse($errorMessage, $allMessage);
+        }
+
+        $userExists = auth('sanctum')->user();
+
+        if ($userExists->os_subscribed) {
+            if ($userExists->device_id != $request->device_id) {
+                /* $userExists->device_id = $request->device_id;
+                  $userExists->device_type = $request->device_type;
+                  $userExists->save();
+                  $this->updateODeviceId($request->device_id, $request->device_type); */
+                $this->registerOUser($request->device_id, $request->device_type);
+                return successResponse(trans('api.device_token_updated'));
+            }
+        } else {
+            $this->registerOUser($request->device_id, $request->device_type);
+            return successResponse(trans('api.device_token_updated'));
+        }
+        return successResponse(trans('api.device_token_same'));
     }
 }

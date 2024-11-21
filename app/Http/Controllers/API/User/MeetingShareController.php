@@ -14,8 +14,11 @@ use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
+use \App\Traits\OneSignalTrait;
 
 class MeetingShareController extends Controller {
+
+    use OneSignalTrait;
 
     public function employees() {
         $roleNames = ['salesmanager', 'coordinators', 'satellite'];
@@ -128,6 +131,17 @@ class MeetingShareController extends Controller {
                 $this->sendAsEmailToCoordinator($shareTo, $meeting, $shareMeeting);
             } else {
                 //Send push notifiction to share_to usres
+                $body = [
+                    'headings' => ['en' => trans('api.notification.title.shared', ['name' => $request->user()->name])],
+                    'contents' => ['en' => $shareMeeting->title],
+                    'data' => [
+                        'module' => 'share-requests',
+                        'module_id' => $shareMeeting->id
+                    ]
+                ];
+                $body ['include_external_user_ids'] = [$shareTo->id];
+                $body ['channel_for_external_user_ids'] = 'push';
+                $this->sendONotification($body);
             }
             return successResponse(trans('api.meeting.shared'), ['meeting_id' => $shareMeeting->id]);
         } catch (ModelNotFoundException $e) {
@@ -209,6 +223,18 @@ class MeetingShareController extends Controller {
                 $meeting->status = $status[$request->confirm_status];
                 $meeting->save();
                 //Send status notification to shared_by
+                $body = [
+                    'headings' => ['en' => trans('api.notification.title.' . $request->confirm_status, ['name' => $request->user()->name])],
+                    'contents' => ['en' => $meeting->title],
+                    'data' => [
+                        'module' => 'shared-list',
+                        'module_id' => $meeting->id,
+                        'confirm_status' => $request->confirm_status
+                    ]
+                ];
+                $body ['include_external_user_ids'] = [$meeting->shared_by];
+                $body ['channel_for_external_user_ids'] = 'push';
+                $this->sendONotification($body);
                 return successResponse(trans('api.success'));
             }
         } catch (ModelNotFoundException $e) {

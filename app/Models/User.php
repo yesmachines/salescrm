@@ -26,6 +26,10 @@ class User extends Authenticatable
         'password',
         'last_login_at',
         'last_login_ip',
+        'device_type',
+        'device_id',
+        'os_subscribed',
+        'os_sid',
     ];
 
     /**
@@ -38,6 +42,9 @@ class User extends Authenticatable
         'remember_token',
         'created_at',
         'updated_at',
+        'device_type',
+        'device_id',
+        'os_sid',
     ];
 
     /**

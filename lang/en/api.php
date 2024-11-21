@@ -32,6 +32,8 @@ return [
     'invalid_request' => 'Invalid Request',
     'invalid_otp' => 'OTP is Invalid.',
     'otp_expired' => 'OTP expired.',
+    'company_exist' => 'This company exist.',
+    'customer_exist' => 'This Customer name exist.',
     'meeting' => [
         'not_done' => 'Meeting still not finished..',
         'created' => 'Meeting created successfully.',
@@ -41,5 +43,12 @@ return [
         'already_shared_to' => 'This meeting is already shared to :name',
         'not_confirmed' => 'This meeting is shared already and not confirmed .',
         'shared' => 'Meeting shared successfully.',
+    ],
+    'notification' => [
+        'title' => [
+            'shared' => ':name shared a meeting',
+            'accepted' => ':name accpted your meeting request',
+            'rejected' => ':name rejected your meeting request',
+        ]
     ],
 ];
