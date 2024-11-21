@@ -1952,6 +1952,7 @@
           <td class='x37'></td>
           <td colspan='3' class='x51' style='border-right:1px solid windowtext;border-bottom:1px solid windowtext;'> @foreach($stockPayments as $stockPayment)
             {{$stockPayment->expected_date}}<br>
+            {{$stockPayment->remarks}}
             @endforeach
           </td>
           <td class='x38'></td>

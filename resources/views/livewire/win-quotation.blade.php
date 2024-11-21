@@ -94,6 +94,13 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{{ route('quotations.edit', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
               <a class="dropdown-item" href="{{ route('quotations.show', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>View</span></a>
+
+
+              <a class="dropdown-item d-none" href="javascript:void(0);" onclick="event.preventDefault();
+          document.getElementById('delete-form-{{ $quote->id }}').submit();"><span class="feather-icon dropdown-icon"><i data-feather="trash-2"></i></span><span>Delete</span></a>
+              {!! Form::open(['method' => 'DELETE','route' => ['quotations.destroy', $quote->id],'style'=>'display:none',
+              'id' => 'delete-form-'.$quote->id]) !!}
+              {!! Form::close() !!}
             </div>
 
           </td>
