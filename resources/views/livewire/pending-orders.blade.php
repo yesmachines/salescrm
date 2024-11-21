@@ -113,7 +113,6 @@
               {!! Form::open(['method' => 'DELETE','route' => ['orders.destroy', $order->id],'style'=>'display:none',
               'id' => 'delete-form-'.$order->id]) !!}
               {!! Form::close() !!}
-
             </div>
           </td>
         </tr>

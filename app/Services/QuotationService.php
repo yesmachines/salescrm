@@ -225,6 +225,9 @@ class QuotationService
     if (isset($userData['quote_from'])) {
       $update['quote_from'] = $userData['quote_from'];
     }
+    // if (isset($userData['category_id'])) {
+    //   $update['category_id'] = $userData['category_id'];
+    // }
     // if (isset($userData['supplier_id'])) {
     //     $update['supplier_id'] = $userData['supplier_id'];
     // }
@@ -267,7 +270,6 @@ class QuotationService
     if (isset($userData['quote_for'])) {
       $update['quote_for'] = $userData['quote_for'];
     }
-
     if (isset($userData['reminder']) && $userData['reminder']) {
       $date = strtotime($userData['reminder']);
       $update['reminder'] = date('Y-m-d H:i:s', $date);

@@ -73,6 +73,7 @@ class ProductService
       'price_basis' => $data['payment_term'],
       'currency' => $data['currency'],
       //   'currency_rate' => $data['currency_rate'],
+        'is_demo' => $data['is_demo'],
 
     ]);
     // Selling Price
@@ -202,6 +203,7 @@ class ProductService
       'price_basis' => $data['payment_term'],
       'currency' => $data['currency'],
       //   'currency_rate' => $data['currency_rate'],
+        'is_demo' => $data['is_demo'],
     ];
 
     if (!empty($imageUrl) ||  isset($data['remove_image'])) {

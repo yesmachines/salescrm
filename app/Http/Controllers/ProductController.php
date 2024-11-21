@@ -261,11 +261,13 @@ class ProductController extends Controller
 
     $buying_price = $productService->buyingPriceByProduct($id);
     $buyingPrice = 0;
+
     if (!empty($buying_price)) {
       $bprice = $buying_price->buying_price;
       $bcurrency = $buying_price->buying_currency;
 
       $currency_rate = DB::table('currency_conversion')->where('currency', $bcurrency)->first();
+
       if ($currency_rate) {
         $buyingPrice = $bprice * $currency_rate->standard_rate;
         $buyingPrice = number_format((float)$buyingPrice, 2, '.', '');

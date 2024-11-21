@@ -45,4 +45,19 @@ class BaseController extends Controller
 
         return response()->json($response, $code);
     }
+    
+    public function sendUserOtpEmail($user, $type, $email = null) {
+        $userOtp = \App\Models\UserOtp::updateOrCreate(
+                        ['user_id' => $user->id, 'type' => $type],
+                        ['otp' => rand(111111, 999999), 'email' => $email]
+        );
+
+        $user->otp = $userOtp->otp;
+
+        if ($type == 'fp_email') {
+            $user->em_type = $userOtp->type;
+            $user->sendEmailOtp();
+        }
+        return $userOtp->id;
+    }
 }

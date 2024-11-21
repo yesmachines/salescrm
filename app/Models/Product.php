@@ -33,8 +33,8 @@ class Product extends Model
     'status',
     'currency',
     'price_basis',
-    'part_number'
-
+    'part_number',
+    'is_demo'
   ];
   public function buyingPrice(): HasMany
   {

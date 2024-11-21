@@ -88,7 +88,7 @@
         @foreach($orderDetails->orderItem as $item)
         <tr>
             <td width="60%">
-                <p> {!! nl2br(e($item->item_name)) !!},
+                <p>{!! nl2br(e($item->item_name)) !!},
                     {{$item->quantity}} {{$item->quantity>0? "(qty)": "" }}
                 </p>
                 <p> {{$item->partno? $item->partno. ' (PartNo.),' : ''}}
