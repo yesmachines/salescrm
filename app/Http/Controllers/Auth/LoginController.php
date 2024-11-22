@@ -95,5 +95,6 @@ class LoginController extends Controller
          Notification::send($shareTo, new EmailMeetingNotes($mailData));*/
          
         return view('emails.meeting_notes', compact('mailData'));
+        //return view('emails.password_email_otp', compact('mailData'));
     }
 }

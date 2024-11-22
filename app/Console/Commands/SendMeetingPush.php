@@ -4,8 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Carbon\Carbon;
+use \App\Traits\OneSignalTrait;
 
 class SendMeetingPush extends Command {
+
+    use OneSignalTrait;
 
     /**
      * The name and signature of the console command.
@@ -46,14 +49,25 @@ class SendMeetingPush extends Command {
         }
 
         $meetings = \DB::table('meetings')
-                ->selectRaw('user_id, COUNT(*) as meetings_count')
-                ->whereBetween('scheduled_at', [
-                    $startOfDayUtc->toDateTimeString(),
-                    $endOfDayUtc->toDateTimeString(),
-                ])
-                ->groupBy('user_id')
-                ->get();
-        
-        dd($meetings);
+                        ->selectRaw('user_id, COUNT(*) as meetings_count')
+                        ->whereBetween('scheduled_at', [
+                            $startOfDayUtc->toDateTimeString(),
+                            $endOfDayUtc->toDateTimeString(),
+                        ])
+                        ->groupBy('user_id')
+                        ->get()->each(function ($meeting) {
+            $body = [
+                'headings' => ['en' => trans('api.notification.title.cron')],
+                'contents' => ['en' => trans('api.notification.message.cron', ['count' => $meeting->meetings_count])],
+                'data' => [
+                    'module' => 'meeting-list',
+                    'module_id' => null,
+                    'meetings_count' => $meeting->meetings_count,
+                ]
+            ];
+            $body ['include_external_user_ids'] = [$meeting->user_id];
+            $body ['channel_for_external_user_ids'] = 'push';
+            $this->sendONotification($body);
+        });
     }
 }

@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::post('update-device', 'UserController@updateDevice');
     Route::get('notifications', 'PushNotificationController@index');
     Route::get('notification-counts', 'PushNotificationController@counts');
+    Route::post('test-push', 'PushNotificationController@test');
     
     /*Presentation Controller */
     Route::get('divisions', 'PresentationController@divisions');

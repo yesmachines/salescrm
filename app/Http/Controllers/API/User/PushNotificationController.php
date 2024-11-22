@@ -8,8 +8,11 @@ use Validator;
 use App\Http\Resources\PaginateResource;
 use App\Models\PushNotification;
 use App\Models\MeetingShare;
+use \App\Traits\OneSignalTrait;
 
 class PushNotificationController extends Controller {
+
+    use OneSignalTrait;
 
     public function index(Request $request) {
         $notifications = PushNotification::where('user_id', $request->user()->id)
@@ -30,5 +33,19 @@ class PushNotificationController extends Controller {
                 ->where('status', 0)
                 ->count();
         return successResponse(trans('api.success'), $data);
+    }
+
+    public function test(Request $request) {
+        $body = [
+            'headings' => ['en' => 'This is a test title'],
+            'contents' => ['en' => 'This is a test message'],
+            'data' => [
+                'module' => $request->module,
+                'module_id' => $request->module_id,
+            ]
+        ];
+        $body ['include_external_user_ids'] = [$request->user_id];
+        $body ['channel_for_external_user_ids'] = 'push';
+        $this->sendONotification($body);
     }
 }

@@ -49,6 +49,10 @@ return [
             'shared' => ':name shared a meeting',
             'accepted' => ':name accpted your meeting request',
             'rejected' => ':name rejected your meeting request',
+            'cron' => 'Upcoming Meetings',
+        ],
+        'message' => [
+            'cron' => 'You have :count upcoming meetings.',
         ]
     ],
 ];
