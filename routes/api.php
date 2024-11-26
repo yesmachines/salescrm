@@ -59,6 +59,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('meeting-details/{id}', 'MeetingController@show');
     Route::delete('meeting-product/{id}', 'MeetingController@deleteProduct');
     Route::post('meeting-update/{id}', 'MeetingController@update');
+    Route::post('upload-businesscard', 'MeetingController@businessCard');
     Route::post('meeting-notes', 'MeetingController@meetingNotes');
     /* Meting Shares APIs */
     Route::get('employees', 'MeetingShareController@employees');

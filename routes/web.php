@@ -25,6 +25,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\MeetingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,11 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('currency', CurrencyController::class);
     Route::resource('conversion', ConversionController::class);
 
+    /*Meeting Routes*/
+    Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::any('meeting-datatable', [MeetingController::class, 'datatable'])->name('meetings.datatable');
+    Route::any('meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
+    
     Route::resource('purchaserequisition', PurchaseRequisitionController::class);
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');
     Route::get('purchaserequisition/createstock/{id}', [PurchaseRequisitionController::class, 'stockPR'])->name('purchaserequisition.createstock');

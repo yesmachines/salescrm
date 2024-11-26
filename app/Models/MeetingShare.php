@@ -30,4 +30,8 @@ class MeetingShare extends Model {
     public function sharedBy() {
         return $this->hasOne(User::class, 'id', 'shared_by');
     }
+    
+    public function sharedTo() {
+        return $this->hasOne(User::class, 'id', 'shared_to');
+    }
 }

@@ -62,7 +62,6 @@ class MeetingController extends Controller {
             if ($meeting->status < 2) {
                 $rules = [
                     'meeting_notes' => 'required',
-                    'business_card' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
                     'products' => 'required|array',
                     'products.*.brand_id' => 'required',
                     'products.*.product_id' => 'required'
@@ -75,14 +74,6 @@ class MeetingController extends Controller {
                     return errorResponse(trans('api.required_fields'), $errorMessage);
                 }
 
-                if ($request->hasfile('business_card')) {
-                    $file = $request->file('business_card');
-                    $filename = rand(1, time()) . '.' . $file->getClientOriginalExtension();
-                    $card = 'meetings/' . $filename;
-                    $image = Image::make($file);
-                    $image->save(storage_path('app/public/' . $card));
-                    $meeting->business_card = $card;
-                }
                 $meeting->meeting_notes = $request->meeting_notes;
                 $meeting->status = 1;
                 $meeting->save();
@@ -91,6 +82,38 @@ class MeetingController extends Controller {
 
                 return successResponse(trans('api.meeting.notes_created'), ['meeting_id' => $meeting->id]);
             }
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function businessCard(Request $request) {
+        try {
+            $meeting = Meeting::findOrFail($request->id);
+            $rules = [
+                'id' => 'required',
+                'business_card' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                $errorMessage = $validator->messages();
+                return errorResponse(trans('api.required_fields'), $errorMessage);
+            }
+
+            if ($request->hasfile('business_card')) {
+                $file = $request->file('business_card');
+                $filename = rand(1, time()) . '.' . $file->getClientOriginalExtension();
+                $card = 'meetings/' . $filename;
+                $image = Image::make($file);
+                $image->save(storage_path('app/public/' . $card));
+                $meeting->business_card = $card;
+                $meeting->save();
+            }
+
+            return successResponse(trans('api.meeting.business_card'), ['meeting_id' => $meeting->id]);
         } catch (ModelNotFoundException $e) {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
