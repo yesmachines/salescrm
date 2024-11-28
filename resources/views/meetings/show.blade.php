@@ -123,7 +123,7 @@
                                         <h5 class="card-title">Meeting Notes</h5>
                                         @if(!empty($meeting->business_card))
                                         <div class="col-md-6">
-                                            <img class="card-img-top" src="{{asset('storage') . '/' . $meeting->business_card}}" alt="Business Card">
+                                            <img class="card-img-top pop" src="{{asset('storage') . '/' . $meeting->business_card}}" alt="Business Card">
                                         </div>
                                         @endif
                                         <p class="card-text pt-2">{{$meeting->meeting_notes}}</p>
@@ -166,7 +166,15 @@
                                             <td>{{$share->sharedBy->name}}</td>
                                             <td>{{$share->sharedTo->name}}</td>
                                             <td>{{date('M d, Y h:i A',strtotime($share->created_at))}}</td>
-                                            <td></td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="d-flex">
+                                                        <a href="{{route('meetings.shared.details',$share->id)}}" class="btn btn-sm btn-icon btn-floating btn-primary btn-lg btn-rounded sh-detail">
+                                                            <span class="icon"><span class="feather-icon"><i data-feather="list"></i></span></span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -181,10 +189,76 @@
         </div>
     </div>
     <!-- /Page Body -->
+
+    <div class="hk-chat-popup">
+        <header>
+            <div class="media-wrap">
+                <div class="media">
+                    <div class="media-body">
+                        <div class="user-name">Shared Details</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-popup-action d-flex">
+                <a href="javascript:void(0);" id="close_sd" class="btn btn-sm btn-icon btn-dark btn-rounded">
+                    <span class="icon"><span class="feather-icon"><i data-feather="x"></i></span></span>
+                </a>
+            </div>
+        </header>
+        <div class="chat-popup-body">
+            <div data-simplebar class="nicescroll-bar">
+                <div>
+                    <div class="contact-list-wrap sh-content">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">              
+                <div class="modal-body">
+                    <img src="" class="imagepreview" style="width: 100%;" >
+                </div>
+            </div>
+        </div>
+    </div>
     @endsection
     @push('scripts')
     <script type='text/javascript'>
         $(function () {
+            $(document).on("click", ".sh-detail", function (e) {
+                e.preventDefault();
+                $('.sh-content').html('<p class="mt-20, p-5">Loading content....</p>');
+                $('.hk-chat-popup').addClass('d-flex');
+                var url = $(this).attr('href');
+                $.ajax({
+                    url: url,
+                    dataType: 'html',
+                    processData: false,
+                    contentType: false,
+                    type: 'get',
+                    success: function (response) {
+                        $(".sh-content").html(response);
+                    },
+                    error: function (response) {
+                        $(".sh-content").html('<p class="mt-20, p-5">Something went wrong...</p>');
+                    }
+                });
+                return false;
+            });
+            $(document).on("click", "#close_sd", function (e) {
+                e.preventDefault();
+                $('.hk-chat-popup').removeClass('d-flex');
+                return false;
+            });
+
+            $(document).on('click', '.pop', function () {
+                $('.imagepreview').attr('src', $(this).attr('src'));
+                $('#imagemodal').modal('show');
+            });
         });
     </script>    
     @endpush

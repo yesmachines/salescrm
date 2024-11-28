@@ -80,6 +80,7 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
     Route::any('meeting-datatable', [MeetingController::class, 'datatable'])->name('meetings.datatable');
     Route::any('meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::any('shared-meeting-details/{id}', [MeetingController::class, 'sharedDetails'])->name('meetings.shared.details');
     
     Route::resource('purchaserequisition', PurchaseRequisitionController::class);
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');

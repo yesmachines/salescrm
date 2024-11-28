@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Yajra\Datatables\Datatables;
-use App\Models\Meeting;
 use App\Models\User;
-use App\Models\MeetingShare;
+use App\Models\Meeting;
 use App\Models\MeetingProduct;
+use App\Models\MeetingShare;
+use App\Models\MeetingSharedProduct;
 
 class MeetingController extends Controller {
 
@@ -17,7 +18,7 @@ class MeetingController extends Controller {
 
     function __construct() {
         $this->middleware('can:meetings.index', ['only' => ['index', 'datatable']]);
-        $this->middleware('can:meetings.show', ['only' => ['show']]);
+        $this->middleware('can:meetings.show', ['only' => ['show', 'sharedDetails']]);
 
         $this->this_start_month = Carbon::now()->startOfMonth()->format('Y-m-d');
         $this->this_end_month = Carbon::now()->endOfMonth()->format('Y-m-d');
@@ -115,5 +116,15 @@ class MeetingController extends Controller {
                 ->get();
         $shares = MeetingShare::with(['sharedBy', 'sharedTo'])->where('meeting_id', $id)->get();
         return view('meetings.show', compact('meeting', 'shares'));
+    }
+
+    public function sharedDetails($id) {
+        $meeting = MeetingShare::findOrFail($id);
+        $meeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
+                ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
+                ->join('products', 'products.id', 'meeting_shared_products.product_id')
+                ->where('meeting_shared_products.meetings_shared_id', $id)
+                ->get();
+        return view('meetings.shared-popup', compact('meeting'));
     }
 }

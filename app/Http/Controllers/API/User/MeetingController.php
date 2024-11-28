@@ -25,8 +25,8 @@ class MeetingController extends Controller {
             'title' => 'required',
             'company_name' => 'required',
             'company_representative' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
+           // 'phone' => 'required',
+           // 'email' => 'required',
             'location' => 'required'
         ];
 
