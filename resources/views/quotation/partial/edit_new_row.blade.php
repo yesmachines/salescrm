@@ -886,6 +886,7 @@
               let selopt = item.title;
               if (item.modelno) selopt += ' / ' + item.modelno + '';
               if (item.part_number) selopt += ' / ' + item.part_number + '';
+              if (item.product_type) selopt += ' ( ' + (item.product_type).toUpperCase() + ' )';
 
               optgroup.append('<option value="' + item.id + '">' + selopt + '</option>');
 

@@ -454,6 +454,7 @@
                   <option value="accessories">Accessories</option>
                   <option value="consumables">Consumables</option>
                   <option value="spares">Spares</option>
+                  <option value="services">Services</option>
                 </select>
                 <div class="invalid-feedback">Please select a product category.</div>
               </div>

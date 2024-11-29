@@ -73,7 +73,7 @@ class ProductService
       'price_basis' => $data['payment_term'],
       'currency' => $data['currency'],
       //   'currency_rate' => $data['currency_rate'],
-        'is_demo' => $data['is_demo'],
+      'is_demo' => $data['is_demo'],
 
     ]);
     // Selling Price
@@ -203,7 +203,7 @@ class ProductService
       'price_basis' => $data['payment_term'],
       'currency' => $data['currency'],
       //   'currency_rate' => $data['currency_rate'],
-        'is_demo' => $data['is_demo'],
+      'is_demo' => $data['is_demo'],
     ];
 
     if (!empty($imageUrl) ||  isset($data['remove_image'])) {
@@ -243,6 +243,7 @@ class ProductService
       $existingPurchaseRow = BuyingPrice::where('product_id', $product->id)->latest()->first();
       $isRecordChange = false;
       if (
+        $existingPurchaseRow->buying_currency  !== $data['buying_currency'] ||
         $existingPurchaseRow->buying_price  !== $data['buying_price'] ||
         $existingPurchaseRow->gross_price  !== $data['gross_price'] ||
         $existingPurchaseRow->discount_amount  !== $data['discount_amount'] ||

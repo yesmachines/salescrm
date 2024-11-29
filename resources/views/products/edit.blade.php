@@ -152,6 +152,7 @@
                   <option value="spares" @if($product->product_category == 'spares') selected @endif>Spares</option>
                   <option value="accessories" @if($product->product_category == 'accessories') selected @endif>Accessories</option>
                   <option value="spares" @if($product->product_category == 'consumables') selected @endif>Consumables</option>
+                  <option value="services" @if($product->product_category == 'services') selected @endif>Services</option>
                 </select>
                 <div class="invalid-data" style="display: none;">Please select a product category.</div>
               </div>
@@ -375,23 +376,23 @@
                 <input type="hidden" name="validity_to" id="validity_to" value="{{!empty($product->buyingPrice) && isset($product->buyingPrice[0])? $product->buyingPrice[0]->validity_to: ''}}" />
               </div>
             </div>
-              
-              <div class="col-md-6">
+
+            <div class="col-md-6">
               <div class="form-group">
                 <label class="form-label">Is Demo<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
-                  <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="1" <?php echo ($product->is_demo == 1) ? 'checked' : ''; ?>>
-                  <label class="form-check-label" for="is_demo">
-                      Yes
-                  </label>
-                  <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="0" <?php echo ($product->is_demo == 0) ? 'checked' : ''; ?>>
-                  <label class="form-check-label" for="is_demo">
-                      No
-                  </label>
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="1" <?php echo ($product->is_demo == 1) ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="is_demo">
+                  Yes
+                </label>
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="0" <?php echo ($product->is_demo == 0) ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="is_demo">
+                  No
+                </label>
               </div>
             </div>
-              
+
           </div>
 
           <div class="row gx-3">

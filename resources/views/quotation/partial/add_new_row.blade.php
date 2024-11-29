@@ -709,6 +709,7 @@
               let selopt = item.title;
               if (item.modelno) selopt += ' / ' + item.modelno + '';
               if (item.part_number) selopt += ' / ' + item.part_number + '';
+              if (item.product_type) selopt += ' ( ' + (item.product_type).toUpperCase() + ' )';
 
               optgroup.append('<option value="' + item.id + '">' + selopt + '</option>');
 
@@ -1105,8 +1106,12 @@
             if (rowExists) {
               rowExists.remove();
             }
+            let img = '';
+            if (newProductData.image_url && newProductData.image_url != null) {
+              img += '<img src="' + asset_url + 'storage/' + newProductData.image_url + '" width="30" />';
+            }
             newRow += '<tr id="irow-' + selProductId + '">';
-            newRow += '<td><img src="' + asset_url + 'storage/' + newProductData.image_url + '" width="30" /><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
+            newRow += '<td>' + img + '<textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
             newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '" readonly/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
             newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" min="1" value="' + qty + '"/></td>';
             newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';

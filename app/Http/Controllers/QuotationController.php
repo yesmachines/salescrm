@@ -930,6 +930,7 @@ class QuotationController extends Controller
     $supplier_ids = is_array($input['supplier_id']) ? $input['supplier_id'] : (array) $input['supplier_id'];
 
     $results = Product::with('supplier')
+      ->where('status', 'active')
       ->whereIn('brand_id', $supplier_ids)
       ->whereNull('deleted_at')
       ->orderBy('title', 'asc')
