@@ -64,4 +64,9 @@ class User extends Authenticatable
     public function sendEmailOtp() {
         $this->notify(new UserEmailOtp());
     }
+    
+    public function areas()
+    {
+        return $this->belongsToMany(Area::class, 'employee_areas')->withTimestamps();
+    }
 }

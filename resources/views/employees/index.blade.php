@@ -263,23 +263,7 @@
                                     </div>
                                 </div>
                                 <div class="row gx-3">
-                                    <div class="col-sm-5">
-                                        <div class="title title-xs title-wth-divider text-primary text-uppercase my-4"><span>Reported To</span></div>
-                                        <div class="row gx-3">
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    @foreach($managers as $emp)
-                                                    <div class="form-check form-check-sm mt-2">
-                                                        <input type="checkbox" id="user-{{$emp->id}}" class="form-check-input" name="manager_id[{{ $emp->id }}]" value="{{$emp->id }}">
-                                                        <label class="form-check-label" for="user-{{$emp->id}}">{{ $emp->user->name }}</label>
-                                                    </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1"></div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-12">
 
                                         <div class="title title-xs title-wth-divider text-primary text-uppercase my-4"><span>Assigned Target</span></div>
                                         <div class="row gx-3">
@@ -302,6 +286,40 @@
                                         </div>
 
                                     </div>
+                                </div>
+                                <div class="row gx-3">
+                                    <div class="col-sm-6">
+                                        <div class="title title-xs title-wth-divider text-primary text-uppercase my-4"><span>Reported To</span></div>
+                                        <div class="row gx-3">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    @foreach($managers as $emp)
+                                                    <div class="form-check form-check-sm mt-2">
+                                                        <input type="checkbox" id="user-{{$emp->id}}" class="form-check-input" name="manager_id[{{ $emp->id }}]" value="{{$emp->id }}">
+                                                        <label class="form-check-label" for="user-{{$emp->id}}">{{ $emp->user->name }}</label>
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+
+                                    <div class="title title-xs title-wth-divider text-primary text-uppercase my-4"><span>Areas</span></div>
+                                    <div class="row gx-3">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                @foreach($areas as $area)
+                                                <div class="form-check form-check-sm mt-2">
+                                                    <input type="checkbox" id="area-{{$area->id}}" class="form-check-input" name="area_id[{{ $area->id }}]" value="{{$area->id }}">
+                                                    <label class="form-check-label" for="area-{{$area->id}}">{{ $area->name }}</label>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                    
                                 </div>
 
                             </div>

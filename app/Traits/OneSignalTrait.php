@@ -135,13 +135,15 @@ trait OneSignalTrait {
         try {
             //Save to db
             $notification = new \App\Models\PushNotification();
-            $notification->user_id = $body['include_external_user_ids'];
+            $notification->user_id = $body['include_external_user_ids'][0];
             $notification->title = $body['headings']['en'];
             $notification->message = $body['contents']['en'];
             $notification->module = $body['data']['module'];
             $notification->module_id = $body['data']['module_id'];
             $notification->extras = $body['data'];
             $notification->save();
+            
+            return ['status' => true, 'message' => 'Push notification sent successfully!'];
             
             $http = new Client(['verify' => false]);
             $body['app_id'] = env('PUSHER_APP_ID');

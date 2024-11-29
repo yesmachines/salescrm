@@ -16,6 +16,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegionController;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PurchaseRequisitionController;
 use App\Http\Controllers\ProductController;
@@ -70,6 +71,7 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('regions', RegionController::class);
+    Route::resource('areas', AreaController::class)->except(['show','destroy']);
     Route::resource('leads', LeadController::class);
     Route::resource('orders', OrderController::class);
     Route::resource('departments', DepartmentController::class);
