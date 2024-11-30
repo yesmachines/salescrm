@@ -14,11 +14,8 @@ use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
-use \App\Traits\OneSignalTrait;
 
 class MeetingShareController extends Controller {
-
-    use OneSignalTrait;
 
     public function employees() {
         $roleNames = ['salesmanager', 'coordinators', 'satellite'];

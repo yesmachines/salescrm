@@ -93,6 +93,14 @@ class CrmController extends Controller {
         return successResponse(trans('api.success'), $countries);
     }
 
+    public function getAreas() {
+        $areas = \App\Models\Area::select('id', 'name')
+                ->where('status', 1)
+                ->orderBy('name')
+                ->get();
+        return successResponse(trans('api.success'), $areas);
+    }
+
     public function createCompany(Request $request) {
         $rules = [
             'company' => 'required',

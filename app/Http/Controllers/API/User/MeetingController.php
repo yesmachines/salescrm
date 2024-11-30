@@ -25,8 +25,8 @@ class MeetingController extends Controller {
             'title' => 'required',
             'company_name' => 'required',
             'company_representative' => 'required',
-           // 'phone' => 'required',
-           // 'email' => 'required',
+            // 'phone' => 'required',
+            // 'email' => 'required',
             'location' => 'required'
         ];
 
@@ -39,6 +39,7 @@ class MeetingController extends Controller {
 
         $meetingTime = Carbon::createFromFormat('Y-m-d H:i', $request->meeting_date . ' ' . $request->meeting_time, $request->timezone);
         $meetingTimeInUTC = $meetingTime->setTimezone('UTC');
+        $sendPushToAreaManager = false;
 
         $meeting = new Meeting();
         $meeting->user_id = $request->user()->id;
@@ -50,9 +51,16 @@ class MeetingController extends Controller {
         $meeting->location = $request->location;
         $meeting->scheduled_at = $meetingTimeInUTC;
         $meeting->timezone = $request->timezone;
+        if (!empty($request->area_id)) {
+            $meeting->area_id = $request->area_id;
+            $sendPushToAreaManager = true;
+        }
         $meeting->scheduled_notes = $request->scheduled_notes;
         $meeting->save();
 
+        if($sendPushToAreaManager){
+            $this->notifyAreaMnager($meeting);
+        }
         return successResponse(trans('api.meeting.created'), ['meeting_id' => $meeting->id]);
     }
 

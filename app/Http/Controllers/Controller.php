@@ -6,12 +6,14 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use \App\Traits\OneSignalTrait;
 
 class Controller extends BaseController {
 
     use AuthorizesRequests,
         DispatchesJobs,
-        ValidatesRequests;
+        ValidatesRequests,
+        OneSignalTrait;
 
     protected $paginateNumber = 21;
 
@@ -34,6 +36,26 @@ class Controller extends BaseController {
             $meetingProduct->supplier_id = $product['brand_id'];
             $meetingProduct->save();
         }
+        return 1;
+    }
+    
+    function notifyAreaMnager($meeting) {
+        $userIds = \App\Models\EmployeeArea::where('area_id', $meeting->area_id)
+                ->pluck('user_id')
+                ->toArray();
+        $requestedTimezone = \App\Models\Area::where('id', $meeting->area_id)->first()->timezone;
+        $meetingTimeInUserTimezone = \Carbon\Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
+        $body = [
+            'headings' => ['en' => trans('api.notification.title.area', ['name' => $meeting->company_name])],
+            'contents' => ['en' => "Location: " . $meeting->location . ", At: " . $meetingTimeInUserTimezone->format('Y-m-d') . " " . $meetingTimeInUserTimezone->format('h:i A')],
+            'data' => [
+                'module' => 'general',
+                'module_id' => $meeting->id
+            ]
+        ];
+        $body ['include_external_user_ids'] = $userIds;
+        $body ['channel_for_external_user_ids'] = 'push';
+        $this->sendONotification($body);
         return 1;
     }
 }

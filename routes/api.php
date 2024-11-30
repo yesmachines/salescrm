@@ -48,6 +48,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('crm-products/{module}/{brand_id?}', 'CrmController@products');
     Route::get('crm-product-details/{id}', 'CrmController@productDetails');
     Route::get('countries', 'CrmController@countries');
+    Route::get('areas', 'CrmController@getAreas');
     Route::post('create-company', 'CrmController@createCompany');
     Route::post('create-customer', 'CrmController@createCustomer');
     /* Meting APIs */

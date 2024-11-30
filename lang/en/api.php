@@ -51,6 +51,7 @@ return [
             'accepted' => ':name accpted your meeting request',
             'rejected' => ':name rejected your meeting request',
             'cron' => 'Upcoming Meetings',
+            'area' => 'Meeting with :name',
         ],
         'message' => [
             'cron' => 'You have :count upcoming meetings.',

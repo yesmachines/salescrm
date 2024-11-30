@@ -13,6 +13,12 @@
                 <input class="form-control" type="text" name="name" value="{{$area->name}}"  required />
             </div>
         </div>
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="form-label">Timezone</label>
+                {!! Form::select('timezone', timezone_identifiers_list(), $area->timezone, ['class' => 'form-control', 'id' => 'editTimezone']) !!}
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal-footer">

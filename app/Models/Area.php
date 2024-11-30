@@ -8,6 +8,7 @@ class Area extends Model {
 
     protected $fillable = [
         'name',
+        'timezone',
         'status'
     ];
 

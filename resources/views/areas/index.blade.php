@@ -19,7 +19,7 @@
                         <div class="dropdown ms-3">
                             <button class="btn btn-sm btn-outline-secondary flex-shrink-0 dropdown-toggle d-lg-inline-block d-none" data-bs-toggle="dropdown">Create New</button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add_new_country">Add New Region</a>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createAreaModal">Add New Region</a>
                             </div>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                 </div>
             </div>
             <!-- Create Info -->
-            <div id="add_new_country"  class="modal" tabindex="-1" role="dialog">
+            <div id="createAreaModal"  class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <form method="POST" action="{{ route('areas.store') }}">
                         @csrf
@@ -91,6 +91,12 @@
                                         <div class="form-group">
                                             <label class="form-label">Name</label>
                                             <input class="form-control" type="text" name="name" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Timezone</label>
+                                            {!! Form::select('timezone', timezone_identifiers_list(), 228, ['class' => 'form-control', 'id' => 'createTimezone']) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -120,6 +126,12 @@
     </div>
 </div>
 <script type="text/javascript">
+    $('#createAreaModal').on('shown.bs.modal', function () {
+        $('#createTimezone').select2({
+            dropdownParent: $('#createAreaModal')
+        });
+    });
+
     $(document).ready(function () {
         $.ajaxSetup({
             headers: {
@@ -143,8 +155,10 @@
                 processData: false
             })
                     .done(function (data) {
-                        //let adata = $.parseJSON(data);
                         $('#ediSection').html(data);
+                        $('#editAreaModal').find('#editTimezone').select2({
+                            dropdownParent: $('#editAreaModal')
+                        });
                         $('#modal-loader').hide();
                     })
                     .fail(function () {

@@ -8,11 +8,8 @@ use Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Services\EmployeeService;
-use \App\Traits\OneSignalTrait;
 
 class UserController extends Controller {
-
-    use OneSignalTrait;
 
     public function login(Request $request) {
         $rules = [

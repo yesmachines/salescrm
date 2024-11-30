@@ -8,11 +8,8 @@ use Validator;
 use App\Http\Resources\PaginateResource;
 use App\Models\PushNotification;
 use App\Models\MeetingShare;
-use \App\Traits\OneSignalTrait;
 
 class PushNotificationController extends Controller {
-
-    use OneSignalTrait;
 
     public function index(Request $request) {
         $notifications = PushNotification::where('user_id', $request->user()->id)
