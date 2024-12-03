@@ -58,7 +58,7 @@ class MeetingController extends Controller {
         $meeting->scheduled_notes = $request->scheduled_notes;
         $meeting->save();
 
-        if($sendPushToAreaManager){
+        if ($sendPushToAreaManager) {
             $this->notifyAreaMnager($meeting);
         }
         return successResponse(trans('api.meeting.created'), ['meeting_id' => $meeting->id]);
@@ -130,11 +130,6 @@ class MeetingController extends Controller {
 
     public function list(Request $request, $type) {
         $requestedTimezone = $request->header('timezone', config('app.timezone'));
-        $currentTimeInUserTimezone = Carbon::now($requestedTimezone);
-        $currentTimeInUTC = $currentTimeInUserTimezone->copy()
-                ->setTimezone('UTC')
-                ->startOfMinute()
-                ->toDateTimeString();
 
         $meetingsQuery = Meeting::select(
                         'meetings.id',
@@ -146,6 +141,11 @@ class MeetingController extends Controller {
 
         switch ($type) {
             case 'available' :
+                $currentTimeInUserTimezone = Carbon::now($requestedTimezone);
+                $currentTimeInUTC = $currentTimeInUserTimezone->copy()
+                        ->setTimezone('UTC')
+                        ->startOfMinute()
+                        ->toDateTimeString();
                 $meetingsQuery->whereRaw("cm_meetings.scheduled_at >= '$currentTimeInUTC'")
                         ->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') ASC");
                 break;
@@ -161,10 +161,15 @@ class MeetingController extends Controller {
                     $errorMessage = $validator->messages();
                     return errorResponse(trans('api.required_fields'), $errorMessage);
                 }
+
+                $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
+                $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
+
                 $meetingsQuery
-                        ->whereDate('scheduled_at', '>=', $request->from_dt)
-                        ->whereDate('scheduled_at', '<=', $request->to_dt)
-                        ->whereRaw("cm_meetings.scheduled_at < '$currentTimeInUTC'")
+                        ->whereBetween('scheduled_at', [$fromDate, $toDate])
+                        // ->whereDate('scheduled_at', '>=', $request->from_dt)
+                        // ->whereDate('scheduled_at', '<=', $request->to_dt)
+                        //->whereRaw("cm_meetings.scheduled_at < '$currentTimeInUTC'")
                         ->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') DESC");
                 break;
             default:
@@ -284,12 +289,13 @@ class MeetingController extends Controller {
                             ->join('products', 'products.id', 'meeting_products.product_id')
                             ->where('meeting_products.meeting_id', $id)
                             ->get();
+                    $meeting->area;
                     $meeting->editable = ($meeting->status < 2) ? true : false;
                     $meeting->dt_editable = ($meeting->status == 0) ? true : false;
                     break;
                 case 'shared':
                     $meeting = MeetingShare::findOrFail($id);
-                    $parentMeeting = Meeting::select('scheduled_at')->where('id', $meeting->meeting_id)->first();
+                    $parentMeeting = Meeting::select('area_id', 'scheduled_at')->where('id', $meeting->meeting_id)->first();
                     $meetingTime = Carbon::parse($parentMeeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
                     $meeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
                             ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
@@ -303,6 +309,7 @@ class MeetingController extends Controller {
             $meeting->type = $request->type;
             $meeting->date = $meetingTime->format('Y-m-d');
             $meeting->time = $meetingTime->format('h:i A');
+            $meeting->area = $parentMeeting->area;
             $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
 
             return successResponse(trans('api.success'), $meeting);

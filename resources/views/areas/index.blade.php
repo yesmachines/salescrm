@@ -96,7 +96,7 @@
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="form-label">Timezone</label>
-                                            {!! Form::select('timezone', timezone_identifiers_list(), 228, ['class' => 'form-control', 'id' => 'createTimezone']) !!}
+                                            {!! Form::select('timezone',  $timezones, 228, ['class' => 'form-control', 'id' => 'createTimezone']) !!}
                                         </div>
                                     </div>
                                 </div>

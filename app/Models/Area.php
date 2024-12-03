@@ -11,6 +11,13 @@ class Area extends Model {
         'timezone',
         'status'
     ];
+    
+     protected $hidden = [
+        'timezone',
+        'status',
+        'created_at',
+        'updated_at',
+    ];
 
     public function users() {
         return $this->belongsToMany(User::class, 'employee_areas')->withTimestamps();

@@ -14,7 +14,9 @@ class AreaController extends Controller {
      */
     public function index(Request $request, AreaService $areaService) {
         $areas = $areaService->getAreas();
-        return view('areas.index', compact('areas'));
+        $timezones = timezone_identifiers_list();
+        $timezones = array_combine($timezones, $timezones);
+        return view('areas.index', compact('areas', 'timezones'));
     }
 
     /**
@@ -37,7 +39,9 @@ class AreaController extends Controller {
      */
     public function edit($id) {
         $area = \App\Models\Area::FindOrFail($id);
-        return view('areas.edit', compact('area'));
+        $timezones = timezone_identifiers_list();
+        $timezones = array_combine($timezones, $timezones);
+        return view('areas.edit', compact('area', 'timezones'));
     }
 
     /**

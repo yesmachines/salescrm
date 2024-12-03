@@ -24,8 +24,12 @@ class Meeting extends Model {
     public function shares() {
         return $this->hasMany(MeetingShare::class, 'meeting_id', 'id');
     }
-    
+
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function area() {
+        return $this->hasOne(Area::class, 'id','area_id');
     }
 }
