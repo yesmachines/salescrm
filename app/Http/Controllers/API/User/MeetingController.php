@@ -304,12 +304,12 @@ class MeetingController extends Controller {
                             ->get();
                     $meeting->editable = false;
                     $meeting->dt_editable = false;
+                    $meeting->area = $parentMeeting->area;
                     break;
             }
             $meeting->type = $request->type;
             $meeting->date = $meetingTime->format('Y-m-d');
             $meeting->time = $meetingTime->format('h:i A');
-            $meeting->area = $parentMeeting->area;
             $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
 
             return successResponse(trans('api.success'), $meeting);
