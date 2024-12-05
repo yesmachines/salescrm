@@ -17,7 +17,10 @@ use App\Models\LeadStatus;
 class EnquiryController extends Controller {
 
     public function getStatus() {
-        $status = LeadStatus::where('status', 1)->orderBy('priority', 'asc')->pluck('name', 'id')->toArray();
+        $status = LeadStatus::select('id', 'name')
+                ->where('status', 1)
+                ->orderBy('priority', 'asc')
+                ->get();
         return successResponse(trans('api.success'), $status);
     }
 
