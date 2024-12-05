@@ -37,16 +37,18 @@
                             <div class="mt-2">
                                 @include('layouts.partials.messages')
                             </div>
-                            <form method="GET">
+                            <form method="POST" id="filterForm" action="{{route('meetings.export.mtmg')}}">
+                                @csrf
                                 <div class="row">
                                     <div class="col-2">
                                         <label class="form-label">Date From</label>
-
-                                        <input type="text" class="form-control" name="start_date" id="start_date" placeholder="From" onfocus="(this.type = 'date')" onblur="(this.type = 'text')" value="{{ isset($input['start_date'])? $input['start_date']:'' }}">
+                                        {{ Form::text('start_date', old('start_date', $input['start_date'] ?? null), array('class' => 'form-control'.($errors->has('start_date') ? ' is-invalid' : ''), 'id'=>'start_date','placeholder'=>"From", 'onfocus'=>"(this.type = 'date')", 'onblur'=>"(this.type = 'text')")) }}
+                                        {!! $errors->first('start_date','<p class="text-danger"><strong>:message</strong></p>') !!}
                                     </div>
                                     <div class="col-2">
                                         <label class="form-label">Date To</label>
-                                        <input type="text" class="form-control" name="end_date" id="end_date" placeholder="To" onfocus="(this.type = 'date')" onblur="(this.type = 'text')" value="{{ isset($input['end_date'])? $input['end_date']:'' }}">
+                                        {{ Form::text('end_date', old('end_date', $input['end_date'] ?? null), array('class' => 'form-control'.($errors->has('end_date') ? ' is-invalid' : ''), 'id'=>'end_date','placeholder'=>"To", 'onfocus'=>"(this.type = 'date')", 'onblur'=>"(this.type = 'text')")) }}
+                                        {!! $errors->first('end_date','<p class="text-danger"><strong>:message</strong></p>') !!}
                                     </div>
                                     <div class="col-2">
                                         <label class="form-label">Manager</label>
@@ -68,7 +70,8 @@
                                     </div>
                                     <div class="col-4 text-align-right">
                                         <button class="btn btn-primary filter" type="submit">Search</button>
-                                        <button class="btn btn-secondary" type="button" onclick="window.location.href = '/reports/quotations'">Reset</button>
+                                        <button class="btn btn-secondary" type="button" onclick="document.getElementById('filterForm').reset();">Reset</button>
+                                        <button class="btn btn-gradient-primary btn-animated" type="submit" onclick="window.location.href = '/reports/quotations'">Export MTMG</button>
                                     </div>
                                 </div>
                             </form>
@@ -101,53 +104,53 @@
 @endsection
 @push('scripts')
 <script type='text/javascript'>
-                                            $(function () {
-                                                oTable = $('#listTable').DataTable({
-                                                    scrollX: true,
-                                                    autoWidth: false,
-                                                    ordering: false,
-                                                    responsive: true,
-                                                    processing: true,
-                                                    serverSide: true,
-                                                    language: {
-                                                        search: "Search",
-                                                        searchPlaceholder: "Title, Company",
-                                                        sLengthMenu: "_MENU_items",
-                                                        paginate: {
-                                                            next: '', // or '→'
-                                                            previous: '' // or '←' 
-                                                        }
-                                                    },
-                                                    ajax: {
-                                                        url: "{!! route('meetings.datatable') !!}",
-                                                        type: 'post',
-                                                        headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-                                                        data: function (d) {
-                                                            d.start_date = $("#start_date").val(),
-                                                                    d.end_date = $("#end_date").val(),
-                                                                    d.assigned_to = $("#assigned_to").val(),
-                                                                    d.status = $("#status").val()
-                                                        }
-                                                    },
-                                                    columns: [
-                                                        {data: 'title', name: 'title'},
-                                                        {data: 'company_name', name: 'company_name'},
-                                                        {data: 'user.name', name: 'user.name'},
-                                                        {data: 'scheduled_at', name: 'scheduled_at', searchable: false},
-                                                        {data: 'mqs', name: 'mqs', searchable: false},
-                                                        {data: 'status', name: 'status', searchable: false},
-                                                        {data: 'actions', name: 'actions', searchable: false}
-                                                    ],
-                                                    "drawCallback": function () {
-                                                        feather.replace();
-                                                        $('.dataTables_paginate > .pagination').addClass('custom-pagination pagination-simple');
-                                                    }
-                                                });
-                                                $("#listTable").parent().addClass('table-responsive');
-                                                $(".filter").on("click", function (event) {
-                                                    event.preventDefault();
-                                                    oTable.draw();
-                                                });
-                                            });
+    $(function () {
+        oTable = $('#listTable').DataTable({
+            scrollX: true,
+            autoWidth: false,
+            ordering: false,
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            language: {
+                search: "Search",
+                searchPlaceholder: "Title, Company",
+                sLengthMenu: "_MENU_items",
+                paginate: {
+                    next: '', // or '→'
+                    previous: '' // or '←' 
+                }
+            },
+            ajax: {
+                url: "{!! route('meetings.datatable') !!}",
+                type: 'post',
+                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+                data: function (d) {
+                    d.start_date = $("#start_date").val(),
+                            d.end_date = $("#end_date").val(),
+                            d.assigned_to = $("#assigned_to").val(),
+                            d.status = $("#status").val()
+                }
+            },
+            columns: [
+                {data: 'title', name: 'title'},
+                {data: 'company_name', name: 'company_name'},
+                {data: 'user.name', name: 'user.name'},
+                {data: 'scheduled_at', name: 'scheduled_at', searchable: false},
+                {data: 'mqs', name: 'mqs', searchable: false},
+                {data: 'status', name: 'status', searchable: false},
+                {data: 'actions', name: 'actions', searchable: false}
+            ],
+            "drawCallback": function () {
+                feather.replace();
+                $('.dataTables_paginate > .pagination').addClass('custom-pagination pagination-simple');
+            }
+        });
+        $("#listTable").parent().addClass('table-responsive');
+        $(".filter").on("click", function (event) {
+            event.preventDefault();
+            oTable.draw();
+        });
+    });
 </script>    
 @endpush

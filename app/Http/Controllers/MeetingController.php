@@ -10,6 +10,8 @@ use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
+use App\Exports\MeetingMTMGExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MeetingController extends Controller {
 
@@ -126,5 +128,49 @@ class MeetingController extends Controller {
                 ->where('meeting_shared_products.meetings_shared_id', $id)
                 ->get();
         return view('meetings.shared-popup', compact('meeting'));
+    }
+
+    public function exportMtmg(Request $request) {
+        $this->validate($request, [
+            'start_date' => 'required',
+            'end_date' => 'required',
+        ]);
+
+        $requestedTimezone = $request->header('timezone', config('app.timezone'));
+
+        $fromDateDubai = Carbon::createFromFormat('Y-m-d', $request->start_date, $requestedTimezone);
+        $fromDateUTC = $fromDateDubai->startOfDay()->setTimezone('UTC');
+
+        $toDateDubai = Carbon::createFromFormat('Y-m-d', $request->end_date, $requestedTimezone);
+        $toDateUTC = $toDateDubai->endOfDay()->setTimezone('UTC');
+
+        $meetings = \DB::table('meetings')
+                ->select(\DB::raw('DATE(scheduled_at) as day'), 'scheduled_at', 'company_name', 'mqs')
+                ->whereBetween('scheduled_at', [$fromDateUTC, $toDateUTC])
+                ->whereNotNull('mqs')
+                ->orderBy('scheduled_at')
+                ->get()
+                ->groupBy('day');
+
+        if ($meetings->isEmpty()) {
+            return redirect()->route('meetings.index')->with('success', 'No data to export');
+        }
+
+        $maxMeetings = $meetings->map->count()->max();
+
+        $formattedMeetings = $meetings->map(function ($dayMeetings) use ($requestedTimezone) {
+            $data = [];
+            $totalGrade = 0;
+            foreach ($dayMeetings as $meeting) {
+                $data['clients'][] = $meeting->company_name;
+                $data['grades'][] = $meeting->mqs;
+                $totalGrade += $meeting->mqs;
+            }
+            $data['disp_day'] = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone)->format('d-m-Y');
+            $data['total'] = $totalGrade;
+            return $data;
+        });
+        return Excel::download(new MeetingMTMGExport($formattedMeetings, $maxMeetings), 'monthly-report.xlsx');
+        //return view('meetings.mtmg', compact('formattedMeetings', 'maxMeetings'));
     }
 }
