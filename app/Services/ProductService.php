@@ -73,7 +73,7 @@ class ProductService
       'price_basis' => $data['payment_term'],
       'currency' => $data['currency'],
       //   'currency_rate' => $data['currency_rate'],
-      'is_demo' => $data['is_demo'],
+      'is_demo' => isset($data['is_demo']) ? $data['is_demo'] : 0,
 
     ]);
     // Selling Price
@@ -124,7 +124,9 @@ class ProductService
     $searchTerm = isset($data['query']) ? $data['query'] : null;
     $brandId = isset($data['brand_id']) ? $data['brand_id'] : null;
 
-    $products = Product::where('status', 'active')->with('buyingPrice')
+    $products = Product::where('status', 'active')
+      ->whereNull('deleted_at')
+      ->with('buyingPrice')
       ->orderBy('created_at', 'desc');
 
     if ($searchTerm) {
@@ -294,7 +296,7 @@ class ProductService
     //$sql->where('status', '=', $data['status']);
     // }
     $sql->where('status', '=', 1);
-    $employees = $sql->get();
+    $employees = $sql->get()->sortBy('user.name');
 
     return $employees;
   }

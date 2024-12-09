@@ -272,6 +272,7 @@
 
                                 </div>
                                 <div class="col-xxl-4 col-lg-5">
+                                    @if($purchaseRequest->pr_type == 'client')
                                     <div class="content-aside mt-4">
                                         <div class="card card-bpurchaseRequest">
                                             <div class="card-body">
@@ -281,7 +282,6 @@
                                                         <div class="fs-7">Company</div>
                                                         <div class="text-dark fw-medium">{{$purchaseRequest->company->company}}</div>
                                                     </li>
-
                                                     <li class="mb-3">
                                                         <div class="fs-7">Country</div>
                                                         <div class="text-dark fw-medium">{{isset($purchaseRequest->company->country)? $purchaseRequest->company->country->name: ''}}</div>
@@ -291,6 +291,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @endif
                                     <div class="content-aside mt-4">
                                         <div class="card card-bpurchaseRequest">
                                             <div class="card-body">

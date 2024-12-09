@@ -54,7 +54,11 @@
                         <td style="border: 0;background-color: #ccc; height:25px; font-size: 14px; font-weight: bold; padding: 0 2px;" width="30%">
                             For Client</td>
                         <td style="border: 0; padding: 0 3px;">
+                            @if($purchaseRequest->pr_type == 'client')
                             {{$purchaseRequest->company->company}}
+                            @else
+                            {{$purchaseRequest->pr_type}}
+                            @endif
                         </td>
                     </tr>
                 </table>
@@ -78,7 +82,8 @@
                         <td style="border: 0;background-color: #ccc; height:25px; font-size: 14px; font-weight: bold; padding: 0 2px;" width="30%">
                             OS No.</td>
                         <td style="border: 0; padding: 0 3px;">
-                            {{$purchaseRequest->order->os_number}}
+                            @php $os_num = explode("_", $purchaseRequest->pr_number) @endphp
+                            {{$os_num[0]}}
                         </td>
                     </tr>
                 </table>
@@ -130,6 +135,7 @@
             <th style="background: #ccc; height:30px;" width="40%">Product</th>
             <th style="background: #ccc; height:30px;" width="15%">Unit Price</th>
             <th style="background: #ccc; height:30px;" width="10%">Qty</th>
+            <th style="background: #ccc; height:30px;" width="10%">Dis(%)</th>
             <th style="background: #ccc; height:30px;" width="15%">Final Price</th>
         </tr>
     </thead>
@@ -147,6 +153,7 @@
             </td>
             <td align="center">{{$item->unit_price}}</td>
             <td align="center">{{$item->quantity}}</td>
+            <td align="center">{{$item->discount}}</td>
             <td align="center">{{$item->total_amount}} </td>
         </tr>
         @endforeach
@@ -161,7 +168,7 @@
         </tr>
         @endforeach
         <tr>
-            <td colspan="5" align="right" style="background: #ccc; height:30px; text-transform: uppercase; padding: 4px; ">
+            <td colspan="6" align="right" style="background: #ccc; height:30px; text-transform: uppercase; padding: 4px; ">
                 <b>Total Amount IN {{$purchaseRequest->currency}}</b>
             </td>
             <td align="center">

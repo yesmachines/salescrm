@@ -77,7 +77,11 @@
 
                     </td>
                     <td class="text-truncate overflow-hidden" title="{{$pr->pr_date }}">{{$pr->pr_date }}</td>
+                    @if($pr->pr_type == 'client' )
                     <td class="text-truncate overflow-hidden" title="{{$pr->company->company}}">{{$pr->company->company}}</td>
+                    @else
+                    <td class="text-truncate overflow-hidden"><span class="badge badge-soft-secondary">{{$pr->pr_type}}</span></td>
+                    @endif
                     <td class="text-truncate overflow-hidden">
                         {{$pr->supplier->brand}}
                     </td>

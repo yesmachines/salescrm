@@ -18,8 +18,8 @@
                         <nav class="ms-1 ms-sm-0" aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a href="">Purchase Requisition</a></li>
-                                <li class="breadcrumb-item"><a href="">Edit</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">{{$purchaseRequest->pr_number}}</li>
+                                <li class="breadcrumb-item"><a href="">Create New</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{$order->os_number}}</li>
                             </ol>
                         </nav>
                     </div>
@@ -47,9 +47,11 @@
                                             </div>
                                         </div>
                                         <div class="media-body">
-
-                                            <h3 class="hd-bold mb-0">Edit Purchase Requisition</h3>
-                                            <span>{{$purchaseRequest->pr_number}} </span>
+                                            @php
+                                            $pr_number = str_replace("OS", "PR", $order->os_number);
+                                            @endphp
+                                            <h3 class="hd-bold mb-0">Purchase Requisition</h3>
+                                            <span>{{$pr_number}} </span>
                                         </div>
                                     </div>
                                 </div>
@@ -69,22 +71,30 @@
                                     <div class="mt-2">
                                         @include('layouts.partials.messages')
                                     </div>
+                                    <form method="POST" action="{{ route('purchaserequisition.store') }}" enctype="multipart/form-data" id="frmpr">
+                                        @csrf
+                                        <input type="hidden" name="os_id" value="{{$order->id}}" />
+                                        <input type="hidden" name="pr_for" value="{{$order->order_for}}" />
+                                        <input type="hidden" name="created_by" value="{{$order->created_by}}" />
+                                        <input type="hidden" name="pr_date" value="{{date('Y-m-d')}}" />
+                                        <input type="hidden" name="pr_type" value="stock" />
+                                        <input type="hidden" name="company_id" value="{{$order->company_id}}" />
+                                        <input type="hidden" name="status" value="pending" />
 
-                                    {!! Form::model($purchaseRequest, ['method' => 'PATCH','enctype' => 'multipart/form-data', 'route' => ['purchaserequisition.update', $purchaseRequest->id]]) !!}
-                                    <div class="row mt-4">
-                                        <div class="col-xxl-12">
+                                        <div class="row mt-4">
+                                            <div class="col-xxl-12">
 
-                                            @include('purchaseRequisition.partials._edit_pr_items')
+                                                @include('purchaseRequisition.partials._stock_pritems')
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-4"></div>
-                                        <div class="col-4">
-                                            <button type="button" class="btn btn-secondary m-2" onclick="window.location='{{ route("purchaserequisition.index") }}'">Cancel</button>
-                                            <button type="submit" id="pr_details_button m-2" class="btn btn-primary" value="save-os">Update PR</button>
+                                        <div class="row mb-2">
+                                            <div class="col-4"></div>
+                                            <div class="col-4">
+                                                <button type="button" class="btn btn-secondary m-2" onclick="window.location='{{ route("purchaserequisition.index") }}'">Cancel</button>
+                                                <button type="submit" id="pr_details_button m-2" class="btn btn-primary" value="save-os">Create PR</button>
+                                            </div>
+                                            <div class="col-4"></div>
                                         </div>
-                                        <div class="col-4"></div>
-                                    </div>
 
                                     </form>
                                 </div>
@@ -121,8 +131,6 @@
             return checkedVals;
         }
 
-
-
         $(document).on('input change', '.quantity', function(e) {
             let row = $(this).closest('tr');
             let rowid = row.attr('id');
@@ -145,7 +153,6 @@
             $("input[name='item[" + irow + "][total_amount]']").val(total);
 
         });
-
         $(document).on('input change', '.discount', function(e) {
             let row = $(this).closest('tr');
             let rowid = row.attr('id');

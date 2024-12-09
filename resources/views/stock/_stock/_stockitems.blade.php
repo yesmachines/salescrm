@@ -1,5 +1,5 @@
 <div class="row m-2">
-  <div class="col-9"> <label>Enter Product / Model No / Part No *</label>
+  <div class="col-9"> <label>Local Product / Model No / Part No *</label>
 
     <select class="form-control select2" id="product_item_search" disabled>
       <option value="">-- Select Products --</option>
@@ -31,9 +31,9 @@
           <th>Part No</th>
           <th>Unit (AED)*</th>
           <th>Qty *</th>
-          <th>YesNo.</th>
+          <th>YesNo *</th>
           <th>Dis (%)</th>
-          <th>Amount (AED) *</th>
+          <th>Amt (AED) *</th>
           <th>Expected<br />Delivery</th>
           <th>Status</th>
           <th>Item<br />Remarks</th>

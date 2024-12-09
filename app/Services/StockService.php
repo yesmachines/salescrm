@@ -208,4 +208,14 @@ class StockService
 
     return $stock;
   }
+
+  public function deleteStockOrder($id): void
+  {
+    StockItem::where('stock_id', $id)->delete();
+    StockSupplier::where('stock_id', $id)->delete();
+    StockPayment::where('stock_id', $id)->delete();
+    StockCharge::where('stock_id', $id)->delete();
+
+    Stock::find($id)->delete();
+  }
 }

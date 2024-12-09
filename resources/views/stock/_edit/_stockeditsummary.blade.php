@@ -1,4 +1,4 @@
-<div class="row mb-2">
+<!-- <div class="row mb-2">
   <div class="col-4">
     <h6>OS Type </h6>
   </div>
@@ -19,7 +19,9 @@
     </div>
   </div>
   <div class="col-2"></div>
-</div>
+</div> -->
+
+<input type="hidden" name="purchase_mode" id="stockOption" value="{{ $stock->purchase_mode == 'stock' ? 'stock' : ''}}">
 
 <div class="row my-4">
   <div class="col-xxl-12">
@@ -42,9 +44,9 @@
         <h6>Manager *</h6>
       </div>
       <div class="col-6">
-        <select class="form-select" name="assigned_to" required>
+        <select class="form-select select2" name="assigned_to" required>
           <option value="">--</option>
-          @foreach($employees as $emp)
+          @foreach($managers as $emp)
           <option value="{{$emp->id}}" {{($emp->id == $stock->assigned_to)? "selected": "" }}>{{ $emp->user->name}}</option>
           @endforeach
         </select>
@@ -108,30 +110,30 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var otherOption = document.getElementById('otherOption');
-    var descriptionBox = document.getElementById('descriptionBox');
+  // document.addEventListener('DOMContentLoaded', function() {
+  //   var otherOption = document.getElementById('otherOption');
+  //   var descriptionBox = document.getElementById('descriptionBox');
 
-    otherOption.addEventListener('change', function() {
-      if (this.checked) {
-        descriptionBox.style.display = 'block';
-      }
-    });
+  //   otherOption.addEventListener('change', function() {
+  //     if (this.checked) {
+  //       descriptionBox.style.display = 'block';
+  //     }
+  //   });
 
-    var otherPurchaseOption = document.getElementById('otherPurchaseOption');
-    var stockOption = document.getElementById('stockOption');
+  //   var otherPurchaseOption = document.getElementById('otherPurchaseOption');
+  //   var stockOption = document.getElementById('stockOption');
 
-    otherPurchaseOption.addEventListener('change', function() {
-      if (this.checked) {
-        descriptionBox.style.display = 'none';
-      }
-    });
+  //   otherPurchaseOption.addEventListener('change', function() {
+  //     if (this.checked) {
+  //       descriptionBox.style.display = 'none';
+  //     }
+  //   });
 
-    stockOption.addEventListener('change', function() {
-      if (this.checked) {
-        descriptionBox.style.display = 'none';
-      }
-    });
+  //   stockOption.addEventListener('change', function() {
+  //     if (this.checked) {
+  //       descriptionBox.style.display = 'none';
+  //     }
+  //   });
 
-  });
+  // });
 </script>

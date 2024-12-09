@@ -16,6 +16,7 @@ class PrItem extends Model
         'item_description',
         'unit_price',
         'quantity',
+        'discount',
         'total_amount',
         'currency',
         'yes_number',

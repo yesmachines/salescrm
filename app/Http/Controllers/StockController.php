@@ -37,7 +37,7 @@ class StockController extends Controller
     $suppliers = $supplierService->getAllSupplier();
     $currencies = DB::table('currency')->where('status', 1)->orderBy("code", "asc")->get();
     $terms = PaymentTerm::where("status", 1)->where("parent_id", 0)->get();
-    $employees = $employeeService->getAllEmployee();
+    //  $employees = $employeeService->getAllEmployee();
     $divisions = $divisionService->getDivisionList();
     $managers = $productService->employeesList();
     // $paymentTerms =  PaymentTerm::where('parent_id', 0)->get();
@@ -46,7 +46,7 @@ class StockController extends Controller
       'suppliers',
       'currencies',
       'terms',
-      'employees',
+      // 'employees',
       'divisions',
       'managers',
       //  'paymentTerms'
@@ -97,7 +97,7 @@ class StockController extends Controller
     $stockPayments = StockPayment::where('stock_id', $id)->get();
     $stockCharges = StockCharge::where('stock_id', $id)->get();
     $stockItems = StockItem::where('stock_id', $id)->get();
-    $employees = $employeeService->getAllEmployee();
+    // $employees = $employeeService->getAllEmployee();
 
 
     $products = $productService->getAllProduct(['brand_id' => $stockSuppliers->supplier_id]);
@@ -111,7 +111,7 @@ class StockController extends Controller
       'suppliers',
       'currencies',
       'terms',
-      'employees',
+      //  'employees',
       'products',
       'divisions',
       'managers',
@@ -189,5 +189,15 @@ class StockController extends Controller
     // $mpdf->WriteHTML($header);
     $mpdf->WriteHTML($body);
     $mpdf->Output('OS-' . $stockService->os_number . '.pdf', 'I');
+  }
+
+  public function destroy($id, StockService $stockService)
+  {
+
+    $stockService->deleteStockOrder($id);
+
+
+    return redirect()->back()
+      ->with('success', 'Stock Order deleted successfully');
   }
 }

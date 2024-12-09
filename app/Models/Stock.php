@@ -22,19 +22,36 @@ class Stock extends Model
     {
         return $this->hasMany(StockSupplier::class, 'stock_id', 'id');
     }
+
     public function stockItem()
     {
         return $this->hasMany(StockItem::class, 'stock_id', 'id');
     }
-    public function getStockSupplierAttribute()
-    {
 
+    public function getStockBrandAttribute()
+    {
         return $this->stockSupplier()->get()->map(function ($stockSupplier) {
             return $stockSupplier->supplier ? $stockSupplier->supplier->brand : 'Unknown';
         })->implode(', ');
     }
-    public function getStockProductAttribute()
+
+    // public function getStockProductAttribute()
+    // {
+    //     return $this->stockItem ? $this->stockItem->pluck('item_name')->implode(', ') : '';
+    // }
+
+
+    public function stockPayment()
     {
-        return $this->stockItem ? $this->stockItem->pluck('item_name')->implode(', ') : '';
+        return $this->hasMany(StockPayment::class, 'stock_id', 'id');
+    }
+    public function stockCharge()
+    {
+        return $this->hasMany(StockCharge::class, 'stock_id', 'id');
+    }
+
+    public function purchaseRequisition()
+    {
+        return $this->hasOne(PurchaseRequisition::class, 'os_id', 'id');
     }
 }

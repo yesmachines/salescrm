@@ -26,6 +26,24 @@ class PurchaseRequisitionService
 
         return $purchase;
     }
+    public function getReferenceNumber($reference): ?string
+    {
+        // Fetch the latest order and stock records for the current year
+        $latestPR = PurchaseRequisition::where('pr_number', 'LIKE', "{$reference}%")->latest()->first();
+
+        $lastNum = 0;
+        if ($latestPR && isset($latestPR->pr_number)) {
+            $reference_array = $latestPR ? explode('_', $latestPR->pr_number) : 0;
+            $lastNum = isset($reference_array[2]) ? $reference_array[2] : 1;
+        } else {
+            $reference_array = explode("_", $reference);
+        }
+        // Determine the maximum sequential number among the latest order and stock
+        $next = $lastNum + 1;
+        $reference_num = implode("_", array($reference_array[0], $reference_array[1], $next));
+
+        return $reference_num;
+    }
     public function insertPRSupplierDetails(array $userData): Object
     {
         $purchaseDelivery = PrDeliveryTerm::create($userData);

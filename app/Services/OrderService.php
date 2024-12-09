@@ -267,6 +267,10 @@ class OrderService
             //     ->delete();
 
             foreach ($userData['item'] as $item) {
+                // remove unwanted elements
+                unset($item['unit_price']);
+                unset($item['buying_unit_price']);
+
                 // update exsting
                 $isempty = array_values($item);
                 if (is_null($isempty[0]) || empty($isempty[0])) { // check for product id is null
@@ -291,6 +295,10 @@ class OrderService
         } else {
             //create new
             foreach ($userData['item'] as $item) {
+                // remove unwanted elements
+                unset($item['unit_price']);
+                unset($item['buying_unit_price']);
+
                 $isempty = array_values($item);
                 if (is_null($isempty[0]) || empty($isempty[0])) { // check for product id is null
                     //  array item not exists

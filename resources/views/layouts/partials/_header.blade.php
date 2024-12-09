@@ -257,11 +257,12 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('orders.index')}}"><span class="nav-link-text">Pending Orders</span></a>
                                     </li>
-                                    <li class="nav-item">
+                                    <!-- <li class="nav-item">
                                         <a class="nav-link" href="{{route('orders.completed')}}"><span class="nav-link-text">Closed Orders</span></a>
-                                    </li>
+                                    </li> -->
+
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{route('stock.index')}}"><span class="nav-link-text">Stock List</span></a>
+                                        <a class="nav-link" href="{{route('stock.index')}}"><span class="nav-link-text">Stock Orders</span></a>
                                     </li>
                                 </ul>
                             </li>

@@ -33,9 +33,9 @@
                 <th>Part No</th>
                 <th>Unit (AED)*</th>
                 <th>Qty *</th>
-                <th>YesNo.</th>
+                <th>YesNo *</th>
                 <th>Dis (%)</th>
-                <th>Amount (AED) *</th>
+                <th>Amt (AED) *</th>
                 <th>Expected<br />Delivery</th>
                 <th>Status</th>
                 <th>Item<br />Remarks</th>
@@ -64,6 +64,7 @@
                     }
                     @endphp
                     <input type="text" class="form-control" placeholder="Unit Price" name="unit_price[]" value="{{ $unit_price }}" readonly />
+
                 </td>
                 <td>
                   <input type="number" class="form-control quantity" name="quantity[]" value="{{ $item->quantity }}" placeholder="Quantity" />
@@ -74,6 +75,7 @@
                 <td><input type="text" class="form-control linediscount" name="discount[]" value="{{ $item->discount }}" placeholder="Discount %" /></td>
                 <td>
                   <input type="number" class="form-control purchase_amount" name="total_amount[]" value="{{ $item->total_amount }}" step="any" placeholder="Total Amount" />
+                  <a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm mt-1" data-pid="{{$item->id}}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>
                 </td>
                 <td width="8%">
                   <input type="text" class="form-control datepick" name="expected_delivery[]" placeholder="Expected Delivery" value="{{ $item->expected_delivery }}" />

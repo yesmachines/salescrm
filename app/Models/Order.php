@@ -58,10 +58,10 @@ class Order extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function orderHistory()
-    {
-        return $this->hasMany(OrderHistory::class, 'order_id', 'id');
-    }
+    // public function orderHistory()
+    // {
+    //     return $this->hasMany(OrderHistory::class, 'order_id', 'id');
+    // }
     public function orderItem()
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'id');
@@ -113,6 +113,6 @@ class Order extends Model
     }
     public function purchaseRequisition()
     {
-        return $this->hasOne(PurchaseRequisition::class);
+        return $this->hasOne(PurchaseRequisition::class, 'os_id', 'id');
     }
 }

@@ -41,7 +41,11 @@ class PurchaseRequisition extends Model
     }
     public function order()
     {
-        return $this->belongsTo(Order::class, 'os_id', 'id');
+        return $this->belongsTo(Order::class, 'os_id', 'id')->where('pr_type', 'client');
+    }
+    public function stock()
+    {
+        return $this->belongsTo(Stock::class, 'os_id', 'id')->where('pr_type', 'stock');
     }
     public function purchaseItem()
     {

@@ -1086,6 +1086,7 @@
             title = newProductData.title;
             if (newProductData.modelno) title += ' / ' + newProductData.modelno + '';
             if (newProductData.part_number) title += ' / ' + newProductData.part_number + '';
+            if (newProductData.product_type) title += ' ( ' + (newProductData.product_type).toUpperCase() + ') ';
 
             unitprice = newProductData.selling_price;
             unitprice = parseFloat(unitprice).toFixed(2);
@@ -1116,7 +1117,7 @@
             newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" min="1" value="' + qty + '"/></td>';
             newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';
             newRow += '<td><input type="number" class="form-control discount" name="discount[]" step="any" min="0" value="' + discount + '"/></td>';
-            newRow += '<td>  <input type="hidden" name="discount_status[]" value="0"><input type="checkbox" id="exampleCheckbox" name="discount_option[]" value="1" onchange="updateCheckboxValue(this)"></td>';
+            newRow += '<td><input type="hidden" name="discount_status[]" value="0"><input type="checkbox" id="exampleCheckbox" name="discount_option[]" value="1" onchange="updateCheckboxValue(this)"></td>';
             newRow += '<td><input type="text" class="form-control total-price" name="total_after_discount[]" value="' + total + '" readonly/><p class="text-danger">New Margin: <span class="new-margin-label">' + newmargin + '</span></p></td>';
             newRow += `<td><input type="hidden" name="item_id[]" value="${selProductId}"/>
           <input type="hidden" name="brand_id[]" value="${brandId}"/>

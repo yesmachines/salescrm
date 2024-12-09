@@ -23,6 +23,9 @@ use App\Models\QuotationCharge;
 use App\Models\QuotationOptionalItem;
 use App\Models\SalesCommission;
 use App\Services\CurrencyService;
+use App\Services\DivisionService;
+use App\Services\ProductService;
+use App\Services\SupplierService;
 use DB;
 
 class OrderController extends Controller
@@ -40,7 +43,10 @@ class OrderController extends Controller
   public function createNewFromQuote(
     $id,
     QuotationService $quotationService,
-    CurrencyService $currencyService
+    CurrencyService $currencyService,
+    ProductService $productService,
+    SupplierService $supplierService,
+    DivisionService $divisionService
   ) {
     $quotation = $quotationService->getQuote($id);
 
@@ -98,7 +104,11 @@ class OrderController extends Controller
       ->get();
 
     $currencies =   $currencyService->getAllCurrency();
+    $localSuppliers = $supplierService->getLocalSupplier();
 
+
+    $divisions = $divisionService->getDivisionList();
+    $managers = $productService->employeesList();
 
     return view('orders.createnew', compact(
       'quotation',
@@ -115,7 +125,10 @@ class OrderController extends Controller
       'quote_charges',
       'currencies',
       'customProductType',
-      'buying_price'
+      'buying_price',
+      'localSuppliers',
+      'divisions',
+      'managers'
     ));
   }
 
@@ -353,8 +366,15 @@ class OrderController extends Controller
     $mpdf->Output('OS-' . $orderDetails->os_number . '.pdf', 'I');
   }
 
-  public function edit(OrderService $orderService, $id, QuotationService $quotationService, CurrencyService $currencyService)
-  {
+  public function edit(
+    OrderService $orderService,
+    $id,
+    QuotationService $quotationService,
+    CurrencyService $currencyService,
+    ProductService $productService,
+    SupplierService $supplierService,
+    DivisionService $divisionService
+  ) {
 
     $order = $orderService->getOrder($id);
     $quote_avail = QuotationAvailability::where("quotation_id", $order->quotation_id)->first();
@@ -380,6 +400,10 @@ class OrderController extends Controller
     }
     $currencies = $currencyService->getAllCurrency();
 
+    $localSuppliers = $supplierService->getLocalSupplier();
+    $divisions = $divisionService->getDivisionList();
+    $managers = $productService->employeesList();
+
     return view('orders.edit', compact(
       'paymentTermsClient',
       'quotation',
@@ -393,7 +417,10 @@ class OrderController extends Controller
       'orderCharges',
       'service_employee',
       'customProductType',
-      'currencies'
+      'currencies',
+      'localSuppliers',
+      'divisions',
+      'managers'
     ));
   }
 
@@ -593,46 +620,46 @@ class OrderController extends Controller
     return response()->json(['success' => 'Additional Charges deleted successfully', 'data' => 1]);
   }
 
-  public function orderHistoryDetailsInsert(Request $request, OrderService $orderService)
-  {
-    $input = $request->all();
+  // public function orderHistoryDetailsInsert(Request $request, OrderService $orderService)
+  // {
+  //   $input = $request->all();
 
-    //$orderService->insertOrderHistoryDetails($input);
-    return response()->json($input['order_id']);
-  }
+  //   //$orderService->insertOrderHistoryDetails($input);
+  //   return response()->json($input['order_id']);
+  // }
 
-  public function  orderHistoryLoad(Request $request, OrderService $orderService)
-  {
-    $data = $request->all();
-    $id = $data['order_id'];
+  // public function  orderHistoryLoad(Request $request, OrderService $orderService)
+  // {
+  //   $data = $request->all();
+  //   $id = $data['order_id'];
 
-    $order = $orderService->getOrderById($id);
-    $customer = ($order->customer) ? $order->customer->fullname : '';
-    //$orderService->loadOrderHistoryDetails($id);
-    $histories = $order->orderHistory;
+  //   $order = $orderService->getOrderById($id);
+  //   $customer = ($order->customer) ? $order->customer->fullname : '';
+  //   //$orderService->loadOrderHistoryDetails($id);
+  //   $histories = $order->orderHistory;
 
-    $data2 = view('orders.partials._listhistory')
-      ->with(compact('histories', 'customer'))
-      ->render();
+  //   $data2 = view('orders.partials._listhistory')
+  //     ->with(compact('histories', 'customer'))
+  //     ->render();
 
 
-    return response()->json(['data' => $data2]);
-  }
+  //   return response()->json(['data' => $data2]);
+  // }
 
-  public function orderHistoryDelete(Request $request, OrderService $orderService)
-  {
-    $data = $request->all();
-    $id = $data['order_history_id'];
-    $orderService->deleteOrderHistoryDetails($id);
-    return response()->json($id);
-  }
-  public function replyCommentDelete(Request $request, OrderService $orderService)
-  {
-    $data = $request->all();
-    $id = $data['reply_comment_id'];
-    $orderService->deleteReplyComments($id);
-    return response()->json($id);
-  }
+  // public function orderHistoryDelete(Request $request, OrderService $orderService)
+  // {
+  //   $data = $request->all();
+  //   $id = $data['order_history_id'];
+  //   $orderService->deleteOrderHistoryDetails($id);
+  //   return response()->json($id);
+  // }
+  // public function replyCommentDelete(Request $request, OrderService $orderService)
+  // {
+  //   $data = $request->all();
+  //   $id = $data['reply_comment_id'];
+  //   $orderService->deleteReplyComments($id);
+  //   return response()->json($id);
+  // }
 
   public function deleteOrderItem(Request $request, OrderService $orderService)
   {
@@ -642,19 +669,19 @@ class OrderController extends Controller
     return response()->json($id);
   }
 
-  public function updateDeliveryByIdHistoryUpdate(Request $request, OrderService $orderService)
-  {
-    $data = $request->all();
-    $orderService->updateOrderDeliveryDetailsByIdUpdate($data);
-    return response()->json($data['order_delivery_id']);
-  }
+  // public function updateDeliveryByIdHistoryUpdate(Request $request, OrderService $orderService)
+  // {
+  //   $data = $request->all();
+  //   $orderService->updateOrderDeliveryDetailsByIdUpdate($data);
+  //   return response()->json($data['order_delivery_id']);
+  // }
 
-  public function commentReplyInsert(Request $request, OrderService $orderService)
-  {
-    $input = $request->all();
-    $orderService->insertCommentReply($input);
-    return response()->json($input['order_id']);
-  }
+  // public function commentReplyInsert(Request $request, OrderService $orderService)
+  // {
+  //   $input = $request->all();
+  //   $orderService->insertCommentReply($input);
+  //   return response()->json($input['order_id']);
+  // }
   public function destroy($id, OrderService $orderService)
   {
 

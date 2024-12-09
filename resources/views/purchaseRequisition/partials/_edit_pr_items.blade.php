@@ -28,6 +28,7 @@
             <th>Product</th>
             <th>Unit Price</th>
             <th>Qty</th>
+            <th>Dis (%)</th>
             <th>YESNO</th>
             <th>Final Price</th>
             <th></th>
@@ -51,6 +52,9 @@
             </td>
             <td>
                 <input type="number" class="form-control quantity" name="item[{{$x}}][quantity]" value="{{$item->quantity}}" placeholder="Quantity" />
+            </td>
+            <td>
+                <input type="text" class="form-control discount" name="item[{{$x}}][discount]" value="{{$item->discount}}" placeholder="Discount" />
             </td>
             <td>
                 <input type="text" class="form-control" name="item[{{$x}}][yes_number]" placeholder="YesNo." value="{{$item->yes_number}}" readonly />

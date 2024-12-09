@@ -90,4 +90,12 @@ class SupplierService
 
         $supplier->update($update);
     }
+
+    public function getLocalSupplier($data = []): Object
+    {
+        return Supplier::where('status', 1)
+            ->whereIn('country_id', [1]) // UAE supplier's only
+            ->orderBy('brand', 'asc')
+            ->get();
+    }
 }

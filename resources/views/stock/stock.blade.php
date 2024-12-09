@@ -63,7 +63,7 @@
           <div class="d-flex align-items-center">
             <div class="dropdown">
               <a class="contactapp-title link-dark" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <h1>Stock</h1>
+                <h1>Stock OS</h1>
               </a>
             </div>
             <div class="dropdown ms-3">
@@ -124,7 +124,7 @@
                         {{$stock->purchase_mode}}
                       </td>
                       <td>
-                        {{$stock->getStockSupplierAttribute()}}
+                        {{$stock->getStockBrandAttribute()}}
                       </td>
 
                       <td>
@@ -136,13 +136,20 @@
                         {{$stock->buying_price}}
                       </td>
                       <td>
-                        <div class="d-flex align-items-center">
-                          <div class="d-flex">
-                            <a class="dropdown-item" href="{{ route('stock.download', $stock->id) }}" title="Download OS"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span></a>
-                            <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover" data-bs-toggle="tooltip" data-placement="top" title="Edit" data-bs-original-title="Edit" href="{{ route('stock.edit', $stock->id) }}"><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span></a>
+                        <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover dropdown-toggle no-caret" href="#" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                          <span class="icon"><span class="feather-icon"><i data-feather="more-horizontal"></i></span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('stock.download', $stock->id) }}" title="Download OS"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Download OS</span></a>
+                          <a class="dropdown-item" data-bs-toggle="tooltip" data-placement="top" title="Edit" data-bs-original-title="Edit" href="{{ route('stock.edit', $stock->id) }}">
+                            <span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
+                          <a class="dropdown-item" href="{{route('purchaserequisition.createstock',$stock->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="plus-circle"></i></span><span>Create PR</span></a>
 
-                            {!! Form::close() !!}
-                          </div>
+                          <a class="dropdown-item del-button d-none" href="#" onclick="deleteOrder({{$stock->id}});"><span class="feather-icon dropdown-icon"><i data-feather="trash"></i></span><span>Delete</span></a>
+                          {!! Form::open(['method' => 'DELETE','route' => ['stock.destroy', $stock->id],'style'=>'display:none',
+                          'id' => 'delete-form-'.$stock->id]) !!}
+                          {!! Form::close() !!}
+
 
                         </div>
                       </td>
@@ -162,6 +169,27 @@
 </div>
 <!-- /Page Body -->
 <script type="text/javascript">
+  function deleteOrder(orid) {
+
+    event.preventDefault();
+
+    if (!orid) return;
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are sure to delete the Order !",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById('delete-form-' + orid).submit();
+      }
+    });
+
+  }
   $(document).ready(function() {
     $('#companyid').on('change', function(e) {
       e.preventDefault();

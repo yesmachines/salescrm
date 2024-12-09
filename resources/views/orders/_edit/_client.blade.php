@@ -142,6 +142,7 @@
       <div class="separator"></div>
     </div>
   </div>
+  @include('orders.partials._localsupplier')
   <div class="row">
     <div class="col-xxl-12">
       <h6> Order Items
@@ -193,9 +194,9 @@
                 @if(isset($item->buying_price) && $item->buying_price != 0)
                 <input type="hidden" class="form-control" name="item[{{$x}}][buying_currency]" value="{{$item->buying_currency}}" />
                 <input type="text" class="form-control" name="item[{{$x}}][buying_price]" value="{{$item->buying_price}}" readonly />
-                @else
-                <a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm" data-pid="{{$item->product_id}}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>
+
                 @endif
+                <a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm" data-pid="{{$item->product_id}}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>
               </div>
             </td>
 
@@ -339,3 +340,5 @@
   </div>
 
 </div>
+
+@include('orders.partials._newLocalProduct')

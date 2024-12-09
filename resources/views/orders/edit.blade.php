@@ -768,7 +768,7 @@
                         row.find('.purchase').append(input); // add currency and buying price as input 
 
                         row.find('.buying_currency').html(' (' + newPurchaseData.buying_currency + ')'); // display b currency
-                        row.find('.b-price-add').addClass('d-none'); // hide add button
+                        //  row.find('.b-price-add').addClass('d-none'); // hide add button
 
                         // reset modal
                         let modal = $("#addpurchase");

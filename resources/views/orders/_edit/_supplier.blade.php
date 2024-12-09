@@ -62,7 +62,7 @@
             <td width="30%">
               <input type="hidden" class="form-control" value="{{$sup->country_id}}" name="supplier[{{$y}}][country_id]" />
               <input type="text" readonly class="form-control" value="{{$sup->supplier->brand}}" name="supplier[{{$y}}][supplier_name]" />
-              <input type="hidden" class="form-control" value="{{$sup->supplier_id}}" name="supplier[{{$y}}][supplier_id]" />
+              <input type="hidden" class="form-control {{$sup->country_id == 1? 'supplier-local':''}}" value="{{$sup->supplier_id}}" name="supplier[{{$y}}][supplier_id]" />
             </td>
             <td width="20%">
               <select class="form-control" name="supplier[{{$y}}][price_basis]">

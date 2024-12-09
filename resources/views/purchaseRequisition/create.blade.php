@@ -140,8 +140,36 @@
             let qty = $(this).val();
             let unitprice = row.find("input[name='item[" + irow + "][unit_price]']").val() || 0;
 
+            let discount = row.find("input[name='item[" + irow + "][discount]']").val() || 0;
+
             let linetotal = parseFloat(unitprice * qty).toFixed(2)
-            $("input[name='item[" + irow + "][total_amount]']").val(linetotal);
+            let total = 0;
+            if (discount > 0) {
+                total = linetotal - (linetotal * discount / 100);
+                total = parseFloat(total).toFixed(2);
+            } else {
+                total = linetotal;
+            }
+            $("input[name='item[" + irow + "][total_amount]']").val(total);
+
+        });
+
+        $(document).on('input change', '.discount', function(e) {
+            let row = $(this).closest('tr');
+            let rowid = row.attr('id');
+            let tmp = rowid.split("-");
+            irow = tmp[1];
+
+            let discount = $(this).val();
+            let unitprice = row.find("input[name='item[" + irow + "][unit_price]']").val() || 0;
+            let qty = row.find("input[name='item[" + irow + "][quantity]']").val() || 0;
+
+            let linetotal = parseFloat(unitprice * qty).toFixed(2);
+
+            let total = linetotal - (linetotal * discount / 100);
+            total = parseFloat(total).toFixed(2);
+
+            $("input[name='item[" + irow + "][total_amount]']").val(total);
 
         });
 

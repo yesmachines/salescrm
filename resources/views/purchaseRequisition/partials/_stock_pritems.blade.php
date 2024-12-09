@@ -1,10 +1,10 @@
-@foreach($order->orderSupplier as $y => $sup)
+@foreach($order->stockSupplier as $y => $sup)
 
 <h6 class="mt-4 alert alert-primary"><b>For Supplier </b></h6>
 <table class="table form-table" id="supplierFields">
     <tbody>
         <tr valign="top">
-            <td width="20%">{{$sup->supplier_name}}
+            <td width="20%">{{$order->getStockBrandAttribute()}}
                 <input type="hidden" value="{{$sup->supplier_id}}" name="supplier[{{$y}}][supplier_id]" />
                 <input type="hidden" value="{{$sup->country_id}}" name="supplier[{{$y}}][country_id]" />
                 <input type="hidden" value="{{$sup->delivery_term}}" name="supplier[{{$y}}][delivery_term]" />
@@ -13,6 +13,7 @@
             <td width="20%">{{$sup->reference_num}}
                 <input type="hidden" value="{{$sup->reference_num}}" name="supplier[{{$y}}][pr_number]" />
             </td>
+
             <td width="20%">
                 <input type="text" value="{{$sup->price_basis}}" name="supplier[{{$y}}][currency]" class="form-control" readonly />
             </td>
@@ -42,10 +43,7 @@
     </thead>
     <tbody>
 
-        @forelse($order->orderItem as $x => $item)
-
-        @if($item->product->brand_id == $sup->supplier_id)
-
+        @forelse($order->stockItem as $x => $item)
         <tr valign="top" id="irow-{{$x}}">
             <td>
                 <input type="text" class="form-control" name="item[{{$x}}][partno]" placeholder="Part No" value="{{isset($item->partno)? $item->partno : ''}}" readonly />
@@ -77,21 +75,18 @@
             </td>
             <td>
                 <div class="form-check form-check-md mt-2">
-                    <input type="checkbox" id="product_id_{{$x}}" class="form-check-input product_select" name="item[{{$x}}][product_id]" value="{{$item->product_id}}">
-                    <label class="form-check-label" for="product_id_{{$x}}">SELECT</label>
+                    <input type="checkbox" id="product_id_{{$x}}" class="form-check-input product_select" name="item[{{$x}}][product_id]" value="{{$item->item_id}}">
+                    <label class="form-check-label" for="product_id_{{$x}}">SELECT </label>
 
-                    <input type="hidden" name="item[{{$x}}][supplierid]" value="{{$item->product->brand_id}}" />
+                    <input type="hidden" name="item[{{$x}}][supplierid]" value="{{$sup->supplier_id}}" />
                 </div>
             </td>
         </tr>
-        @endif
         @empty
         @endforelse
     </tbody>
 </table>
-
-@if(count($order->orderCharge) >0)
-<h6 class="mt-4"><b>Additional Charges</b></h6>
+<h6><b>Additional Charges</b></h6>
 <table class="table form-table" id="chargespaymentFields">
     <thead>
         <tr>
@@ -101,7 +96,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($order->orderCharge as $key => $value)
+        @foreach ($order->stockCharge as $key => $value)
         @php
         $charge_amt = ($value->considered / $sup->currency_rate);
         $charge_amt = number_format((float)$charge_amt, 2, '.', '')
@@ -125,7 +120,6 @@
 
     </tbody>
 </table>
-@endif
 
 <div class="row mt-4">
     <div class="col-md-3">
@@ -158,15 +152,13 @@
         </div>
     </div>
 </div>
-
 <div class="row mb-2">
     <div class="col-12">
         <div class="separator"></div>
     </div>
 </div>
 
-@foreach($order->orderPayment as $z => $payment)
-@if($payment->section_type == 'supplier')
+@foreach($order->stockPayment as $z => $payment)
 <div class="row">
     <div class="col-md-3">
         <div class="form-group">
@@ -198,7 +190,7 @@
         </div>
     </div>
 </div>
-@endif
+
 @endforeach
 <div class="row mb-2">
     <div class="col-12">

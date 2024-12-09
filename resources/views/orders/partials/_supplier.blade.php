@@ -33,6 +33,7 @@
         </div>
         <div class="col-6">
             <input type="text" class="form-control" id="projected_margin" name="projected_margin" value="{{$margin_price}}" required>
+            <!-- <input type="hidden" class="form-control" id="actual_margin" value="{{$margin_price}}"> -->
         </div>
         <div class="col-2"></div>
     </div>
@@ -44,8 +45,7 @@
     <div class="row mb-2">
         <div class="col-xxl-12">
             <h6> <b>Supplier & Delivery Terms</b>
-                <!-- <a href="javascript:void(0);" class="addST btn btn-primary btn-sm" style="float: right;">
-                    <i data-feather="plus"></i> Add Row</a> -->
+
             </h6>
             <table class="table form-table" id="supplierFields">
                 <thead>
@@ -54,11 +54,12 @@
                         <th>Currency *</th>
                         <th>Delivery Term *</th>
                         <th>Supplier Remarks</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($suppliers as $y => $sup)
-                    <tr valign="top">
+                    <tr valign="top" id="row-sp{{$sup->id}}" data-index="{{$y}}">
                         <td width="30%">
                             <input type="hidden" class="form-control" value="{{$sup->country_id}}" name="supplier[{{$y}}][country_id]" />
                             <input type="text" readonly class="form-control" value="{{$sup->brand}}" name="supplier[{{$y}}][supplier_name]" />
@@ -83,6 +84,7 @@
                         <td width="30%">
                             <textarea rows="2" name="supplier[{{$y}}][remarks]" placeholder="Supplier Remarks" class="form-control"></textarea>
                         </td>
+                        <td></td>
                     </tr>
                     @endforeach
                 </tbody>

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\PrCharge;
 use App\Models\PurchaseRequisition;
 use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use DB;
 use App\Services\OrderService;
+use App\Services\StockService;
 use App\Services\ProductService;
 use App\Services\PurchaseRequisitionService;
 
@@ -44,7 +45,7 @@ class PurchaseRequisitionController extends Controller
                 $order->orderItem[$x]->line_total = $line_total;
             }
         }
-
+        $pr_number = str_replace("OS", "PR", $order->os_number);
         foreach ($order->orderSupplier as $y => $sup) {
             $c_rate = 0;
             $currency_rate = DB::table('currency_conversion')->where('currency', $sup->price_basis)->first();
@@ -53,8 +54,10 @@ class PurchaseRequisitionController extends Controller
             }
 
             $order->orderSupplier[$y]->currency_rate = $c_rate;
-        }
 
+            $reference = implode("_", array($pr_number, $sup->supplier_name));
+            $order->orderSupplier[$y]->reference_num =   $purchaseRequest->getReferenceNumber($reference);
+        }
 
         return view('purchaseRequisition.create', compact('order',  'currencies'));
     }
@@ -77,8 +80,8 @@ class PurchaseRequisitionController extends Controller
             'supplier.*.supplier_contact'   => 'required',
         ];
         $input = $request->all();
-        //  dd($input);
         $selectedCount = 0;
+
 
         foreach ($input['item'] as $i => $item) {
 
@@ -94,7 +97,7 @@ class PurchaseRequisitionController extends Controller
         $this->validate($request, $valid);
 
 
-        foreach ($input['supplier'] as $supdata) {
+        foreach ($input['supplier'] as $skey => $supdata) {
             $total_price = 0;
 
             $insertPR = [
@@ -124,10 +127,10 @@ class PurchaseRequisitionController extends Controller
                 'warranty'         => $supdata['warranty'],
                 'remarks'          => $supdata['remarks'],
             ];
-
             // Insert Pr delivery
             $prDelivery = $purchaseRequest->insertPRSupplierDetails($insertPRDelivery);
 
+            // PR Items
             foreach ($input['item'] as $item) {
                 if (
                     $item['supplierid'] == $supdata['supplier_id'] && isset($item['product_id'])
@@ -142,21 +145,18 @@ class PurchaseRequisitionController extends Controller
                         'item_description' => $item['item_description'],
                         'unit_price'       => $item['unit_price'],
                         'quantity'         => $item['quantity'],
+                        'discount'         => $item['discount'],
                         'total_amount'     => $item['total_amount'],
                         'currency'         => $item['currency'],
                         'yes_number'       => $item['yes_number'],
                     ];
                     // Insert PR Items
                     $prItem = $purchaseRequest->insertPRItems($insertPRItem);
-
-                    // create buying price
-
                 }
             }
-
             // PR Charges
-            if (isset($input['charges']) && !empty($input['charges'])) {
-                foreach ($input['charges'] as $charge) {
+            if (isset($input['charges'][$skey]) && !empty($input['charges'][$skey])) {
+                foreach ($input['charges'][$skey] as $charge) {
                     if (isset($charge['charge_id']) && $charge['charge_id'] != '') {
                         $insertPRCharge = [
                             'pr_id'        => $pr->id,
@@ -170,16 +170,18 @@ class PurchaseRequisitionController extends Controller
                     }
                 }
             }
-
-            foreach ($input['payment'] as $payment) {
-                $insertPRPayment = [
-                    'pr_id'            => $pr->id,
-                    'payment_term'     => $payment['payment_term'],
-                    'remarks'          => $payment['remarks'],
-                    'status'           => $payment['status']
-                ];
-                // insert PR Payment Term
-                $prPayment = $purchaseRequest->insertPRPaymentTerms($insertPRPayment);
+            // PR Payments
+            if (isset($input['payment'][$skey]) && !empty($input['payment'][$skey])) {
+                foreach ($input['payment'][$skey] as $payment) {
+                    $insertPRPayment = [
+                        'pr_id'            => $pr->id,
+                        'payment_term'     => $payment['payment_term'],
+                        'remarks'          => $payment['remarks'],
+                        'status'           => $payment['status']
+                    ];
+                    // insert PR Payment Term
+                    $prPayment = $purchaseRequest->insertPRPaymentTerms($insertPRPayment);
+                }
             }
 
             // Update Price - PR
@@ -191,6 +193,53 @@ class PurchaseRequisitionController extends Controller
         }
 
         return redirect()->route('purchaserequisition.index')->with('success', 'PR created successfully');
+    }
+
+    public function stockPR(
+        $id,
+        StockService $stockService,
+        PurchaseRequisitionService $purchaseRequest,
+        ProductService $productService,
+        CurrencyService $currencyService
+    ) {
+
+        $currencies = $currencyService->getAllCurrency();
+        $order = $stockService->getStock($id);
+
+        foreach ($order->stockItem as $x => $item) {
+
+
+            $purchase = $productService->buyingPriceByProduct($item->item_id);
+
+            if (!empty($purchase) && isset($purchase->buying_price)) {
+
+                $unit_price = $purchase->buying_price;
+                $buying_currency = $purchase->buying_currency;
+
+                $line_total = $unit_price * $item->quantity;
+                $line_total = number_format($line_total, 2, '.', '');
+
+                $order->stockItem[$x]->buying_price = $unit_price;
+                $order->stockItem[$x]->buying_currency = $buying_currency;
+                $order->stockItem[$x]->line_total = $line_total;
+            }
+        }
+        $pr_number = str_replace("OS", "PR", $order->os_number);
+        foreach ($order->stockSupplier as $y => $sup) {
+            $c_rate = 0;
+            $currency_rate = DB::table('currency_conversion')->where('currency', $sup->price_basis)->first();
+            if ($currency_rate) {
+                $c_rate = $currency_rate->standard_rate;
+            }
+
+            $order->stockSupplier[$y]->currency_rate = $c_rate;
+
+            $reference = implode("_", array($pr_number, $order->getStockBrandAttribute()));
+            $order->stockSupplier[$y]->reference_num =   $purchaseRequest->getReferenceNumber($reference);
+        }
+
+
+        return view('purchaseRequisition.create_stockpr', compact('order',  'currencies'));
     }
 
     public function edit(
@@ -259,6 +308,7 @@ class PurchaseRequisitionController extends Controller
                     'partno'           => $item['partno'],
                     'item_description' => $item['item_description'],
                     'quantity'         => $item['quantity'],
+                    'discount'         => $item['discount'],
                     'total_amount'     => $item['total_amount'],
                     'yes_number'       => $item['yes_number'],
                 ];
@@ -275,8 +325,16 @@ class PurchaseRequisitionController extends Controller
 
         // PR Charges
         if (isset($input['charges'])) {
+            $existingIDs = PrCharge::where('pr_id', $id)->pluck('id')->toArray();
+            $updatedIds = [];
+
             foreach ($input['charges'] as $charge) {
+
                 if (isset($charge['charge_id']) && $charge['charge_id'] != '') {
+                    if (in_array($charge['charge_id'], $existingIDs)) {
+                        $updatedIds[] = $charge['charge_id'];
+                    }
+
                     $insertPRCharge = [
                         'title'        => $charge['title'],
                         'considered'   => $charge['considered']
@@ -286,6 +344,9 @@ class PurchaseRequisitionController extends Controller
                     $prCharge = $purchaseRequest->updatePRCharges($insertPRCharge, $charge['charge_id']);
                 }
             }
+            // need to remove unselected charges
+            $removedIds = array_diff($existingIDs, $updatedIds);
+            PrCharge::whereIn('id', $removedIds)->delete();
         }
         // PR Payment
         if (isset($input['payment'])) {

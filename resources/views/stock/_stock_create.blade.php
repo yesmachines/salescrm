@@ -16,7 +16,7 @@
             <div class="row">
               <div class="dropdown">
                 <a class="contactapp-title link-dark" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                  <h4>Create New Sock</h4>
+                  <h4>Create Stock OS</h4>
                 </a>
               </div>
               <div class="col-xxl-12 col-lg-12">
@@ -33,7 +33,7 @@
                 <form method="POST" action="{{ route('stock.store') }}" enctype="multipart/form-data">
                   @csrf
                   <div class="separator"></div>
-                  <div class="tab-content py-7">
+                  <div class="tab-content ">
 
                     @include('stock._stock._stocksummary')
 
@@ -377,7 +377,7 @@
 
 </div>
 
-<!-- Add New Product -->
+<!-- Add New Purchase Price -->
 <div class="modal fade" id="addpurchase" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content" style="padding: 16px;">
@@ -959,6 +959,7 @@
               let selopt = item.title;
               if (item.modelno) selopt += ' / ' + item.modelno + '';
               if (item.part_number) selopt += ' / ' + item.part_number + '';
+              if (item.product_type) selopt += ' ( ' + (item.product_type).toUpperCase() + ' )';
 
               optgroup.append('<option value="' + item.id + '">' + selopt + '</option>');
 
@@ -1014,8 +1015,8 @@
           buying_price = unit_price * qty;
         }
         let addBtn = '';
-        if (buying_price == 0)
-          addBtn = `<a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm" data-pid="${productid}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>`;
+        // if (buying_price == 0)
+        addBtn = `<a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm mt-1" data-pid="${productid}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>`;
 
         newRow += '<tr id="irow-' + productid + '">';
         newRow += '<td width="15%"><textarea class="form-control" name="item_name[]" placeholder="Item">' + title + '</textarea></td>';
@@ -1639,7 +1640,7 @@
           $("#irow-" + productid).find('input[name="unit_price[]').val(unit_price);
           $("#irow-" + productid).find(".purchase_amount").val(buying_price);
 
-          $("#irow-" + productid).find(".b-price-add").addClass("d-none");
+          //   $("#irow-" + productid).find(".b-price-add").addClass("d-none");
         }
 
         calculateTotalAmount();

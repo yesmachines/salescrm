@@ -310,6 +310,7 @@
      * Item Save - Step2
      *****************************************/
     $('#add_delivery_item').on('submit', function(event) {
+
         event.preventDefault();
 
         var url = "{{route('orders.savestep2')}}";
@@ -588,14 +589,14 @@
         if (isValid) {
             let formData = new FormData($('#productForm')[0]);
 
-            formData.append('product_id', $('input[name=product_id]').val());
-            formData.append('buying_currency', $('select[name=buying_currency]').val());
-            formData.append('gross_price', $('input[name=gross_price]').val());
-            formData.append('discount', $('input[name=discount]').val());
-            formData.append('discount_amount', $('input[name=discount_amount]').val());
-            formData.append('buying_price', $('input[name=buying_price]').val());
-            formData.append('validity_from', $('input[name=validity_from]').val());
-            formData.append('validity_from', $('input[name=validity_from]').val());
+            formData.append('product_id', $('form#productForm').find('input[name=product_id]').val());
+            formData.append('buying_currency', $('form#productForm').find('select[name=buying_currency]').val());
+            formData.append('gross_price', $('form#productForm').find('input[name=gross_price]').val());
+            formData.append('discount', $('form#productForm').find('input[name=discount]').val());
+            formData.append('discount_amount', $('form#productForm').find('input[name=discount_amount]').val());
+            formData.append('buying_price', $('form#productForm').find('input[name=buying_price]').val());
+            formData.append('validity_from', $('form#productForm').find('input[name=validity_from]').val());
+            formData.append('validity_to', $('form#productForm').find('input[name=validity_to]').val());
             //
             $.ajax({
                 url: "{{ route('products.savebuyingprice') }}",
@@ -617,13 +618,25 @@
                             line_buying_price = newPurchaseData.buying_price * qty;
                         line_buying_price = parseFloat(line_buying_price).toFixed(2);
 
-                        let input = '<input type="hidden" class="form-control" name="item[' + indx + '][buying_currency]" value="' + newPurchaseData.buying_currency + '" />';
-                        input += '<input type="text" class="form-control" name="item[' + indx + '][buying_price]" value="' + line_buying_price + '" readonly />';
 
-                        row.find('.purchase').append(input); // add currency and buying price as input 
+                        let bCurrencyField = row.find("input[name='item[" + indx + "][buying_currency]']");
+                        let bUnitField = row.find("input[name='item[" + indx + "][buying_unit_price]']");
+                        let bPriceField = row.find("input[name='item[" + indx + "][buying_price]']");
 
+                        if (bCurrencyField.length == 0 && bUnitField.length == 0 && bPriceField.length == 0) {
+
+                            let input = `<input type="hidden" class="form-control" name="item[${indx}][buying_currency]" value="${newPurchaseData.buying_currency}" />
+                        <input type="hidden" class="form-control" name="item[${indx}][buying_unit_price]" value="${newPurchaseData.buying_price}" />
+                        <input type="text" class="form-control" name="item[${indx}][buying_price]" value="${line_buying_price}" readonly />`;
+                            row.find('.purchase').append(input); // add currency and buying price as input 
+                        } else {
+
+                            bCurrencyField.val(newPurchaseData.buying_currency);
+                            bUnitField.val(newPurchaseData.buying_price);
+                            bPriceField.val(line_buying_price);
+                        }
                         row.find('.buying_currency').html(' (' + newPurchaseData.buying_currency + ')'); // display b currency
-                        row.find('.b-price-add').addClass('d-none'); // hide add button
+                        // row.find('.b-price-add').addClass('d-none'); // hide add button
 
                         // reset modal
                         let modal = $("#addpurchase");
@@ -669,9 +682,7 @@
         document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
 
         $('#gross_price, #purchase_discount').on('input', function() {
-
             updateBuyingPrice();
-
         });
     });
 

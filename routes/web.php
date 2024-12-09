@@ -153,7 +153,6 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('/products-history/{id}', [QuotationController::class, 'getProductDetails'])->name('productHistory');
     Route::post('/products-history-save', [QuotationController::class, 'saveProductHistory'])->name('productHistorySave');
     Route::get('/fetch-edit-models/{id}', [QuotationController::class, 'fetchEditModels']);
-
     Route::get('/delivery-sub-dropdowns/{id}', [QuotationController::class, 'fetchDeliveryDropdown']);
     Route::get('lead-status', [LeadController::class, 'leadStatusList'])->name('leadStatus');
     Route::get('quotation-status', [QuotationController::class, 'quotationStatusList'])->name('quotationStatus');
@@ -166,14 +165,11 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('divisions', DivisionController::class);
     Route::post('saveProduct', [ProductController::class, 'saveAjaxProduct'])->name('products.ajaxsave');
     Route::post('saveBuyingPrice', [ProductController::class, 'saveAjaxBuyingPrice'])->name('products.savebuyingprice');
-
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
     Route::resource('stock', StockController::class);
     Route::get('stock/download/{id}', [StockController::class, 'downloadStockOS'])->name('stock.download');
     Route::post('buyingPriceSave', [ProductController::class, 'buyingPriceSave'])->name('buyingPriceSave');
-
     Route::get('buyingprice', [ProductController::class, 'buyingPriceByProduct'])->name('products.buyingprice');
-
     Route::get('reports/summary-report', [ReportController::class, 'summaryNumber'])->name('reports.summarynumber');
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
