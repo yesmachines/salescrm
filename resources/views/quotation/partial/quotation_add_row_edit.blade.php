@@ -172,7 +172,7 @@
   <input class="form-check-input" type="hidden" name="vat_amount" value="{{ $quotation->vat_amount }}">
   @else
   <div class="col-sm-3">
-    <input type="text" class="form-control" name="vat_service" value="{{ $quotation->vat_amount}}" id="vatAmountLabelService">
+    <input type="text" class="form-control" id="vatAmountLabel" name="vat_amount"  value="{{ $quotation->vat_amount }}">
   </div>
   @endif
 

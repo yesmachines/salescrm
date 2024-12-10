@@ -135,6 +135,7 @@ class QuotationController extends Controller
     $suppliers = $supplierService->getAllSupplier();
 
     $lead = $leadService->getLead($id);
+    $quotationType = session('type');
 
     $products = $productService->getAllProduct();
     $quotationCharges = $quotationChargeService->getQuotationCharge();
@@ -148,23 +149,47 @@ class QuotationController extends Controller
     $paymentCycles = $quotationChargeService->getPaymentCyclesList();
     $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->get();
 
-    return view('quotation.convert', compact(
-      'lead',
-      'quoteStatuses',
-      'categories',
-      'suppliers',
-      'products',
-      'quotationCharges',
-      'quotationTerms',
-      'paymentTerms',
-      'currencies',
-      'currencyConversions',
-      'divisions',
-      'managers',
-      'suppliers',
-      'paymentCycles',
-      'paymentTermList'
-    ));
+    if($quotationType=='service'){
+      return view('quotation.service_convert', compact(
+        'lead',
+        'quoteStatuses',
+        'categories',
+        'suppliers',
+        'products',
+        'quotationCharges',
+        'quotationTerms',
+        'paymentTerms',
+        'currencies',
+        'currencyConversions',
+        'divisions',
+        'managers',
+        'suppliers',
+        'paymentCycles',
+        'paymentTermList',
+        'quotationType'
+      ));
+
+    }else{
+
+      return view('quotation.convert', compact(
+        'lead',
+        'quoteStatuses',
+        'categories',
+        'suppliers',
+        'products',
+        'quotationCharges',
+        'quotationTerms',
+        'paymentTerms',
+        'currencies',
+        'currencyConversions',
+        'divisions',
+        'managers',
+        'suppliers',
+        'paymentCycles',
+        'paymentTermList',
+        'quotationType'
+      ));
+    }
   }
 
   /**
@@ -418,41 +443,80 @@ class QuotationController extends Controller
     $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->get();
 
 
-    return view('quotation.edit',  compact(
-      'quotation',
-      'categories',
-      'suppliers',
-      'customers',
-      'employees',
-      'quoteStatuses',
-      'companies',
-      'countries',
-      'regions',
-      'userInfo',
-      'commissions',
-      'brands',
-      'quotationItems',
-      'quotationCharge',
-      'quotationTerms',
-      'quotationChargesList',
-      'quotationTermsList',
-      'paymentCycles',
-      //  'deliveryTerms',
-      'paymentCycleList',
+    if(  $quotation->quote_for=='service'){
+        return view('quotation.service_edit',  compact(
+          'quotation',
+          'categories',
+          'suppliers',
+          'customers',
+          'employees',
+          'quoteStatuses',
+          'companies',
+          'countries',
+          'regions',
+          'userInfo',
+          'commissions',
+          'brands',
+          'quotationItems',
+          'quotationCharge',
+          'quotationTerms',
+          'quotationChargesList',
+          'quotationTermsList',
+          'paymentCycles',
+          //  'deliveryTerms',
+          'paymentCycleList',
 
-      // 'unitPrice',
-      // 'subtotal',
-      // 'total',
-      'divisions',
-      'managers',
-      'paymentTerms',
-      'currencies',
-      'products',
-      'paymentTermList',
-      'installation',
-      'availability',
-      'optionalItems'
-    ));
+          // 'unitPrice',
+          // 'subtotal',
+          // 'total',
+          'divisions',
+          'managers',
+          'paymentTerms',
+          'currencies',
+          'products',
+          'paymentTermList',
+          'installation',
+          'availability',
+          'optionalItems'
+        ));
+
+      }else{
+        return view('quotation.edit',  compact(
+          'quotation',
+          'categories',
+          'suppliers',
+          'customers',
+          'employees',
+          'quoteStatuses',
+          'companies',
+          'countries',
+          'regions',
+          'userInfo',
+          'commissions',
+          'brands',
+          'quotationItems',
+          'quotationCharge',
+          'quotationTerms',
+          'quotationChargesList',
+          'quotationTermsList',
+          'paymentCycles',
+          //  'deliveryTerms',
+          'paymentCycleList',
+
+          // 'unitPrice',
+          // 'subtotal',
+          // 'total',
+          'divisions',
+          'managers',
+          'paymentTerms',
+          'currencies',
+          'products',
+          'paymentTermList',
+          'installation',
+          'availability',
+          'optionalItems'
+        ));
+      }
   }
 
   /**

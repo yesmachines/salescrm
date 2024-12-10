@@ -307,8 +307,8 @@
           iter--;
           let row = $(this).parents('tr');
           removeQuotationRow(row);
-
           $(this).parents('tr').remove();
+            calculateOverallTotal();
         }
       });
     });
@@ -1187,18 +1187,18 @@
     //
     // $('#totalValue').val(sumAfterDiscount.toFixed(2));
 
-    if (customVatAmount) {
-      vatIncluded = 0;
-      var total_service_value = sumAfterDiscount + customVatAmount;
-
-      $('#totalValue').val(total_service_value.toFixed(2));
-    } else {
+    // if (customVatAmount) {
+    //   vatIncluded = 0;
+    //   var total_service_value = sumAfterDiscount + customVatAmount;
+    //
+    //   $('#totalValue').val(total_service_value.toFixed(2));
+    // } else {
       if (vatIncluded == 1) {
         vatAmount = sumAfterDiscount * vatRate;
         sumAfterDiscount += vatAmount;
       }
       $('#totalValue').val(sumAfterDiscount.toFixed(2));
-    }
+    // }
 
     $('#totalMarginValue').val(totalMargin.toFixed(2));
 

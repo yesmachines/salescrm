@@ -33,6 +33,7 @@ class StockService
       'buying_price'   => $userData['total_buying_price'],
       'created_by'     => $createdBy,
       'assigned_to'    => $userData['assigned_to'],
+      'description'    => $userData['description'],
     ];
     $stock = Stock::create($insert);
 
@@ -40,22 +41,22 @@ class StockService
       foreach ($userData['item_name'] as $key => $itemName) {
         $stockItem = new StockItem();
         $stockItem->stock_id =   $stock->id;
-        $stockItem->item_id =  $userData['item_id'][$key];
+        $stockItem->item_id =  $userData['item_id'][$key]?? null;
         $stockItem->item_name = $itemName;
         $stockItem->partno = $userData['partno'][$key];
         $stockItem->unit_price = $userData['unit_price'][$key];
         $stockItem->quantity = $userData['quantity'][$key];
-        $stockItem->yes_number = $userData['yes_number'][$key];
+        $stockItem->yes_number = $userData['yes_number'][$key]?? null;
         $stockItem->discount = $userData['discount'][$key];
         $stockItem->total_amount = $userData['total_amount'][$key];
-        $stockItem->expected_delivery = $userData['expected_delivery'][$key];
+        $stockItem->expected_delivery = $userData['expected_delivery'][$key]?? null;
         $stockItem->status = $userData['status'][$key];
         $stockItem->remarks = $userData['item_remark'][$key];
         $stockItem->save();
       }
     }
 
-    if (isset($userData['supplier_id'])) {
+    if (isset($userData['supplier_id'])  && !empty($userData['supplier_id'])) {
       $stockSupplier = StockSupplier::create([
         'stock_id' =>  $stock->id,
         'supplier_id' => $userData['supplier_id'],
@@ -65,8 +66,9 @@ class StockService
 
       ]);
     }
-    if (isset($userData['charges'])) {
+    if (isset($userData['charges']) && !empty($userData['charges'])) {
       foreach ($userData['charges'] as $index => $stockCharges) {
+          if (!empty($stockCharges)) {
         $stockCharges = StockCharge::create([
           'stock_id' => $stock->id,
           'title' => $stockCharges,
@@ -76,19 +78,21 @@ class StockService
 
         ]);
       }
-    }
-    if (isset($userData['payment_term'])) {
-      foreach ($userData['payment_term'] as $index => $stockPayments) {
-
-        $stockPayments = StockPayment::create([
-          'stock_id' => $stock->id,
-          'payment_term' => $stockPayments,
-          'expected_date' => $userData['expected_date'][$index],
-          'status' => $userData['status'][$index],
-          'remarks' =>  $userData['payment_remark'][$index],
-
-        ]);
       }
+    }
+
+    if (isset($userData['payment_term']) && !empty($userData['payment_term'])) {
+        foreach ($userData['payment_term'] as $index => $stockPayments) {
+            if (!empty($stockPayments)) {
+                StockPayment::create([
+                    'stock_id' => $stock->id,
+                    'payment_term' => $stockPayments,
+                    'expected_date' => $userData['expected_date'][$index],
+                    'status' => $userData['status'][$index],
+                    'remarks' => $userData['payment_remark'][$index],
+                ]);
+            }
+        }
     }
 
     return $stock;
@@ -149,6 +153,7 @@ class StockService
       'buying_price'  => $userData['total_buying_price'],
       'created_by'    => $createdBy,
       'assigned_to'   => $userData['assigned_to'],
+      'description'    => $userData['description'],
     ]);
 
     if (isset($userData['item_name'])) {
@@ -156,15 +161,15 @@ class StockService
       foreach ($userData['item_name'] as $key => $itemName) {
         StockItem::create([
           'stock_id' => $stock->id,
-          'item_id' => $userData['item_id'][$key],
+          'item_id' => $userData['item_id'][$key] ?? null,
           'item_name' => $itemName,
           'partno' => $userData['partno'][$key],
           'unit_price' => $userData['unit_price'][$key],
           'quantity' => $userData['quantity'][$key],
-          'yes_number' => $userData['yes_number'][$key],
+          'yes_number' => $userData['yes_number'][$key] ?? null,
           'discount' => $userData['discount'][$key],
           'total_amount' => $userData['total_amount'][$key],
-          'expected_delivery' => $userData['expected_delivery'][$key],
+          'expected_delivery' => $userData['expected_delivery'][$key] ?? null,
           'status' => $userData['status'][$key],
           'remarks' => $userData['item_remark'][$key],
         ]);
@@ -172,12 +177,17 @@ class StockService
     }
 
     if (isset($userData['supplier_id'])) {
-      StockSupplier::where('stock_id', $stock->id)->update([
-        'supplier_id' => $userData['supplier_id'],
-        'price_basis' => $userData['price_basis'],
-        'delivery_term' => $userData['delivery_term'],
-        'remarks' => $userData['supplier_remark'],
-      ]);
+        StockSupplier::updateOrCreate(
+            [
+                'stock_id' => $stock->id,
+            ],
+            [
+                'supplier_id' => $userData['supplier_id'],
+                'price_basis' => $userData['price_basis'],
+                'delivery_term' => $userData['delivery_term'],
+                'remarks' => $userData['supplier_remark'],
+            ]
+        );
     }
 
     if (isset($userData['charges'])) {

@@ -85,7 +85,7 @@
   </div>
   @else
   <div class="col-sm-3 text-align-left">
-    <input type="text" class="form-control" name="vat_service" value="" id="vatAmountLabelService">
+    <input type="text" class="form-control" id="vatAmountLabel" name="vat_amount">
   </div>
   @endif
   <!-- <div class="col-sm-3 text-align-left">

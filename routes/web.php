@@ -25,6 +25,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\ExpenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,6 +172,11 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::post('buyingPriceSave', [ProductController::class, 'buyingPriceSave'])->name('buyingPriceSave');
     Route::get('buyingprice', [ProductController::class, 'buyingPriceByProduct'])->name('products.buyingprice');
     Route::get('reports/summary-report', [ReportController::class, 'summaryNumber'])->name('reports.summarynumber');
+
+    Route::post('/storeTypeInSession', [LeadController::class, 'storeTypeInSession'])->name('leads.storeTypeInSession');
+    Route::get('reports/quotation-summary', [ReportController::class, 'quotationReport'])->name('reports.quotationsummary');
+    Route::resource('expense', ExpenseController::class);
+    Route::get('expense/download/{id}', [ExpenseController::class, 'downloadExpenseOS'])->name('expense.download');
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
 Route::post('qrcode-form', [QrCodeController::class, 'store'])->name('qrcodeScanning');

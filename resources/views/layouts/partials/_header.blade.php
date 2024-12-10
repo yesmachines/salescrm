@@ -230,6 +230,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('reports.customers')}}"><span class="nav-link-text">Customer Report</span></a>
                                     </li>
+                                    <li class="nav-item">
+                                      <a class="nav-link" href="{{route('reports.quotationsummary')}}"><span class="nav-link-text">Brand-wise Quotation Report</span></a>
+                                  </li>
                                 </ul>
                             </li>
                         </ul>
@@ -263,6 +266,9 @@
 
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('stock.index')}}"><span class="nav-link-text">Stock Orders</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('expense.index')}}"><span class="nav-link-text">Other Expense List</span></a>
                                     </li>
                                 </ul>
                             </li>

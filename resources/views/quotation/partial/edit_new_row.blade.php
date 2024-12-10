@@ -81,7 +81,7 @@
             <input type="hidden" name="product_margin[]" value="{{$item->product->margin_price}}" />
             <input type="hidden" name="product_currency[]" value="{{$item->product->currency}}" />
             <input type="hidden" name="margin_amount_row[]" value="{{$item->margin_price}}" class="margin-amount-row">
-            <a href="javascript:void(0);" data-id="{{$item->item_id}}" class="del-items"><i class="fas fa-trash"></i></a>
+            <a href="javascript:void(0);" data-id="{{$item->item_id}}" class="del-item"><i class="fas fa-trash"></i></a>
           </td>
         </tr>
         @endforeach
@@ -321,29 +321,7 @@
           var row = $(this).closest('tr');
           removeQuotationRow(row);
           row.remove();
-        }
-      });
-    });
-
-    $(document).on('click', '.del-items', function(e) {
-      e.preventDefault();
-
-      var itemId = $(this).data('id');
-      var rowId = '#irow-' + itemId;
-
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You are sure to delete the product!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          var row = $(rowId);
-          removeQuotationRow(row);
-          row.remove();
+        calculateOverallTotal();
         }
       });
     });
@@ -1070,18 +1048,18 @@
     //
     // $('#totalValue').val(sumAfterDiscount.toFixed(2));
 
-    if (customVatAmount) {
-      vatIncluded = 0;
-      var total_service_value = sumAfterDiscount + customVatAmount;
-
-      $('#totalValue').val(total_service_value.toFixed(2));
-    } else {
+    // if (customVatAmount) {
+    //   vatIncluded = 0;
+    //   var total_service_value = sumAfterDiscount + customVatAmount;
+    //
+    //   $('#totalValue').val(total_service_value.toFixed(2));
+    // } else {
       if (vatIncluded == 1) {
         vatAmount = sumAfterDiscount * vatRate;
         sumAfterDiscount += vatAmount;
       }
       $('#totalValue').val(sumAfterDiscount.toFixed(2));
-    }
+    // }
 
     $('#totalMarginValue').val(totalMargin.toFixed(2));
 

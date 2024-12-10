@@ -141,3 +141,18 @@ input:checked+.slider:before {
   border-color: #9DC33B;
   cursor: pointer;
 }
+.same-width {
+    width: 100%; /* Ensures the dropdown matches the button's width */
+}
+
+.dropdown-menu a {
+    display: block; /* Ensure full width for dropdown items */
+    text-align: center; /* Center-align text to match button style */
+}
+
+@media (min-width: 768px) {
+    /* For larger screens, you can add specific rules if needed */
+    .same-width {
+        max-width: 400px; /* Optional: Cap the width on larger screens */
+    }
+}

@@ -45,7 +45,7 @@ class QuotationService
       'reminder'            => $userData['reminder'],
       'is_vat'              => $userData['vat_option'],
       'price_basis'         => $userData['price_basis'],
-      'vat_amount'          => isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'],
+      'vat_amount'          => $userData['vat_amount'],
       'preferred_currency'  => $userData['quote_currency'],
       'currency_rate'       => $userData['currency_rate'],
       'total_status'       => $userData['total_status'],
@@ -281,7 +281,7 @@ class QuotationService
       $update['is_vat'] = $userData['vat_option'];
     }
     if (isset($userData['vat_amount']) || isset($userData['vat_service'])) {
-      $update['vat_amount'] = isset($userData['vat_amount']) ? $userData['vat_amount'] : $userData['vat_service'];
+      $update['vat_amount'] = $userData['vat_amount'];
     }
     if (isset($userData['price_basis'])) {
       $update['price_basis'] = $userData['price_basis'];
