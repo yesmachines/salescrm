@@ -27,6 +27,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\PageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +85,8 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
     Route::any('shared-meeting-details/{id}', [MeetingController::class, 'sharedDetails'])->name('meetings.shared.details');
     Route::post('export-mtmg', [MeetingController::class, 'exportMtmg'])->name('meetings.export.mtmg');
+    Route::get('pages/{slug}', [PageController::class, 'edit'])->name('pages.edit');
+    Route::patch('pages/{id}', [PageController::class, 'update'])->name('pages.update');
     
     Route::resource('purchaserequisition', PurchaseRequisitionController::class);
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');

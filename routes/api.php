@@ -24,6 +24,7 @@ Route::group(['middleware' => ['api'], 'namespace' => 'App\Http\Controllers\API\
     Route::post('resend-otp', 'PasswordResetController@resendOtp');
     Route::post('verify-otp', 'PasswordResetController@verifyOtp');
     Route::post('reset-password', 'PasswordResetController@resetPassword');
+    Route::get('privacy-policy', 'CrmController@privacyPolicy');
 });
 
 Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Controllers\API\User'], function () {

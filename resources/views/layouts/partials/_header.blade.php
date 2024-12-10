@@ -353,9 +353,6 @@
                                         <a class="nav-link" href="{{route('categories.index')}}"><span class="nav-link-text">Category</span></a>
                                     </li> -->
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{route('areas.index')}}"><span class="nav-link-text">Employee Areas</span></a>
-                                    </li>
-                                    <li class="nav-item">
                                         <a class="nav-link" href="{{route('countries.index')}}"><span class="nav-link-text">Country</span></a>
                                     </li>
                                     <li class="nav-item">
@@ -382,7 +379,12 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('conversion.index')}}"><span class="nav-link-text">Currency Conversion</span></a>
                                     </li>
-
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('areas.index')}}"><span class="nav-link-text">Employee Areas</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pages.edit', 'privacy-policy')}}"><span class="nav-link-text">Privacy Policy</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>

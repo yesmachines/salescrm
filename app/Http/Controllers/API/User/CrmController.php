@@ -155,4 +155,9 @@ class CrmController extends Controller {
         $customer = Customer::create($request->all());
         return successResponse(trans('api.success'), $customer);
     }
+
+    public function privacyPolicy() {
+        $page = \App\Models\Page::whereSlug('privacy-policy')->first();
+        return successResponse(trans('api.success'), $page);
+    }
 }
