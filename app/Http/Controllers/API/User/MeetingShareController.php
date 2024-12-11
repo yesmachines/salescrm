@@ -242,8 +242,8 @@ class MeetingShareController extends Controller {
 
     public function sharedList(Request $request) {
         $rules = [
-            'from_dt' => 'required|date_format:Y-m-d',
-            'to_dt' => 'required|date_format:Y-m-d',
+            'from_dt' => 'date_format:Y-m-d',
+            'to_dt' => 'date_format:Y-m-d',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -255,15 +255,17 @@ class MeetingShareController extends Controller {
 
         $requestedTimezone = $request->header('timezone', config('app.timezone'));
 
-        $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
-        $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
-
         $meetingsQuery = MeetingShare::select('meeting_shares.id', 'meeting_shares.title', 'users.name as shared_to', 'meetings.scheduled_at', 'meeting_shares.status')
                 ->join('users', 'users.id', 'meeting_shares.shared_to')
                 ->join('meetings', 'meetings.id', 'meeting_shares.meeting_id')
                 ->where('meeting_shares.shared_by', $request->user()->id)
-                ->whereBetween('meetings.scheduled_at', [$fromDate, $toDate])
                 ->orderBy('meeting_shares.created_at', 'DESC');
+        
+        if (!empty($request->from_dt) && !empty($request->to_dt)) {
+            $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
+            $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
+            $meetingsQuery->whereBetween('meetings.scheduled_at', [$fromDate, $toDate]);
+        }
 
         $status = [0 => 'Pending', 1 => 'Accepted', 2 => ' Accepted', 3 => 'Rejected'];
         $meetings = new PaginateResource(
