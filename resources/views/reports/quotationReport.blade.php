@@ -63,7 +63,7 @@
                   <!-- Buttons aligned properly with spacing -->
                   <div class="col-3">
                     <button class="btn btn-primary" type="submit">Search</button>
-                    <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/quotations?supplier_id={{ request('supplier_id') }}'">Reset</button>
+                    <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/quotation-summary'">Reset</button>
                    <button class="btn btn-success" type="submit" id="exportBtn" name="export" value="true">Export</button>
                   </div>
                 </div>
