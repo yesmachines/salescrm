@@ -189,9 +189,8 @@ class StockService
             ]
         );
     }
-
+    StockCharge::where('stock_id', $stock->id)->delete();
     if (isset($userData['charges'])) {
-      StockCharge::where('stock_id', $stock->id)->delete();
       foreach ($userData['charges'] as $index => $stockCharges) {
         if (!empty($stockCharges)) {
         StockCharge::create([
@@ -205,8 +204,8 @@ class StockService
       }
     }
 
+    StockPayment::where('stock_id', $stock->id)->delete();
     if (isset($userData['payment_term'])) {
-      StockPayment::where('stock_id', $stock->id)->delete();
       foreach ($userData['payment_term'] as $index => $stockPayments) {
       if (!empty($stockPayments)) {
         StockPayment::create([
