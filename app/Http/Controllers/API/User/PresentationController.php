@@ -91,7 +91,7 @@ class PresentationController extends Controller {
         return $brands;
     }
 
-    public function products($division, $brand_id = null) {
+    public function products(Request $request, $division, $brand_id = null) {
         switch ($division) {
             case 'ST-YC':
                 $brands = \DB::connection('yesclean');
@@ -113,6 +113,9 @@ class PresentationController extends Controller {
                 ->orderBy('p.name', 'ASC');
         if (!empty($brand_id)) {
             $brands->where('p.brand_id', $brand_id);
+        }
+        if (!empty($request->search_text)) {
+            $brands->where('company', 'like', '%' . $request->search_text . '%');
         }
         return successResponse(trans('api.success'), new PaginateResource($brands->paginate($this->paginateNumber)));
     }
@@ -151,7 +154,7 @@ class PresentationController extends Controller {
                 ->where('p.id', '=', $id)
                 ->first();
         if ($data['product']) {
-            $data['product']->image_url =$image_url;
+            $data['product']->image_url = $image_url;
             $data['product']->share_url = $share_url . $data['product']->slug;
             $data['gallery'] = $db->table('product_images as pi')
                     ->where('pi.product_id', $id)
