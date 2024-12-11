@@ -142,6 +142,7 @@ $(".addST").click(function() {
   <td><input type="text" class="form-control datep" name="expected_date[]" placeholder="Expected Date" /></td>
   <td>
   <select class=" form-control" name="status[]">
+  <option value="">---Select---</option>
   <option value="0">Not Done</option>
   <option value="1">Done</option>
   <option value="2">Partially Done</option>

@@ -33,7 +33,7 @@ class StockService
       'buying_price'   => $userData['total_buying_price'],
       'created_by'     => $createdBy,
       'assigned_to'    => $userData['assigned_to'],
-      'description'    => $userData['description'],
+      'description'    => $userData['description']?? null,
     ];
     $stock = Stock::create($insert);
 
@@ -68,7 +68,7 @@ class StockService
     }
     if (isset($userData['charges']) && !empty($userData['charges'])) {
       foreach ($userData['charges'] as $index => $stockCharges) {
-          if (!empty($stockCharges)) {
+        if (!empty($stockCharges)) {
         $stockCharges = StockCharge::create([
           'stock_id' => $stock->id,
           'title' => $stockCharges,
@@ -153,7 +153,7 @@ class StockService
       'buying_price'  => $userData['total_buying_price'],
       'created_by'    => $createdBy,
       'assigned_to'   => $userData['assigned_to'],
-      'description'    => $userData['description'],
+      'description'    => $userData['description']?? null,
     ]);
 
     if (isset($userData['item_name'])) {
@@ -193,6 +193,7 @@ class StockService
     if (isset($userData['charges'])) {
       StockCharge::where('stock_id', $stock->id)->delete();
       foreach ($userData['charges'] as $index => $stockCharges) {
+        if (!empty($stockCharges)) {
         StockCharge::create([
           'stock_id' => $stock->id,
           'title' => $stockCharges,
@@ -201,11 +202,13 @@ class StockService
           'remarks' => $userData['charge_remark'][$index],
         ]);
       }
+      }
     }
 
     if (isset($userData['payment_term'])) {
       StockPayment::where('stock_id', $stock->id)->delete();
       foreach ($userData['payment_term'] as $index => $stockPayments) {
+      if (!empty($stockPayments)) {
         StockPayment::create([
           'stock_id' => $stock->id,
           'payment_term' => $stockPayments,
@@ -213,6 +216,7 @@ class StockService
           'status' => $userData['status'][$index],
           'remarks' => $userData['payment_remark'][$index],
         ]);
+      }
       }
     }
 
