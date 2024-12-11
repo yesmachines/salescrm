@@ -32,27 +32,27 @@ class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, W
         $datas = $this->data;
 
         foreach ($datas as $key => $value) {
-            // Check supplier logic as per the Blade code
+
             $supplierBrand = 'N/A';
             if ($value->supplier_id != 0) {
-                // If supplier exists, use supplier's brand
+
                 $supplierBrand = optional($value->supplier)->brand ?? 'N/A';
             } else {
-                // If no supplier, loop through quotation items and fetch first supplier's brand
+
                 foreach ($value->quotationItem as $item) {
                     if (isset($item->supplier->brand)) {
                         $supplierBrand = $item->supplier->brand;
-                        break; // Stop loop after first item
+                        break;
                     }
                 }
             }
 
             $array[] = [
                 'REFERENCE NO' => $value->reference_no ?? '',
-                'Supplier/Brand' => $supplierBrand,
+                'Supplier' => $supplierBrand,
                 'Margin Price (AED)' => $value->gross_margin ?? '0.00',
                 'Submitted On' => $value->created_at ? $value->created_at->format('d-m-Y') : '',
-                'Status' => $value->status_id == 6 ? 'WON' : 'PENDING',
+                'Status' => $value->status_id? $value->quoteStatus->name: '--',
             ];
         }
 
@@ -62,7 +62,7 @@ class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $cellRange = 'A1:G1'; // Adjust as needed for the number of columns
+                $cellRange = 'A1:G1';
                 $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(14);
             },
         ];
@@ -72,7 +72,7 @@ class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         return [
             'REFERENCE NO',
-            'SUPPLIER/BRAND',
+            'SUPPLIER',
             'MARGIN PRICE (AED)',
             'SUBMITTED ON',
             'STATUS',

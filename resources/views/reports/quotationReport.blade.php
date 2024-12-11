@@ -107,7 +107,7 @@
 
                 <td>{{ $quote->gross_margin }}</td>
                 <td>{{date("d-m-Y", strtotime($quote->created_at))}}</td>
-                <td><span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">{{$quote->status_id == 6? 'WON': 'PENDING'}}</span></td>
+                <td><span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">{{$quote->status_id? $quote->quoteStatus->name: '--'}}</span></td>
               </tr>
               @endforeach
             </tbody>
