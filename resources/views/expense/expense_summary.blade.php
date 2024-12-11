@@ -1914,7 +1914,7 @@ td {
           @endforeach
         </td>
 
-        <td colspan='5' class='x80' style='border-right:1px solid windowtext;border-bottom:1px solid windowtext;'>PR submitted&nbsp;</td>
+        <td colspan='5' class='x80' style='border-right:1px solid windowtext;border-bottom:1px solid windowtext;'>Description :{{$stockService->description}}</td>
         <td class='x34'></td>
       </tr>
       <tr height='33' style='mso-height-source:userset;height:24.75pt'>
