@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Lead;
 use App\Models\Supplier;
 use App\Models\SalesCommission;
+use App\Models\Quotation;
 
 class Employee extends Model
 {
