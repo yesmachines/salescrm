@@ -34,29 +34,17 @@ class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, W
     $datas = $this->data;
 
     foreach ($datas as $key => $value) {
-
       $supplierBrand = 'N/A';
-
       if ($value->supplier_id != 0) {
         $supplierBrand = optional($value->supplier)->brand ?? 'N/A';
-      } else {
-
-        $filteredItems = $value->quotationItem->filter(function ($item) {
-          return isset($item->supplier->brand) && $item->supplier->id == $this->supplier;
-        });
-
-
-        if ($filteredItems->isNotEmpty()) {
-          $supplierBrand = $filteredItems->first()->supplier->brand;
-        } else {
-          foreach ($value->quotationItem as $item) {
-            if (isset($item->supplier->brand)) {
+    } else {
+      foreach ($value->quotationItem as $item) {
+          if (isset($item->supplier->brand)) {
               $supplierBrand = $item->supplier->brand;
               break;
-            }
           }
-        }
       }
+  }
 
       $array[] = [
         'REFERENCE NO' => $value->reference_no ?? '',
