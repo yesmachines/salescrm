@@ -64,7 +64,7 @@
                   <div class="col-3">
                     <button class="btn btn-primary" type="submit">Search</button>
                     <button class="btn btn-secondary" type="button" onclick="window.location.href='/reports/quotation-summary'">Reset</button>
-                   <button class="btn btn-success" type="submit" id="exportBtn" name="export" value="true">Export</button>
+                    <button class="btn btn-success" type="submit" id="exportBtn" name="export" value="true">Export</button>
                   </div>
                 </div>
               </form>
@@ -91,17 +91,21 @@
                   <td class="text-primary">{{ $quote->reference_no }}</td>
 
                   <td width="20%" class="text-truncate overflow-hidden">
-                    @if($quote->supplier_id != 0)
+                    @if($supplierId && $quote->supplier_id == $supplierId)
+
                     {{ $quote->supplier->brand }}
                     @else
+
                     @foreach($quote->quotationItem as $item)
-                    @if(isset($item->supplier->brand))
+                    @if(isset($item->supplier->brand) && ($supplierId == $item->supplier->id || !$supplierId))
+                  
                     <b>{{ $item->supplier->brand }}</b><br />
                     @break
                     @endif
                     @endforeach
                     @endif
                   </td>
+
                 </td>
                 <td>{{ $quote->gross_margin }}</td>
                 <td>{{date("d-m-Y", strtotime($quote->created_at))}}</td>
