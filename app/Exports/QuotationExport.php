@@ -28,37 +28,35 @@ class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, W
      *
      * @return \Illuminate\Support\Collection
      */
-    public function collection()
-    {
-        $array = [];
+     public function collection()
+     {
+         $array = [];
+         $datas = $this->data->load(['supplier', 'quotationItem.supplier']);
 
-        // Eager load relationships to improve performance
-        $datas = $this->data->load(['supplier', 'quotationItem.supplier']);
+         foreach ($datas as $value) {
+             $supplierBrand = $value->supplier->brand ?? 'N/A';
+             if ($this->supplier && $value->supplier_id == $this->supplier) {
+                 $supplierBrand = $value->supplier->brand ?? 'N/A';
+             } else {
+                 foreach ($value->quotationItem as $item) {
+                     if (isset($item->supplier->brand) && ($this->supplier == $item->supplier->id || !$this->supplier)) {
+                         $supplierBrand = $item->supplier->brand;
+                         break;
+                     }
+                 }
+             }
+             $array[] = [
+                 'REFERENCE NO' => $value->reference_no ?? '',
+                 'Supplier' => $supplierBrand,
+                 'Margin Price (AED)' => $value->gross_margin ?? '0.00',
+                 'Submitted On' => $value->created_at ? $value->created_at->format('d-m-Y') : '',
+                 'Status' => $value->status_id ? $value->quoteStatus->name : '--',
+             ];
+         }
 
-        foreach ($datas as $value) {
-            $supplierBrand = $value->supplier->brand ?? 'N/A';
+         return collect($array);
+     }
 
-            // Check quotation items for supplier brand if supplier ID is 0
-            if ($supplierBrand === 'N/A') {
-                foreach ($value->quotationItem as $item) {
-                    if (isset($item->supplier->brand)) {
-                        $supplierBrand = $item->supplier->brand;
-                        break;
-                    }
-                }
-            }
-
-            $array[] = [
-                'REFERENCE NO' => $value->reference_no ?? '',
-                'Supplier' => $supplierBrand,
-                'Margin Price (AED)' => $value->gross_margin ?? '0.00',
-                'Submitted On' => $value->created_at ? $value->created_at->format('d-m-Y') : '',
-                'Status' => $value->status_id ? $value->quoteStatus->name : '--',
-            ];
-        }
-
-        return collect($array);
-    }
 
     /**
      * Register events for styling.
