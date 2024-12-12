@@ -94,21 +94,15 @@
                     @if($quote->supplier_id != 0)
                     {{ $quote->supplier->brand }}
                     @else
-                    @php
-                    $filteredItems = $quote->quotationItem->filter(function ($item) use ($supplierId) {
-                      return isset($item->supplier->brand) && $item->supplier->id == $supplierId;
-                    });
-                    @endphp
-
-                    @if($filteredItems->isNotEmpty())
-                    <b>{{ $filteredItems->first()->supplier->brand }}</b><br />
+                    @foreach($quote->quotationItem as $item)
+                    @if(isset($item->supplier->brand))
+                    <b>{{ $item->supplier->brand }}</b><br />
+                    @break
                     @endif
-
+                    @endforeach
                     @endif
                   </td>
-
                 </td>
-
                 <td>{{ $quote->gross_margin }}</td>
                 <td>{{date("d-m-Y", strtotime($quote->created_at))}}</td>
                 <td><span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">{{$quote->status_id? $quote->quoteStatus->name: '--'}}</span></td>
