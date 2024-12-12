@@ -12,69 +12,83 @@ use Maatwebsite\Excel\Concerns\Exportable;
 
 class QuotationExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
 {
-  use Exportable;
+    use Exportable;
 
-  protected $data;
-  protected $supplier;
+    protected $data;
+    protected $supplier;
 
-  public function __construct($quotationData, $supplierId)
-  {
-    $this->data = $quotationData;
-    $this->supplier = $supplierId;
-  }
-
-  /**
-  * Prepare the collection for export.
-  *
-  * @return \Illuminate\Support\Collection
-  */
-  public function collection()
-  {
-    $array = [];
-    $datas = $this->data;
-
-    foreach ($datas as $key => $value) {
-      $supplierBrand = 'N/A';
-      if ($value->supplier_id != 0) {
-        $supplierBrand = optional($value->supplier)->brand ?? 'N/A';
-    } else {
-      foreach ($value->quotationItem as $item) {
-          if (isset($item->supplier->brand)) {
-              $supplierBrand = $item->supplier->brand;
-              break;
-          }
-      }
-  }
-
-      $array[] = [
-        'REFERENCE NO' => $value->reference_no ?? '',
-        'Supplier' => $supplierBrand,
-        'Margin Price (AED)' => $value->gross_margin ?? '0.00',
-        'Submitted On' => $value->created_at ? $value->created_at->format('d-m-Y') : '',
-        'Status' => $value->status_id? $value->quoteStatus->name: '--',
-      ];
+    public function __construct($quotationData, $supplierId)
+    {
+        $this->data = $quotationData;
+        $this->supplier = $supplierId;
     }
 
-    return collect($array);
-  }
-  public function registerEvents(): array
-  {
-    return [
-      AfterSheet::class => function (AfterSheet $event) {
-        $cellRange = 'A1:G1';
-        $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(14);
-      },
-    ];
-  }
+    /**
+     * Prepare the collection for export.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function collection()
+    {
+        $array = [];
 
-  public function headings(): array
-  {
-    return [
-      'REFERENCE NO',
-      'SUPPLIER',
-      'MARGIN PRICE (AED)',
-      'SUBMITTED ON',
-      'STATUS',
-    ];
-  }
+        // Eager load relationships to improve performance
+        $datas = $this->data->load(['supplier', 'quotationItem.supplier']);
+
+        foreach ($datas as $value) {
+            $supplierBrand = $value->supplier->brand ?? 'N/A';
+
+            // Check quotation items for supplier brand if supplier ID is 0
+            if ($supplierBrand === 'N/A') {
+                foreach ($value->quotationItem as $item) {
+                    if (isset($item->supplier->brand)) {
+                        $supplierBrand = $item->supplier->brand;
+                        break;
+                    }
+                }
+            }
+
+            $array[] = [
+                'REFERENCE NO' => $value->reference_no ?? '',
+                'Supplier' => $supplierBrand,
+                'Margin Price (AED)' => $value->gross_margin ?? '0.00',
+                'Submitted On' => $value->created_at ? $value->created_at->format('d-m-Y') : '',
+                'Status' => $value->status_id ? $value->quoteStatus->name : '--',
+            ];
+        }
+
+        return collect($array);
+    }
+
+    /**
+     * Register events for styling.
+     *
+     * @return array
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $cellRange = 'A1:E1'; // Adjust based on the number of columns
+                $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(14);
+                $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setBold(true);
+            },
+        ];
+    }
+
+    /**
+     * Define column headings.
+     *
+     * @return array
+     */
+    public function headings(): array
+    {
+        return [
+            'REFERENCE NO',
+            'SUPPLIER',
+            'MARGIN PRICE (AED)',
+            'SUBMITTED ON',
+            'STATUS',
+        ];
+    }
 }
