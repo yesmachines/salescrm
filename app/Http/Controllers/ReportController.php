@@ -272,7 +272,7 @@ class ReportController extends Controller
     if ($request->has('export')) {
 
       $quoteDatas = $quoteSummary->get();
-      return Excel::download(new QuotationExport($quoteDatas), 'quotation_report.xlsx');
+      return Excel::download(new QuotationExport($quoteDatas, $supplierId), 'quotation_report.xlsx');
     }
 
     $quoteSummary = $quoteSummary->paginate(10);

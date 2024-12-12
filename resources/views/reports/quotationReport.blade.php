@@ -94,12 +94,16 @@
                     @if($quote->supplier_id != 0)
                     {{ $quote->supplier->brand }}
                     @else
-                    @foreach($quote->quotationItem as $item)
-                    @if(isset($item->supplier->brand))
-                    <b>{{ $item->supplier->brand }}</b><br />
-                    @break <!-- This will stop the loop after the first item -->
+                    @php
+                    $filteredItems = $quote->quotationItem->filter(function ($item) use ($supplierId) {
+                      return isset($item->supplier->brand) && $item->supplier->id == $supplierId;
+                    });
+                    @endphp
+
+                    @if($filteredItems->isNotEmpty())
+                    <b>{{ $filteredItems->first()->supplier->brand }}</b><br />
                     @endif
-                    @endforeach
+
                     @endif
                   </td>
 
