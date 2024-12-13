@@ -21,7 +21,8 @@ class MeetingShareController extends Controller {
         $roleNames = ['salesmanager', 'coordinators', 'satellite'];
         $roles = Role::whereIn('name', $roleNames)
                 ->with(['users' => function ($query) {
-                        $query->orderBy('name');
+                        $query->where('id', '<>', auth('sanctum')->user()->id)
+                        ->orderBy('name');
                     }, 'users.employee'])
                 ->get();
         $groupedByRole = $roles->mapWithKeys(function ($role) {
@@ -260,7 +261,7 @@ class MeetingShareController extends Controller {
                 ->join('meetings', 'meetings.id', 'meeting_shares.meeting_id')
                 ->where('meeting_shares.shared_by', $request->user()->id)
                 ->orderBy('meeting_shares.created_at', 'DESC');
-        
+
         if (!empty($request->from_dt) && !empty($request->to_dt)) {
             $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
             $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
