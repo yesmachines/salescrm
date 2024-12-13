@@ -312,6 +312,14 @@ class MeetingController extends Controller {
             $meeting->time = $meetingTime->format('h:i A');
             $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
 
+            $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->subMinutes(30);
+
+            if ($currentTimeInUserTimezone >= $meetingTime) {
+                $meeting->can_start = true;
+            } else {
+                $meeting->can_start = false;
+            }
+
             return successResponse(trans('api.success'), $meeting);
         } catch (ModelNotFoundException $e) {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
