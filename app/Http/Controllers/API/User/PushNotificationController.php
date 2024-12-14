@@ -43,6 +43,6 @@ class PushNotificationController extends Controller {
         ];
         $body ['include_external_user_ids'] = [$request->user_id];
         $body ['channel_for_external_user_ids'] = 'push';
-        $this->sendONotification($body);
+        dd($this->sendONotification($body));
     }
 }

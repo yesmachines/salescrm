@@ -34,6 +34,7 @@ return [
     'otp_expired' => 'OTP expired.',
     'company_exist' => 'This company exist.',
     'customer_exist' => 'This Customer name exist.',
+    'device_token_updated' => 'Device updated successfully.',
     'meeting' => [
         'not_done' => 'Meeting still not finished..',
         'business_card' => 'Business card u[dloaded successfully',

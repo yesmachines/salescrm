@@ -11,18 +11,18 @@ trait OneSignalTrait {
             'base_uri' => 'https://onesignal.com/api/v1/',
             'verify' => false,
             'headers' => [
-                'Authorization' => 'Basic ' . env('PUSHER_APP_KEY'),
+                'Authorization' => 'Basic ' . env('OS_APP_KEY'),
                 'Content-Type' => 'application/json',
             ],
         ]);
 
         $response = $client->post('players', [
             'json' => [
-                'app_id' => env('PUSHER_APP_ID'),
+                'app_id' => env('OS_APP_ID'),
                 'identifier' => $deviceId,
                 'language' => 'en',
                 'device_type' => ($deviceType == 'ios') ? 0 : 1,
-                'external_user_id' => auth('sanctum')->user()->id,
+                'external_user_id' => (string) auth('sanctum')->user()->id,
                 'tags' => ['language' => auth('sanctum')->user()->language], // Segment based on language
             ],
         ]);
@@ -53,9 +53,9 @@ trait OneSignalTrait {
     public function deleteOldODevice($oldSid) {
         try {
             $client = new Client(['verify' => false]);
-            $response = $client->request('DELETE', 'https://onesignal.com/api/v1/players/' . $oldSid . '?app_id=' . env('PUSHER_APP_ID'), [
+            $response = $client->request('DELETE', 'https://onesignal.com/api/v1/players/' . $oldSid . '?app_id=' . env('OS_APP_ID'), [
                 'headers' => [
-                    'Authorization' => 'Basic ' . env('PUSHER_APP_KEY'),
+                    'Authorization' => 'Basic ' . env('OS_APP_KEY'),
                     'accept' => 'application/json',
                 ],
             ]);
@@ -70,14 +70,14 @@ trait OneSignalTrait {
             'base_uri' => 'https://onesignal.com/api/v1/',
             'verify' => false,
             'headers' => [
-                'Authorization' => 'Basic ' . env('PUSHER_APP_KEY'),
+                'Authorization' => 'Basic ' . env('OS_APP_KEY'),
                 'Content-Type' => 'application/json',
             ],
         ]);
 
         $response = $client->post('players/' . auth('sanctum')->user()->os_sid . '/on_session', [
             'json' => [
-                'app_id' => env('PUSHER_APP_ID'),
+                'app_id' => env('OS_APP_ID'),
                 'language' => $language,
                 'tags' => ['language' => $language],
             ],
@@ -94,7 +94,7 @@ trait OneSignalTrait {
                 try {
                     $response = $client->post('players/' . $did->os_sid . '/on_session', [
                         'json' => [
-                            'app_id' => env('PUSHER_APP_ID'),
+                            'app_id' => env('OS_APP_ID'),
                             'language' => $language,
                             'tags' => ['language' => $language],
                         ],
@@ -116,14 +116,14 @@ trait OneSignalTrait {
             'base_uri' => 'https://onesignal.com/api/v1/',
             'verify' => false,
             'headers' => [
-                'Authorization' => 'Basic ' . env('PUSHER_APP_KEY'),
+                'Authorization' => 'Basic ' . env('OS_APP_KEY'),
                 'Content-Type' => 'application/json',
             ],
         ]);
 
         $response = $client->put('players/' . auth('sanctum')->user()->os_sid, [
             'json' => [
-                'app_id' => env('PUSHER_APP_ID'),
+                'app_id' => env('OS_APP_ID'),
                 'device_type' => ($deviceType == 'ios') ? 0 : 1,
                 'identifier' => $deviceId,
             ],
@@ -134,26 +134,25 @@ trait OneSignalTrait {
     function sendONotification($body) {
         try {
             //Save to db
-            foreach ($body['include_external_user_ids'] as $userId)
-            {
-            $notification = new \App\Models\PushNotification();
-            $notification->user_id = $userId;
-            $notification->title = $body['headings']['en'];
-            $notification->message = $body['contents']['en'];
-            $notification->module = $body['data']['module'];
-            $notification->module_id = $body['data']['module_id'];
-            $notification->extras = $body['data'];
-            $notification->save();
+            foreach ($body['include_external_user_ids'] as $k => $userId) {
+                $notification = new \App\Models\PushNotification();
+                $notification->user_id = $userId;
+                $notification->title = $body['headings']['en'];
+                $notification->message = $body['contents']['en'];
+                $notification->module = $body['data']['module'];
+                $notification->module_id = $body['data']['module_id'];
+                $notification->extras = $body['data'];
+                $notification->save();
+                $body['include_external_user_ids'][$k] = (string) $userId;
             }
-            
-            return ['status' => true, 'message' => 'Push notification sent successfully!'];
-            
+            // return ['status' => true, 'message' => 'Push notification sent successfully!'];
+
             $http = new Client(['verify' => false]);
-            $body['app_id'] = env('PUSHER_APP_ID');
+            $body['app_id'] = env('OS_APP_ID');
             $response = $http->post('https://onesignal.com/api/v1/notifications', [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Basic ' . env('PUSHER_APP_KEY'),
+                    'Authorization' => 'Basic ' . env('OS_APP_KEY'),
                 ],
                 'json' => $body,
             ]);

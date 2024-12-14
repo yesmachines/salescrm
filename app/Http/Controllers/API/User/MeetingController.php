@@ -147,6 +147,7 @@ class MeetingController extends Controller {
                         ->startOfMinute()
                         ->toDateTimeString();
                 $meetingsQuery->whereRaw("cm_meetings.scheduled_at >= '$currentTimeInUTC'")
+                        ->where('meetings.status', 0)
                         ->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') ASC");
                 break;
             case 'previous' :
@@ -164,13 +165,23 @@ class MeetingController extends Controller {
 
                 $fromDate = Carbon::parse($request->from_dt, $requestedTimezone)->startOfDay()->setTimezone('UTC');
                 $toDate = Carbon::parse($request->to_dt, $requestedTimezone)->endOfDay()->setTimezone('UTC');
+                $currentTimeInUTC = Carbon::now($requestedTimezone)->setTimezone('UTC')->startOfMinute();
 
-                $meetingsQuery
-                        ->whereBetween('scheduled_at', [$fromDate, $toDate])
-                        // ->whereDate('scheduled_at', '>=', $request->from_dt)
-                        // ->whereDate('scheduled_at', '<=', $request->to_dt)
-                        //->whereRaw("cm_meetings.scheduled_at < '$currentTimeInUTC'")
-                        ->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') DESC");
+                if ($currentTimeInUTC->toDateString() == $toDate->toDateString()) {
+                    $meetingsQuery->where('scheduled_at', '>=', $fromDate)
+                            ->where(function ($qry) use ($toDate, $currentTimeInUTC) {
+                                $qry->where('scheduled_at', '<=', $currentTimeInUTC)
+                                ->orWhere(function ($qry) use ($toDate, $currentTimeInUTC) {
+                                    $qry->where('scheduled_at', '<=', $toDate)
+                                    ->where('status', '<>', 0);
+                                });
+                            });
+                } else {
+                    $meetingsQuery
+                            ->whereBetween('scheduled_at', [$fromDate, $toDate]);
+                }
+
+                $meetingsQuery->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') DESC");
                 break;
             default:
                 return errorResponse(trans('api.invalid_request'));
@@ -312,7 +323,7 @@ class MeetingController extends Controller {
             $meeting->time = $meetingTime->format('h:i A');
             $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
 
-            $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->subMinutes(30);
+            $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->addMinutes(30);
 
             if ($currentTimeInUserTimezone >= $meetingTime) {
                 $meeting->can_start = true;
