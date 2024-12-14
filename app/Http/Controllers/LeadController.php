@@ -183,10 +183,11 @@ class LeadController extends Controller
         $lead = $leadService->getLead($id);
 
         $histories = $historyService->getHistories($id);
-
+        
         $leadStatuses = $leadService->getLeadStatus();
+        $calllogs = $historyService->getCallLogs($id);
 
-        return view('leads.show',  compact('lead', 'histories', 'leadStatuses'));
+        return view('leads.show',  compact('lead', 'histories', 'leadStatuses', 'calllogs'));
     }
 
     /**

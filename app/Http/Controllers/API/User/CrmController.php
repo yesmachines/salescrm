@@ -20,11 +20,14 @@ class CrmController extends Controller {
         $this->imgUrl = asset('storage') . '/';
     }
 
-    public function brands($module) {
+    public function brands(Request $request, $module) {
         $brands = Supplier::where('status', 1);
         switch ($module) {
             case 'demo':
                 $brands->select('id', 'brand', \DB::raw("CASE WHEN logo_url IS NOT NULL  AND logo_url != '' THEN CONCAT('$this->imgUrl', logo_url) ELSE NULL END as logo"));
+                if (!empty($request->search_text)) {
+                    $brands->where('brand', 'LIKE', "%{$request->search_text}%");
+                }
                 $brands = new PaginateResource($brands->paginate($this->paginateNumber));
                 break;
             case 'meeting':

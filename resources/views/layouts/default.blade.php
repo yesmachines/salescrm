@@ -42,7 +42,7 @@
     <!-- CSS -->
     <link href="{{asset('dist/css/style.css')}}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{{ asset('css/quotation.css') }}">
-
+    @stack('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- jQuery -->

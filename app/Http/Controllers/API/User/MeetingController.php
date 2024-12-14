@@ -14,6 +14,8 @@ use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\EmailMeetingToClient;
 
 class MeetingController extends Controller {
 
@@ -70,9 +72,9 @@ class MeetingController extends Controller {
             if ($meeting->status < 2) {
                 $rules = [
                     'meeting_notes' => 'required',
-                    'products' => 'required|array',
-                    'products.*.brand_id' => 'required',
-                    'products.*.product_id' => 'required'
+                    'products' => 'nullable|array',
+                    'products.*.brand_id' => 'required_with:products.*',
+                    'products.*.product_id' => 'required_with:products.*',
                 ];
 
                 $validator = Validator::make($request->all(), $rules);
@@ -86,7 +88,13 @@ class MeetingController extends Controller {
                 $meeting->status = 1;
                 $meeting->save();
 
-                $this->insertProducts($meeting->id, $request->products);
+                if (!empty($request->products)) {
+                    $this->insertProducts($meeting->id, $request->products);
+                }
+                //Send Email To client
+                if (!empty($meeting->email)) {
+                    $this->sendEmailToClient($meeting);
+                }
 
                 return successResponse(trans('api.meeting.notes_created'), ['meeting_id' => $meeting->id]);
             }
@@ -94,6 +102,12 @@ class MeetingController extends Controller {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
         return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function sendEmailToClient($meeting) {
+        $meeting->scheduled_at = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone)->format('M d, Y h:i A');
+        $meeting->email = 'shainu.giraf@gmail.com';
+        Notification::send($meeting, new EmailMeetingToClient($meeting));
     }
 
     public function businessCard(Request $request) {
