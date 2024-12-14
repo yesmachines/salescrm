@@ -22,7 +22,7 @@ class StockController extends Controller
   public function index()
   {
 
-    $stocks = Stock::orderBy('created_at', 'desc')->paginate(25);
+    $stocks = Stock::where('purchase_mode', 'stock')->orderBy('created_at', 'desc')->paginate(25);
     return view('stock.stock', compact(
       'stocks',
     ));
