@@ -39,7 +39,7 @@ class CrmController extends Controller {
         return successResponse(trans('api.success'), $brands);
     }
 
-    public function products($module, $brand_id = null) {
+    public function products(Request $request, $module, $brand_id = null) {
         $products = Product::where('products.status', 'active')
                 ->where('product_category', 'products')
                 ->orderBy('products.title', 'ASC');
@@ -55,11 +55,14 @@ class CrmController extends Controller {
                 $products = new PaginateResource($products->paginate($this->paginateNumber));
                 break;
             case 'meeting':
-                $products->select('products.id', \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"));
-                if (!empty($brand_id)) {
-                    $products->where('products.brand_id', $brand_id);
-                }
-                $products = $products->get();
+                $products->select('products.id', \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"))
+                        ->where('products.brand_id', $brand_id)
+                        ->where(function ($qry) use ($request) {
+                            $qry->where('products.modelno', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('products.part_number', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('products.title', 'like', '%' . $request->search_text . '%');
+                        });
+                $products = new PaginateResource($products->paginate($this->paginateNumber));
                 break;
         }
         return successResponse(trans('api.success'), $products);
