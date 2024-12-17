@@ -339,7 +339,7 @@ class MeetingController extends Controller {
 
             $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->addMinutes(30);
 
-            if ($currentTimeInUserTimezone >= $meetingTime) {
+            if ($currentTimeInUserTimezone >= $meetingTime && $meeting->status==0) {
                 $meeting->can_start = true;
             } else {
                 $meeting->can_start = false;
