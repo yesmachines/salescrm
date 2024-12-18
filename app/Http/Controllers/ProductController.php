@@ -245,6 +245,17 @@ class ProductController extends Controller
   ) {
 
     $data = $request->all();
+    $id = $data['product_id'];
+
+    if (isset($data['default_buying_price']) && $data['default_buying_price'] > 0) {
+      // if this is default buying price , please save it to product table
+      $updateData = [
+        'buying_currency' => $data['buying_currency'] ? $data['buying_currency'] : '',
+        'buying_price'    => $data['buying_price'] ? $data['buying_price'] : 0,
+      ];
+      $product = Product::find($id);
+      $productService->updateProduct($product, $updateData);
+    }
 
     $buyingPrice = $productService->createBuyingPrice($data);
 

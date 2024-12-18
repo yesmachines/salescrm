@@ -9,7 +9,7 @@ use App\Services\QuotationService;
 use Dcblogdev\Dropbox\Facades\Dropbox;
 use Illuminate\Support\Facades\Auth;
 use App\Services\EmployeeService;
-use App\models\Employee;
+use App\Models\Employee;
 use DB;
 
 
@@ -18,10 +18,10 @@ class HomeController extends Controller
   protected $this_start_month = null;
   protected $this_end_month = null;
   /**
-  * Create a new controller instance.
-  *
-  * @return void
-  */
+   * Create a new controller instance.
+   *
+   * @return void
+   */
   public function __construct()
   {
     $this->middleware('auth');
@@ -30,10 +30,10 @@ class HomeController extends Controller
   }
 
   /**
-  * Show the application dashboard.
-  *
-  * @return \Illuminate\Contracts\Support\Renderable
-  */
+   * Show the application dashboard.
+   *
+   * @return \Illuminate\Contracts\Support\Renderable
+   */
 
   public function index(
     Request $request,
@@ -46,7 +46,10 @@ class HomeController extends Controller
     $quotationStatus = $this->getQuotationStatus(false);
 
     return view('home', compact(
-      'employeeQuotationStatus','employeeOrderStatus','leadStatus','quotationStatus'
+      'employeeQuotationStatus',
+      'employeeOrderStatus',
+      'leadStatus',
+      'quotationStatus'
 
     ));
 
@@ -82,38 +85,39 @@ class HomeController extends Controller
   }
 
   public function getEmployeeQuotationStatus($returnJson = true)
-{
-  $employees = Employee::with(['quotations' => function ($query) {
-    $query->select('assigned_to', 'gross_margin');
-  }])->get();
+  {
+    $employees = Employee::with(['quotations' => function ($query) {
+      $query->select('assigned_to', 'gross_margin');
+    }])->get();
 
-  $employeeQuotationStats = $employees->map(function ($employee) {
-    return [
-      'employee_name' => $employee->user ? $employee->user->name : 'No User Assigned',
-      'employee_image' => $employee->image_url,
-      'total_margin' => $employee->quotations->sum('gross_margin'),
-      'quotation_count' => $employee->quotations->count(),
-    ];
-  })->filter(function ($employeeStat) {
-    return $employeeStat['quotation_count'] > 0;
-  })->values();
+    $employeeQuotationStats = [];
+    $employeeQuotationStats = $employees->map(function ($employee) {
+      return [
+        'employee_name' => $employee->user ? $employee->user->name : 'No User Assigned',
+        'employee_image' => $employee->image_url,
+        'total_margin' => $employee->quotations->sum('gross_margin'),
+        'quotation_count' => $employee->quotations->count(),
+      ];
+    })->filter(function ($employeeStat) {
+      return $employeeStat['quotation_count'] > 0;
+    })->values();
 
-  return $returnJson ? response()->json($employeeQuotationStats) : $employeeQuotationStats;
-}
-public function getEmployeeOrderStatus($returnJson = true)
-{
-  $employeeOrderStats = DB::table('orders')
-  ->join('employees', 'employees.id', '=', 'orders.created_by')
-  ->leftJoin('users', 'users.id', '=', 'employees.user_id')
-  ->select(
-    'employees.id as employee_id',
-    'employees.image_url as employee_image_url',
-    'users.name as user_name',
-    DB::raw('SUM(cm_orders.projected_margin) as total_amount'),
-    DB::raw('COUNT(cm_orders.id) as order_count')
-    )
-    ->groupBy('employees.id', 'employees.image_url', 'users.name')
-    ->get();
+    return $returnJson ? response()->json($employeeQuotationStats) : $employeeQuotationStats;
+  }
+  public function getEmployeeOrderStatus($returnJson = true)
+  {
+    $employeeOrderStats = DB::table('orders')
+      ->join('employees', 'employees.id', '=', 'orders.created_by')
+      ->leftJoin('users', 'users.id', '=', 'employees.user_id')
+      ->select(
+        'employees.id as employee_id',
+        'employees.image_url as employee_image_url',
+        'users.name as user_name',
+        DB::raw('SUM(cm_orders.projected_margin) as total_amount'),
+        DB::raw('COUNT(cm_orders.id) as order_count')
+      )
+      ->groupBy('employees.id', 'employees.image_url', 'users.name')
+      ->get();
 
     return $returnJson ? response()->json($employeeOrderStats) : $employeeOrderStats;
   }
@@ -122,21 +126,21 @@ public function getEmployeeOrderStatus($returnJson = true)
   public function getLeadStatus($returnJson = true)
   {
     $leadStats = DB::table('leads')
-    ->select(DB::raw('cm_lead_statuses.name as status_name'), DB::raw('count(cm_leads.id) as lead_count'))
-    ->join('lead_statuses', 'leads.status_id', '=', 'lead_statuses.id')
-    ->where('lead_statuses.name', '!=', 'Converted')
-    ->groupBy('lead_statuses.name')
-    ->get();
+      ->select(DB::raw('cm_lead_statuses.name as status_name'), DB::raw('count(cm_leads.id) as lead_count'))
+      ->join('lead_statuses', 'leads.status_id', '=', 'lead_statuses.id')
+      ->where('lead_statuses.name', '!=', 'Converted')
+      ->groupBy('lead_statuses.name')
+      ->get();
 
     return $returnJson ? response()->json($leadStats) : $leadStats;
   }
   public function getQuotationStatus($returnJson = true)
   {
     $quotationStats = DB::table('quotations')
-    ->select(DB::raw('cm_quotation_statuses.name as status_name'), DB::raw('count(cm_quotations.id) as quotation_count'))
-    ->join('quotation_statuses', 'quotations.status_id', '=', 'quotation_statuses.id')
-    ->groupBy('quotation_statuses.name')
-    ->get();
+      ->select(DB::raw('cm_quotation_statuses.name as status_name'), DB::raw('count(cm_quotations.id) as quotation_count'))
+      ->join('quotation_statuses', 'quotations.status_id', '=', 'quotation_statuses.id')
+      ->groupBy('quotation_statuses.name')
+      ->get();
 
     return $returnJson ? response()->json($quotationStats) : $quotationStats;
   }

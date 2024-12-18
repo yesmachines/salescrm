@@ -22,7 +22,7 @@ class ExpenseController extends Controller
   public function index()
   {
 
-    $expenseData = Stock::orderBy('created_at', 'desc')->where('purchase_mode','other')->paginate(25);
+    $expenseData = Stock::orderBy('created_at', 'desc')->where('purchase_mode', 'other')->paginate(25);
     return view('expense.expense', compact(
       'expenseData',
     ));

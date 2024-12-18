@@ -740,6 +740,10 @@
             formData.append('buying_price', $('input[name=buying_price]').val());
             formData.append('validity_from', $('input[name=validity_from]').val());
             formData.append('validity_from', $('input[name=validity_from]').val());
+            let isDefault = $('form#productForm').find('input[name=default_buying_price]');
+            if (isDefault.is(":checked")) {
+                formData.append('default_buying_price', isDefault.val());
+            }
             //
             $.ajax({
                 url: "{{ route('products.savebuyingprice') }}",

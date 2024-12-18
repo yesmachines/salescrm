@@ -338,7 +338,18 @@
                         </div>
                     </div>
 
-
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Make Default buying price ?</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label><input type="radio" name="default_buying_price" value="1"> YES</label>&nbsp; &nbsp;
+                            <label><input type="radio" name="default_buying_price" value="0" checked> NO</label>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>

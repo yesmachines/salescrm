@@ -26,6 +26,8 @@ class Product extends Model
     'margin_price',
     'allowed_discount',
     'freeze_discount',
+    'purchase_currency',
+    'purchase_price',
     'image_url',
     'price_valid_from',
     'price_valid_to',
@@ -59,7 +61,11 @@ class Product extends Model
     $b = str_replace(',', '', $value);
     return $this->attributes['margin_price'] = ($value) ? (float)$b : 0;
   }
-
+  public function setPurchasePriceAttribute($value)
+  {
+    $b = str_replace(',', '', $value);
+    return $this->attributes['purchase_price'] = ($value) ? (float)$b : 0;
+  }
   public function prItem()
   {
     return $this->hasMany(PrItem::class, 'product_id', 'id');

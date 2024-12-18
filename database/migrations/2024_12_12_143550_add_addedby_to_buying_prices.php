@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('pr_items', function (Blueprint $table) {
+        Schema::table('buying_prices', function (Blueprint $table) {
             //
-            $table->decimal('discount', 24, 2)->nullable()->default(0)->after('quantity');
+            $table->integer('added_by')->nullable()->default(0)->after('buying_currency');
         });
     }
 
@@ -26,9 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('pr_items', function (Blueprint $table) {
+        Schema::table('buying_prices', function (Blueprint $table) {
             //
-            $table->dropColumn('discount');
+            $table->dropColumn('added_by');
         });
     }
 };

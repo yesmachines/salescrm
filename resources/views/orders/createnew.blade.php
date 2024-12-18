@@ -597,6 +597,11 @@
             formData.append('buying_price', $('form#productForm').find('input[name=buying_price]').val());
             formData.append('validity_from', $('form#productForm').find('input[name=validity_from]').val());
             formData.append('validity_to', $('form#productForm').find('input[name=validity_to]').val());
+
+            let isDefault = $('form#productForm').find('input[name=default_buying_price]');
+            if (isDefault.is(":checked")) {
+                formData.append('default_buying_price', isDefault.val());
+            }
             //
             $.ajax({
                 url: "{{ route('products.savebuyingprice') }}",

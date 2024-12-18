@@ -321,7 +321,7 @@
           var row = $(this).closest('tr');
           removeQuotationRow(row);
           row.remove();
-        calculateOverallTotal();
+          calculateOverallTotal();
         }
       });
     });
@@ -1054,11 +1054,11 @@
     //
     //   $('#totalValue').val(total_service_value.toFixed(2));
     // } else {
-      if (vatIncluded == 1) {
-        vatAmount = sumAfterDiscount * vatRate;
-        sumAfterDiscount += vatAmount;
-      }
-      $('#totalValue').val(sumAfterDiscount.toFixed(2));
+    if (vatIncluded == 1) {
+      vatAmount = sumAfterDiscount * vatRate;
+      sumAfterDiscount += vatAmount;
+    }
+    $('#totalValue').val(sumAfterDiscount.toFixed(2));
     // }
 
     $('#totalMarginValue').val(totalMargin.toFixed(2));

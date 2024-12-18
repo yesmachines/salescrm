@@ -29,6 +29,9 @@ return new class extends Migration
     {
         Schema::table('stock_items', function (Blueprint $table) {
             //
+
+            $table->dropColumn('unit_price');
+            $table->dropColumn('discount');
         });
     }
 };

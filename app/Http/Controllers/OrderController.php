@@ -54,8 +54,8 @@ class OrderController extends Controller
     $margin_price  = $quotation->gross_margin;
 
     $currency_rate = [];
-    if ($quotation->prefered_currency) {
-      $currency_rate = DB::table('currency_conversion')->where('currency', $quotation->prefered_currency)->first();
+    if ($quotation->preferred_currency) {
+      $currency_rate = DB::table('currency_conversion')->where('currency', $quotation->preferred_currency)->first();
       if ($currency_rate) {
         $selling_price = $quotation->total_amount * $currency_rate->standard_rate;
         $margin_price  = $quotation->gross_margin * $currency_rate->standard_rate;

@@ -15,6 +15,7 @@ class BuyingPrice extends Model
         'discount_amount',
         'buying_price',
         'buying_currency',
+        'added_by',
         'validity_from',
         'validity_to',
     ];

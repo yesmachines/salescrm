@@ -65,6 +65,8 @@ class ProductService
       'margin_price' => $data['margin_price'],
       'allowed_discount' => $data['allowed_discount'],
       'freeze_discount' => $data['freeze_discount'] ?? 0,
+      'purchase_currency' => $data['buying_currency'],
+      'purchase_price' => str_replace(',', '', $data['buying_price']),
       'image_url' => $imageUrl,
       'price_valid_from' => $data['start_date'],
       'price_valid_to' => $data['end_date'],
@@ -100,6 +102,7 @@ class ProductService
       'gross_price'     => $data['gross_price'],
       'discount'        => $data['discount'],
       'discount_amount' => $data['discount_amount'],
+      'added_by'        => Auth::id(),
       'validity_from'   => $data['validity_from'],
       'validity_to'     => $data['validity_to'],
     ]);
@@ -115,6 +118,7 @@ class ProductService
       'gross_price'     => $data['gross_price'],
       'discount'        => $data['discount'],
       'discount_amount' => $data['discount_amount'],
+      'added_by'        => Auth::id(),
       'validity_from'   => $data['validity_from'],
       'validity_to'     => $data['validity_to'],
     ]);
@@ -182,44 +186,109 @@ class ProductService
   {
     $oldProduct = new Product($product->only(['selling_price', 'margin_price', 'price_valid_from', 'price_valid_to']));
 
-    $data['selling_price'] = str_replace(',', '', $data['selling_price']);
-    $data['margin_price'] = str_replace(',', '', $data['margin_price']);
-    $update = [
-      'title' => $data['title'],
-      'description' => $data['description'],
-      'modelno' => $data['model_no'],
-      'part_number' => $data['part_number'],
-      'brand_id' => $data['brand_id'],
-      'division_id' => $data['division_id'],
-      'product_type' => $data['product_type'],
-      'manager_id' => $data['manager_id'],
-      'selling_price' => $data['selling_price'],
-      'margin_percent' => $data['margin_percentage'],
-      'margin_price' => $data['margin_price'],
-      'allowed_discount' => $data['allowed_discount'],
-      'freeze_discount' => $data['freeze_discount'] ?? 0,
-      'price_valid_from' => $data['start_date'],
-      'price_valid_to' => $data['end_date'],
-      'product_category' => $data['product_category'],
-      'status' => $data['status'],
-      'price_basis' => $data['payment_term'],
-      'currency' => $data['currency'],
-      //   'currency_rate' => $data['currency_rate'],
-      'is_demo' => $data['is_demo'],
-    ];
-
+    if (isset($data['title'])) {
+      $update['title'] = $data['title'];
+    }
+    if (isset($data['description'])) {
+      $update['description'] = $data['description'];
+    }
+    if (isset($data['model_no'])) {
+      $update['modelno'] = $data['model_no'];
+    }
+    if (isset($data['part_number'])) {
+      $update['part_number'] = $data['part_number'];
+    }
+    if (isset($data['brand_id'])) {
+      $update['brand_id'] = $data['brand_id'];
+    }
+    if (isset($data['division_id'])) {
+      $update['division_id'] = $data['division_id'];
+    }
+    if (isset($data['product_type'])) {
+      $update['product_type'] = $data['product_type'];
+    }
+    if (isset($data['manager_id'])) {
+      $update['manager_id'] = $data['manager_id'];
+    }
+    if (isset($data['selling_price'])) {
+      $update['selling_price'] = str_replace(',', '', $data['selling_price']);
+    }
+    if (isset($data['margin_percentage'])) {
+      $update['margin_percent'] = $data['margin_percentage'];
+    }
+    if (isset($data['margin_price'])) {
+      $update['margin_price'] = str_replace(',', '', $data['margin_price']);
+    }
+    if (isset($data['allowed_discount'])) {
+      $update['allowed_discount'] = $data['allowed_discount'];
+    }
+    if (isset($data['freeze_discount'])) {
+      $update['freeze_discount'] = $data['freeze_discount'] ?? 0;
+    }
+    if (isset($data['start_date'])) {
+      $update['price_valid_from'] = $data['start_date'];
+    }
+    if (isset($data['end_date'])) {
+      $update['price_valid_to'] = $data['end_date'];
+    }
+    if (isset($data['product_category'])) {
+      $update['product_category'] = $data['product_category'];
+    }
+    if (isset($data['status'])) {
+      $update['status'] = $data['status'];
+    }
+    if (isset($data['payment_term'])) {
+      $update['price_basis'] = $data['payment_term'];
+    }
+    if (isset($data['currency'])) {
+      $update['currency'] = $data['currency'];
+    }
+    if (isset($data['is_demo'])) {
+      $update['is_demo'] = $data['is_demo'];
+    }
+    if (isset($data['buying_currency']) && !empty($data['buying_currency'])) {
+      $update['purchase_currency'] = $data['buying_currency'];
+    }
+    if (isset($data['buying_price']) && !empty($data['buying_price'])) {
+      $update['purchase_price'] = str_replace(',', '', $data['buying_price']);
+    }
     if (!empty($imageUrl) ||  isset($data['remove_image'])) {
       $update['image_url'] = $imageUrl;
     }
 
     $product->update($update);
+
+    // $update = [
+    // 'title' => $data['title'],
+    // 'description' => $data['description'],
+    // 'modelno' => $data['model_no'],
+    // 'part_number' => $data['part_number'],
+    // 'brand_id' => $data['brand_id'],
+    // 'division_id' => $data['division_id'],
+    // 'product_type' => $data['product_type'],
+    // 'manager_id' => $data['manager_id'],
+    // 'selling_price' => $data['selling_price'],
+    // 'margin_percent' => $data['margin_percentage'],
+    // 'margin_price' => $data['margin_price'],
+    // 'allowed_discount' => $data['allowed_discount'],
+    // 'freeze_discount' => $data['freeze_discount'] ?? 0,
+    // 'price_valid_from' => $data['start_date'],
+    // 'price_valid_to' => $data['end_date'],
+    //'product_category' => $data['product_category'],
+    //'status' => $data['status'],
+    //'price_basis' => $data['payment_term'],
+    // 'currency' => $data['currency'],
+    //   'currency_rate' => $data['currency_rate'],
+    // 'is_demo' => $data['is_demo'],
+    //];
+
+
     $changes = $this->getChanges(
       $oldProduct->getAttributes(),
       $product->only(['selling_price', 'margin_price', 'price_valid_from', 'price_valid_to'])
     );
 
     if (!empty($changes)) {
-
       ProductPriceHistory::create([
         'product_id' => $product->id,
         'selling_price' => $data['selling_price'],
@@ -230,32 +299,47 @@ class ProductService
         'price_valid_from' => $data['start_date'],
         'price_valid_to' => $data['end_date'],
         'edited_by' => Auth::id()
-
       ]);
     }
+    // Buying Price, currency, gross price
+    if (isset($data['buying_price']) && isset($data['gross_price']) && isset($data['buying_currency'])) {
 
+      $data['buying_price'] = str_replace(',', '', $data['buying_price']);
+      $data['gross_price'] = str_replace(',', '', $data['gross_price']);
+      $data['discount_amount'] = str_replace(',', '', $data['discount_amount']);
 
-    // Buying Price
-    $data['buying_price'] = str_replace(',', '', $data['buying_price']);
-    $data['gross_price'] = str_replace(',', '', $data['gross_price']);
-    $data['discount_amount'] = str_replace(',', '', $data['discount_amount']);
+      $isPurchaseExist = BuyingPrice::where('product_id', $product->id)->count();
+      if ($isPurchaseExist > 0) {
+        $existingPurchaseRow = BuyingPrice::where('product_id', $product->id)->latest()->first();
 
-    $isPurchaseExist = BuyingPrice::where('product_id', $product->id)->count();
-    if ($isPurchaseExist > 0) {
-      $existingPurchaseRow = BuyingPrice::where('product_id', $product->id)->latest()->first();
-      $isRecordChange = false;
-      if (
-        $existingPurchaseRow->buying_currency  !== $data['buying_currency'] ||
-        $existingPurchaseRow->buying_price  !== $data['buying_price'] ||
-        $existingPurchaseRow->gross_price  !== $data['gross_price'] ||
-        $existingPurchaseRow->discount_amount  !== $data['discount_amount'] ||
-        ($existingPurchaseRow->validity_from  !== $data['validity_from'] &&
-          $existingPurchaseRow->validity_to  !== $data['validity_to'])
-      ) {
-        $isRecordChange = true;
-      }
-      // if any of the exiting record changed, please create new
-      if ($isRecordChange === true) {
+        $isRecordChange = false;
+        if (
+          $existingPurchaseRow->buying_currency  !== $data['buying_currency'] ||
+          $existingPurchaseRow->buying_price  !== $data['buying_price'] ||
+          $existingPurchaseRow->gross_price  !== $data['gross_price'] ||
+          $existingPurchaseRow->discount_amount  !== $data['discount_amount'] ||
+          ($existingPurchaseRow->validity_from  !== $data['validity_from'] &&
+            $existingPurchaseRow->validity_to  !== $data['validity_to'])
+        ) {
+          $isRecordChange = true;
+        }
+
+        // if any of the exiting record changed, please create new
+        if ($isRecordChange === true) {
+          BuyingPrice::create([
+            'product_id'    => $product->id,
+            'buying_price'    => $data['buying_price'],
+            'buying_currency' => $data['buying_currency'],
+            'gross_price'     => $data['gross_price'],
+            'discount'        => $data['discount'],
+            'discount_amount' => $data['discount_amount'],
+            'added_by'        => Auth::id(),
+            'validity_from'   => $data['validity_from'],
+            'validity_to'     => $data['validity_to'],
+          ]);
+        }
+      } else {
+        // if no buying price  record exists
         BuyingPrice::create([
           'product_id'    => $product->id,
           'buying_price'    => $data['buying_price'],
@@ -263,22 +347,11 @@ class ProductService
           'gross_price'     => $data['gross_price'],
           'discount'        => $data['discount'],
           'discount_amount' => $data['discount_amount'],
+          'added_by'        => Auth::id(),
           'validity_from'   => $data['validity_from'],
           'validity_to'     => $data['validity_to'],
         ]);
       }
-    } else {
-      // if no buying price  record exists
-      BuyingPrice::create([
-        'product_id'    => $product->id,
-        'buying_price'    => $data['buying_price'],
-        'buying_currency' => $data['buying_currency'],
-        'gross_price'     => $data['gross_price'],
-        'discount'        => $data['discount'],
-        'discount_amount' => $data['discount_amount'],
-        'validity_from'   => $data['validity_from'],
-        'validity_to'     => $data['validity_to'],
-      ]);
     }
   }
 
