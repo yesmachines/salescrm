@@ -129,12 +129,12 @@ class UserController extends Controller {
 
         $userExists = auth('sanctum')->user();
 
-        $userExists->device_type = $deviceType;
-        $userExists->os_sid = $osSid;
+        $userExists->device_type = $request->device_type;
+        $userExists->os_sid = $request->os_sid;
         $userExists->save();
 
         \App\Models\UserOdevice::updateOrCreate(
-                ['user_id' => $userExists->id, 'os_sid' => $osSid]
+                ['user_id' => $userExists->id, 'os_sid' => $request->os_sid]
         );
         return successResponse(trans('api.device_token_same'));
     }
