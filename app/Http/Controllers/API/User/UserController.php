@@ -129,10 +129,13 @@ class UserController extends Controller {
 
         $userExists = auth('sanctum')->user();
 
-        if ($userExists->os_sid != $request->os_sid) {
-            $this->registerOUser($request->os_sid, $request->device_type);
-            return successResponse(trans('api.device_token_updated'));
-        }
+        $userExists->device_type = $deviceType;
+        $userExists->os_sid = $osSid;
+        $userExists->save();
+
+        \App\Models\UserOdevice::updateOrCreate(
+                ['user_id' => $userExists->id, 'os_sid' => $osSid]
+        );
         return successResponse(trans('api.device_token_same'));
     }
 }
