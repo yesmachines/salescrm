@@ -117,7 +117,7 @@ class UserController extends Controller {
 
     public function updateDevice(Request $request) {
         $validator = Validator::make($request->all(), [
-                    'device_id' => 'required',
+                    'os_sid' => 'required',
                     'device_type' => 'required|in:android,ios',
         ]);
 
@@ -129,17 +129,8 @@ class UserController extends Controller {
 
         $userExists = auth('sanctum')->user();
 
-        if ($userExists->os_subscribed) {
-            if ($userExists->device_id != $request->device_id) {
-                /* $userExists->device_id = $request->device_id;
-                  $userExists->device_type = $request->device_type;
-                  $userExists->save();
-                  $this->updateODeviceId($request->device_id, $request->device_type); */
-                $this->registerOUser($request->device_id, $request->device_type);
-                return successResponse(trans('api.device_token_updated'));
-            }
-        } else {
-            $this->registerOUser($request->device_id, $request->device_type);
+        if ($userExists->os_sid != $request->os_sid) {
+            $this->registerOUser($request->os_sid, $request->device_type);
             return successResponse(trans('api.device_token_updated'));
         }
         return successResponse(trans('api.device_token_same'));

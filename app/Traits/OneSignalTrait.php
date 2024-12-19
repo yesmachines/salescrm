@@ -6,47 +6,19 @@ use GuzzleHttp\Client;
 
 trait OneSignalTrait {
 
-    public function registerOUser($deviceId, $deviceType) {
-        $client = new Client([
-            'base_uri' => 'https://onesignal.com/api/v1/',
-            'verify' => false,
-            'headers' => [
-                'Authorization' => 'Basic ' . env('OS_APP_KEY'),
-                'Content-Type' => 'application/json',
-            ],
-        ]);
-
-        $response = $client->post('players', [
-            'json' => [
-                'app_id' => env('OS_APP_ID'),
-                'identifier' => $deviceId,
-                'language' => 'en',
-                'device_type' => ($deviceType == 'ios') ? 0 : 1,
-                'external_user_id' => (string) auth('sanctum')->user()->id,
-                'tags' => ['language' => auth('sanctum')->user()->language], // Segment based on language
-            ],
-        ]);
-
-        if ($response->getStatusCode() == 200) {
-            $response = json_decode($response->getBody(), true);
-            if (isset($response['id'])) {
-                //$oldSid = auth('sanctum')->user()->os_sid;
-                auth('sanctum')->user()->device_id = $deviceId;
-                auth('sanctum')->user()->device_type = $deviceType;
-                auth('sanctum')->user()->os_subscribed = true;
-                auth('sanctum')->user()->os_sid = $response['id'];
-                auth('sanctum')->user()->save();
-                /* //Delete old device.If need to keep old device, comment this and uncomment update user device ids and update segment commented sections
-                  if ($oldSid != $response['id']) {
-                  if (!empty($oldSid)) {
-                  $this->deleteOldODevice($oldSid);
-                  }
-                  } */
-                \App\Models\UserOdevice::updateOrCreate(
-                        ['user_id' => auth('sanctum')->user()->id, 'os_sid' => $response['id']]
-                );
-            }
-        }
+    public function registerOUser($osSid, $deviceType) {
+        auth('sanctum')->user()->device_type = $deviceType;
+        auth('sanctum')->user()->os_sid = $osSid;
+        auth('sanctum')->user()->save();
+        /* //Delete old device.If need to keep old device, comment this and uncomment update user device ids and update segment commented sections
+          if ($oldSid != $response['id']) {
+          if (!empty($oldSid)) {
+          $this->deleteOldODevice($oldSid);
+          }
+          } */
+        \App\Models\UserOdevice::updateOrCreate(
+                ['user_id' => auth('sanctum')->user()->id, 'os_sid' => $osSid]
+        );
         return 1;
     }
 
