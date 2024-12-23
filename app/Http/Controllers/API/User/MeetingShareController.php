@@ -111,7 +111,7 @@ class MeetingShareController extends Controller {
             $shareMeeting->phone = $request->phone;
             $shareMeeting->email = $request->email;
             $shareMeeting->location = $request->location;
-            $shareMeeting->business_card = $request->business_card;
+            $shareMeeting->business_card = empty($request->business_card) ? null : $meeting->business_card;
             $shareMeeting->meeting_notes = $request->meeting_notes;
             $shareMeeting->status = ($shareTo->hasRole('coordinators')) ? 2 : 0;
             $shareMeeting->save();
