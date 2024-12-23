@@ -68,7 +68,8 @@ class PresentationController extends Controller {
                 $imgUrl = $this->ym_url;
         }
 
-        $brands->select('id', 'brand', \DB::raw("CONCAT('$imgUrl', logo_url) as logo"))->where('status', 1);
+        $brands->select('id', 'brand', \DB::raw("CONCAT('$imgUrl', logo_url) as logo"))->where('status', 1)
+                ->orderBy('brand', 'ASC');
         $brands = new PaginateResource($brands->paginate($this->paginateNumber));
         /* $brands->getCollection()->transform(function ($brand) use ($imgUrl) {
           $brand->logo_url = $imgUrl . '/' . $brand->logo_url;
