@@ -95,19 +95,19 @@ class PresentationController extends Controller {
     public function products(Request $request, $division, $brand_id = null) {
         switch ($division) {
             case 'ST-YC':
-                $brands = \DB::connection('yesclean');
+                $brands = \DB::connection('yesclean')->table('products as p');
                 $imgUrl = \DB::raw("CONCAT('$this->yc_url', p.default_image) as image");
                 break;
             case 'ST-RF':
-                $brands = \DB::connection('rhinofloor');
+                $brands = \DB::connection('rhinofloor')->table('products as p');
                 $imgUrl = \DB::raw("CONCAT('$this->rf_url', p.default_image) as image");
                 break;
             default:
-                $brands = \DB::connection('yesmachine');
+                $brands = \DB::connection('yesmachine')->table('products as p')
+                        ->where('c.division', $division);
                 $imgUrl = \DB::raw("CONCAT('$this->ym_url', ym_p.default_image) as image");
         }
-        $brands = $brands->table('products as p')
-                ->select('p.id', 'p.name', $imgUrl, 'c.name as category', 's.brand')
+        $brands = $brands->select('p.id', 'p.name', $imgUrl, 'c.name as category', 's.brand')
                 ->leftJoin('categories as c', 'p.category_id', '=', 'c.id')
                 ->leftJoin('suppliers as s', 'p.brand_id', '=', 's.id')
                 ->where('p.status', 1)
