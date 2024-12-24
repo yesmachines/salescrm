@@ -219,6 +219,7 @@ class MeetingShareController extends Controller {
             if ($meeting->status == 0) {
                 $status = ['accepted' => 1, 'rejected' => 3];
                 $meeting->status = $status[$request->confirm_status];
+                $meeting->reject_reason = $request->reject_reason;
                 $meeting->save();
                 //Send status notification to shared_by
                 $body = [
