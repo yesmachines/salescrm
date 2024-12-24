@@ -42,32 +42,10 @@
     </div>
     <div class="col-2"></div>
 </div>
-<div class="row mb-2">
-    <div class="col-4">
-        <h6>Installations & Training</h6>
+<div class="row gx-3 mt-4 mb-2">
+    <div class="col-12">
+        <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Delivery Details</span></div>
     </div>
-    <div class="col-6">
-        <input type="text" id="installation_training" name="installation_training" class="form-control" value="{{($quote_install)? $quote_install->installation_by: ''}}" />
-    </div>
-    <div class="col-2"></div>
-</div>
-<div class="row mb-2">
-    <div class="col-4">
-        <h6>Service Experts</h6>
-    </div>
-    <div class="col-6">
-        <input type="text" id="service_expert" name="service_expert" class="form-control" value="" />
-    </div>
-    <div class="col-2"></div>
-</div>
-<div class="row mb-2">
-    <div class="col-4">
-        <h6>Estimated Installation (DAYS)</h6>
-    </div>
-    <div class="col-6">
-        <input type="text" id="estimated_installation" name="estimated_installation" class="form-control" value="{{($quote_install)? $quote_install->installation_periods: ''}}" />
-    </div>
-    <div class="col-2"></div>
 </div>
 <div class="row mb-2">
     <div class="col-4">
@@ -114,6 +92,11 @@
     </div>
     <div class="col-2"></div>
 </div>
+<div class="row gx-3 mt-4 mb-2">
+    <div class="col-12">
+        <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Demo Details</span></div>
+    </div>
+</div>
 <div class="row mb-2">
     <div class="col-4">
         <h6>Order Conversion on basis of demo?</h6>
@@ -155,7 +138,7 @@
                     <th>Item Details *</th>
                     <th>Part No</th>
                     <th>Qty *</th>
-                    <th>YESNO</th>
+                    <th>YESNO *</th>
                     <th>Amount*</th>
                     <th>Expected<br />Delivery</th>
                     <th>Status</th>

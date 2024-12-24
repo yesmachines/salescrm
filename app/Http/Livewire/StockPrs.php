@@ -8,7 +8,7 @@ use App\Models\PurchaseRequisition;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class PendingPrs extends Component
+class StockPrs extends Component
 {
 
     public $page = 1;
@@ -29,7 +29,7 @@ class PendingPrs extends Component
         $query = $this->getPendingQuery($request);
         $purchase = $query->paginate($this->perPage, ['*'], 'page', $this->page); // Manually set the current page
 
-        return view('livewire.pending-prs', ['purchase' => $purchase]);
+        return view('livewire.stock-prs', ['purchase' => $purchase]);
     }
 
     public function getPendingQuery(Request $request)
@@ -40,7 +40,7 @@ class PendingPrs extends Component
 
         $data = array('status' => ['pending', 'onhold']);;
         if (isset($data['status']) && $data['status']) {
-            $query = PurchaseRequisition::whereIn('status', $data['status'])->where('pr_type', 'client');
+            $query = PurchaseRequisition::whereIn('status', $data['status'])->where('pr_type', 'stock');
         }
         if ($this->startDate && $this->endDate) {
             $query->whereBetween('pr_date', [$this->startDate, $this->endDate]);

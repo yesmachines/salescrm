@@ -40,7 +40,7 @@
                 <tr>
                     <th width="10%">PR#</th>
                     <th width="10%">PR Date</th>
-                    <th width="20%">Company</th>
+
                     <th width="15%">Supplier</th>
                     <th width="10%">Supplier Contact</th>
                     <th width="10%">Amount</th>
@@ -78,7 +78,6 @@
                     </td>
                     <td class="text-truncate overflow-hidden" title="{{$pr->pr_date }}">{{$pr->pr_date }}</td>
 
-                    <td class="text-truncate overflow-hidden" title="{{$pr->company->company}}">{{$pr->company->company}}</td>
 
                     <td class="text-truncate overflow-hidden">
                         {{$pr->supplier->brand}}

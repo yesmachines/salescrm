@@ -18,6 +18,11 @@ class PurchaseRequisitionController extends Controller
     {
         return view('purchaseRequisition.index');
     }
+    public function stockPrList(PurchaseRequisitionService $purchaseRequest)
+    {
+
+        return view('purchaseRequisition.stockPr');
+    }
     public function createNewPR(
         $id,
         OrderService $orderService,
@@ -265,6 +270,8 @@ class PurchaseRequisitionController extends Controller
         $valid = [
             'supplier.supplier_email'     => 'required',
             'supplier.supplier_contact'   => 'required',
+            'charges.*.title'             => 'required',
+            'charges.*.considered'        => 'required|decimal:0,4',
         ];
         $input = $request->all();
         //  dd($input);
@@ -329,8 +336,8 @@ class PurchaseRequisitionController extends Controller
             $updatedIds = [];
 
             foreach ($input['charges'] as $charge) {
-
-                if (isset($charge['charge_id']) && $charge['charge_id'] != '') {
+                //  dd($input['charges']);
+                if (isset($charge['charge_id']) && is_numeric($charge['charge_id']) == 1) {
                     if (in_array($charge['charge_id'], $existingIDs)) {
                         $updatedIds[] = $charge['charge_id'];
                     }
@@ -340,8 +347,19 @@ class PurchaseRequisitionController extends Controller
                         'considered'   => $charge['considered']
                     ];
                     $total_price = $total_price + $charge['considered'];
-                    // insert PR Charges
+                    // Update PR Charges
                     $prCharge = $purchaseRequest->updatePRCharges($insertPRCharge, $charge['charge_id']);
+                } else if (isset($charge['charge_id']) && $charge['charge_id'] == "on") {
+                    // Insert new charges
+                    $insertPRCharge = [
+                        'pr_id'        => $id,
+                        'title'        => $charge['title'],
+                        'currency'     => $charge['currency'],
+                        'considered'   => $charge['considered']
+                    ];
+                    $total_price = $total_price + $charge['considered'];
+                    // insert PR Charges
+                    $prCharge = $purchaseRequest->insertPRCharges($insertPRCharge);
                 }
             }
             // need to remove unselected charges

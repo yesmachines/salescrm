@@ -15,7 +15,7 @@ use App\Models\OrderClient;
 use App\Models\OrderSupplier;
 use App\Models\OrderPayment;
 use App\Models\OrderCharge;
-use App\Models\User;
+use App\Models\OrderServiceRequest;
 use App\Models\Quotation;
 use App\Models\Stock;
 
@@ -215,6 +215,57 @@ class OrderService
         }
 
         return $orderclient;
+    }
+
+    public function saveOrderService(array $userData): Object
+    {
+        $update = [];
+        if (isset($userData['order_id']) && !is_null($userData['order_id'])) {
+            $update['order_id'] = $userData['order_id'];
+        }
+        if (isset($userData['site_readiness']) && !is_null($userData['site_readiness'])) {
+            $update['site_readiness'] = $userData['site_readiness'];
+        }
+        if (isset($userData['training_requirement']) && !is_null($userData['training_requirement'])) {
+            $update['training_requirement'] = $userData['training_requirement'];
+        }
+        if (isset($userData['consumables']) && !is_null($userData['consumables'])) {
+            $update['consumables'] = $userData['consumables'];
+        }
+        if (isset($userData['warranty_period']) && !is_null($userData['warranty_period'])) {
+            $update['warranty_period'] = $userData['warranty_period'];
+        }
+        if (isset($userData['special_offers']) && !is_null($userData['special_offers'])) {
+            $update['special_offers'] = $userData['special_offers'];
+        }
+        if (isset($userData['documents_required']) && !is_null($userData['documents_required'])) {
+            $update['documents_required'] = $userData['documents_required'];
+        }
+        if (isset($userData['machine_objective']) && !is_null($userData['machine_objective'])) {
+            $update['machine_objective'] = $userData['machine_objective'];
+        }
+        if (isset($userData['fat_test'])) {
+            $update['fat_test'] = $userData['fat_test'];
+        }
+        if (isset($userData['fat_expectation']) && !is_null($userData['fat_expectation'])) {
+            $update['fat_expectation'] = $userData['fat_expectation'];
+        }
+        if (isset($userData['sat_objective']) && !is_null($userData['sat_objective'])) {
+            $update['sat_objective'] = $userData['sat_objective'];
+        }
+
+        $isexist = OrderServiceRequest::where("order_id", $userData['order_id']);
+
+        if ($isexist->count() > 0) {
+            // if already created
+            $orderservice = $isexist->first();
+            $orderservice->update($update);
+        } else {
+            // newly created
+            $orderservice = OrderServiceRequest::create($update);
+        }
+
+        return $orderservice;
     }
 
     public function insertOrderPayment(array $userData): void

@@ -22,7 +22,7 @@ class StockController extends Controller
   public function index()
   {
 
-    $stocks = Stock::where('purchase_mode', 'stock')->orderBy('created_at', 'desc')->paginate(25);
+    $stocks = Stock::where('purchase_mode', 'stock')->orderBy('created_at', 'desc')->paginate(50);
     return view('stock.stock', compact(
       'stocks',
     ));
@@ -64,6 +64,7 @@ class StockController extends Controller
       'item_name.*'       => 'required',
       'quantity.*'        => 'required|numeric|min:1',
       'total_amount.*'    => 'required',
+      'yes_number.*'       => 'required',
       'total_buying_price' => 'required',
       'payment_term.*'     => 'required',
     ]);
@@ -122,17 +123,18 @@ class StockController extends Controller
   {
     $userData = $request->all();
 
-    // $this->validate($request, [
-    //   'assigned_to'       => 'required',
-    //   'supplier_id'       => 'required',
-    //   'price_basis'       => 'required',
-    //   'delivery_term'     => 'required',
-    //   'item_name.*'       => 'required',
-    //   'quantity.*'        => 'required|numeric|min:1',
-    //   'total_amount.*'    => 'required',
-    //   'total_buying_price' => 'required',
-    //   'payment_term.*'     => 'required',
-    // ]);
+    $this->validate($request, [
+      // 'assigned_to'       => 'required',
+      // 'supplier_id'       => 'required',
+      // 'price_basis'       => 'required',
+      // 'delivery_term'     => 'required',
+      'item_name.*'       => 'required',
+      'quantity.*'        => 'required|numeric|min:1',
+      'total_amount.*'    => 'required',
+      'yes_number.*'       => 'required',
+      'total_buying_price' => 'required',
+      'payment_term.*'     => 'required',
+    ]);
 
     $stockService->updateStock($id, $userData);
     return redirect()->route('stock.index')->with('success', 'Stock updated successfully');

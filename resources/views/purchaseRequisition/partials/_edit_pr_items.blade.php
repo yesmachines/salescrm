@@ -8,7 +8,7 @@
             <td width="20%">{{$purchaseRequest->pr_number}}
             </td>
             <td width="20%">
-                <input type="text" value="{{$purchaseRequest->currency}}" name="supplier[currency]" class="form-control" readonly />
+                <input type="text" value="{{$purchaseRequest->currency}}" id="supplier_currency" name="supplier[currency]" class="form-control" readonly />
             </td>
             <td width="20%"><input type="text" class="form-control" name="supplier[supplier_email]" placeholder="Supplier Email" required value="{{$purchaseRequest->purchaseDelivery->supplier_email}}" /></td>
             <td width="20%"><input type="text" class="form-control" name="supplier[supplier_contact]" placeholder="Supplier Name" required value="{{$purchaseRequest->purchaseDelivery->supplier_contact}}" /></td>
@@ -76,6 +76,8 @@
 </table>
 @if(count($purchaseRequest->purchaseCharge) >0)
 <h6><b>Additional Charges</b></h6>
+<a href="javascript:void(0);" class="addAC btn btn-primary btn-sm" style="float: right;">
+    <i data-feather="plus"></i> Add Row</a>
 <table class="table form-table" id="chargespaymentFields">
     <thead>
         <tr>

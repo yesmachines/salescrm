@@ -49,4 +49,8 @@ class Orders extends Model
     {
         $this->attributes['po_received'] = ($value) ? date("Y-m-d", strtotime($value)) : null;
     }
+    public function orderServiceRequest()
+    {
+        return $this->hasOne(OrderServiceRequest::class, 'order_id', 'id');
+    }
 }

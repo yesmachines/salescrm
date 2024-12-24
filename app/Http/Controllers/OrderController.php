@@ -18,6 +18,7 @@ use App\Models\OrderItem;
 use App\Models\OrderSupplier;
 use App\Models\OrderPayment;
 use App\Models\OrderCharge;
+use App\Models\OrderServiceRequest;
 use App\Models\Quotation;
 use App\Models\QuotationCharge;
 use App\Models\QuotationOptionalItem;
@@ -179,16 +180,17 @@ class OrderController extends Controller
   public function saveOrderItemStep2(Request $request, OrderService $orderService)
   {
     $request->validate([
-      'order_id'          => 'required',
-      'material_status'   => 'required',
-      'material_details'  => 'required',
-      'delivery_address'  => 'required',
-      'contact_person'    => 'required',
-      'contact_phone'     => 'required',
-      'item.*.item_name'      => 'required',
-      'item.*.quantity'       => 'required',
-      'item.*.total_amount'   => 'required|decimal:0,4',
-      // 'item.*.buying_price'   => 'required|decimal:0,4',
+      'order_id'            => 'required',
+      'material_status'     => 'required',
+      'material_details'    => 'required',
+      'delivery_address'    => 'required',
+      'contact_person'      => 'required',
+      'contact_phone'       => 'required',
+      'item.*.item_name'    => 'required',
+      'item.*.quantity'     => 'required',
+      'item.*.total_amount' => 'required|decimal:0,4',
+      'item.*.yes_number'   => 'required',
+      //'item.*.buying_price'   => 'required|decimal:0,4',
       // 'item.*.buying_currency' => 'required',
     ]);
 
@@ -207,9 +209,9 @@ class OrderController extends Controller
     // update order client
     $cupdate = [
       'order_id'               => $input['order_id'],
-      'installation_training'  => $input['installation_training'],
-      'service_expert'         => $input['service_expert'],
-      'estimated_installation' => $input['estimated_installation'],
+      // 'installation_training'  => $input['installation_training'],
+      //  'service_expert'         => $input['service_expert'],
+      //  'estimated_installation' => $input['estimated_installation'],
       'delivery_address'       => $input['delivery_address'],
       'contact_person'         => $input['contact_person'],
       'contact_email'          => $input['contact_email'],
@@ -254,7 +256,64 @@ class OrderController extends Controller
     ]);
   }
 
-  public function saveSupplierTermStep3(Request $request, OrderService $orderService)
+  public function saveServiceStep3(Request $request, OrderService $orderService)
+  {
+    $request->validate([
+      'order_id'            => 'required',
+      // 'material_status'     => 'required',
+      // 'material_details'    => 'required',
+      // 'delivery_address'    => 'required',
+
+    ]);
+
+    $input =  $request->all();
+    if (
+      trim($input['installation_training']) || trim($input['service_expert']) ||
+      trim($input['estimated_installation'])
+    ) {
+      // update order client
+      $cupdate = [
+        'order_id'               => $input['order_id'],
+        'installation_training'  => $input['installation_training'],
+        'service_expert'         => $input['service_expert'],
+        'estimated_installation' => $input['estimated_installation'],
+      ];
+      $orderService->saveOrderClient($cupdate);
+    }
+
+    if (
+      trim($input['site_readiness']) || trim($input['training_requirement']) ||
+      trim($input['consumables']) || trim($input['warranty_period']) || trim($input['special_offers']) ||
+      trim($input['documents_required']) || trim($input['machine_objective']) || trim($input['fat_test'])
+      || trim($input['fat_expectation']) || trim($input['sat_objective'])
+    ) {
+      // order Service requests save
+      $supdate = [
+        'order_id'               => $input['order_id'],
+        'site_readiness'         => $input['site_readiness'],
+        'training_requirement'   => $input['training_requirement'],
+        'consumables'            => $input['consumables'],
+        'warranty_period'        => $input['warranty_period'],
+        'special_offers'         => $input['special_offers'],
+        'documents_required'     => $input['documents_required'],
+        'machine_objective'      => $input['machine_objective'],
+        'fat_test'               => $input['fat_test'],
+        'fat_expectation'        => $input['fat_expectation'],
+        'sat_objective'          => $input['sat_objective'],
+      ];
+      $orderService->saveOrderService($supdate);
+    }
+
+    $order = $orderService->getOrder($input['order_id']);
+
+    return response()->json([
+      'success' => 'Service requests added successfully',
+      'data' => $order,
+
+    ]);
+  }
+
+  public function saveSupplierTermStep4(Request $request, OrderService $orderService)
   {
 
     $validate = [
@@ -384,6 +443,7 @@ class OrderController extends Controller
 
 
     $suppliers = OrderSupplier::where('order_id', $id)->get();
+    $serviceRequest = OrderServiceRequest::where('order_id', $id)->first();
     $paymentTermsSupplier = OrderPayment::where('order_id', $id)->where('section_type', 'supplier')->get();
     $orderCharges = OrderCharge::where('order_id', $id)->get();
     $quotation = Quotation::where('id', $order->quotation_id)->first();
@@ -420,7 +480,8 @@ class OrderController extends Controller
       'currencies',
       'localSuppliers',
       'divisions',
-      'managers'
+      'managers',
+      'serviceRequest'
     ));
   }
 
@@ -497,6 +558,13 @@ class OrderController extends Controller
   public function editOrderItemStep2(Request $request, OrderService $orderService)
   {
 
+    $request->validate([
+      //'order_id'            => 'required',
+      'item.*.yes_number'   => 'required',
+      //'item.*.buying_price'   => 'required|decimal:0,4',
+      // 'item.*.buying_currency' => 'required',
+    ]);
+
     $input =  $request->all();
     $oupdate = [
       'material_status'  => $input['material_status'],
@@ -508,9 +576,9 @@ class OrderController extends Controller
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
     $cupdate = [
       'order_id'               => $input['order_id'],
-      'installation_training'  => $input['installation_training'],
-      'service_expert'         => $input['service_expert'],
-      'estimated_installation' => $input['estimated_installation'],
+      // 'installation_training'  => $input['installation_training'],
+      // 'service_expert'         => $input['service_expert'],
+      // 'estimated_installation' => $input['estimated_installation'],
       'delivery_address'       => $input['delivery_address'],
       'contact_person'         => $input['contact_person'],
       'contact_email'          => $input['contact_email'],
@@ -530,8 +598,63 @@ class OrderController extends Controller
 
     return response()->json(['success' => 'Items and delivery added successfully', 'data' => $order]);
   }
+  public function editServiceStep3(Request $request, OrderService $orderService)
+  {
+    $request->validate([
+      'order_id'            => 'required',
+      // 'material_status'     => 'required',
+      // 'material_details'    => 'required',
+      // 'delivery_address'    => 'required',
 
-  public function editSupplierTermStep3(Request $request, OrderService $orderService)
+    ]);
+
+    $input =  $request->all();
+    if (
+      trim($input['installation_training']) || trim($input['service_expert']) ||
+      trim($input['estimated_installation'])
+    ) {
+      // update order client
+      $cupdate = [
+        'order_id'               => $input['order_id'],
+        'installation_training'  => $input['installation_training'],
+        'service_expert'         => $input['service_expert'],
+        'estimated_installation' => $input['estimated_installation'],
+      ];
+      $orderService->saveOrderClient($cupdate);
+    }
+
+    // order Service requests save
+    if (
+      trim($input['site_readiness']) || trim($input['training_requirement']) ||
+      trim($input['consumables']) || trim($input['warranty_period']) || trim($input['special_offers']) ||
+      trim($input['documents_required']) || trim($input['machine_objective']) || trim($input['fat_test'])
+      || trim($input['fat_expectation']) || trim($input['sat_objective'])
+    ) {
+      $supdate = [
+        'order_id'               => $input['order_id'],
+        'site_readiness'         => $input['site_readiness'],
+        'training_requirement'   => $input['training_requirement'],
+        'consumables'            => $input['consumables'],
+        'warranty_period'        => $input['warranty_period'],
+        'special_offers'         => $input['special_offers'],
+        'documents_required'     => $input['documents_required'],
+        'machine_objective'      => $input['machine_objective'],
+        'fat_test'               => $input['fat_test'],
+        'fat_expectation'        => $input['fat_expectation'],
+        'sat_objective'          => $input['sat_objective'],
+      ];
+      $orderService->saveOrderService($supdate);
+    }
+
+    $order = $orderService->getOrder($input['order_id']);
+
+    return response()->json([
+      'success' => 'Service requests added successfully',
+      'data' => $order,
+
+    ]);
+  }
+  public function editSupplierTermStep4(Request $request, OrderService $orderService)
   {
     $input =  $request->all();
 

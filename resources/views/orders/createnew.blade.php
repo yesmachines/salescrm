@@ -70,6 +70,11 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" id="tab_3" data-bs-toggle="pill" href="#tabit_3">
+                                                <span class="nav-link-text">Service Requests</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="tab_4" data-bs-toggle="pill" href="#tabit_4">
                                                 <span class="nav-link-text">Supplier Details</span>
                                             </a>
                                         </li>
@@ -86,6 +91,9 @@
                                             <!-- End User Details -->
                                         </div><!-- -->
                                         <div class="tab-pane fade" id="tabit_3">
+                                            @include('orders.partials._service')
+                                        </div>
+                                        <div class="tab-pane fade" id="tabit_4">
                                             @include('orders.partials._supplier')
                                         </div>
                                     </div>
@@ -269,7 +277,7 @@
       <textarea class="form-control" name="item[${iter2}][item_name]" placeholder="Item"></textarea></td>
       <td><input type="text" class="form-control" name="item[${iter2}][partno]" placeholder="Part No" /></td>
       <td> <input type="number" class="form-control" name="item[${iter2}][quantity]" placeholder="Quantity" /></td>
-      <td><input type="text" class="form-control" name="item[${iter2}][yes_number]" placeholder="YesNo." /></td>
+      <td><input type="text" class="form-control" name="item[${iter2}][yes_number]" placeholder="YesNo."/></td>
       <td><input type="text" class="form-control" name="item[${iter2}][total_amount]" placeholder="Total Amount" /></td>
       <td><input type="text" class="form-control datepick" name="item[${iter2}][expected_delivery]" placeholder="Expected Delivery" /></td>
       <td>${dropdwn}</td>
@@ -351,7 +359,7 @@
 
                     nextStep();
                 }
-                console.log(response.success);
+                //console.log(response.success);
             },
             error: function(response) {
                 var errors = response.responseJSON;
@@ -362,6 +370,60 @@
                 });
                 errorsHtml += '</ul></di>';
                 $('.client_error_msg').html(errorsHtml);
+
+                console.log(response);
+            }
+        });
+    });
+    /**************************************
+     * Service Save - Step3
+     *****************************************/
+    $('#add_service_requirement').on('submit', function(event) {
+        event.preventDefault();
+        let submitter = event.originalEvent.submitter.value;
+
+        let formdata = new FormData(this);
+
+        if (submitter == 'save-step3-draft') {
+            formdata.append('status', 'draft');
+        }
+        var url = "{{route('orders.savestep3')}}";
+
+        let order_id = $("#order_id_step3").val().trim();
+        if (order_id == '') {
+            alert("Please complete and save step2 details");
+            return false;
+        }
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formdata,
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                // $(form).trigger("reset");
+                // alert(response.success)
+                if (response.data) {
+                    let order = response.data;
+
+                    // $("#order_id_step2").val(order.id);
+                    $("#order_id_step4").val(order.id);
+
+                    nextStep();
+                }
+            },
+            error: function(response) {
+                var errors = response.responseJSON;
+
+                let errorsHtml = '<div class="alert alert-danger"><ul>';
+                $.each(errors.errors, function(k, v) {
+                    errorsHtml += '<li>' + v + '</li>';
+                });
+                errorsHtml += '</ul></di>';
+                $('.supplier_error_msg').html(errorsHtml);
 
                 console.log(response);
             }
@@ -455,8 +517,9 @@
         });
     });
 
+
     /**************************************
-     * Supplier Save - Step3
+     * Supplier Save - Step4
      *****************************************/
     $('#add_supplier_details').on('submit', function(event) {
         event.preventDefault();
@@ -465,14 +528,14 @@
 
         let formdata = new FormData(this);
 
-        if (submitter == 'save-step3-draft') {
+        if (submitter == 'save-step4-draft') {
             formdata.append('status', 'draft');
         }
-        var url = "{{route('orders.savestep3')}}";
+        var url = "{{route('orders.savestep4')}}";
 
-        let order_id = $("#order_id_step3").val().trim();
+        let order_id = $("#order_id_step4").val().trim();
         if (order_id == '') {
-            alert("Please complete and save step2 details");
+            alert("Please complete and save step3 details");
             return false;
         }
 

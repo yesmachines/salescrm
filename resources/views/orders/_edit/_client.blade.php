@@ -41,32 +41,10 @@
     </div>
     <div class="col-2"></div>
   </div>
-  <div class="row mb-2">
-    <div class="col-4">
-      <h6>Installations & Training</h6>
+  <div class="row gx-3 mt-4 mb-2">
+    <div class="col-12">
+      <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Delivery Details</span></div>
     </div>
-    <div class="col-6">
-      <input type="text" id="installation_training" name="installation_training" class="form-control" value="{{ $deliveryPoints->installation_training ?? '' }}" />
-    </div>
-    <div class="col-2"></div>
-  </div>
-  <div class="row mb-2">
-    <div class="col-4">
-      <h6>Service Experts</h6>
-    </div>
-    <div class="col-6">
-      <input type="text" id="service_expert" name="service_expert" class="form-control" value="{{ $deliveryPoints->service_expert ?? '' }}" />
-    </div>
-    <div class="col-2"></div>
-  </div>
-  <div class="row mb-2">
-    <div class="col-4">
-      <h6>Estimated Installation</h6>
-    </div>
-    <div class="col-6">
-      <input type="text" id="estimated_installation" name="estimated_installation" class="form-control" value="{{ $deliveryPoints->estimated_installation ?? '' }}" />
-    </div>
-    <div class="col-2"></div>
   </div>
   <div class="row mb-2">
     <div class="col-4">
@@ -113,6 +91,11 @@
     </div>
     <div class="col-2"></div>
   </div>
+  <div class="row gx-3 mt-4 mb-2">
+    <div class="col-12">
+      <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Demo Details</span></div>
+    </div>
+  </div>
   <div class="row mb-2">
     <div class="col-4">
       <h6>Order Conversion on basis of demo?</h6>
@@ -154,7 +137,7 @@
             <th>Item Details *</th>
             <th>Part No</th>
             <th>Qty *</th>
-            <th>YesNo.</th>
+            <th>YesNo. *</th>
             <th>Amount*</th>
             <th>Expected<br />Delivery</th>
             <th>Status</th>
@@ -170,21 +153,21 @@
             <td width="15%">
               <b> {{$item->product->supplier->brand}}</b>
               <input type="hidden" name="item[{{$x}}][product_id]" value="{{$item->product_id}}" />
-              <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item">{{$item->item_name}}</textarea>
+              <textarea class="form-control" name="item[{{$x}}][item_name]" placeholder="Item" readonly>{{$item->item_name}}</textarea>
 
             </td>
             <td>
               <input type="text" class="form-control" name="item[{{$x}}][partno]" placeholder="Part No" value="{{$item->partno}}" />
             </td>
             <td>
-              <input type="number" class="form-control quantity" name="item[{{$x}}][quantity]" value="{{$item->quantity}}" placeholder="Quantity" />
+              <input type="number" class="form-control quantity" name="item[{{$x}}][quantity]" value="{{$item->quantity}}" placeholder="Quantity" readonly />
             </td>
             <td>
               <input type="text" class="form-control" name="item[{{$x}}][yes_number]" placeholder="YesNo." value="{{$item->yes_number}}" />
             </td>
             <td width="12%">
               <label class="text-primary small">Selling Price (AED)</label>
-              <input type="number" class="form-control" name="item[{{$x}}][total_amount]" value="{{$item->total_amount}}" step="any" placeholder="Total Amount" />
+              <input type="number" class="form-control" name="item[{{$x}}][total_amount]" value="{{$item->total_amount}}" step="any" placeholder="Total Amount" readonly />
               <div class="purchase mt-3">
                 @if(isset($item->buying_currency) && $item->buying_currency != '')
                 <label class="text-primary small">Buying Price ({{$item->buying_currency}})</label>

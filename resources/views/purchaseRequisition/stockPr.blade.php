@@ -13,15 +13,10 @@
                     <div class="d-flex align-items-center">
                         <div class="dropdown">
                             <a class="contactapp-title link-dark" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                <h1>Closed Orders</h1>
+                                <h1>Stock PR</h1>
                             </a>
                         </div>
-                        <!-- <div class="dropdown ms-3">
-                            <button class="btn btn-sm btn-outline-secondary flex-shrink-0 dropdown-toggle d-lg-inline-block d-none" data-bs-toggle="dropdown">Create New</button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add_new_country">Add New Country</a>
-                            </div>
-                        </div> -->
+
                     </div>
                     <div class="contact-options-wrap">
 
@@ -49,7 +44,12 @@
                             <div class="mt-2">
                                 @include('layouts.partials.messages')
                             </div>
-                            @livewire('closed-orders')
+                            <div class="row">
+                                <div class="col-sm-9">
+                                </div>
+
+                            </div>
+                            @livewire('stock-prs')
                         </div>
                     </div>
                 </div>
@@ -63,5 +63,21 @@
         </div>
     </div>
 </div>
+<script>
+    function copyText(e) {
 
+        let copyText = e.innerHTML;
+
+        navigator.clipboard.writeText(copyText).then(() => {
+
+            Swal.fire(
+                'Copied!',
+                "You are copied the PR no: " + copyText,
+                'info'
+            );
+        })
+        /* Resolved - text copied to clipboard successfully */
+
+    }
+</script>
 @endsection

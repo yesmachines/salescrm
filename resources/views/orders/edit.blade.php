@@ -84,6 +84,11 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" id="tab_3" data-bs-toggle="pill" href="#tabit_3">
+                                                <span class="nav-link-text">Service Requests</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="tab_4" data-bs-toggle="pill" href="#tabit_4">
                                                 <span class="nav-link-text">Supplier Details</span>
                                             </a>
                                         </li>
@@ -101,6 +106,9 @@
                                             <!-- End User Details -->
                                         </div><!-- -->
                                         <div class="tab-pane fade" id="tabit_3">
+                                            @include('orders._edit._service')
+                                        </div>
+                                        <div class="tab-pane fade" id="tabit_4">
                                             @include('orders._edit._supplier')
                                         </div>
                                     </div>
@@ -524,7 +532,7 @@
         $("#chargespaymentFields").append(`<tr valign="top">
       <td><input type="hidden" name="charges[${iter4}][charge_id]"/>
       <input type="text" class="form-control" name="charges[${iter4}][title]" placeholder="Customs Clearance Charge" /></td>
-      <td><input type="number" class="form-control" name="charges[${iter4}][considered]" placeholder="Considered Cost" /></td>
+      <td><input type="text" class="form-control" name="charges[${iter4}][considered]" placeholder="Considered Cost" /></td>
       <td><textarea rows="2" name="charges[${iter4}][remarks]" placeholder="Remarks" class="form-control"></textarea></td>
       <td><a href="javascript:void(0);" class="remAC" title="DELETE ROW" data-id=""><i class="fa fa-trash"></i></a></td></tr>`);
     });
@@ -591,17 +599,12 @@
             }
         });
     });
-
     /**************************************
-     * Supplier Save - Step3
+     * Service Save - Step3
      *****************************************/
-    $('#add_supplier_details').on('submit', function(event) {
+    $('#add_service_requirement').on('submit', function(event) {
         event.preventDefault();
-        var orderId = $("#get_order_id").val();
-        var url = "{{ route('orders.editstep3', ['id' => ':id']) }}".replace(':id', orderId);
-
         let submitter = event.originalEvent.submitter.value;
-
 
         let formdata = new FormData(this);
 
@@ -609,8 +612,68 @@
             formdata.append('status', 'draft');
         }
         let order_id = $("#order_id_step3").val().trim();
+        var url = "{{ route('orders.editstep3', ['id' => ':id']) }}".replace(':id', order_id);
+
+
         if (order_id == '') {
             alert("Please complete and save step2 details");
+            return false;
+        }
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formdata,
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                // $(form).trigger("reset");
+                // alert(response.success)
+                if (response.data) {
+                    let order = response.data;
+
+                    // $("#order_id_step2").val(order.id);
+                    $("#order_id_step4").val(order.id);
+
+                    nextStep();
+                }
+            },
+            error: function(response) {
+                var errors = response.responseJSON;
+
+                let errorsHtml = '<div class="alert alert-danger"><ul>';
+                $.each(errors.errors, function(k, v) {
+                    errorsHtml += '<li>' + v + '</li>';
+                });
+                errorsHtml += '</ul></di>';
+                $('.supplier_error_msg').html(errorsHtml);
+
+                console.log(response);
+            }
+        });
+    });
+
+    /**************************************
+     * Supplier Save - Step4
+     *****************************************/
+    $('#add_supplier_details').on('submit', function(event) {
+        event.preventDefault();
+        var orderId = $("#get_order_id").val();
+        var url = "{{ route('orders.editstep4', ['id' => ':id']) }}".replace(':id', orderId);
+
+        let submitter = event.originalEvent.submitter.value;
+
+
+        let formdata = new FormData(this);
+
+        if (submitter == 'save-step4-draft') {
+            formdata.append('status', 'draft');
+        }
+        let order_id = $("#order_id_step4").val().trim();
+        if (order_id == '') {
+            alert("Please complete and save step3 details");
             return false;
         }
 

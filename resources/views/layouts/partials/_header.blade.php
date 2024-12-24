@@ -231,8 +231,8 @@
                                         <a class="nav-link" href="{{route('reports.customers')}}"><span class="nav-link-text">Customer Report</span></a>
                                     </li>
                                     <li class="nav-item">
-                                      <a class="nav-link" href="{{route('reports.quotationsummary')}}"><span class="nav-link-text">Brand-wise Quotation Report</span></a>
-                                  </li>
+                                        <a class="nav-link" href="{{route('reports.quotationsummary')}}"><span class="nav-link-text">Brand-wise Quotation Report</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -297,7 +297,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('purchaserequisition.index')}}"><span class="nav-link-text">Pending PR</span></a>
                                     </li>
-
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('purchaserequisition.stock')}}"><span class="nav-link-text">Stock PR</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>

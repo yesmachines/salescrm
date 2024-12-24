@@ -79,13 +79,19 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');
     Route::get('purchaserequisition/createstock/{id}', [PurchaseRequisitionController::class, 'stockPR'])->name('purchaserequisition.createstock');
     Route::get('purchaserequisition/download/{id}', [PurchaseRequisitionController::class, 'downloadPR'])->name('purchaserequisition.download');
+
     Route::get('orders/createnew/{id}', [OrderController::class, 'createNewFromQuote'])->name('orders.createnew');
+
     Route::post('orders/savestep1', [OrderController::class, 'saveOrderStep1'])->name('orders.savestep1');
     Route::post('orders/savestep2', [OrderController::class, 'saveOrderItemStep2'])->name('orders.savestep2');
-    Route::post('orders/savestep3', [OrderController::class, 'saveSupplierTermStep3'])->name('orders.savestep3');
+    Route::post('orders/savestep3', [OrderController::class, 'saveServiceStep3'])->name('orders.savestep3');
+    Route::post('orders/savestep4', [OrderController::class, 'saveSupplierTermStep4'])->name('orders.savestep4');
+
     Route::post('orders/editstep1/{id}', [OrderController::class, 'editOrderStep1'])->name('orders.editstep1');
     Route::post('orders/editstep2/{id}', [OrderController::class, 'editOrderItemStep2'])->name('orders.editstep2');
-    Route::post('orders/editstep3/{id}', [OrderController::class, 'editSupplierTermStep3'])->name('orders.editstep3');
+    Route::post('orders/editstep3/{id}', [OrderController::class, 'editServiceStep3'])->name('orders.editstep3');
+    Route::post('orders/editstep4/{id}', [OrderController::class, 'editSupplierTermStep4'])->name('orders.editstep4');
+
     Route::get('orders/download/{id}', [OrderController::class, 'downloadOS'])->name('orders.download');
     Route::post('orders/deletePayment', [OrderController::class, 'deletePaymentTerm'])->name('orders.deletePayment');
     Route::post('orders/deleteCharge', [OrderController::class, 'deleteCharges'])->name('orders.deleteCharge');
@@ -177,6 +183,8 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('reports/quotation-summary', [ReportController::class, 'quotationReport'])->name('reports.quotationsummary');
     Route::resource('expense', ExpenseController::class);
     Route::get('expense/download/{id}', [ExpenseController::class, 'downloadExpenseOS'])->name('expense.download');
+
+    Route::get('/stockprs', [PurchaseRequisitionController::class, 'stockPrList'])->name('purchaserequisition.stock');
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
 Route::post('qrcode-form', [QrCodeController::class, 'store'])->name('qrcodeScanning');

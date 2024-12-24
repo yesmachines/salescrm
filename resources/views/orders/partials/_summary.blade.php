@@ -32,7 +32,7 @@
                 <h6>Currency Conversion Rate</h6>
             </div>
             <div class="col-6">
-                Quotation currency is <span class="text-info">{{$quotation->prefered_currency? $quotation->prefered_currency: 'aed'}}</span>, the conversion rate to AED is <span class="text-info">{{isset($currency_rate->standard_rate)?$currency_rate->standard_rate: 1 }}</span>
+                Quotation currency is <span class="text-info">{{$quotation->preferred_currency? $quotation->preferred_currency: 'aed'}}</span>, the conversion rate to AED is <span class="text-info">{{isset($currency_rate->standard_rate)?$currency_rate->standard_rate: 1 }}</span>
                 <!-- <input type="number" disabled id="currency_conversion" name="currency_conversion" class="form-control" value="{{isset($currency_rate->standard_rate)?$currency_rate->standard_rate: 1 }}" required> -->
             </div>
             <div class="col-2"></div>
@@ -95,13 +95,13 @@
             </div>
             <div class="col-6">
                 <input type="text" data-val="{{$quotation->total_amount}}" class="form-control" id="selling_price" required name="selling_price" value="{{$selling_price}}">
-                <p class="small">Quoted Amount = {{$quotation->total_amount}} {{$quotation->prefered_currency? $quotation->prefered_currency: 'aed'}}</p>
+                <p class="small">Quoted Amount = {{$quotation->total_amount}} {{$quotation->preferred_currency? $quotation->preferred_currency: 'aed'}}</p>
             </div>
             <div class="col-2"></div>
         </div>
         <div class="row mb-2">
             <div class="col-4">
-                <h6>Price Basis *</h6>
+                <h6>Currency (Price Basis) *</h6>
             </div>
             <div class="col-6">
                 <input type="text" readonly name="price_basis" id="price_basis" class="form-control" value="aed" />
