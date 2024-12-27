@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\Http\Resources\PaginateResource;
 use Validator;
 use App\Enums\EnquirySource;
+use App\Enums\EnquiryMode;
+use App\Enums\EnquiryPriority;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Lead;
@@ -16,12 +18,23 @@ use App\Models\LeadStatus;
 
 class EnquiryController extends Controller {
 
-    public function getStatus() {
-        $status = LeadStatus::select('id', 'name')
+    public function getExtras() {
+        $data['modes'] = EnquiryMode::toKeyLabelArray();
+        $data['statuses'] = LeadStatus::select('id', 'name')
                 ->where('status', 1)
                 ->orderBy('priority', 'asc')
                 ->get();
-        return successResponse(trans('api.success'), $status);
+        $data['priorities'] = EnquiryPriority::toKeyLabelArray();
+        $data['coordinator'] = $this->getCoordinator();
+        return successResponse(trans('api.success'), $data);
+    }
+
+    public function getStatus() {
+        $data = LeadStatus::select('id', 'name')
+                ->where('status', 1)
+                ->orderBy('priority', 'asc')
+                ->get();
+        return successResponse(trans('api.success'), $data);
     }
 
     public function getCompanies(Request $request) {
@@ -98,12 +111,17 @@ class EnquiryController extends Controller {
         $enquiryTypes = array_column(EnquirySource::cases(), 'value');
         $rules = [
             'type' => ['required', 'in:' . implode(',', $enquiryTypes)],
+            'enquiry_mode' => 'required_if:type,internal',
             'expo_id' => 'required_if:type,expo',
+            'enquiry_date' => 'required|date_format:Y-m-d',
             "company_id" => 'required',
             "customer_id" => 'required',
-            "status_id" => 'required',
-            "details" => 'required',
-            'enquiry_date' => 'required|date_format:Y-m-d',
+            'products' => 'required|array',
+            'products.*.brand_id' => 'present|required_unless:products.*.product_id,null',
+            'products.*.product_id' => 'present|required_unless:products.*.brand_id,null',
+            'products.*.status_id' => 'required',
+            'products.*.priority' => 'required',
+            'products.*.notes' => 'present|required_if:products.*.product_id,null|nullable',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -112,7 +130,25 @@ class EnquiryController extends Controller {
             $errorMessage = $validator->messages();
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
-
+        $scheduled_notes = null;
+        $product_count = 0;
+        foreach ($request->products as $product) {
+            $product_count++;
+            $details = $product['notes'];
+            $historyMessage = "New enquiry is created with status " . LeadStatus::find($product['status_id'])->name;
+            if(!empty($product['brand_id'])  && !empty($product['product_id'])){
+                dd(1);
+                //append to details and append shceduled notes
+                $scheduled_notes .= $details;
+            }
+            dd($historyMessage);
+            //Save to leads with details
+            //Save to lead histories with historyMessage
+            //Save to lead prodcuts with brand,prodcut,notes
+        }
+        dd($request->all());
+        //if area id not null then send notification to manager using prodcut count;
+        //if meeting schedule save with scheduled notes
         $enquiry = new Lead();
         $enquiry->company_id = $request->company_id;
         $enquiry->customer_id = $request->customer_id;

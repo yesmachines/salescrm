@@ -18,6 +18,7 @@ class Lead extends Model
         'company_id',
         'customer_id',
         'lead_type',
+        'enquiry_mode',
         'enquiry_date',
         'details',
         'assigned_to',
@@ -59,6 +60,10 @@ class Lead extends Model
     public function getLeadTypeLabelAttribute()
     {
         return \App\Enums\EnquirySource::from($this->lead_type)->label(); // assuming $this->status contains the string value
+    }
+    public function getEnquiryModeLabelAttribute()
+    {
+        return \App\Enums\EnquiryMode::from($this->enquiry_mode)->label();
     }
     public function expo()
     {

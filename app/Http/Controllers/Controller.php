@@ -58,4 +58,12 @@ class Controller extends BaseController {
         $this->sendONotification($body);
         return 1;
     }
+    
+    function getCoordinator() {
+        return $coordinator = \App\Models\User::select('users.id', 'users.name', 'users.email', 'ep.image_url as pimg')
+                ->join('employees as ep', 'ep.user_id', 'users.id')
+                ->join('employee_managers as em', 'em.employee_id', 'ep.id')
+                ->where('em.manager_id', auth()->user()->employee->id)
+                ->first();
+    }
 }

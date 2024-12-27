@@ -101,6 +101,14 @@ class CrmController extends Controller {
 
     public function getAreas() {
         $areas = \App\Models\Area::select('id', 'name')
+                ->with(['users' => function ($query) {
+                        $query->select('users.id', 'users.name', 'users.email')
+                        ->addSelect([
+                            'pimg' => \App\Models\Employee::select('image_url')
+                            ->whereColumn('user_id', 'users.id')
+                            ->limit(1)
+                        ]);
+                    }])
                 ->where('status', 1)
                 ->orderBy('name')
                 ->get();

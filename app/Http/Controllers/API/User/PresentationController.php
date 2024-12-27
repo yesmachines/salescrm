@@ -116,7 +116,12 @@ class PresentationController extends Controller {
             $brands->where('p.brand_id', $brand_id);
         }
         if (!empty($request->search_text)) {
-            $brands->where('p.name', 'like', '%' . $request->search_text . '%');
+             $brands->where(function ($qry) use ($request) {
+                            $qry->where('p.modelno', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('p.part_number', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('p.title', 'like', '%' . $request->search_text . '%');
+                        });
+            //$brands->where('p.name', 'like', '%' . $request->search_text . '%');
         }
         return successResponse(trans('api.success'), new PaginateResource($brands->paginate($this->paginateNumber)));
     }

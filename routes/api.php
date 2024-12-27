@@ -70,6 +70,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::post('confirm-share-request/{id}', 'MeetingShareController@confirmRequest');
     Route::post('shared-list', 'MeetingShareController@sharedList');
     /* Inside Enquiries */
+    Route::get('get-enquiry-extras', 'EnquiryController@getExtras');
     Route::get('get-enquiry-status', 'EnquiryController@getStatus');
     Route::get('get-companies', 'EnquiryController@getCompanies');
     Route::get('get-customers/{company_id}', 'EnquiryController@getCustomers');

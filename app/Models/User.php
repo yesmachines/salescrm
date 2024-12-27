@@ -42,6 +42,7 @@ class User extends Authenticatable
         'updated_at',
         'device_type',
         'os_sid',
+        'pivot',
     ];
 
     /**
@@ -65,5 +66,10 @@ class User extends Authenticatable
     public function areas()
     {
         return $this->belongsToMany(Area::class, 'employee_areas')->withTimestamps();
+    }
+    
+    public function getPimgAttribute($value)
+    {
+        return ($value != NULL) ? asset('storage/'  .  $value) : NULL;
     }
 }
