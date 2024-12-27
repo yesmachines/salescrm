@@ -42,7 +42,7 @@
         <h6>Estimated Installation (DAYS)</h6>
     </div>
     <div class="col-6">
-        <input type="text" id="estimated_installation" name="estimated_installation" class="form-control" value="{{($quote_install)? $quote_install->installation_periods: ''}}" />
+        <input type="text" id="estimated_installation" name="estimated_installation" class="form-control" value="{{($quote_install)? $quote_install->installation_periods: $serviceEstimatedTime }}" />
     </div>
     <div class="col-2"></div>
 </div>

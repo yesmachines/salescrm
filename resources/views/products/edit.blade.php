@@ -243,7 +243,7 @@
               </div>
 
               <div class="form-group">
-                <input class="form-control productAllowedDiscount" type="number" name="allowed_discount" value="{{ $product->allowed_discount }}" id="allowedDiscount" />
+                <input class="form-control productAllowedDiscount" type="text" name="allowed_discount" value="{{ $product->allowed_discount }}" id="allowedDiscount" />
               </div>
             </div>
             <div class="col-md-6" id="freezeDiscount">
@@ -325,7 +325,7 @@
                 <label class="form-label">Purchase Discount(%)</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="number" name="discount" id="purchase_discount" value="{{!empty($product->buyingPrice) && isset($product->buyingPrice[0])? $product->buyingPrice[0]->discount: ''}}">
+                <input class="form-control" type="text" name="discount" id="purchase_discount" value="{{!empty($product->buyingPrice) && isset($product->buyingPrice[0])? $product->buyingPrice[0]->discount: ''}}">
                 <div class="invalid-data" style="display: none;">Please enter a purchase discount.</div>
               </div>
             </div>

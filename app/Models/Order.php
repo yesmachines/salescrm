@@ -82,6 +82,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderCharge::class, 'order_id', 'id');
     }
+    public function orderServiceRequest()
+    {
+        return $this->hasOne(OrderServiceRequest::class, 'order_id', 'id');
+    }
     // public function user()
     // {
     //     return $this->belongsTo(User::class, 'created_by', 'id');

@@ -103,6 +103,51 @@
     </div>
 </div>
 <!-- /Set Reminder -->
+<!-- Set Status -->
+<div id="change-Status" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class="mb-4" method="POST" id="frmstatus">
+                <div class="modal-body">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h5 class="mb-4">Update Status</h5>
+                    <input type="hidden" name="quotation_id" id="squotationId" />
+
+                    <div class="row gx-3">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <div class="form-group">
+                                    <select class="form-select" name="status_id" id="status_id" required>
+                                        <option value="">--</option>
+                                        @foreach($quoteStatuses as $id=> $stat)
+                                        <option value="{{$id}}">{{$stat}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+
+                            <div class="form-group"> <label class="form-label">Comments</label>
+                                <textarea class="form-control me-3" id="comment" name="comment" placeholder="Comments" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer align-items-center">
+                    <span id="ajxloader"></span>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- /Set status -->
 <!-- /Page Body -->
 <script>
     function copyText(e) {
@@ -128,6 +173,50 @@
             }
         });
 
+        $('#update-status').on('click', function(e) {
+            e.preventDefault();
+
+            let qid = $(this).data('id');
+            let status = $(this).data('rel');
+
+            $('#squotationId').val(qid);
+            $("#status_id").val(status).trigger('change');
+
+        });
+
+        $("#frmstatus").submit(function(e) {
+            e.preventDefault();
+
+            let quoteid = $("#squotationId").val(),
+                statusid = $('#status_id').val(),
+                comment = $('#comment').val();
+
+            $('#ajxloader').html('Please wait..');
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('quotation.status') }}",
+                data: {
+                    quotation_id: quoteid,
+                    status_id: statusid,
+                    comment: comment
+                },
+                success: function(data) {
+
+                    if ($.isEmptyObject(data)) {
+                        console.log("Empty Result ", data);
+                        $('#ajxloader').html('Something wrong !');
+
+                    } else {
+                        $('#ajxloader').html('');
+
+                        $('#update-status').modal('hide');
+                        $('#frmstatus')[0].reset();
+                        location.reload();
+                    }
+                }
+            });
+        });
+
         $('#new_reminder').on('click', function(e) {
             e.preventDefault();
 
@@ -135,7 +224,12 @@
             let reminder = $(this).data('rel');
 
             $('#quotation_id').val(qid);
-            $('#reminder_date').addClass('alert alert-info').html(reminder);
+
+            if (reminder)
+                $('#reminder_date').addClass('alert alert-info').html(reminder);
+            else
+                $('#reminder_date').removeClass('alert alert-info').html('');
+
 
         });
 

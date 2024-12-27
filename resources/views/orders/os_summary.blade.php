@@ -164,51 +164,7 @@
 
             </td>
         </tr>
-        <tr>
-            <td width="50%">
-                <table>
-                    <tr>
-                        <td width="30%" style="border:0; border-right: 1px solid black;">INSTALLATION & TRAINING</td>
-                        <td style="border:0; ">
-                            {{ $orderDetails->orderClient->installation_training }}
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td width="50%">
 
-            </td>
-        </tr>
-        <tr>
-            <td width="50%">
-                <table>
-                    <tr>
-                        <td width="30%" style="border:0; border-right: 1px solid black;">SERVICE EXPERTS</td>
-                        <td style="border:0; ">
-                            {{ $orderDetails->orderClient->service_expert }}
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td width="50%">
-
-            </td>
-        </tr>
-        <tr>
-            <td width="50%">
-                <table>
-                    <tr>
-                        <td width="30%" style="border:0; border-right: 1px solid black;">ESTIMATED INSTALLATION</td>
-                        <td style="border:0; ">
-                            {{ $orderDetails->orderClient->estimated_installation }}
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td width="50%">
-
-            </td>
-        </tr>
         <tr>
             <td width="50%">
                 <table>
@@ -650,5 +606,140 @@
             </td>
         </tr>
         @endif
+
+
+        <tr>
+            <td align="center" colspan="2" height="25">
+                <h4 style="padding:5px;">SPECIAL SERVICE REQUESTS</h4>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="100%">
+                <table width="100%">
+                    <tr>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black; ">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> INSTALLATION & TRAINING</td>
+                                    <td style="border:0; border-right: 1px solid black; ">
+                                        {{ $orderDetails->orderClient->installation_training }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black; ">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> SERVICE EXPERTS</td>
+                                    <td style="border:0; ">
+                                        {{ $orderDetails->orderClient->service_expert }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" style="border:0;border-bottom: 1px solid black; ">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> ESTIMATED INSTALLATION</td>
+                                    <td style="border:0; border-right: 1px solid black;">
+                                        {{ $orderDetails->orderClient->estimated_installation }} {{$orderDetails->orderClient->estimated_installation? "DAYS": ""}}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        @if(isset($orderDetails->orderServiceRequest) && $orderDetails->orderServiceRequest)
+                        <td width="50%" style="border:0;border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> SITE READINESS</td>
+                                    <td style="border:0; ">
+                                        {{ $orderDetails->orderServiceRequest->site_readiness }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> TRAINING REQUIREMENT</td>
+                                    <td style="border:0; border-right: 1px solid black;">{{ $orderDetails->orderServiceRequest->training_requirement }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> LIST CONSUMABLES</td>
+                                    <td style="border:0; ">
+                                        {{ $orderDetails->orderServiceRequest->consumables }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> WARRANTY PERIOD</td>
+                                    <td style="border:0;  border-right: 1px solid black;">{{ $orderDetails->orderServiceRequest->warranty_period }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;">ANY SPECIAL OFFERS</td>
+                                    <td style="border:0; ">{{ $orderDetails->orderServiceRequest->special_offers }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> DOCUMENTS REQUIRED</td>
+                                    <td style="border:0;  border-right: 1px solid black;">{{ $orderDetails->orderServiceRequest->documents_required }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> MACHINE OBJECTIVE</td>
+                                    <td style="border:0; ">{{ $orderDetails->orderServiceRequest->machine_objective }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;"> FAT TEST/ EXPECTATION</td>
+                                    <td style="border:0;  border-right: 1px solid black;">{{ $orderDetails->orderServiceRequest->fat_test == 1? "YES": "NO" }}, {{ $orderDetails->orderServiceRequest->fat_expectation }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%" style="border:0; border-bottom: 1px solid black;">
+                            <table>
+                                <tr>
+                                    <td width="30%" style="border:0; border-right: 1px solid black;">LIST SAT OBJECTIVES </td>
+                                    <td style="border:0; ">{{ $orderDetails->orderServiceRequest->sat_objective }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    @endif
+                </table>
+            </td>
+        </tr>
     </tbody>
 </table>

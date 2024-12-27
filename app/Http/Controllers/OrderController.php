@@ -39,7 +39,6 @@ class OrderController extends Controller
   {
     return view('orders.completed');
   }
-
   //
   public function createNewFromQuote(
     $id,
@@ -67,8 +66,23 @@ class OrderController extends Controller
     $quote_install = QuotationInstallation::where("quotation_id", $quotation->id)->first();
     $quote_clientpayment = QuotatationPaymentTerm::where("quotation_id", $quotation->id)->get();
     $quote_charges = QuotationCharge::where("quotation_id", $quotation->id)->get();
-
     $quote_items = QuotationItem::where("quotation_id", $quotation->id)->get();
+
+    // sevice time against order value
+    $serviceTime = $this->serviceEstimation();
+    $serviceEstimatedTime = 0;
+    // check for the service time with order value
+    foreach ($serviceTime as $service) {
+      if ($selling_price >= $service["min_value"] && ($selling_price <= $service["max_value"] && $service["max_value"] != -1)) {
+        $serviceEstimatedTime = $service["time"];
+      } else if ($service["max_value"] ==  -1 && $selling_price >= $service["min_value"]) {
+        $serviceEstimatedTime = $service["time"];
+      }
+    }
+
+    if ($serviceEstimatedTime &&  $quote_install) {
+      $quote_install->installation_periods = $serviceEstimatedTime;
+    }
 
     $customProductType = false;
     $selectedSuppliers = [];
@@ -129,8 +143,25 @@ class OrderController extends Controller
       'buying_price',
       'localSuppliers',
       'divisions',
-      'managers'
+      'managers',
+      'serviceEstimatedTime'
     ));
+  }
+
+  private function serviceEstimation()
+  {
+    // sevice time against order value
+    $serviceTime = [
+      array("min_value" => 0, "max_value" => 50000, "time" => "4 hours"),
+      array("min_value" => 50001, "max_value" => 100000, "time" => "2 days"),
+      array("min_value" => 100001, "max_value" => 300000, "time" => "3 days"),
+      array("min_value" => 300001, "max_value" => 500000, "time" => "4 days"),
+      array("min_value" => 500001, "max_value" => 1000000, "time" => "6 days"),
+      array("min_value" => 1000001, "max_value" => 1500000, "time" => "12 days"),
+      array("min_value" => 1500001, "max_value" => -1, "time" => "18 days"),
+    ];
+
+    return $serviceTime;
   }
 
   public function saveOrderStep1(Request $request, OrderService $orderService)
@@ -463,6 +494,7 @@ class OrderController extends Controller
     $localSuppliers = $supplierService->getLocalSupplier();
     $divisions = $divisionService->getDivisionList();
     $managers = $productService->employeesList();
+
 
     return view('orders.edit', compact(
       'paymentTermsClient',

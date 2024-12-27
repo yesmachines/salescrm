@@ -242,7 +242,7 @@
                 <label class="form-label">Permissible Discount(%)</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="number" name="allowed_discount" id="allowedDiscount">
+                <input class="form-control" type="text" name="allowed_discount" id="allowedDiscount">
               </div>
 
             </div>
@@ -319,7 +319,7 @@
                 <label class="form-label">Purchase Discount(%)</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="number" name="discount" id="purchase_discount">
+                <input class="form-control" type="text" name="discount" id="purchase_discount">
                 <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
               </div>
             </div>

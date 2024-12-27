@@ -300,7 +300,7 @@
                 </div>
               </div>
               @else
-              <div class="col-sm-6">
+              <!-- <div class="col-sm-6">
                 <div class="form-group">
                   <label class="form-label">Reminder</label>
                 </div>
@@ -314,7 +314,7 @@
                 <div class="form-group">
                   <input type="text" name="reminder" id="reminder" class="form-control {{!$quotation->reminder? 'd-none' : ''}}" />
                 </div>
-              </div>
+              </div> -->
               @endif
             </div>
           </div>

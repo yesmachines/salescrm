@@ -36,7 +36,7 @@
     <table id="" class="table nowrap w-100 mb-5">
       <thead>
         <tr>
-          <th width="10%">Actions</th>
+          <th width="6%">Actions</th>
           <th style="display:none;"><span class="form-check mb-0">
               <input type="checkbox" class="form-check-input check-select-all" id="customCheck1">
               <label class="form-check-label" for="customCheck1"></label>
@@ -63,8 +63,10 @@
               <a class="dropdown-item" href="{{ route('quotations.show', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>Preview</span></a>
               <a class="dropdown-item" href="{{ route('quotations.edit', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
               <a class="dropdown-item" href="{{ route('quotation.download', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Download</span></a>
-              <a class="dropdown-item" href="#" id="new_reminder" data-bs-toggle="modal" data-bs-target="#set_new_reminder" data-id="{{$quote->id}}" data-rel="{{$quote->reminder}}"><span class="feather-icon dropdown-icon"><i data-feather="bell"></i></span><span>Set a Reminder</span></a>
-
+              <a class="dropdown-item" href="javascript:void(0);" id="new_reminder" data-bs-toggle="modal" data-bs-target="#set_new_reminder" data-id="{{$quote->id}}" data-rel="{{$quote->reminder}}">
+                <span class="feather-icon dropdown-icon"><i data-feather="bell"></i></span><span>Set a Reminder</span></a>
+              <a class="dropdown-item" href="javascript:void(0);" id="update-status" data-bs-toggle="modal" data-bs-target="#change-Status" data-id="{{$quote->id}}" data-rel="{{$quote->status_id}}">
+                <span class=" feather-icon dropdown-icon"><i data-feather="rotate-cw"></i></span><span>Change Status</span></a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{{ route('quotation.revision', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="refresh-cw"></i></span><span>Revision</span></a>
               <a class="dropdown-item" href="javascript:void(0);" onclick="event.preventDefault();
@@ -107,8 +109,11 @@
             {{number_format($quote->gross_margin, 2)}} {{$quote->preferred_currency? $quote->preferred_currency: 'AED'}}
           </td>
           <td>
-            <span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">{{$quote->status_id? $quote->quoteStatus->name: '--'}}</span>/
-            <span class="badge badge-soft-secondary my-1  me-2">{{$quote->is_active == 0 ? 'Draft': 'Active'}}</span>
+
+            <a href="javascript:void(0);" id="update-status" class="mt-3" data-bs-toggle="modal" data-bs-target="#change-Status" data-id="{{$quote->id}}" data-rel="{{$quote->status_id}}">
+              <span class="badge {{$quote->status_id == 6? 'badge-soft-success': 'badge-soft-danger'}}  my-1  me-2">
+                {{$quote->status_id? $quote->quoteStatus->name: '--'}}</span>
+            </a> /<span class="badge badge-soft-secondary my-1  me-2">{{$quote->is_active == 0 ? 'Draft': 'Active'}}</span>
           </td>
           @hasanyrole('divisionmanager|salesmanager')
           @else

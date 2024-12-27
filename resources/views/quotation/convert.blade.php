@@ -235,12 +235,12 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-sm-6">
+                <!-- <div class="col-sm-6">
                   <div class="form-group">
                     <label class="form-label">Reminder</label>
                   </div>
-                </div>
-                <div class="col-sm-6">
+                </div> -->
+                <!-- <div class="col-sm-6">
                   <div class="form-check form-switch mb-1">
                     <label class="form-check-label" for="setreminder">Set Reminder</label>
                     <input type="checkbox" class="form-check-input" id="setreminder">
@@ -248,7 +248,7 @@
                   <div class="form-group">
                     <input class="form-control d-none" type="text" name="reminder" id="reminder" />
                   </div>
-                </div>
+                </div> -->
                 <div class="col-sm-6">
                   <div class="form-group">
                     <label class="form-label">Remarks</label>

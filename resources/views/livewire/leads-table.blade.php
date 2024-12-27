@@ -75,7 +75,7 @@
             {{ Str::limit($lead->details, 50) }}
           </td>
           <td class="text-truncate overflow-hidden">
-            <span class="badge badge-soft-violet my-1  me-2">{{$lead->lead_type}}</span>/<span class="badge badge-soft-danger  my-1  me-2">{{$lead->leadStatus->name}}</span>
+            <span class="badge badge-soft-danger  my-1  me-2">{{$lead->leadStatus->name}}</span>
           </td>
           @hasanyrole('divisionmanager|salesmanager')
           @else
@@ -107,51 +107,51 @@
 
   {{ $leads->links() }}
   <script>
-  document.addEventListener("livewire:load", function() {
-    const dateOptions = document.getElementById("dateOptions");
-    const dateRangeInput = document.getElementById("dateRangePicker");
-    let selectedOption;
+    document.addEventListener("livewire:load", function() {
+      const dateOptions = document.getElementById("dateOptions");
+      const dateRangeInput = document.getElementById("dateRangePicker");
+      let selectedOption;
 
-    dateOptions.addEventListener("change", (event) => {
-      selectedOption = event.target.value;
+      dateOptions.addEventListener("change", (event) => {
+        selectedOption = event.target.value;
 
-      if (selectedOption === "custom") {
-        dateRangeInput.style.display = "block";
+        if (selectedOption === "custom") {
+          dateRangeInput.style.display = "block";
 
-        flatpickr("#dateRangePicker", {
-          mode: "range",
-          dateFormat: "Y-m-d",
-          onClose: function(selectedDates, dateStr, instance) {
-            @this.emit('dateRangePicker', {
-              startDate: selectedDates[0] ? selectedDates[0].toISOString() : null,
-              endDate: selectedDates[1] ? selectedDates[1].toISOString() : null,
-            });
-          },
-        });
+          flatpickr("#dateRangePicker", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            onClose: function(selectedDates, dateStr, instance) {
+              @this.emit('dateRangePicker', {
+                startDate: selectedDates[0] ? selectedDates[0].toISOString() : null,
+                endDate: selectedDates[1] ? selectedDates[1].toISOString() : null,
+              });
+            },
+          });
 
-        setTimeout(() => {
-          dateRangeInput.focus();
-        }, 200);
-      } else {
-        dateRangeInput.style.display = "none";
-      }
+          setTimeout(() => {
+            dateRangeInput.focus();
+          }, 200);
+        } else {
+          dateRangeInput.style.display = "none";
+        }
+      });
     });
-  });
   </script>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initial icons replacement
-    feather.replace();
-
-    // Listen for Livewire update and load events
-    document.addEventListener('livewire:update', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initial icons replacement
       feather.replace();
-    });
 
-    Livewire.hook('message.processed', (message, component) => {
-      feather.replace();
+      // Listen for Livewire update and load events
+      document.addEventListener('livewire:update', function() {
+        feather.replace();
+      });
+
+      Livewire.hook('message.processed', (message, component) => {
+        feather.replace();
+      });
     });
-  });
   </script>
 </div>

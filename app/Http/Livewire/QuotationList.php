@@ -94,11 +94,11 @@ class QuotationList extends Component
       return $query->whereHas('company', function ($subquery) use ($trimmedSearch) {
         $subquery->where('company', 'like', $trimmedSearch . '%');
       })->orWhereHas('supplier', function ($subquery) use ($trimmedSearch) {
-       $subquery->where('brand', 'like', $trimmedSearch . '%');
+        $subquery->where('brand', 'like', $trimmedSearch . '%');
       })
         ->orWhere('reference_no', 'like', $trimmedSearch . '%');
     });
-    $query->orderBy('quotations.id', 'desc');
+    $query->orderBy('quotations.updated_at', 'desc');
     return $query;
   }
 
