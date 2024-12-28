@@ -35,6 +35,9 @@ return [
     'company_exist' => 'This company exist.',
     'customer_exist' => 'This Customer name exist.',
     'device_token_updated' => 'Device updated successfully.',
+    'enquiry' => [
+        'created' => 'Enquiry created successfully.',
+    ],
     'meeting' => [
         'not_done' => 'Meeting still not finished..',
         'business_card' => 'Business card u[dloaded successfully',
@@ -53,11 +56,11 @@ return [
             'rejected' => ':name rejected your meeting request',
             'cron' => 'Upcoming Meetings',
             'area' => 'Meeting with :name',
+            'area_enquiry' => 'New :type Enquiry',
         ],
         'message' => [
             'cron' => 'You have :count upcoming meetings.',
+            'area_enquiry' => ':name created :type enquiry for :count products.',
         ]
     ],
-    
-    
 ];

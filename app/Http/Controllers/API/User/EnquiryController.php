@@ -14,7 +14,10 @@ use App\Enums\EnquiryPriority;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Lead;
+use App\Models\LeadHistory;
+use App\Models\Product;
 use App\Models\LeadStatus;
+use App\Models\LeadProduct;
 
 class EnquiryController extends Controller {
 
@@ -122,6 +125,11 @@ class EnquiryController extends Controller {
             'products.*.status_id' => 'required',
             'products.*.priority' => 'required',
             'products.*.notes' => 'present|required_if:products.*.product_id,null|nullable',
+            'schedule_meeting' => 'required|boolean',
+            'meeting_date' => 'required_if:schedule_meeting,1|date_format:Y-m-d',
+            'meeting_time' => 'required_if:schedule_meeting,1|date_format:H:i',
+            'timezone' => 'required_if:schedule_meeting,1|timezone',
+            'location' => 'required_if:schedule_meeting,1'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -130,40 +138,89 @@ class EnquiryController extends Controller {
             $errorMessage = $validator->messages();
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
+
         $scheduled_notes = null;
         $product_count = 0;
         foreach ($request->products as $product) {
             $product_count++;
             $details = $product['notes'];
             $historyMessage = "New enquiry is created with status " . LeadStatus::find($product['status_id'])->name;
-            if(!empty($product['brand_id'])  && !empty($product['product_id'])){
-                dd(1);
+            if (!empty($product['brand_id']) && !empty($product['product_id'])) {
+                $pdetails = Product::select(
+                                \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"),
+                                's.brand'
+                        )
+                        ->leftJoin('suppliers as s', 'products.brand_id', '=', 's.id')
+                        ->where('products.id', '=', $product['product_id'])
+                        ->first();
                 //append to details and append shceduled notes
-                $scheduled_notes .= $details;
+                $details .= ' | ' . $pdetails->title . ' | ' . $pdetails->brand;
+                $scheduled_notes .= $details . ' | ';
             }
-            dd($historyMessage);
             //Save to leads with details
+            $enquiry = new Lead();
+            $enquiry->company_id = $request->company_id;
+            $enquiry->customer_id = $request->customer_id;
+            $enquiry->lead_type = $request->type;
+            $enquiry->enquiry_date = $request->enquiry_date;
+            $enquiry->details = $details;
+            $enquiry->assigned_to = $request->user()->id;
+            $enquiry->assigned_on = date('Y-m-d');
+            $enquiry->status_id = $product['status_id'];
+            if (!empty($request->enquiry_mode)) {
+                $enquiry->enquiry_mode = $request->enquiry_mode;
+            }
+            if (!empty($request->expo_id)) {
+                $enquiry->expo_id = $request->expo_id;
+            }
+            $enquiry->created_by = $request->user()->id;
+            $enquiry->save();
             //Save to lead histories with historyMessage
-            //Save to lead prodcuts with brand,prodcut,notes
+            LeadHistory::create(
+                    [
+                        'lead_id' => $enquiry->id,
+                        'status_id' => $enquiry->status_id,
+                        'comment' => $historyMessage,
+                        'priority' => $product['priority'],
+                        'userid' => $enquiry->created_by,
+                    ]
+            );
+            //Save to lead prodcuts
+            LeadProduct::create(
+                    [
+                        'lead_id' => $enquiry->id,
+                        'supplier_id' => $product['brand_id'],
+                        'product_id' => $product['product_id'],
+                        'notes' => $product['notes']
+                    ]
+            );
         }
-        dd($request->all());
         //if area id not null then send notification to manager using prodcut count;
-        //if meeting schedule save with scheduled notes
-        $enquiry = new Lead();
-        $enquiry->company_id = $request->company_id;
-        $enquiry->customer_id = $request->customer_id;
-        $enquiry->lead_type = $request->type;
-        $enquiry->enquiry_date = $request->enquiry_date;
-        $enquiry->details = $request->details;
-        $enquiry->assigned_to = $request->user()->id;
-        $enquiry->assigned_on = date('Y-m-d');
-        $enquiry->status_id = $request->status_id;
-        if (!empty($request->expo_id)) {
-            $enquiry->expo_id = $request->expo_id;
+        if (!empty($request->area_id)) {
+            $enquiry->area_id = $request->area_id;
+            $this->notifyEnquiryAreaMnager($enquiry, $product_count);
         }
-        $enquiry->created_by = $request->user()->id;
-        $enquiry->save();
-        return successResponse(trans('api.meeting.created'), ['enquiry_id' => $enquiry->id]);
+        //if meeting schedule save with scheduled notes
+        if ($request->schedule_meeting) {
+            $this->createMeeting($request, $scheduled_notes);
+        }
+        return successResponse(trans('api.enquiry.created'));
+    }
+
+    public function createMeeting($request, $scheduled_notes) {
+        $request->offsetUnset('area_id');
+        $request['company_name'] = Company::select('company')
+                        ->where('id', $request->company_id)
+                        ->first()->company;
+        $customer = Customer::where('id', $request->customer_id)->first();
+        $request['company_representative'] = $customer->fullname;
+        $request['phone'] = $customer->phone;
+        $request['email'] = $customer->email;
+        $request['title'] = "Meeting with " . $request->company_name;
+        $request['scheduled_notes'] = $scheduled_notes;
+
+        $meetingController = new \App\Http\Controllers\API\User\MeetingController();
+        return $meetingController->store($request);
     }
 
     public function show(Request $request, $id) {

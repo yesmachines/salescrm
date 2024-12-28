@@ -18,6 +18,7 @@ class LeadService
             'company_id'       => $userData['company_id'],
             'customer_id'      => $userData['customer_id'],
             'lead_type'        => $userData['lead_type'],
+            'enquiry_mode' => $userData['enquiry_mode'],
             'enquiry_date'     => (isset($userData['enquiry_date']) && !empty($userData['enquiry_date'])) ? $userData['enquiry_date'] : null,
             'details'          => $userData['details'],
             'assigned_to'      => $userData['assigned_to'],
@@ -93,6 +94,9 @@ class LeadService
         if (isset($userData['lead_type'])) {
             $update['lead_type'] = $userData['lead_type'];
         }
+        
+         $update['enquiry_mode'] = $userData['enquiry_mode'];
+       
         if (isset($userData['enquiry_date']) && !empty($userData['enquiry_date'])) {
             $update['enquiry_date'] = $userData['enquiry_date'];
         }

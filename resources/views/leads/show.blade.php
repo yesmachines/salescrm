@@ -128,6 +128,14 @@
                                                             <span class="badge badge-soft-danger ">{{$lead->leadStatus->name}}</span>
                                                         </div>
                                                     </div>
+                                                     <div class="row mb-2">
+                                                        <div class="col-4">
+                                                            <h6>Enquiry Mode </h6>
+                                                        </div>
+                                                        <div class="col-8">
+                                                            <span>{{$lead->enquiry_mode_label}}</span>
+                                                        </div>
+                                                    </div>
                                                     <div class="row mb-2">
                                                         <div class="col-4">
                                                             <h6>Enquiry Type </h6>

@@ -38,7 +38,7 @@ class Controller extends BaseController {
         }
         return 1;
     }
-    
+
     function notifyAreaMnager($meeting) {
         $userIds = \App\Models\EmployeeArea::where('area_id', $meeting->area_id)
                 ->pluck('user_id')
@@ -58,7 +58,26 @@ class Controller extends BaseController {
         $this->sendONotification($body);
         return 1;
     }
-    
+
+    function notifyEnquiryAreaMnager($enquiry, $productCount) {
+        $userIds = \App\Models\EmployeeArea::where('area_id', $enquiry->area_id)
+                ->pluck('user_id')
+                ->toArray();
+
+        $body = [
+            'headings' => ['en' => trans('api.notification.title.area_enquiry', ['type' => $enquiry->lead_type_label])],
+            'contents' => ['en' => trans('api.notification.message.area_enquiry', ['name' => auth()->user()->name, 'type' => $enquiry->lead_type_label, 'count' => $productCount])],
+            'data' => [
+                'module' => 'general',
+                'module_id' => null
+            ]
+        ];
+        $body ['include_external_user_ids'] = $userIds;
+        $body ['channel_for_external_user_ids'] = 'push';
+        $this->sendONotification($body);
+        return 1;
+    }
+
     function getCoordinator() {
         return $coordinator = \App\Models\User::select('users.id', 'users.name', 'users.email', 'ep.image_url as pimg')
                 ->join('employees as ep', 'ep.user_id', 'users.id')

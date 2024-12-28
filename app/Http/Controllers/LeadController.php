@@ -17,6 +17,7 @@ use Notification;
 use Twilio\Rest\Client;
 use App\Models\Company;
 use App\Enums\EnquirySource;
+use App\Enums\EnquiryMode;
 
 class LeadController extends Controller
 {
@@ -74,9 +75,10 @@ class LeadController extends Controller
         $countries = $countryService->getAllCountry();
         
         $enquirySource = EnquirySource::toArray();
+        $enquiryMode = EnquiryMode::toArray();
         $expo = \App\Models\Expo::pluck('name','id');
 
-        return view('leads.create', compact('companies', 'leadStatuses', 'employees', 'countries', 'enquirySource', 'expo'));
+        return view('leads.create', compact('companies', 'leadStatuses', 'employees', 'countries', 'enquirySource', 'expo', 'enquiryMode'));
     }
 
     /**
@@ -227,8 +229,9 @@ class LeadController extends Controller
         }
 
         $enquirySource = EnquirySource::toArray();
+        $enquiryMode = EnquiryMode::toArray();
         $expo = \App\Models\Expo::pluck('name','id');
-        return view('leads.edit',  compact('lead', 'customers', 'employees', 'leadStatuses', 'companies', 'countries', 'regions', 'enquirySource','expo'));
+        return view('leads.edit',  compact('lead', 'customers', 'employees', 'leadStatuses', 'companies', 'countries', 'regions', 'enquirySource','expo', 'enquiryMode'));
     }
 
     /**

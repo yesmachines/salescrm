@@ -188,6 +188,22 @@
                                 </div>
                             </div>
                             
+                             <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Enquiry Mode</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select class="form-select" name="enquiry_mode" id="enquiry_mode">
+                                        <option value="">--</option>
+                                            @foreach ($enquiryMode as $k => $enum)
+                                                 <option value="{{$k}}" {{ ($lead->enquiry_mode == $k)? "selected": "" }}>{{ $enum->label() }}</option>
+                                            @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div id="expodiv" class="row" style="padding: 0px; margin: 0px; --bs-gutter-x: 1.0rem; {{ ($lead->lead_type == "expo")? "": "display:none" }};">
                                 <div class="col-sm-6">
                                     <div class="form-group">
