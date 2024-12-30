@@ -33,4 +33,10 @@ class ProductPriceHistory extends Model
     $b = str_replace(',', '', $value);
     return $this->attributes['margin_price'] = ($value) ? (float)$b : 0;
   }
+  public function productCustomPrice()
+  {
+      return $this->hasOne(CustomPrice::class, 'product_id', 'id');
+  }
+
+
 }

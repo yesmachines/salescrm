@@ -468,407 +468,349 @@
   <!-- ------------------- MODELS ------------------- -->
   <!-- Add New Product -->
   <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content" style="padding: 16px;">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel">Add Product</h5>
-        </div>
-        <div class="modal-body">
-          <form id="productForm">
-            <input type="hidden" name="allowed_discount" id="allowed_discount" value="0" />
-            <input type="hidden" name="product_type" value="custom" />
-            <input type="hidden" name="status" value="active" />
-            <div class="row gx-3">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Product Details</span></div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Title <span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" id="titleInput" name="title" />
-                  <div class="invalid-feedback">Please enter a title.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Division<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="division_id" id="divisionInput">
-                    <option value="">--</option>
-                    @foreach ($divisions as $division)
-                    <option value="{{ $division->id }}">{{ $division->name }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a Division.</div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Brand<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="brand_id" id="brandInput">
-                    <option value="">--</option>
-                    @foreach ($suppliers as $k => $sup)
-                    <option value=" {{ $sup->id }}">
-                      {{ $sup->brand }}
-                    </option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a brand.</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Model No</label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="model_no">
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Part Number</label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="part_number" />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Description </label>
-                </div>
-                <div class="form-group">
-                  <textarea class="form-control" name="description" rows="2" cols="1"></textarea>
-
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Product Category<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="product_category" id="productcategoryInput">
-                    <option value="">-Select-</option>
-                    <option value="products">Products</option>
-                    <option value="accessories">Accessories</option>
-                    <option value="consumables">Consumables</option>
-                    <option value="spares">Spares</option>
-                    <option value="services">Services</option>
-                  </select>
-                  <div class="invalid-feedback">Please select a product category.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Manager<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-select" name="manager_id" id="managerInput">
-                    <option value="" selected="">--</option>
-                    @foreach ($managers as $key => $row)
-                    <option value="{{ $row->id }}">
-                      {{ $row->user->name }}
-                    </option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please select product manager.</div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="form-group">
-                  <label class="form-label">Image</label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="file" name="image" />
-                </div>
-              </div>
-            </div>
-
-
-
-            <div class="row gx-3 mt-2 mb-2">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Payment Term<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="product_payment_term">
-                    @foreach($paymentTerms as $paymentTerm)
-                    <option value="{{ $paymentTerm->short_code }}">{{ $paymentTerm->title }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a product payment term.</div>
-
-                </div>
-
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Currency<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="currency" id="currencyInput">
-                    <option value="">-Select Currency-</option>
-                    @foreach($currencies as $currency)
-                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please enter a product currency.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
-                  <div class="invalid-feedback">Please enter a price.</div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">MOSP<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
-                  <div class="invalid-feedback">Please enter a MOSP.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Margin Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="margin_price" id="marginPrice">
-                  <div class="invalid-feedback">Please enter a margin price.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="date" id="durationSelect">
-                    <option value="1" selected>1 Month</option>
-                    <option value="3">3 Month</option>
-                    <option value="6">6 Month</option>
-                    <option value="9">9 Month</option>
-                    <option value="12">12 Month</option>
-                  </select>
-                  <div class="invalid-feedback">Please select an date.</div>
-                </div>
-                <div class="form-group small" id="dateRangeGroup" style="display: none;">
-                  <label class="form-label">Dates:</label>
-                  <span id="dateRange"></span>
-                  <input type="hidden" name="start_date" id="startDateInput" />
-                  <input type="hidden" name="end_date" id="endDateInput" />
-                </div>
-              </div>
-            </div>
-
-
-            <div class="row gx-3 mt-2 mb-2">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="buying_currency" id="buying_currency" required>
-                    <option value="">-Select Currency-</option>
-                    @foreach($currencies as $currency)
-                    <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                    @endforeach
-                  </select>
-                  <div class="invalid-feedback">Please select a currency.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Gross Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="gross_price" id="gross_price" required />
-
-                  <div class="invalid-feedback">Please enter a gross price.</div>
-                </div>
-              </div>
-              <div class="col-md-4" id="purchase_discount_percent">
-                <div class="form-group">
-                  <label class="form-label">Purchase Discount(%)</label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="number" name="discount" id="purchase_discount">
-                  <div class="invalid-feedback">Please enter a purchase discount.</div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4" id="purchase_discount_price">
-                <div class="form-group">
-                  <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
-                  <div class="invalid-feedback">Please enter a purchase discount price.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Buying Price<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" type="text" name="buying_price" id="buying_price" required />
-                  <div class="invalid-feedback">Please enter a buying price.</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
-                </div>
-                <div class="form-group">
-                  <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
-                    <option value="">Select</option>
-                    <option value="1" selected>1 Month</option>
-                    <option value="3">3 Month</option>
-                    <option value="6">6 Month</option>
-                    <option value="9">9 Month</option>
-                    <option value="12">12 Month</option>
-                  </select>
-                  <div class="invalid-feedback">Please choose a date.</div>
-                </div>
-
-                <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
-                  <label class="form-label">Dates:</label>
-                  <span id="purchasedateRange"></span>
-                  <input type="hidden" name="validity_from" id="validity_from" />
-                  <input type="hidden" name="validity_to" id="validity_to" />
-                </div>
-              </div>
-            </div>
-            <div class="row gx-3 mt-2 mb-2">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Custom Price Details</span></div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="packing" class="form-label">Packing</label>
-                  <input type="text" step="0.01" class="form-control" name="packing" id="packing" >
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="road_transport_to_port" class="form-label">Road Transport to Port</label>
-                  <input type="text" step="0.01" class="form-control" name="road_transport_to_port" id="road_transport_to_port" >
-                </div>
-              </div>
-
-              <!-- Freight -->
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="freight" class="form-label">Freight</label>
-                  <input type="text" step="0.01" class="form-control" name="freight" id="freight">
-                </div>
-              </div>
-
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="insurance" class="form-label">Insurance</label>
-                  <input type="text" step="0.01" class="form-control" name="insurance" id="insurance" >
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="clearing" class="form-label">Clearing</label>
-                  <input type="text" step="0.01" class="form-control" name="clearing" id="clearing" >
-                </div>
-              </div>
-
-              <!-- BOE -->
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="boe" class="form-label">BOE</label>
-                  <input type="text" step="0.01" class="form-control" name="boe" id="boe" >
-                </div>
-              </div>
-
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="local_transport" class="form-label">Local Transport</label>
-                  <input type="text" step="0.01" class="form-control" name="local_transport" id="local_transport" >
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="customs" class="form-label">Customs</label>
-                  <input type="text" step="0.01" class="form-control" name="customs" id="customs">
-                </div>
-              </div>
-
-              <!-- Delivery Charge -->
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="delivery_charge" class="form-label">Delivery Charge</label>
-                  <input type="text" step="0.01" class="form-control" name="delivery_charge" id="delivery_charge" >
-                </div>
-              </div>
-
-            </div>
-            <div class="row">
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="mofaic" class="form-label">MOFAIC</label>
-                  <input type="text" step="0.01" class="form-control" name="mofaic" id="mofaic">
-                </div>
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" style="padding: 16px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <input type="hidden" name="allowed_discount" id="allowed_discount" value="0" />
+          <input type="hidden" name="product_type" value="custom" />
+          <input type="hidden" name="status" value="active" />
+          <div class="row gx-3">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Product Details</span></div>
             </div>
           </div>
-        </form>
 
-      </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" id="titleInput" name="title" />
+                <div class="invalid-feedback">Please enter a title.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Division<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="division_id" id="divisionInput">
+                  <option value="">--</option>
+                  @foreach ($divisions as $division)
+                  <option value="{{ $division->id }}">{{ $division->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a Division.</div>
+              </div>
+            </div>
 
-      <!-- <input class="form-control" type="hidden" name="total_amount" />
-      <input class="form-control" type="hidden" name="gross_margin" />
-      <input class="form-control" type="hidden" name="product_currency" /> -->
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Brand<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="brand_id" id="brandInput">
+                  <option value="">--</option>
+                  @foreach ($suppliers as $k => $sup)
+                  <option value=" {{ $sup->id }}">
+                    {{ $sup->brand }}
+                  </option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a brand.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Model No</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="model_no">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Part Number</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="part_number" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Description </label>
+              </div>
+              <div class="form-group">
+                <textarea class="form-control" name="description" rows="2" cols="1"></textarea>
+
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Product Category<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="product_category" id="productcategoryInput">
+                  <option value="">-Select-</option>
+                  <option value="products">Products</option>
+                  <option value="accessories">Accessories</option>
+                  <option value="consumables">Consumables</option>
+                  <option value="spares">Spares</option>
+                  <option value="services">Services</option>
+                </select>
+                <div class="invalid-feedback">Please select a product category.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Manager<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-select" name="manager_id" id="managerInput">
+                  <option value="" selected="">--</option>
+                  @foreach ($managers as $key => $row)
+                  <option value="{{ $row->id }}">
+                    {{ $row->user->name }}
+                  </option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please select product manager.</div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="form-label">Image</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="file" name="image" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="buying_currency" id="productBuyingCurrency" required>
+                  <option value="">-Select Currency-</option>
+                  @foreach($currencies as $currency)
+                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please select a currency.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="gross_price" id="gross_price" required />
+
+                <div class="invalid-feedback">Please enter a gross price.</div>
+              </div>
+            </div>
+            <div class="col-md-4" id="purchase_discount_percent">
+              <div class="form-group">
+                <label class="form-label">Purchase Discount(%)</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="number" name="discount" id="purchase_discount">
+                <div class="invalid-feedback">Please enter a purchase discount.</div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4" id="purchase_discount_price">
+              <div class="form-group">
+                <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
+                <div class="invalid-feedback">Please enter a purchase discount price.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="buying_price" id="buying_price" required />
+                <div class="invalid-feedback">Please enter a buying price.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
+                  <option value="">Select</option>
+                  <option value="1" selected>1 Month</option>
+                  <option value="3">3 Month</option>
+                  <option value="6">6 Month</option>
+                  <option value="9">9 Month</option>
+                  <option value="12">12 Month</option>
+                </select>
+                <div class="invalid-feedback">Please choose a date.</div>
+              </div>
+
+              <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
+                <label class="form-label">Dates:</label>
+                <span id="purchasedateRange"></span>
+                <input type="hidden" name="validity_from" id="validity_from" />
+                <input type="hidden" name="validity_to" id="validity_to" />
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Payment Term<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="product_payment_term"  id="productPriceBasis" onchange="updateQuotationPriceBasis()">
+                  <option value="" disabled selected>Select a payment term</option>
+                  @foreach($paymentTerms as $paymentTerm)
+                  <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
+                  @endforeach
+                </select>
+                <input type="hidden" name="product_payment_id" id="productPaymentTermId" />
+                <div class="invalid-feedback">Please enter a product payment term.</div>
+
+              </div>
+
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Currency<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="currency" id="currencyInput">
+                  <option value="">-Select Currency-</option>
+                  @foreach($currencies as $currency)
+                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a product currency.</div>
+              </div>
+            </div>
+
+          </div>
+          <div id="productCustomFieldsContainer" class="col-12 mt-3">
+
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Margin Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="margin_price" id="marginPrice">
+                <div class="invalid-feedback">Please enter a margin price.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">MOSP<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
+                <div class="invalid-feedback">Please enter a MOSP.</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
+                <div class="invalid-feedback">Please enter a price.</div>
+              </div>
+            </div>
+
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="date" id="durationSelect">
+                  <option value="1" selected>1 Month</option>
+                  <option value="3">3 Month</option>
+                  <option value="6">6 Month</option>
+                  <option value="9">9 Month</option>
+                  <option value="12">12 Month</option>
+                </select>
+                <div class="invalid-feedback">Please select an date.</div>
+              </div>
+              <div class="form-group small" id="dateRangeGroup" style="display: none;">
+                <label class="form-label">Dates:</label>
+                <span id="dateRange"></span>
+                <input type="hidden" name="start_date" id="startDateInput" />
+                <input type="hidden" name="end_date" id="endDateInput" />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Is Demo<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="1">
+                <label class="form-check-label" for="is_demo">
+                  Yes
+                </label>
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="0" checked>
+                <label class="form-check-label" for="is_demo">
+                  No
+                </label>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
+          </div>
+        </div>
+      </form>
+
     </div>
+
+    <!-- <input class="form-control" type="hidden" name="total_amount" />
+    <input class="form-control" type="hidden" name="gross_margin" />
+    <input class="form-control" type="hidden" name="product_currency" /> -->
+  </div>
 
   </div>
 
@@ -896,76 +838,170 @@
 
   <!-- Add New Price for a product -->
   <div class="modal fade" id="additionalFieldsModal" tabindex="-1" aria-labelledby="additionalFieldsModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="additionalFieldsModalLabel">Add New Price</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="additionalFieldsModalLabel">Add New Price</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Price Basis<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="updateQuotationPriceBasis()">
+                <option value="" disabled selected>-- Select Price Basis --</option>
+                @foreach($paymentTerms as $paymentTerm)
+                <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
+                @endforeach
+              </select>
+              <input type="hidden" name="payment_term_id" id="historyPaymentTermId" />
+            </div>
+          </div>
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="gross_price" id="buying_gross_price" required />
+              <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6" id="purchase_discount_percent">
+            <div class="form-group">
+              <label class="form-label">Purchase Discount(%)</label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="discount" id="buying_purchase_discount">
+              <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
+            </div>
+          </div>
+          <div class="col-md-6" id="purchase_discount_price">
+            <div class="form-group">
+              <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="discount_amount" id="buying_purchase_discount_amount" required />
+              <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="buying_price" id="buying_prices" readonly />
+              <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Currency<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <select class="form-control" name="buying_currency" id="buyingCurrencyHistory">
+                <option value="">-Select Currency-</option>
+                @foreach($currencies as $currency)
+                <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                @endforeach
+              </select>
+              <div class="invalid-feedback">Please select currency.</div>
+            </div>
+          </div>
+
+
+
+          <div class="form-group">
+            <input class="form-check-input" type="checkbox" name="default_buying_price" id="defaultBuyingPrice" value="1"/>
+            <label class="form-check-label" for="defaultPriceCheckbox">
+              Do you want to make this the default buying price?
+            </label>
+          </div>
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+            </div>
+          </div>
+          <div id="customFieldsContainer" class="col-12 mt-3">
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Margin Price</label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
+              <div class="invalid-feedback">Please enter margin price.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">MOSP<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="margin_percentage" id="marginPercentageHistory" />
+              <div class="invalid-feedback">Please enter a MOSP.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" readonly/>
+              <div class="invalid-feedback">Please enter a selling price.</div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label">Currency<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <select class="form-control" name="quote_curr" id="quoteCurrencyHistory">
+                <option value="">-Select Currency-</option>
+                @foreach($currencies as $currency)
+                <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                @endforeach
+              </select>
+              <div class="invalid-feedback">Please select currency.</div>
+            </div>
+          </div>
+
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
               <div class="form-group">
-                <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" />
-                <div class="invalid-feedback">Please enter a selling price.</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label">MOSP<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="margin_percentage" id="marginPercentageHistory" />
-                <div class="invalid-feedback">Please enter a MOSP.</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label">Margin Price</label>
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
-                <div class="invalid-feedback">Please enter margin price.</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label">Currency<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <select class="form-control" name="quote_curr" id="quoteCurrencyHistory">
-                  <option value="">-Select Currency-</option>
-                  @foreach($currencies as $currency)
-                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                  @endforeach
-                </select>
-                <div class="invalid-feedback">Please select currency.</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label">Price Basis<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <select class="form-control" name="payment_term" id="priceBasis">
-                  @foreach($paymentTerms as $paymentTerm)
-                  <option value="{{ $paymentTerm->short_code }}">{{ $paymentTerm->title }}</option>
-                  @endforeach
-                </select>
+                <input class="form-check-input" type="checkbox" name="default_selling_price" id="defaultSellingPrice" value="1"/>
+                <label class="form-check-label" for="defaultPriceCheckbox">Do you want to make this the default selling  price?
+                </label>
               </div>
             </div>
           </div>
+
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAdditionalFieldsModal">Close</button>
-          <button type="button" class="btn btn-primary" id="saveAdditionalFields">Save</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAdditionalFieldsModal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveAdditionalFields">Save</button>
       </div>
     </div>
   </div>
+  </div>
+
   <!-- ------------------- end models ------------------- -->
 
   <script type="text/javascript">
@@ -1176,52 +1212,6 @@
     // });
   });
 
-  function updateBuyingPriceWithAmount() {
-    let gross_price = $('#gross_price').val(); // Get the value using jQuery
-    let purchase_discount = $('#purchase_discount_amount').val(); // Get the value using jQuery
-
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_price');
-
-    if (!isNaN(basePrice) && !isNaN(dAmount)) {
-
-      let calculatedDPrice = basePrice - dAmount;
-      let dpercent = (dAmount / basePrice) * 100;
-      dpercent = parseFloat(dpercent).toFixed(2);
-      $('#purchase_discount').val(dpercent);
-
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
-
-  function updateBuyingPrice() {
-    let gross_price = $('#gross_price').val(); // Get the value using jQuery
-    let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
-
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_price');
-
-    if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-
-      let calculatedDPrice = basePrice * (dPercentage / 100);
-      $('#purchase_discount_amount').val(calculatedDPrice);
-      calculatedDPrice = basePrice - calculatedDPrice;
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    } else if (!isNaN(basePrice)) {
-      let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
-
   function setPurchaseDateRange(selectedValue) {
     let currentDate = new Date();
     let validity_from = document.getElementById('validity_from');
@@ -1251,6 +1241,473 @@
       dateRangeGroup.style.display = 'none';
     }
   }
+    </script>
+    <script>
+    document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
+    document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
+    document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+    document.getElementById('buying_gross_price').addEventListener('input', updateBuyingPrice);
+    document.getElementById('buying_purchase_discount').addEventListener('input', updateBuyingPrice);
+    document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+
+
+
+    const marginPriceInput = document.getElementById('marginPrice');
+    const marginPercentageInput = document.getElementById('marginPercentage');
+    const sellingPriceInput = document.getElementById('sellingPrice');
+    const buyingPriceInput = document.getElementById('buying_price');
+
+    const marginPriceHistoryInput = document.getElementById('marginPriceHistory');
+    const marginPercentageHistoryInput = document.getElementById('marginPercentageHistory');
+    const sellingPriceHistoryInput = document.getElementById('sellingPriceHistory');
+    const buyingPriceHistoryInput = document.getElementById('buying_prices');
+
+
+
+    marginPriceInput.addEventListener('input', updateMarginPrice);
+    marginPercentageInput.addEventListener('input', updateMarginPercentage);
+
+    marginPriceHistoryInput.addEventListener('input', updateHistoryMarginPrice);
+    marginPercentageHistoryInput.addEventListener('input', updateHistoryMarginPercentage);
+
+
+
+    function updateHistoryMarginPrice() {
+      const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
+      const marginPrice = parseFloat(marginPriceHistoryInput.value) || 0;
+
+      // Sum the custom fields values
+      const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+        return sum + (item.value || 0);
+      }, 0);
+
+      if (buyingPrice > 0) {
+        const marginPercentage = (marginPrice / buyingPrice) * 100;
+        const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+        marginPercentageHistoryInput.value = marginPercentage.toFixed(2);
+        sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
+      }
+    }
+
+    function updateHistoryMarginPercentage() {
+      const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
+      const marginPercentage = parseFloat(marginPercentageHistoryInput.value) || 0;
+
+      // Sum the custom fields values
+      const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+        return sum + (item.value || 0);
+      }, 0);
+
+      if (buyingPrice > 0) {
+        const marginPrice = (marginPercentage / 100) * buyingPrice;
+        const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+        marginPriceHistoryInput.value = marginPrice.toFixed(2);
+        sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
+      }
+    }
+
+
+
+
+    function updateMarginPrice() {
+      const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
+      const marginPrice = parseFloat(marginPriceInput.value) || 0;
+
+      // Sum the custom fields values
+      const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+        return sum + (item.value || 0);
+      }, 0);
+
+      if (buyingPrice > 0) {
+        const marginPercentage = (marginPrice / buyingPrice) * 100;
+        const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+        marginPercentageInput.value = marginPercentage.toFixed(2);
+        sellingPriceInput.value = sellingPrice.toFixed(2);
+      }
+    }
+
+    function updateMarginPercentage() {
+      const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
+      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+
+      // Sum the custom fields values
+      const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+        return sum + (item.value || 0);
+      }, 0);
+
+      if (buyingPrice > 0) {
+        const marginPrice = (marginPercentage / 100) * buyingPrice;
+        const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+        marginPriceInput.value = marginPrice.toFixed(2);
+        sellingPriceInput.value = sellingPrice.toFixed(2);
+      }
+    }
+
+
+    $('#gross_price, #purchase_discount').on('input', function() {
+      updateBuyingPrice();
+    });
+
+    $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
+      updateHistoryBuyingPrice();
+    });
+
+
+
+    function updateBuyingPriceWithAmount() {
+      let gross_price = $('#gross_price').val();
+      let purchase_discount = $('#purchase_discount_amount').val();
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_price');
+
+      if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+        let calculatedDPrice = basePrice - dAmount;
+        let dpercent = (dAmount / basePrice) * 100;
+        dpercent = parseFloat(dpercent).toFixed(2);
+        $('#purchase_discount').val(dpercent);
+
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+    function updateHistoryBuyingPriceWithAmount() {
+      let gross_price = $('#buying_gross_price').val();
+      let purchase_discount = $('#buying_purchase_discount_amount').val();
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_prices');
+
+      if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+        let calculatedDPrice = basePrice - dAmount;
+        let dpercent = (dAmount / basePrice) * 100;
+        dpercent = parseFloat(dpercent).toFixed(2);
+        $('#buying_purchase_discount').val(dpercent);
+
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+    function updateHistoryBuyingPrice() {
+      let gross_price = $('#buying_gross_price').val(); // Get the value using jQuery
+      let purchase_discount = $('#buying_purchase_discount').val(); // Get the value using jQuery
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_prices');
+
+      if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+        let calculatedDPrice = basePrice * (dPercentage / 100);
+        $('#buying_purchase_discount_amount').val(calculatedDPrice);
+        calculatedDPrice = basePrice - calculatedDPrice;
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      } else if (!isNaN(basePrice)) {
+        let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+
+
+
+    function updateBuyingPrice() {
+      let gross_price = $('#gross_price').val(); // Get the value using jQuery
+      let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
+
+      let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+      let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+      let buyingPriceInput = $('#buying_price');
+
+      if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+        let calculatedDPrice = basePrice * (dPercentage / 100);
+        $('#purchase_discount_amount').val(calculatedDPrice);
+        calculatedDPrice = basePrice - calculatedDPrice;
+        let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      } else if (!isNaN(basePrice)) {
+        let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+        buyingPriceInput.val(formattedMarginPrice);
+      }
+    }
+
+
+
+    document.getElementById('historyPriceBasis').addEventListener('change', function () {
+
+    const selectedOption = this.options[this.selectedIndex];
+    const paymentTermId = selectedOption.getAttribute('data-id');
+
+
+    document.getElementById('historyPaymentTermId').value = paymentTermId;
+    });
+    document.getElementById('productPriceBasis').addEventListener('change', function () {
+
+    const selectedOption = this.options[this.selectedIndex];
+    const paymentTermId = selectedOption.getAttribute('data-id');
+
+    document.getElementById('productPaymentTermId').value = paymentTermId;
+    });
+
+
+
+    </script>
+
+    <script>
+    let customsArray = [];
+    console.log(customsArray);
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const priceBasisElement = document.getElementById('historyPriceBasis');
+      const paymentTermIdElement = document.getElementById('historyPaymentTermId');
+      const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
+      const marginPercentageInput = document.getElementById('marginPercentageHistory');
+      const marginPriceInput = document.getElementById('marginPriceHistory');
+      const sellingPriceInput = document.getElementById('sellingPriceHistory');
+      const buyingPriceInput = document.getElementById('buying_prices');
+
+
+
+
+    function updateHistorySellingPrice() {
+      const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+        return sum + (parseFloat(item.value) || 0);
+      }, 0);
+
+      const marginPrice = parseFloat(marginPriceInput.value) || 0;
+      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+      let calculatedSellingPrice;
+      if (marginPrice === 0) {
+        calculatedSellingPrice = totalCustomFieldsValue;
+
+      } else {
+        const basePrice = parseFloat(buyingPriceInput.value) || 0;
+        console.log(basePrice);
+        calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+
+      }
+
+      sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+
+    }
+
+    marginPriceInput.addEventListener('input', updateHistorySellingPrice);
+
+    marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
+
+    priceBasisElement.addEventListener('change', function () {
+       const priceBasis = this.value;
+       const paymentTermId = paymentTermIdElement.value;
+
+
+      historyCustomFieldsContainer.innerHTML = '';
+
+      if (priceBasis) {
+        fetch('/get-custom-fields', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          },
+          body: JSON.stringify({
+            price_basis: priceBasis,
+            payment_term_id: paymentTermId,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            historyCustomFieldsContainer.innerHTML = '';
+
+            let rowContainer = document.createElement('div');
+            rowContainer.classList.add('row');
+
+            data.forEach((field, index) => {
+              const fieldHTML = `
+                <div class="form-group col-md-6">
+                  <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+                  <input class="form-control dynamic-field" type="text"
+                  name="${field.short_code}" data-field-name="${field.short_code}" />
+                </div>`;
+              rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+
+              if ((index + 1) % 2 === 0) {
+                historyCustomFieldsContainer.appendChild(rowContainer);
+                rowContainer = document.createElement('div');
+                rowContainer.classList.add('row');
+              }
+            });
+
+            if (rowContainer.children.length > 0) {
+              customFieldsContainer.appendChild(rowContainer);
+            }
+
+            const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
+            dynamicFields.forEach((input) => {
+              input.addEventListener('input', function () {
+                const fieldName = this.getAttribute('data-field-name').trim();
+                const fieldValue = parseFloat(this.value) || 0;
+
+                const fieldIndex = customsArray.findIndex(
+                  (item) => item.field_name === fieldName
+                );
+                if (fieldIndex !== -1) {
+                  customsArray[fieldIndex].value = fieldValue;
+                } else {
+                  customsArray.push({ field_name: fieldName, value: fieldValue });
+                }
+
+                console.log("Custom Fields Array Updated:", customsArray);
+
+                updateHistorySellingPrice();
+              });
+            });
+          })
+          .catch((error) => console.error('Error fetching custom fields:', error));
+      } else {
+        customFieldsContainer.innerHTML = '';
+      }
+    });
+    });
+
+    </script>
+
+    <script>
+    let productCustomFieldsArray = [];
+    document.addEventListener('DOMContentLoaded', function () {
+    const priceBasisElement = document.getElementById('productPriceBasis');
+    const paymentTermIdElement = document.getElementById('productPaymentTermId');
+    const customFieldsContainer = document.getElementById('productCustomFieldsContainer');
+    const sellingPriceInput = document.getElementById('sellingPrice');
+    const buyingPriceInput = document.getElementById('buying_price');
+    const marginPriceInput = document.getElementById('marginPrice');
+    const marginPercentageInput = document.getElementById('marginPercentage');
+
+    function updateSellingPrice() {
+      const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+        return sum + (parseFloat(item.value) || 0);
+      }, 0);
+
+      const marginPrice = parseFloat(marginPriceInput.value) || 0;
+      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+      let calculatedSellingPrice;
+      if (marginPrice === 0) {
+        calculatedSellingPrice = totalCustomFieldsValue;
+
+      } else {
+        const basePrice = parseFloat(buyingPriceInput.value) || 0;
+
+        calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+
+      }
+
+      sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+
+    }
+
+    marginPriceInput.addEventListener('input', updateSellingPrice);
+
+    marginPercentageInput.addEventListener('input', updateSellingPrice);
+
+    priceBasisElement.addEventListener('change', function () {
+      const priceBasis = this.value;
+      const paymentTermId = paymentTermIdElement.value;
+
+      productCustomFieldsArray = [];
+      customFieldsContainer.innerHTML = '';
+
+      if (priceBasis) {
+        fetch('/get-custom-fields', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          },
+          body: JSON.stringify({
+            price_basis: priceBasis,
+            payment_term_id: paymentTermId,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            customFieldsContainer.innerHTML = '';
+
+            let rowContainer = document.createElement('div');
+            rowContainer.classList.add('row');
+
+            data.forEach((field, index) => {
+              const fieldHTML = `
+                <div class="form-group col-md-6">
+                  <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+                  <input class="form-control dynamic-field" type="text"
+                  name="${field.short_code}" data-field-name="${field.short_code}" />
+                </div>`;
+              rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+
+              if ((index + 1) % 2 === 0) {
+                customFieldsContainer.appendChild(rowContainer);
+                rowContainer = document.createElement('div');
+                rowContainer.classList.add('row');
+              }
+            });
+
+            if (rowContainer.children.length > 0) {
+              customFieldsContainer.appendChild(rowContainer);
+            }
+
+            const dynamicFields = customFieldsContainer.querySelectorAll('.dynamic-field');
+            dynamicFields.forEach((input) => {
+              input.addEventListener('input', function () {
+                const fieldName = this.getAttribute('data-field-name').trim();
+                const fieldValue = parseFloat(this.value) || 0;
+
+                // Update or add the field value in the array
+                const fieldIndex = productCustomFieldsArray.findIndex(
+                  (item) => item.field_name === fieldName
+                );
+                if (fieldIndex !== -1) {
+                  productCustomFieldsArray[fieldIndex].value = fieldValue;
+                } else {
+                  productCustomFieldsArray.push({ field_name: fieldName, value: fieldValue });
+                }
+
+                console.log("Custom Fields Array Updated:", productCustomFieldsArray);
+
+                updateSellingPrice();
+              });
+            });
+          })
+          .catch((error) => console.error('Error fetching custom fields:', error));
+      } else {
+        customFieldsContainer.innerHTML = '';
+      }
+    });
+    });
+    </script>
+
+
+      <script>
+          let customPriceArray = [];
   $(document).ready(function() {
     // Initialize select2
     $('#supplierDropdown').select2();
@@ -1266,7 +1723,111 @@
         $(this).trigger('change'); // Trigger change event to update the UI
       }
     });
+
+    const quoteId = $('#quotation_id').val();
+    console.log(quoteId);
+    if (quoteId) {
+      fetchCustomPriceArray(quoteId);
+    } else {
+      console.error('Quote ID not found');
+    }
+
+  function fetchCustomPriceArray(quoteId) {
+
+    $.ajax({
+      url: `/edit-quote-custom/${quoteId}`,
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        customPriceArray = data;
+       updateQuotationCharges(customPriceArray);
+      },
+      error: function (xhr, status, error) {
+        console.error('Error fetching custom price array:', error);
+      }
+    });
+  }
+
+$('#buying_gross_price, #buying_purchase_discount, #buying_purchase_discount_amount').on('input', function () {
+updateBuyingPrice();
+});
+
+function updateBuyingPrice() {
+
+let gross_price = $('#buying_gross_price').val();
+let purchase_discount = $('#buying_purchase_discount').val();
+let purchase_discount_amount = $('#buying_purchase_discount_amount').val();
+
+
+let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
+let discountPercentage = parseFloat(purchase_discount) || 0;
+let discountAmount = parseFloat(purchase_discount_amount.replace(/,/g, '')) || 0;
+
+if (basePrice > 0) {
+if (discountPercentage > 0 && purchase_discount_amount === '') {
+
+  discountAmount = basePrice * (discountPercentage / 100);
+  $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
+}
+
+if (discountAmount > 0 && purchase_discount === '') {
+  discountPercentage = (discountAmount / basePrice) * 100;
+  $('#buying_purchase_discount').val(discountPercentage.toFixed(2));
+}
+
+if (discountPercentage > 0) {
+
+  discountAmount = basePrice * (discountPercentage / 100);
+  $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
+}
+
+
+let buyingPrice = basePrice - discountAmount;
+$('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
+} else {
+
+$('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');
+}
+}
+
   });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Bind change events to the dropdowns
+      const productPriceBasis = document.getElementById("productPriceBasis");
+      const historyPriceBasis = document.getElementById("historyPriceBasis");
+      const paymentTerm = document.getElementById("paymentTerm");
+
+      if (productPriceBasis) {
+        productPriceBasis.addEventListener("change", updateQuotationPriceBasis);
+      }
+      if (historyPriceBasis) {
+        historyPriceBasis.addEventListener("change", updateQuotationPriceBasis);
+      }
+      if (paymentTerm) {
+        paymentTerm.addEventListener("change", updateQuotationPriceBasis);
+      }
+    });
+
+    function updateQuotationPriceBasis() {
+      const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
+      const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
+      const selectedDeliveryTerm = document.getElementById("paymentTerm") ? document.getElementById("paymentTerm").value : '';
+
+      if (selectedPaymentTerm && selectedDeliveryTerm && selectedPaymentTerm !== selectedDeliveryTerm) {
+        alert("The selected Payment Term does not match the selected Delivery Term.");
+      }
+      if (selectedHistoryPaymentTerm && selectedDeliveryTerm && selectedHistoryPaymentTerm !== selectedDeliveryTerm) {
+        alert("The selected Payment Term does not match the selected Delivery Term.");
+      }
+
+      if (!selectedPaymentTerm) {
+        document.getElementById("paymentTermError").style.display = "block";
+      } else {
+        document.getElementById("paymentTermError").style.display = "none";
+      }
+    }
   </script>
 
 

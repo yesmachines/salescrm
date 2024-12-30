@@ -26,6 +26,8 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\CustomPriceController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -185,6 +187,19 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('expense/download/{id}', [ExpenseController::class, 'downloadExpenseOS'])->name('expense.download');
 
     Route::get('/stockprs', [PurchaseRequisitionController::class, 'stockPrList'])->name('purchaserequisition.stock');
+
+
+    Route::post('/get-custom-fields', [CustomPriceController::class, 'getCustomFieldsByPriceBasis']);
+    Route::get('/get-custom-prices/{id}', [CustomPriceController::class, 'getCustomPrice'])->name('customPrice');
+    Route::get('/quote-custom-prices/{id}', [CustomPriceController::class, 'getQuotationCustomPrice'])->name('quoteCustomPrice');
+    Route::get('/edit-quote-custom/{id}', [CustomPriceController::class, 'editQuotationCustomPrice'])->name('editQuoteCustom');
+    Route::delete('/delete-custom-price-quote/{quoteId}', [CustomPriceController::class, 'deleteCustomPriceQuote']);
+    Route::post('/quote-custom-edit', [CustomPriceController::class, 'quoteCustomEdit'])->name('quotation.custom_price_edit');
+    Route::get('/quotations-charge-checkbox/{quotation}', [CustomPriceController::class, 'editQuotationCharge']);
+    Route::get('quotations/custom/{id}', [CustomPriceController::class, 'downloadCustomPrice'])->name('quotation.customDownload');
+    Route::get('/get-item-details/{itemId}/quotation/{quotationId}', [CustomPriceController::class, 'getItemDetails'])->name('custom-item-edit');
+
+
 });
 Route::get('special-deals/{id}', [QrCodeController::class, 'index']);
 Route::post('qrcode-form', [QrCodeController::class, 'store'])->name('qrcodeScanning');

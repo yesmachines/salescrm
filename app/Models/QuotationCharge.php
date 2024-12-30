@@ -14,5 +14,6 @@ class QuotationCharge extends Model
         'short_code',
         'amount',
         'sort_order',
+        'quote_visible',
     ];
 }

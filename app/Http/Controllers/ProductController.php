@@ -90,8 +90,10 @@ class ProductController extends Controller
 
     $data = $request->all();
 
+
     $product_image = $productService->uploadImage($request);
     $product = $productService->createProduct($data, $product_image);
+
     $product->supplier->brand = ($product->brand_id && $product->supplier) ? $product->supplier->brand : '';
 
     return response()->json(['success' => 'Product created successfully', 'data' => $product]);

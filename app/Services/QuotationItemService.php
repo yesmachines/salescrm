@@ -35,6 +35,8 @@ class QuotationItemService
     $quoteCurrency = $userData['quote_currency'];
     $totalAfterDiscounts = $userData['total_after_discount'];
     $discountStatus = $userData['discount_status'];
+    $unitMargin = $userData['product_margin'];
+
 
     //foreach ($totalAfterDiscounts as $index => $totalAfterDiscount) {
     for ($index = 0; $index < count($itemIds); $index++) {
@@ -53,12 +55,14 @@ class QuotationItemService
         'brand_id' =>  $brand[$index],
         'margin_price' =>  $marginPrice[$index],
         'discount_status' => $discountStatus[$index],
+        'unit_margin' => $unitMargin[$index],
       ]);
     }
     // charges entry
     if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
       $chargeType = $userData['charge_name'];
       $chargeAmount = $userData['charge_amount'];
+      $quoteVisible = $userData['is_visible'];
     }
 
     if (isset($chargeType)) {
@@ -72,6 +76,7 @@ class QuotationItemService
             'title' => $charge,
             'amount' => $chargeAmount[$index],
             'short_code' => $shortcodeTitle,
+            'quote_visible' => $quoteVisible[$index],
           ]);
           // add to field table
           // charge type - save to field table
@@ -203,9 +208,9 @@ class QuotationItemService
 
   public function updateQuoteItem($userData)
   {
-  
+
     $quotationId = $userData['quotation_id'];
-    // delete all quotation items
+
     QuotationItem::where('quotation_id', $quotationId)->delete();
 
     // quotation items Insert
@@ -226,6 +231,7 @@ class QuotationItemService
           'brand_id' =>   $userData['brand_id'][$index],
           'margin_price' =>  $userData['margin_amount_row'][$index],
           'discount_status' => $userData['discount_status'][$index],
+          'unit_margin' => $userData['product_margin'][$index],
         ]);
       }
     }
@@ -244,6 +250,7 @@ class QuotationItemService
             'title' => $charge,
             'amount' => $userData['charge_amount'][$index],
             'short_code' => $shortcodeTitle,
+            'quote_visible'=> $userData['is_visible'][$index],
           ]);
         }
       }
@@ -365,4 +372,6 @@ class QuotationItemService
   {
     return QuotationItem::where('quotation_id', $id)->get();
   }
+
+
 }

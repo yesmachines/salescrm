@@ -37,6 +37,7 @@
       <tbody>
       </tbody>
     </table>
+      <input type="hidden" name="customprice" id="customprice">
   </div>
 </div>
 <script>
@@ -339,29 +340,39 @@ $(document).ready(function() {
 
   // delete item row
   var iter = $("#product_item_tbl").find("tbody >tr").length;
-  $(document).on('click', '.del-item', function (e) {
-      Swal.fire({
-          title: "Are you sure?",
-          text: "You are sure to delete the product!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, delete it!"
-      }).then((result) => {
-          if (result.isConfirmed) {
-              iter--;
-              let row = $(this).parents('tr');
-              removeQuotationRow(row);
-              row.remove();
-              calculateOverallTotal();
-          }
-      });
+  $(document).on('click', '.del-item', function(e) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are sure to delete the product!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let row = $(this).parents('tr');
+        let productId = row.find('input[name="item_id[]"]').val();
+        console.log(productId);
+        console.log(customPriceArray);
+        customPriceArray = customPriceArray.filter(function(item) {
+          return item.product_id !== parseInt(productId);
+        });
+
+        removeQuotationRow(row);
+        row.remove();
+
+
+        updateQuotationCharges(customPriceArray);
+
+        calculateOverallTotal();
+
+      }
+    });
   });
 
 
   jQuery('.btn-select').on('click', function(e) {
-
     let selectedRadio = $('input[name="priceBasisRadio"]:checked');
     let newRow = '',
     title = '',
@@ -375,13 +386,14 @@ $(document).ready(function() {
     newmargin = 0;
 
     if (selectedRadio.length > 0) {
-
       let selProductId = selectedRadio.data('productid');
       let sellingPrice = selectedRadio.data('selling-price');
       let marginPrice = selectedRadio.data('margin-price');
       let marginPercent = selectedRadio.data('margin-percent');
       let allowedDiscount = selectedRadio.data('allowed-discount');
       let itemCurrency = selectedRadio.data('currency');
+      let historyDataId = selectedRadio.data('history-id');
+
 
       //let currencyRate = $("#currency_factor").val();
 
@@ -409,7 +421,7 @@ $(document).ready(function() {
       }
       newRow += '<tr id="irow-' + selProductId + '">';
       newRow += '<td><textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
-      newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '"/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
+      newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '" readonly/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
       newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" step="any" min="1" value="' + qty + '"/></td>';
       newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';
       newRow += '<td><input type="number" class="form-control discount" name="discount[]" step="any" min="0" value="' + discount + '"/></td>';
@@ -423,12 +435,42 @@ $(document).ready(function() {
       <input type="hidden" name="product_margin[]" value="${marginPrice}"/>
       <input type="hidden" name="product_currency[]" value="${itemCurrency}"/>
       <input type="hidden" name="margin_amount_row[]" value="${newmargin}" class="margin-amount-row">
+      <input type="hidden" name="history_id[]" value="${historyDataId}"/>
       <a href="javascript:void(0);" data-id="drow-${selProductId}" class="del-item"><i class="fas fa-trash"></i></a>
       </td>`;
 
       newRow += '</tr>';
 
       $("#product_item_tbl").find('tbody').append(newRow);
+      var customPriceRoute = "{{ route('customPrice', ':id') }}";
+      let url = customPriceRoute.replace(':id', historyDataId);
+      $.ajax({
+        url: url,
+        method: 'GET',
+        success: function(response) {
+
+          if (response && response.customPrices) {
+            // Check if the ID already exists in customPriceArray
+            const exists = customPriceArray.some(item => item.id === response.customPrices.id);
+
+            if (!exists) {
+
+              customPriceArray.push(response.customPrices);
+              const customPriceJSON = JSON.stringify(customPriceArray);
+
+              document.getElementById('customprice').value = customPriceJSON;
+              updateQuotationCharges(customPriceArray);
+            } else {
+              console.log('Duplicate ID detected. Not adding to customPriceArray:', response.customPrices.id);
+            }
+          }
+
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching custom prices:', error);
+        }
+      });
+
       calculateOverallTotal();
 
       $('#customModal').modal('hide');
@@ -456,7 +498,7 @@ $(document).ready(function() {
       '#quoteCurrencyHistory',
       '#marginPriceHistory',
       'input[name="product_ids"]',
-      '#priceBasis'
+      '#historyPriceBasis'
     ];
 
     // Validate each field based on its value
@@ -484,6 +526,7 @@ $(document).ready(function() {
     updateMarginPercentage();
   });
 
+
   // FOR ADD NEW PRICE OF CUSTOM PRODUCT
   document.getElementById('sellingPriceHistory').addEventListener('input', updateMarginPriceHistory);
   document.getElementById('marginPercentageHistory').addEventListener('input', updateMarginPriceHistory);
@@ -493,6 +536,7 @@ $(document).ready(function() {
 
   $('#saveProduct').on('click', function(e) {
     e.preventDefault();
+
     var isValid = true;
 
     // Remove the is-invalid class and hide the invalid feedback for all elements
@@ -508,19 +552,20 @@ $(document).ready(function() {
       '#marginPercentage',
       '#marginPrice',
       '#productcategoryInput',
-      '#durationSelect',
+      '#purchasedurationSelect',
       '#currencyInput',
       '#managerInput',
-      '#buying_currency',
+      '#productBuyingCurrency',
       '#gross_price',
       '#purchase_discount',
       '#purchase_discount_amount',
       '#buying_price'
     ];
-
+    console.log("7");
 
     // Validate each field based on its value
     requiredFields.forEach(function(field) {
+      console.log("6");
       var value = $(field).val().trim();
 
       // Check if the field value is empty
@@ -529,11 +574,12 @@ $(document).ready(function() {
         isValid = false;
       }
     });
-
+    console.log("1");
     // If all fields pass validation, submit the form
     if (isValid) {
-
+      console.log("2");
       if ($("#currencyInput").val() != $("#currencyDropdown").val()) {
+        console.log("3");
         // check allowed to add product currency only in preffered quotation currency
         Swal.fire({
           icon: "error",
@@ -544,6 +590,7 @@ $(document).ready(function() {
         return false;
 
       } else {
+        console.log("4");
         createNewProduct(isValid);
       }
     }
@@ -795,6 +842,7 @@ function refreshProductHistory(productid) {
     url: '{{ route("productHistory", ":id") }}'.replace(':id', productid),
     method: 'GET',
     success: function(response) {
+
       var productHistoryHtml = `<table class="table">
       <thead><tr><th></th>
       <th>Name</th>
@@ -811,14 +859,13 @@ function refreshProductHistory(productid) {
         let title = history.product_title;
         if (history.modelno) title += ' / ' + history.modelno + '';
         if (history.part_number) title += ' / ' + history.part_number + '';
-        var highlightStyle = history.custom_price_exists
-       ? 'background-color: #d3f5f5 !important; box-shadow: 0 4px 12px rgba(211, 245, 245, 0.4);'
-       : '';
-        productHistoryHtml += '<tr style="' + highlightStyle + '">' +
+
+        productHistoryHtml += '<tr' + (history.is_custom == 1 ? ' style="background-color: #f0f8ff; font-weight: bold;"' : '') + '>' +
         '<td>' +
         '<div class="form-check">' +
-        '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount + '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '">' +
-        '</div>' +
+        '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount +
+         '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '"data-price-basis="' + history.price_basis + '">'
+        +'</div>' +
         '</td>' +
         '<td> <label class="form-check-label" for="priceBasisRadio_' + counter + '">' + title + '</label></td>' +
         '<td>' + history.selling_price + ' ' + history.currency + '</td>' +
@@ -845,6 +892,8 @@ function refreshProductHistory(productid) {
   });
 }
 
+let customFieldsArray = [];
+let customPriceArray = [];
 function attachEventListeners() {
   $('input[name="priceBasisRadio"]').on('click', function() {
     let rowIndex = $(this).data('row-index');
@@ -854,9 +903,32 @@ function attachEventListeners() {
     let marginPercent = $(this).data('margin-percent');
     let allowedDiscount = $(this).data('allowed-discocunt');
     let currency = $(this).data('currency');
+    let productId = $(this).data('productid');
+    let priceBasis = $(this).data('price-basis');
+
+
 
     if ($(this).prop('checked')) {
       let selectedCurrency = $('select[name="quote_currency"]').val();
+
+       let selectedDeliveryTerm = $('#paymentTerm').val();
+
+       if (priceBasis !== selectedDeliveryTerm) {
+        Swal.fire({
+          title: "Mismatch Detected",
+          text: "The selected Price Basis does not match the Delivery Term.",
+          icon: "warning",
+          confirmButtonText: "Okay",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Optional: Reset the radio button selection
+            $(this).prop('checked', false);
+          }
+        });
+      }
+
+
+
 
       if (selectedCurrency !== currency) {
         let errorTxt = 'The product currency (' + currency + ') does not match the preferred currency (' + selectedCurrency + ').Please add a new price';
@@ -901,7 +973,22 @@ function saveAdditionalFieldsHandler(isValid) {
     let quoteCurrency = $('#quoteCurrencyHistory').val();
     let marginPrice = $('#marginPriceHistory').val();
     let productId = $('input[name="product_ids"]').val();
-    let priceBasis = $('#priceBasis').val();
+    let priceBasis = $('#historyPriceBasis').val();
+    let isDefault = $('#defaultSellingPrice').val();
+    let buyingGrossPrice = $('#buying_gross_price').val();
+    let buyingPurchaseDiscount = $('#buying_purchase_discount').val();
+    let buyingPurchaseDiscountAmount = $('#buying_purchase_discount_amount').val();
+    let buyingPrices = $('#buying_prices').val();
+    let defaultBuyingPrice = $('#defaultBuyingPrice').val();
+    let buyingCurrencyHistory = $('#buyingCurrencyHistory').val();
+
+    let customFields = [];
+    $('.custom-field').each(function() {
+      customFields.push({
+        name: $(this).data('name'),
+        value: $(this).val()
+      });
+    });
 
     $.ajax({
       url: '{{ route("productHistorySave") }}',
@@ -915,9 +1002,20 @@ function saveAdditionalFieldsHandler(isValid) {
         quote_currency: quoteCurrency,
         margin_price: marginPrice,
         productId: productId,
-        price_basis: priceBasis
+        price_basis: priceBasis,
+        custom_fields: customsArray,
+        default_selling_price:isDefault,
+
+        buying_gross_price:buyingGrossPrice,
+        buying_purchase_discount:buyingPurchaseDiscount,
+        buying_purchase_discount_amount :buyingPurchaseDiscountAmount,
+        buying_prices:buyingPrices,
+        default_buying_price:defaultBuyingPrice,
+        buying_currency:buyingCurrencyHistory,
+
       },
       success: function(response) {
+
         if (response.success) {
 
           $('#additionalFieldsModal').modal('hide');
@@ -1072,7 +1170,9 @@ function updateMarginPercentageHistory() {
 }
 
 function createNewProduct(isValid) {
+
   let asset_url = `{{ env('APP_URL') }}`;
+
   if (isValid) {
     let formData = new FormData($('#productForm')[0]);
 
@@ -1105,7 +1205,14 @@ function createNewProduct(isValid) {
     formData.append('buying_price', $('input[name=buying_price]').val());
     formData.append('validity_from', $('input[name=validity_from]').val());
     formData.append('validity_from', $('input[name=validity_from]').val());
-    //
+    formData.append('is_demo', $('input[name=is_demo]').val());
+
+
+    productCustomFieldsArray.forEach((field, index) => {
+      formData.append(`${field.field_name}`, field.value);
+    });
+
+
     $.ajax({
       url: "{{ route('products.ajaxsave') }}",
       method: "POST",
@@ -1119,6 +1226,29 @@ function createNewProduct(isValid) {
         if (response.data) {
           let newProductData = response.data;
 
+
+          var customPriceRoute = "{{ route('customPrice', ':id') }}";
+          let url = customPriceRoute.replace(':id', newProductData.id);
+          const customPriceJSON = JSON.stringify(customPriceArray);
+
+          document.getElementById('customprice').value = customPriceJSON;
+          $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+              if (response && response.customPrices) {
+                customPriceArray.push(response.customPrices);
+                    console.log(customPriceArray);
+
+                updateQuotationCharges(customPriceArray);
+              } else {
+                console.error('Error: customPrices is not present in the response');
+              }
+            },
+            error: function(error) {
+              console.error('Error fetching custom prices:', error);
+            }
+          });
           let newRow = '',
           title = '',
           brandId = 0,
@@ -1137,6 +1267,7 @@ function createNewProduct(isValid) {
           title = newProductData.title;
           if (newProductData.modelno) title += ' / ' + newProductData.modelno + '';
           if (newProductData.part_number) title += ' / ' + newProductData.part_number + '';
+          if (newProductData.product_type) title += ' ( ' + (newProductData.product_type).toUpperCase() + ') ';
 
           unitprice = newProductData.selling_price;
           unitprice = parseFloat(unitprice).toFixed(2);
@@ -1163,11 +1294,11 @@ function createNewProduct(isValid) {
           }
           newRow += '<tr id="irow-' + selProductId + '">';
           newRow += '<td>' + img + '<textarea class="form-control" name="item_description[]" rows="2">' + title + '</textarea></td>';
-          newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '"/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
+          newRow += '<td><input type="text" class="form-control unit-price" name="unit_price[]" value="' + unitprice + '" readonly/><p class="text-danger">MOSP: <span class="mosp-label">' + mosp + '</span>%</p></td>';
           newRow += '<td><input type="number" class="form-control quantity" name="quantity[]" min="1" value="' + qty + '"/></td>';
           newRow += '<td><input type="text" class="form-control subtotal" name="subtotal[]" value="' + subtotal + '" readonly/></td>';
           newRow += '<td><input type="number" class="form-control discount" name="discount[]" step="any" min="0" value="' + discount + '"/></td>';
-          newRow += '<td>  <input type="hidden" name="discount_status[]" value="0"><input type="checkbox" id="exampleCheckbox" name="discount_option[]" value="1" onchange="updateCheckboxValue(this)"></td>';
+          newRow += '<td><input type="hidden" name="discount_status[]" value="0"><input type="checkbox" id="exampleCheckbox" name="discount_option[]" value="1" onchange="updateCheckboxValue(this)"></td>';
           newRow += '<td><input type="text" class="form-control total-price" name="total_after_discount[]" value="' + total + '" readonly/><p class="text-danger">New Margin: <span class="new-margin-label">' + newmargin + '</span></p></td>';
           newRow += `<td><input type="hidden" name="item_id[]" value="${selProductId}"/>
           <input type="hidden" name="brand_id[]" value="${brandId}"/>
@@ -1200,7 +1331,6 @@ function createNewProduct(isValid) {
 }
 
 function calculateOverallTotal() {
-
   var overallTotal = 0;
   var overallMargin = 0;
   var vatRate = 0.05; // VAT rate of 5%
@@ -1210,49 +1340,35 @@ function calculateOverallTotal() {
   var vatAmount = 0;
   var quotationCharges = 0;
   var totalMarginSum = 0;
+  var customVatAmount = parseFloat($('#vatAmountLabelService').val());
 
-  // var customVatAmount = parseFloat($('#vatAmountLabelService').val());
-  // total amount
   $('input[name="total_after_discount[]"]').each(function() {
     var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
-    //  overallTotal += rowTotalAfterDiscount;
+
     sumAfterDiscount += rowTotalAfterDiscount;
   });
-  // total margins
+
   $('input[name="margin_amount_row[]"]').each(function() {
     var rowTotalMargin = parseFloat($(this).val()) || 0;
-    // overallMargin += rowTotalMargin;
+
     totalMargin += rowTotalMargin;
   });
-  // total charges
+
+
+
   $('input[name="charge_amount[]"]').each(function() {
     var chargeAmount = parseFloat($(this).val()) || 0;
     quotationCharges += chargeAmount;
   });
-  // add charges + total
+  console.log(quotationCharges);
   sumAfterDiscount += quotationCharges;
-  //vat amount
-  // if (vatIncluded == 1) {
-  //     vatAmount = sumAfterDiscount * vatRate;
-  //     sumAfterDiscount += vatAmount;
-  // }
-  //
-  // $('#totalValue').val(sumAfterDiscount.toFixed(2));
 
-  // if (customVatAmount) {
-  //   vatIncluded = 0;
-  //   var total_service_value = sumAfterDiscount + customVatAmount;
-  //
-  //   $('#totalValue').val(total_service_value.toFixed(2));
-  // } else {
-    if (vatIncluded == 1) {
+  if (vatIncluded == 1) {
+    vatAmount = sumAfterDiscount * vatRate;
+    sumAfterDiscount += vatAmount;
+  }
+  $('#totalValue').val(sumAfterDiscount.toFixed(2));
 
-      vatAmount = sumAfterDiscount * vatRate;
-      sumAfterDiscount += vatAmount;
-    }
-
-    $('#totalValue').val(sumAfterDiscount.toFixed(2));
-  // }
 
   $('#totalMarginValue').val(totalMargin.toFixed(2));
 
@@ -1276,4 +1392,93 @@ function updateCheckboxValue(checkbox) {
   // Set the value of the hidden input based on checkbox state
   hiddenInput.value = checkbox.checked ? 1 : 0;
 }
+function updateQuotationCharges(customPriceArray) {
+  const quotationChargesContainer = document.getElementById('quotationChargesContainer');
+
+  // Fetch existing charges that were rendered on the page
+  const existingCharges = [];
+  document.querySelectorAll('.row[data-charge-id]').forEach(row => {
+    const chargeId = row.getAttribute('data-charge-id');
+    const chargeName = row.querySelector('input[name^="charge_name"]').value;
+    const chargeAmount = row.querySelector('input[name^="charge_amount"]').value;
+    const isVisible = row.querySelector('input[name^="is_visible"]').checked ? 1 : 0;
+
+    existingCharges.push({ id: chargeId, charge_name: chargeName, charge_amount: chargeAmount, is_visible: isVisible });
+  });
+
+  // Clear the container to re-render
+  quotationChargesContainer.innerHTML = '';
+
+  // Combine existing charges with the new ones (if any)
+  const groupedCharges = {};
+  customPriceArray.forEach(item => {
+    Object.keys(item).forEach(key => {
+      if (key !== 'product_id' && key !== 'id' && item[key] !== null && item[key] !== undefined) {
+        if (groupedCharges[key]) {
+          groupedCharges[key] += item[key];
+        } else {
+          groupedCharges[key] = item[key];
+        }
+      }
+    });
+  });
+
+
+  existingCharges.forEach(existingCharge => {
+    const key = existingCharge.charge_name;
+    groupedCharges[key] = existingCharge.charge_amount;
+  });
+
+
+  let index = 0;
+  Object.keys(groupedCharges).forEach((key) => {
+    const value = groupedCharges[key];
+    const rowContainer = document.createElement('div');
+    rowContainer.classList.add('row');
+    rowContainer.id = 'row-' + index;
+
+    // Add the "plus" button only for the first row
+    const plusButtonHTML = index === 0 ? `
+    <div class="col-sm-1">
+    <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
+    <i class="fas fa-plus"></i>
+    </button>
+    </div>
+    ` : '';
+    const deleteButtonHTML = index > 0 ? `
+    <div class="col-sm-1">
+    <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+    <i class="fas fa-trash"></i>
+    </button>
+    </div>
+    ` : '';
+
+    rowContainer.innerHTML = `
+    <div class="col-sm-2"></div>
+    <div class="col-sm-1">
+    <div class="form-check" style="display: flex; justify-content: flex-end;">
+    <!-- Hidden input for unchecked state -->
+    <input type="hidden" name="is_visible[]" value="0">
+    <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
+    </div>
+    </div>
+    <div class="col-sm-4">
+    <div class="form-group">
+    <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key}" />
+    </div>
+    </div>
+    <div class="col-sm-3">
+    <div class="form-group">
+    <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" />
+    </div>
+    </div>
+    ${plusButtonHTML}
+    ${deleteButtonHTML}
+    `;
+
+    quotationChargesContainer.appendChild(rowContainer);
+    index++;
+  });
+}
+
 </script>

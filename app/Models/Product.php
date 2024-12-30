@@ -42,6 +42,11 @@ class Product extends Model
   {
     return $this->hasMany(BuyingPrice::class, "product_id", "id")->orderBy('id', 'desc');
   }
+  public function productPriceHistory()
+  {
+      return $this->hasMany(ProductPriceHistory::class);
+  }
+
 
   public function supplier()
   {
@@ -73,5 +78,9 @@ class Product extends Model
   public function orderItem()
   {
     return $this->hasMany(OrderItem::class, 'product_id', 'id');
+  }
+  public function customPrice(): HasMany
+  {
+    return $this->hasMany(CustomPrice::class, "product_id", "id");
   }
 }

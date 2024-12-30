@@ -43,4 +43,10 @@ class QuotationChargeService
     return Collection::make(QuotationCharge::where('quotation_id', $id)->get());
 
   }
+  public function getQuotionChargeDownload($id): Collection
+  {
+
+    return Collection::make(QuotationCharge::where('quotation_id', $id)->where('quote_visible','1')->get());
+
+  }
 }

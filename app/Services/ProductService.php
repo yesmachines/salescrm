@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Image;
 use DB;
+use App\Models\CustomPrice;
 use Illuminate\Support\Facades\File;
 
 class ProductService
@@ -79,7 +80,7 @@ class ProductService
 
     ]);
     // Selling Price
-    ProductPriceHistory::create([
+  $productPriceHistory=  ProductPriceHistory::create([
       'product_id' => $product->id,
       'selling_price' => $data['selling_price'],
       'margin_price' => $data['margin_price'],
@@ -106,6 +107,22 @@ class ProductService
       'validity_from'   => $data['validity_from'],
       'validity_to'     => $data['validity_to'],
     ]);
+    CustomPrice::create([
+      'product_id'    => $product->id,
+      'product_history_id' => $productPriceHistory->id,
+      'packing'    => isset($data['packing']) ? $data['packing'] : null,
+      'road_transport_to_port' => isset($data['road_transport_to_port']) ? $data['road_transport_to_port'] : null,
+      'freight'     => isset($data['freight']) ? $data['freight'] : null,
+      'insurance'        => isset($data['insurance']) ? $data['insurance'] : null,
+      'clearing' => isset($data['clearing']) ? $data['clearing'] : null,
+      'boe'   => isset($data['boe']) ? $data['boe'] : null,
+      'handling_and_local_transport'     => isset($data['handling_and_local_transport']) ? $data['handling_and_local_transport'] : null,
+      'customs'     => isset($data['customs']) ? $data['customs'] : null,
+      'delivery_charge'     => isset($data['delivery_charge']) ? $data['delivery_charge'] : null,
+      'mofaic'     => isset($data['mofaic']) ? $data['mofaic'] : null,
+      'status'     => '1',
+  ]);
+
 
     return $product;
   }

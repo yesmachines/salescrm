@@ -128,4 +128,12 @@ class Quotation extends Model
     {
         $this->attributes['win_date'] = ($value) ? date("Y-m-d", strtotime($value)) : null;
     }
+
+      public function customPrices()
+  {
+      return $this->belongsToMany(QuotationCustomPrice::class, 'quotation_custom_prices')
+          ->withPivot('company_id', 'created_date');
+  }
+
+
 }

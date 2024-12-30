@@ -63,6 +63,7 @@
               <a class="dropdown-item" href="{{ route('quotations.show', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>Preview</span></a>
               <a class="dropdown-item" href="{{ route('quotations.edit', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
               <a class="dropdown-item" href="{{ route('quotation.download', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Download</span></a>
+              <a class="dropdown-item" href="{{ route('quotation.customDownload', $quote->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="download"></i></span><span>Custom Price</span></a>
               <a class="dropdown-item" href="javascript:void(0);" id="new_reminder" data-bs-toggle="modal" data-bs-target="#set_new_reminder" data-id="{{$quote->id}}" data-rel="{{$quote->reminder}}">
                 <span class="feather-icon dropdown-icon"><i data-feather="bell"></i></span><span>Set a Reminder</span></a>
               <a class="dropdown-item" href="javascript:void(0);" id="update-status" data-bs-toggle="modal" data-bs-target="#change-Status" data-id="{{$quote->id}}" data-rel="{{$quote->status_id}}">

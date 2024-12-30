@@ -20,6 +20,7 @@ class QuotationItem extends Model
     'brand_id',
     'margin_price',
     'discount_status',
+    'unit_margin'
   ];
   public function product()
   {
@@ -50,4 +51,19 @@ class QuotationItem extends Model
     $b = str_replace(',', '', $value);
     return $this->attributes['margin_price'] = ($value) ? (float)$b : 0;
   }
+  public function productPriceHistory()
+  {
+      return $this->hasOne(ProductPriceHistory::class, 'product_id', 'item_id');
+  }
+  public function customPrice()
+     {
+         return $this->belongsTo(CustomPrice::class, 'custom_price_id');
+     }
+     // In QuotationItem.php model
+   public function quotationCustomPrice()
+   {
+       return $this->belongsTo(QuotationCustomPrice::class, 'item_id', 'product_id');  
+   }
+
+
 }
