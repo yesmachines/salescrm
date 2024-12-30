@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('enquiries', 'EnquiryController@index');
     Route::get('enquiries/{id}', 'EnquiryController@show');
     Route::post('enquiry-call-logs', 'EnquiryController@callLogs');
+    Route::post('update-enquiry/{id}', 'EnquiryController@update');
 });
 
 Route::middleware(['cors'])->group(function () {

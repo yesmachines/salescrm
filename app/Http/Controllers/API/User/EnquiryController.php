@@ -224,8 +224,8 @@ class EnquiryController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'details', 'enquiry_date', 'lead_type', 'expo_id')
-                ->with(['company:id,country_id,region_id,company', 'company.country:id,name', 'company.region:id,state', 'leadStatus:id,name', 'customer:id,fullname,phone'])
+        $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'details', 'enquiry_date', 'lead_type', 'enquiry_mode', 'expo_id')
+                ->with(['company:id,country_id,region_id,company', 'company.country:id,name', 'company.region:id,state', 'customer:id,fullname,phone'])
                 ->where('id', $id)
                 ->first();
         if ($enquiry->lead_type == 'expo') {
@@ -233,6 +233,23 @@ class EnquiryController extends Controller {
                 $enquiry->lead_type = $enquiry->expo->name;
                 unset($enquiry->expo);
             }
+        }
+        if (!empty($enquiry->enquiry_mode)) {
+            $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
+        }
+
+        $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes")
+                ->leftJoin('suppliers as s', 'lead_products.supplier_id', '=', 's.id')
+                ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
+                ->where('lead_products.lead_id', '=', $enquiry->id)
+                ->first();
+
+        //Get latest history;
+        $lleadHistory = LeadHistory::where('lead_id', $enquiry->id)->orderBy('created_at', 'desc')->first();
+        if ($lleadHistory) {
+            $enquiry->priority = $lleadHistory->priority;
+        } else {
+            $enquiry->priority = 'low';
         }
 
         $requestedTimezone = $request->header('timezone', config('app.timezone'));
@@ -244,6 +261,29 @@ class EnquiryController extends Controller {
         });
 
         return successResponse(trans('api.success'), $enquiry);
+    }
+
+    public function update(Request $request, $id) {
+        $enquiryPs = array_column(EnquiryPriority::cases(), 'value');
+        $rules = [
+            'status_id' => 'required',
+            'priority' => ['required', 'in:' . implode(',', $enquiryPs)],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+
+        //set Comment
+        $historyMessage = "Enquiry is updated with status " . LeadStatus::find($request->status_id)->name;
+        LeadHistory::firstOrCreate(
+                ['lead_id' => $id, 'status_id' => $request->status_id, 'priority' => $request->priority],
+                ['comment' => $historyMessage, 'userid' => $request->user()->id]
+        );
+        return successResponse(trans('api.success'));
     }
 
     public function callLogs(Request $request) {
