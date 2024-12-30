@@ -2295,14 +2295,15 @@
       let quoteCurrency = $('#quoteCurrencyCustom').val();
       let marginPrice = $('#marginPriceCustom').val();
       let priceBasis = $('#customPriceBasis').val();
-      let buyingGrossPrice = $('#custom_buying_gross_price').val();
-      let buyingPurchaseDiscount = $('#custom_buying_purchase_discount').val();
-      let buyingPurchaseDiscountAmount = $('#custom_buying_purchase_discount_amount').val();
+      let buyingGrossPrice = $('#custom_gross_price').val();
+      let buyingPurchaseDiscount = $('#custom_purchase_discount').val();
+      let buyingPurchaseDiscountAmount = $('#custom_purchase_discount_amount').val();
       let buyingPrices = $('#custom_buying_prices').val();
       let buyingCurrencyCustom = $('#buyingCurrencyCustom').val();
       let customprice = $('#customprice').val();
       var quotationId = $('#quotation_id').val();
       var product_id = $('#itemId').val();
+
 
       let customFields = [];
       $('.custom-field').each(function() {
