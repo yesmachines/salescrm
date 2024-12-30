@@ -44,15 +44,24 @@ use App\Models\QuotationAvailability;
 use App\Services\QuotationOptionalService;
 use App\Models\Currency;
 use App\Services\CurrencyService;
+use App\Models\CustomField;
+use App\Models\CustomPrice;
+use App\Services\QuoteCustomPrice;
+use App\Models\CustomPriceQuote;
+use App\Models\BuyingPrice;
+use Carbon\Carbon;
+use App\Models\QuotationCustomPrice;
+
+
 
 class QuotationController extends Controller
 {
   //
   /**
-   * Display a listing of the resource.
-   *
-   * @return \Illuminate\Http\Response
-   */
+  * Display a listing of the resource.
+  *
+  * @return \Illuminate\Http\Response
+  */
   public function index(
     Request $request,
     QuotationService $quotationService
@@ -84,12 +93,11 @@ class QuotationController extends Controller
 
     return view('quotation.index', compact('quoteStatuses'));
   }
-
   /**
-   * Show the form for creating a new resource.
-   *
-   * @return \Illuminate\Http\Response
-   */
+  * Show the form for creating a new resource.
+  *
+  * @return \Illuminate\Http\Response
+  */
   public function create(
     QuotationService $quotationService,
     CustomerService $custService,
@@ -142,6 +150,7 @@ class QuotationController extends Controller
     $lead = $leadService->getLead($id);
     $quotationType = session('type');
 
+
     $products = $productService->getAllProduct();
     $quotationCharges = $quotationChargeService->getQuotationCharge();
     $quotationTerms = $quotationChargeService->getQuotationTerms();
@@ -154,7 +163,8 @@ class QuotationController extends Controller
     $paymentCycles = $quotationChargeService->getPaymentCyclesList();
     $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->get();
 
-    if ($quotationType == 'service') {
+    if($quotationType=='service'){
+
       return view('quotation.service_convert', compact(
         'lead',
         'quoteStatuses',
@@ -173,7 +183,8 @@ class QuotationController extends Controller
         'paymentTermList',
         'quotationType'
       ));
-    } else {
+
+    }else{
 
       return view('quotation.convert', compact(
         'lead',
@@ -197,11 +208,11 @@ class QuotationController extends Controller
   }
 
   /**
-   * Store a newly created resource in storage.
-   *
-   * @param  \Illuminate\Http\Request  $request
-   * @return \Illuminate\Http\Response
-   */
+  * Store a newly created resource in storage.
+  *
+  * @param  \Illuminate\Http\Request  $request
+  * @return \Illuminate\Http\Response
+  */
   public function store(
     Request $request,
     QuotationService $quotationService,
@@ -210,7 +221,9 @@ class QuotationController extends Controller
     LeadHistoryService $historyService,
     QuoteHistoryService $quoteHistoryService,
     CreateWordDocxService $wordService,
-    QuotationItemService $quotationItemService
+    QuotationItemService $quotationItemService,
+    QuoteCustomPrice $quotationCustomService
+
 
   ) {
     $this->validate($request, [
@@ -229,9 +242,8 @@ class QuotationController extends Controller
 
     $data = $request->all();
 
-    // During the lead covertion
     if (isset($data['lead_id']) && !empty($data['lead_id'])) {
-      // update leads status
+
       $lead = $leadService->getLead($data['lead_id']);
 
       $leadService->updateLead($lead, ['status_id' => 6]); // converted = 6
@@ -253,6 +265,9 @@ class QuotationController extends Controller
     $quotes = $quotationService->createQuote($data);
 
     $quotationItem = $quotationItemService->createQuotationItem($quotes, $data);
+    if($data['customprice']){
+      $quotationCustomPrice = $quotationCustomService->updateQuotationCustom($quotes, $data);
+    }
     // add Quote history
     $status = $quotationService->getQuoteStatusById($data['status_id']);
     $quoteHistoryService->addHistory([
@@ -261,8 +276,8 @@ class QuotationController extends Controller
     ], $quotes->id);
 
     /***********************************************
-     * Update Sales Commision - Calculation
-     ***********************************************/
+    * Update Sales Commision - Calculation
+    ***********************************************/
     $fields = [];
     array_push($fields, [
       'manager_id'    => $data['assigned_to'],
@@ -279,11 +294,11 @@ class QuotationController extends Controller
   }
 
   /**
-   * Display the specified resource.
-   *
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
+  * Display the specified resource.
+  *
+  * @param  int  $id
+  * @return \Illuminate\Http\Response
+  */
   public function show(
     $id,
     QuotationService $quotationService,
@@ -321,11 +336,11 @@ class QuotationController extends Controller
 
 
   /**
-   * Show the form for editing the specified resource.
-   *
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
+  * Show the form for editing the specified resource.
+  *
+  * @param  int  $id
+  * @return \Illuminate\Http\Response
+  */
   public function edit(
     $id,
     QuotationService $quotationService,
@@ -399,9 +414,9 @@ class QuotationController extends Controller
     if (!empty($quotation->preferred_currency)) {
 
       $conversionFromRate = DB::table('currency_conversion')
-        ->where('currency', $quotation->preferred_currency)
-        ->select('standard_rate')
-        ->first();
+      ->where('currency', $quotation->preferred_currency)
+      ->select('standard_rate')
+      ->first();
 
 
       // if (!empty($quotationItems)) {
@@ -447,7 +462,7 @@ class QuotationController extends Controller
     $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->get();
 
 
-    if ($quotation->quote_for == 'service') {
+    if(  $quotation->quote_for=='service'){
       return view('quotation.service_edit',  compact(
         'quotation',
         'categories',
@@ -483,7 +498,8 @@ class QuotationController extends Controller
         'availability',
         'optionalItems'
       ));
-    } else {
+
+    }else{
       return view('quotation.edit',  compact(
         'quotation',
         'categories',
@@ -523,12 +539,12 @@ class QuotationController extends Controller
   }
 
   /**
-   * Update the specified resource in storage.
-   *
-   * @param  \Illuminate\Http\Request  $request
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
+  * Update the specified resource in storage.
+  *
+  * @param  \Illuminate\Http\Request  $request
+  * @param  int  $id
+  * @return \Illuminate\Http\Response
+  */
   public function update(
     Request $request,
     $id,
@@ -536,7 +552,9 @@ class QuotationController extends Controller
     CustomerService $custService,
     QuoteHistoryService $quoteHistoryService,
     QuotationItemService $quotationItemService,
+    QuoteCustomPrice $quotationCustomService
   ) {
+
     $this->validate($request, [
       'company'       => 'required',
       'fullname'      => 'required',
@@ -556,6 +574,7 @@ class QuotationController extends Controller
     ]);
 
     $data = $request->all();
+
 
     if ($request->has('company_id')) {
       if ($request->filled('company_id')) {
@@ -600,10 +619,12 @@ class QuotationController extends Controller
     } else {
       $quotationItem = $quotationItemService->createQuotationItem($quotation, $data);
     }
-
+    if($data['customprice']){
+      $quotationCustomPrice = $quotationCustomService->updateQuotationCustom($quotation,$data);
+    }
     /***********************************************
-     * Update Sales Commision - Calculation
-     ***********************************************/
+    * Update Sales Commision - Calculation
+    ***********************************************/
     $isManager = array_filter($data['manager_id'], function ($var) {
       return !empty($var);
     });
@@ -661,11 +682,11 @@ class QuotationController extends Controller
   }
 
   /**
-   * Remove the specified resource from storage.
-   *
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
+  * Remove the specified resource from storage.
+  *
+  * @param  int  $id
+  * @return \Illuminate\Http\Response
+  */
   public function destroy($id, QuotationService $quotationService, QuoteHistoryService $quoteHistoryService)
   {
 
@@ -678,7 +699,7 @@ class QuotationController extends Controller
     $quoteHistoryService->deleteHistory($id);
 
     return redirect()->back()
-      ->with('success', 'Quote deleted successfully');
+    ->with('success', 'Quote deleted successfully');
   }
 
   public function reviseQuotation(
@@ -770,8 +791,8 @@ class QuotationController extends Controller
     $input = $request->all();
 
     /****
-     * update quotation and add history
-     ****/
+    * update quotation and add history
+    ****/
     $id = $input['quotation_id'];
     $input['win_date'] =  \Carbon\Carbon::today();
 
@@ -781,8 +802,8 @@ class QuotationController extends Controller
     $quoteHistoryService->addHistory($input, $id);
 
     /****
-     * create Order
-     ****/
+    * create Order
+    ****/
     // $field_count = count($input['yespo_no']);
     // $fields = [];
 
@@ -797,8 +818,8 @@ class QuotationController extends Controller
     // $orderId = $orderService->insertOrder($input, $fields);
 
     /****
-     *  // SEND NOTIFICATION MAIL
-     ****/
+    *  // SEND NOTIFICATION MAIL
+    ****/
     $statusinfo = $quoteHistoryService->getLatestStatus($id);
     $empid = $request->session()->get('employeeid');
     $users = $employeeManagerService->getCoordinators($empid, $userService);
@@ -835,7 +856,7 @@ class QuotationController extends Controller
 
     $quotation = $quotationService->getQuote($id);
     $quotationItems = $quotationItems->getQuotionItemData($id);
-    $quotationCharges = $quotationCharges->getQuotionCharge($id);
+    $quotationCharges = $quotationCharges->getQuotionChargeDownload($id);
     $quotationTerms = $quoteTermService->getQuotationTerms($id);
     $optionalItems = $quotationOptionalService->quotationOptionalItem($id);
 
@@ -849,11 +870,12 @@ class QuotationController extends Controller
     //$wordService->sample();
   }
 
+
   /**
-   * Display a listing of the resource.
-   *
-   * @return \Illuminate\Http\Response
-   */
+  * Display a listing of the resource.
+  *
+  * @return \Illuminate\Http\Response
+  */
   public function winningQuotations()
   {
 
@@ -861,10 +883,10 @@ class QuotationController extends Controller
   }
 
   /**
-   * Display a listing of the resource.
-   *
-   * @return \Illuminate\Http\Response
-   */
+  * Display a listing of the resource.
+  *
+  * @return \Illuminate\Http\Response
+  */
   public function allQuotations()
   {
     return view('quotation.listall');
@@ -911,7 +933,7 @@ class QuotationController extends Controller
     // $quoteHistoryService->updateHistory($input, $id);
 
     return redirect()->back()
-      ->with('success', 'Winning Date updated successfully');
+    ->with('success', 'Winning Date updated successfully');
   }
 
 
@@ -924,8 +946,8 @@ class QuotationController extends Controller
       $quotationService->deleteSalesCommission($data['commision_id']);
 
       /************************************************
-       * Revise the Sales commision of Assigned manager
-       *********************************/
+      * Revise the Sales commision of Assigned manager
+      *********************************/
       // get quotation
       $quotationid = $data['quotation_id'];
       $quotation = $quotationService->getQuote($quotationid);
@@ -967,14 +989,14 @@ class QuotationController extends Controller
   public function bulkUpdateQuotations(QuotationService $quotationService)
   {
     /***********************************************
-     * Update Sales Commision - Calculation
-     ***********************************************/
+    * Update Sales Commision - Calculation
+    ***********************************************/
     $quotationService->updateAllCommissions();
 
 
     /***********************************************
-     * Update Win Date - Calculation
-     ***********************************************/
+    * Update Win Date - Calculation
+    ***********************************************/
 
     //$quotationService->updateAllWinDate();
 
@@ -997,12 +1019,12 @@ class QuotationController extends Controller
     $supplier_ids = is_array($input['supplier_id']) ? $input['supplier_id'] : (array) $input['supplier_id'];
 
     $results = Product::with('supplier')
-      ->where('status', 'active')
-      ->whereIn('brand_id', $supplier_ids)
-      ->whereNull('deleted_at')
-      ->orderBy('title', 'asc')
-      ->get()
-      ->groupBy('supplier.brand');
+    ->where('status', 'active')
+    ->whereIn('brand_id', $supplier_ids)
+    ->whereNull('deleted_at')
+    ->orderBy('title', 'asc')
+    ->get()
+    ->groupBy('supplier.brand');
 
     return response()->json($results);
   }
@@ -1057,9 +1079,9 @@ class QuotationController extends Controller
 
     // Fetch the conversion rate from AED to the quote currency
     $conversionFromRate = DB::table('currency_conversion')
-      ->where('currency', $quoteCurrency)
-      ->select('standard_rate')
-      ->first();
+    ->where('currency', $quoteCurrency)
+    ->select('standard_rate')
+    ->first();
 
 
 
@@ -1122,8 +1144,8 @@ class QuotationController extends Controller
     $orderData = Orders::where('yespo_no', $orders->yespo_no)->first();
     $paymentTerms = PaymentTerm::where('parent_id', 0)->where('isdefault', 1)->get();
     $deliveryTerms = DB::table('delivery_terms') // Assuming 'quotation_terms' is your table name
-      ->where('quotation_id', $quotationId)
-      ->first();
+    ->where('quotation_id', $quotationId)
+    ->first();
     $paymentCycles = $quotationChargeService->getPaymentCyclesList();
 
 
@@ -1132,133 +1154,196 @@ class QuotationController extends Controller
 
   public function getProductDetails($id)
   {
+    // $productHistory = ProductPriceHistory::leftJoin('users', 'product_price_histories.edited_by', '=', 'users.id')
+    // ->leftJoin('products', 'product_price_histories.product_id', '=', 'products.id')
+    // ->leftJoin('custom_prices', 'products.id', '=', 'custom_prices.product_id')
+    // ->where('product_price_histories.product_id', $id)
+    // ->select(
+    //   'product_price_histories.*',
+    //   'users.name as user_name',
+    //   'products.title as product_title',
+    //   'products.modelno as modelno',
+    //   'products.part_number',
+    //   'products.brand_id',
+    //   'products.allowed_discount as product_discount',
+    //   DB::raw('IF(cm_custom_prices.product_id IS NOT NULL, 1, 0) as is_custom')
+    //   )
+    //   ->orderBy('product_price_histories.created_at', 'desc')
+    //   ->take(3)
+    //   ->get();
+
 
     $productHistory = ProductPriceHistory::leftJoin('users', 'product_price_histories.edited_by', '=', 'users.id')
-      ->leftJoin('products', 'product_price_histories.product_id', '=', 'products.id')
-      ->where('product_price_histories.product_id', $id)
-      ->select(
-        'product_price_histories.*',
-        'users.name as user_name',
-        'products.title as product_title',
-        'products.modelno as modelno',
-        'products.part_number',
-        'products.brand_id',
-        'products.allowed_discount as product_discount',
-      )->orderBy('product_price_histories.created_at', 'desc')
+    ->leftJoin('products', 'product_price_histories.product_id', '=', 'products.id')
+    ->leftJoin('custom_prices', 'products.id', '=', 'custom_prices.product_id')
+    ->where('product_price_histories.product_id', $id)
+    ->select(
+      'product_price_histories.*',
+      'users.name as user_name',
+      'products.title as product_title',
+      'products.modelno as modelno',
+      'products.part_number',
+      'products.brand_id',
+      'products.allowed_discount as product_discount',
+      DB::raw('IF(cm_custom_prices.product_history_id IS NOT NULL, 1, 0) as is_custom')
+      )
+      ->orderBy('product_price_histories.created_at', 'desc')
+      ->distinct()
       ->take(3)
       ->get();
 
-    return $productHistory;
-  }
-
-  public function saveProductHistory(Request $request)
-  {
-
-    try {
-
-      $data = $request->all();
-
-      $product = Product::find($data['productId']);
-
-      $today = date('Y-m-d');
-      $todate = date('Y-m-d', strtotime('+1 month', strtotime($today)));
-
-      $historyInsert = [
-        'product_id' => $data['productId'],
-        'selling_price' => $data['selling_price'],
-        'margin_price' => $data['margin_price'],
-        'margin_percent' => $data['margin_percentage'],
-        'price_valid_from' => $today,
-        'price_valid_to'  =>  $todate,
-        'currency' => $data['quote_currency'],
-        'price_basis' => $data['price_basis'],
-        'edited_by' => Auth::id(),
-      ];
-
-      ProductPriceHistory::create($historyInsert);
-
-      $pUpdate = [
-        'selling_price' => $data['selling_price'],
-        'margin_price' => $data['margin_price'],
-        'margin_percent' => $data['margin_percentage'],
-        'currency' => $data['quote_currency'],
-        'price_basis' => $data['price_basis'],
-        'price_valid_from' => $today,
-        'price_valid_to'  =>  $todate,
-        'edited_by' => Auth::id(),
-      ];
-
-      $product->update($pUpdate);
-
-      return response()->json([
-        'success' => true,
-        'message' => 'Product history saved successfully',
-        'product' => $product  // Include the updated product in the response
-      ], 200);
-    } catch (\Exception $e) {
-      // Error occurred while saving product history
-      return response()->json(['success' => false, 'error' => 'Failed to save product history'], 500);
+      return $productHistory;
     }
-  }
 
-  public function fetchEditModels($id, Request $request)
-  {
+    public function saveProductHistory(Request $request)
+    {
+      try {
 
-    $selectedCategories = $request->selectedCategory;
-    $selectedSuppliers = $request->selectedSupplier;
-    $data = [];
+        $data = $request->all();
 
-    if (isset($selectedCategories) && !empty($selectedCategories)) {
-      foreach ($selectedCategories as $categoryGroup) {
-        $flattenedSuppliers = array_merge([], ...$selectedSuppliers);
+        $product = Product::find($data['productId']);
+        $customFieldsData = [];
 
-        $models = Product::leftJoin('suppliers', 'products.brand_id', '=', 'suppliers.id')
+        $today = date('Y-m-d');
+        $todate = date('Y-m-d', strtotime('+1 month', strtotime($today)));
+
+        $historyInsert = [
+          'product_id' => $data['productId'],
+          'selling_price' => $data['selling_price'],
+          'margin_price' => $data['margin_price'],
+          'margin_percent' => $data['margin_percentage'],
+          'price_valid_from' => $today,
+          'price_valid_to'  =>  $todate,
+          'currency' => $data['quote_currency'],
+          'price_basis' => $data['price_basis'],
+          'edited_by' => Auth::id(),
+        ];
+
+        $priceHistoryData=ProductPriceHistory::create($historyInsert);
+        if( $data['default_selling_price']==1){
+          $pUpdate = [
+            'selling_price' => $data['selling_price'],
+            'margin_price' => $data['margin_price'],
+            'margin_percent' => $data['margin_percentage'],
+            'currency' => $data['quote_currency'],
+            'price_basis' => $data['price_basis'],
+            'price_valid_from' => $today,
+            'price_valid_to'  =>  $todate,
+            'edited_by' => Auth::id(),
+          ];
+
+          $product->update($pUpdate);
+        }
+
+        $today = Carbon::now();
+        $todate = $today->addMonths(12);
+        $buyingHistoryData = [
+          'product_id'=>$data['productId'],
+          'gross_price' => $data['buying_gross_price'],
+          'discount' => $data['buying_purchase_discount'],
+          'discount_amount' => $data['buying_purchase_discount_amount'],
+          'buying_price' => $data['buying_prices'],
+          'buying_currency' => $data['buying_currency'],
+          'price_valid_from' =>  $today->toDateString(),
+          'price_valid_to'  => $todate->toDateString(),
+          'status' => '1',
+        ];
+
+        BuyingPrice::create($buyingHistoryData);
+
+
+        if( $data['default_buying_price']==1){
+          $bUpdate = [
+            'purchase_currency'=>$data['buying_currency'],
+            'purchase_price' => $data['buying_prices'],
+          ];
+          $product->update($bUpdate);
+        }
+
+        $historyId= $priceHistoryData->id;
+
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+          foreach ($data['custom_fields'] as $field) {
+            if (isset($field['field_name']) && isset($field['value'])) {
+              $customFieldsData[$field['field_name']] = $field['value'];
+
+            }
+          }
+
+          $customFieldsData['product_id'] = $product->id;
+          $customFieldsData['product_history_id'] = $priceHistoryData->id;
+          CustomPrice::create($customFieldsData);
+
+        }
+        return response()->json([
+          'success' => true,
+          'message' => 'Product history saved successfully',
+          'product' => $product
+        ], 200);
+      }  catch (\Exception $e) {
+
+        return response()->json(['success' => false, 'error' => 'Failed to save product history: ' . $e->getMessage()], 500);
+      }
+    }
+
+    public function fetchEditModels($id, Request $request)
+    {
+
+      $selectedCategories = $request->selectedCategory;
+      $selectedSuppliers = $request->selectedSupplier;
+      $data = [];
+
+      if (isset($selectedCategories) && !empty($selectedCategories)) {
+        foreach ($selectedCategories as $categoryGroup) {
+          $flattenedSuppliers = array_merge([], ...$selectedSuppliers);
+
+          $models = Product::leftJoin('suppliers', 'products.brand_id', '=', 'suppliers.id')
           ->where('products.product_category', $categoryGroup)
           ->whereIn('products.brand_id', $flattenedSuppliers)
           ->select('products.*', 'suppliers.brand as supplier_name')
           ->get();
 
-        $modelsGroupedBySupplier = $models->groupBy('supplier_name')->map(function ($supplierModels) {
-          return $supplierModels->map(function ($model) {
-            return [
-              'id' => $model->id,
-              'modelno' => $model->modelno,
-              'supplier_name' => $model->supplier_name,
-              'selling_price' => $model->selling_price,
-              'margin_price' => $model->margin_price,
-              'product_type' => $model->product_type,
-              'supplier_id' => $model->brand_id,
-              'margin_percent' => $model->margin_percent,
-              'allowed_discount' => $model->allowed_discount,
-              'product_category' => $model->product_category,
-              'currency' => $model->currency,
-              'description' => $model->description,
-              'title' => $model->title,
-            ];
+          $modelsGroupedBySupplier = $models->groupBy('supplier_name')->map(function ($supplierModels) {
+            return $supplierModels->map(function ($model) {
+              return [
+                'id' => $model->id,
+                'modelno' => $model->modelno,
+                'supplier_name' => $model->supplier_name,
+                'selling_price' => $model->selling_price,
+                'margin_price' => $model->margin_price,
+                'product_type' => $model->product_type,
+                'supplier_id' => $model->brand_id,
+                'margin_percent' => $model->margin_percent,
+                'allowed_discount' => $model->allowed_discount,
+                'product_category' => $model->product_category,
+                'currency' => $model->currency,
+                'description' => $model->description,
+                'title' => $model->title,
+              ];
+            });
           });
-        });
 
-        // Add the category data to the main data array, grouped by supplier
-        $data[] = [
-          'category' => $categoryGroup,
-          'models' => $modelsGroupedBySupplier->toArray(),
-        ];
+          $data[] = [
+            'category' => $categoryGroup,
+            'models' => $modelsGroupedBySupplier->toArray(),
+          ];
+        }
       }
+
+      return response()->json($data);
+    }
+    public function fetchDeliveryDropdown($id, Request $request)
+    {
+
+      $paymentSubList = PaymentTerm::where('parent_id', $id)->get();
+      return response()->json($paymentSubList);
+    }
+    public function quotationStatusList(QuotationService $quotationService)
+    {
+
+      $quotationList = $quotationService->quotationStatus();
+
+      return view('quotation-status.quotationStatus', compact('quotationList'));
     }
 
-    return response()->json($data);
   }
-  public function fetchDeliveryDropdown($id, Request $request)
-  {
-
-    $paymentSubList = PaymentTerm::where('parent_id', $id)->get();
-    return response()->json($paymentSubList);
-  }
-  public function quotationStatusList(QuotationService $quotationService)
-  {
-
-    $quotationList = $quotationService->quotationStatus();
-
-    return view('quotation-status.quotationStatus', compact('quotationList'));
-  }
-}
