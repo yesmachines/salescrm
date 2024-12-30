@@ -156,9 +156,91 @@ class CustomPriceController extends Controller
 
 
         }
+        // public function quoteCustomEdit(Request $request)
+        // {
+        //
+        //   $sellingPrice = $request['selling_price'];
+        //   $marginPrice = $request['margin_price'];
+        //   $marginPercentage = $request['margin_percentage'];
+        //   $quoteCurrency = $request['quote_currency'];
+        //   $buyingGrossPrice = $request['buying_gross_price'];
+        //   $buyingPurchaseDiscount = $request['buying_purchase_discount'] ?? 0;
+        //   $buyingPurchaseDiscountAmount = $request['buying_purchase_discount_amount'];
+        //   $buyingPrices = $request['buying_prices'];
+        //   $buyingCurrency = $request['buying_currency'];
+        //   $priceBasis = $request['price_basis'];
+        //   $quotationId = $request['quotation_id'];
+        //   $productId = $request['product_id'];
+        //
+        //   $customPriceData = json_decode($request['customprice'], true);
+        //
+        //   $conditions = [
+        //     'quotation_id' => $quotationId,
+        //     'product_id' => $productId,
+        //   ];
+        //
+        //   $data = [
+        //     'selling_price' => $sellingPrice,
+        //     'margin_price' => $marginPrice,
+        //     'margin_percent' => $marginPercentage,
+        //     'selling_currency' => $quoteCurrency,
+        //     'gross_price' => $buyingGrossPrice,
+        //     'discount' => $buyingPurchaseDiscount,
+        //     'discount_amount' => $buyingPurchaseDiscountAmount,
+        //     'buying_price' => floatval(str_replace(',', '', $buyingPrices)),
+        //     'buying_currency' => $buyingCurrency,
+        //     'price_basis' => $priceBasis,
+        //   ];
+        //
+        //   foreach ($customPriceData as $field) {
+        //     if (is_string($field['field_name'])) {
+        //       $data[$field['field_name']] = $field['value'];
+        //     }
+        //   }
+        //
+        //
+        //   $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $data);
+        //
+        //   $quotationCustomPrices = QuotationCustomPrice::where('quotation_id', $quotationId)->get();
+        //
+        //   $quotationCharges = QuotationCharge::where('quotation_id', $quotationId)->get();
+        //
+        //   foreach ($quotationCharges as $charge) {
+        //     $fieldName = $charge->short_code;
+        //
+        //     $sum = $quotationCustomPrices->sum(function ($customPrice) use ($fieldName) {
+        //       return $customPrice[$fieldName] ?? 0;
+        //     });
+        //
+        //     $charge->amount = $sum;
+        //     $charge->save();
+        //   }
+        //
+        //   $quotationItem = QuotationItem::where('quotation_id', $quotationId)
+        //   ->where('item_id', $productId)
+        //   ->first();
+        //
+        //   if ($quotationItem) {
+        //
+        //     $subTotal = $sellingPrice * $quotationItem->quantity;
+        //     $totalAfterDiscount = floatval(str_replace(',', '', $buyingPrices)) - $buyingPurchaseDiscountAmount;
+        //     $marginPrice = (($subTotal - $totalAfterDiscount) / $subTotal) * 100;
+        //     $quotationItem->unit_price = $sellingPrice;
+        //     $quotationItem->subtotal = $subTotal;
+        //     $quotationItem->discount = $buyingPurchaseDiscount;
+        //     $quotationItem->total_after_discount = $totalAfterDiscount;
+        //     $quotationItem->margin_price = $marginPrice;
+        //     $quotationItem->currency = $quoteCurrency;
+        //     $quotationItem->unit_margin = $marginPrice;
+        //
+        //     $quotationItem->save();
+        //   }
+        //
+        //   return response()->json(['success' => true]);
+        // }
+
         public function quoteCustomEdit(Request $request)
         {
-
           $sellingPrice = $request['selling_price'];
           $marginPrice = $request['margin_price'];
           $marginPercentage = $request['margin_percentage'];
@@ -198,7 +280,6 @@ class CustomPriceController extends Controller
             }
           }
 
-
           $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $data);
 
           $quotationCustomPrices = QuotationCustomPrice::where('quotation_id', $quotationId)->get();
@@ -207,12 +288,18 @@ class CustomPriceController extends Controller
 
           foreach ($quotationCharges as $charge) {
             $fieldName = $charge->short_code;
+            if (isset($fieldName) && $quotationCustomPrices->contains(function ($customPrice) use ($fieldName) {
+              return isset($customPrice[$fieldName]);
+            })) {
+              $sum = $quotationCustomPrices->sum(function ($customPrice) use ($fieldName) {
+                return $customPrice[$fieldName] ?? 0;
+              });
+              $charge->amount = $sum;
+            } else {
 
-            $sum = $quotationCustomPrices->sum(function ($customPrice) use ($fieldName) {
-              return $customPrice[$fieldName] ?? 0;
-            });
+              $charge->amount = $charge->amount ?? 0;
+            }
 
-            $charge->amount = $sum;
             $charge->save();
           }
 
@@ -221,7 +308,6 @@ class CustomPriceController extends Controller
           ->first();
 
           if ($quotationItem) {
-
             $subTotal = $sellingPrice * $quotationItem->quantity;
             $totalAfterDiscount = floatval(str_replace(',', '', $buyingPrices)) - $buyingPurchaseDiscountAmount;
             $marginPrice = (($subTotal - $totalAfterDiscount) / $subTotal) * 100;
@@ -238,6 +324,7 @@ class CustomPriceController extends Controller
 
           return response()->json(['success' => true]);
         }
+
         public function editQuotationCharge($id)
         {
 

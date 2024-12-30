@@ -2103,51 +2103,51 @@
     loadQuotationCharges(quoteId);
 
   });
-  $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
-    console.log("dasdad");
-
-    var itemId = $(this).data('id');
-    var quotationId = $('#quotation_id').val();
-
-    $.ajax({
-      url: '/get-item-details/' + itemId + '/quotation/' + quotationId,
-      method: 'GET',
-      success: function(response) {
-
-        $('#custom_gross_price').val(response.gross_price);
-        $('#custom_purchase_discount').val(response.purchase_discount);
-        $('#custom_purchase_discount_amount').val(response.purchase_discount_amount);
-        $('#custom_buying_prices').val(response.buying_price);
-        $('#customCurrencyCustom').val(response.buying_currency);
-        $('#marginPriceCustom').val(response.unit_margin);
-        $('#marginPercentageCustom').val(response.mosp);
-        $('#sellingPriceCustom').val(response.unit_price);
-        $('#quoteCurrencyCustom').val(response.selling_currency).change();
-        $('#itemId').val(itemId);
-        const chargeFields = {
-          packing: response.packing,
-          road_transport_to_port: response.road_transport_to_port,
-          freight: response.freight,
-          insurance: response.insurance,
-          clearing: response.clearing,
-          boe: response.boe,
-          handling_and_local_transport: response.handling_and_local_transport,
-        };
-        Object.keys(chargeFields).forEach((fieldName) => {
-          const value = chargeFields[fieldName];
-          const inputField = $(`input[data-field-name="${fieldName}"]`);
-
-          if (inputField.length > 0) {
-            inputField.val(value);
-          }
-        });
-
-      },
-      error: function(xhr, status, error) {
-        console.log('Error fetching data:', error);
-      }
-    });
-  });
+  // $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
+  //   console.log("dasdad");
+  //
+  //   var itemId = $(this).data('id');
+  //   var quotationId = $('#quotation_id').val();
+  //
+  //   $.ajax({
+  //     url: '/get-item-details/' + itemId + '/quotation/' + quotationId,
+  //     method: 'GET',
+  //     success: function(response) {
+  //
+  //       $('#custom_gross_price').val(response.gross_price);
+  //       $('#custom_purchase_discount').val(response.purchase_discount);
+  //       $('#custom_purchase_discount_amount').val(response.purchase_discount_amount);
+  //       $('#custom_buying_prices').val(response.buying_price);
+  //       $('#customCurrencyCustom').val(response.buying_currency);
+  //       $('#marginPriceCustom').val(response.unit_margin);
+  //       $('#marginPercentageCustom').val(response.mosp);
+  //       $('#sellingPriceCustom').val(response.unit_price);
+  //       $('#quoteCurrencyCustom').val(response.selling_currency).change();
+  //       $('#itemId').val(itemId);
+  //       const chargeFields = {
+  //         packing: response.packing,
+  //         road_transport_to_port: response.road_transport_to_port,
+  //         freight: response.freight,
+  //         insurance: response.insurance,
+  //         clearing: response.clearing,
+  //         boe: response.boe,
+  //         handling_and_local_transport: response.handling_and_local_transport,
+  //       };
+  //       Object.keys(chargeFields).forEach((fieldName) => {
+  //         const value = chargeFields[fieldName];
+  //         const inputField = $(`input[data-field-name="${fieldName}"]`);
+  //
+  //         if (inputField.length > 0) {
+  //           inputField.val(value);
+  //         }
+  //       });
+  //
+  //     },
+  //     error: function(xhr, status, error) {
+  //       console.log('Error fetching data:', error);
+  //     }
+  //   });
+  // });
 
   </script>
 
