@@ -2299,7 +2299,7 @@
       let buyingPurchaseDiscount = $('#custom_purchase_discount').val();
       let buyingPurchaseDiscountAmount = $('#custom_purchase_discount_amount').val();
       let buyingPrices = $('#custom_buying_prices').val();
-      let buyingCurrencyCustom = $('#buyingCurrencyCustom').val();
+      let buyingCurrencyCustom = $('#customCurrencyCustom').val();
       let customprice = $('#customprice').val();
       var quotationId = $('#quotation_id').val();
       var product_id = $('#itemId').val();
@@ -2312,7 +2312,6 @@
           value: $(this).val()
         });
       });
-
 
       $.ajax({
         url: '{{ route("quotation.custom_price_edit") }}',
