@@ -40,12 +40,13 @@ class CustomerReports extends Component
     $query = Customer::query()
       ->leftJoin('companies', 'customers.company_id', '=', 'companies.id')
       ->leftJoin('countries', 'companies.country_id', '=', 'countries.id')
+      ->leftJoin('regions', 'companies.region_id', '=', 'regions.id')
       ->where('customers.status', $input['status'])
       ->select(
         'customers.*',
         'companies.company as company_name',
         'companies.reference_no as company_reference_no',
-        'countries.name as country_name',
+        'countries.name as country_name','regions.state as state'
       );
 
     if (!empty($this->selectedCountry)) {

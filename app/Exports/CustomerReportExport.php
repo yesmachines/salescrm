@@ -37,6 +37,7 @@ class CustomerReportExport implements FromCollection,WithHeadings, ShouldAutoSiz
         'Company'             => $value->company_name ?:'',
         'Mobile Number'       =>$value->phone,
         'Email Id'            => $value->email?:'',
+        'Region'             => $value->state ?? '',
         'Country'             => $value->country_name ?? '',
         'Reference No'        => $value->company_reference_no ?:'',
 
@@ -63,6 +64,7 @@ class CustomerReportExport implements FromCollection,WithHeadings, ShouldAutoSiz
       'Company',
       'Mobile Number',
       'Email Id',
+      'Region',
       'Country',
       'Reference No',
     ];
