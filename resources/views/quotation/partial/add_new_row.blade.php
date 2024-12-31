@@ -420,6 +420,7 @@ $(document).ready(function() {
 
               document.getElementById('customprice').value = customPriceJSON;
               updateQuotationCharges(customPriceArray);
+                calculateOverallTotal();
             } else {
               console.log('Duplicate ID detected. Not adding to customPriceArray:', response.customPrices.id);
             }
@@ -522,11 +523,11 @@ $(document).ready(function() {
       '#purchase_discount_amount',
       '#buying_price'
     ];
-    console.log("7");
+
 
     // Validate each field based on its value
     requiredFields.forEach(function(field) {
-      console.log("6");
+
       var value = $(field).val().trim();
 
       // Check if the field value is empty
@@ -535,12 +536,12 @@ $(document).ready(function() {
         isValid = false;
       }
     });
-    console.log("1");
+
     // If all fields pass validation, submit the form
     if (isValid) {
-      console.log("2");
+
       if ($("#currencyInput").val() != $("#currencyDropdown").val()) {
-        console.log("3");
+
         // check allowed to add product currency only in preffered quotation currency
         Swal.fire({
           icon: "error",
@@ -551,13 +552,12 @@ $(document).ready(function() {
         return false;
 
       } else {
-        console.log("4");
+
         createNewProduct(isValid);
       }
     }
   });
 
-  // end
 });
 
 function updateQuotationTerms() {

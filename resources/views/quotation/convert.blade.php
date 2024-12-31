@@ -1421,7 +1421,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const fieldHTML = `
           <div class="form-group col-md-6">
           <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-          <input class="form-control dynamic-field" type="text"
+          <input class="form-control dynamic-field" type="number" min="0"
           name="${field.short_code}" data-field-name="${field.short_code}" />
           </div>`;
           rowContainer.insertAdjacentHTML('beforeend', fieldHTML);

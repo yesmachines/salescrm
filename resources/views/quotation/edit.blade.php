@@ -2046,7 +2046,7 @@
         dataType: 'json',
         success: function (data) {
           customPriceArray = data;
-          console.log(customPriceArray);
+
           updateQuotationCharges(customPriceArray);
         },
         error: function (xhr, status, error) {
@@ -2209,53 +2209,70 @@
           quotationCustomFieldsContainer.innerHTML = ''; // Clear any previous custom fields
 
           if (data && data.length > 0) {
-            let rowContainer = document.createElement('div');
-            rowContainer.classList.add('row');
+      let rowContainer = document.createElement('div');
+      rowContainer.classList.add('row');
 
-            data.forEach((field, index) => {
-              const fieldHTML = `
-              <div class="form-group col-md-6">
-              <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-              <input class="form-control dynamic-field" type="text"
-              name="${field.short_code}" data-field-name="${field.short_code}" />
-              </div>`;
-              rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+      // Initialize customsArray with all fields and default values
+      data.forEach((field, index) => {
+        const fieldHTML = `
+        <div class="form-group col-md-6">
+          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <input class="form-control dynamic-field" type="number" min="0" value="0"
+          name="${field.short_code}" data-field-name="${field.short_code}" />
+        </div>`;
+        rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
-              if ((index + 1) % 2 === 0) {
-                quotationCustomFieldsContainer.appendChild(rowContainer);
-                rowContainer = document.createElement('div');
-                rowContainer.classList.add('row');
-              }
-            });
+        // Initialize customsArray with default value 0 for this field
+        const fieldIndex = customsArray.findIndex(
+          (item) => item.field_name === field.short_code
+        );
+        if (fieldIndex === -1) {
+          customsArray.push({ field_name: field.short_code, value: 0 });
+        }
 
-            if (rowContainer.children.length > 0) {
-              quotationCustomFieldsContainer.appendChild(rowContainer);
-            }
+        if ((index + 1) % 2 === 0) {
+          quotationCustomFieldsContainer.appendChild(rowContainer);
+          rowContainer = document.createElement('div');
+          rowContainer.classList.add('row');
+        }
+      });
 
-            const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
-            dynamicFields.forEach((input) => {
-              input.addEventListener('input', function () {
-                const fieldName = this.getAttribute('data-field-name').trim();
-                const fieldValue = parseFloat(this.value) || 0;
+      if (rowContainer.children.length > 0) {
+        quotationCustomFieldsContainer.appendChild(rowContainer);
+      }
 
-                const fieldIndex = customsArray.findIndex(
-                  (item) => item.field_name === fieldName
-                );
-                if (fieldIndex !== -1) {
-                  customsArray[fieldIndex].value = fieldValue;
-                } else {
-                  customsArray.push({ field_name: fieldName, value: fieldValue });
-                }
-                const customPriceJSON = JSON.stringify(customsArray);
-                document.getElementById('customprice').value = customPriceJSON;
-                console.log('Custom Fields Array Updated:', customsArray);
-                updateHistorySellingPrice();
-              });
-            });
+      // Add event listeners to dynamic fields for value updates
+      const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
+      dynamicFields.forEach((input) => {
+        input.addEventListener('input', function () {
+          const fieldName = this.getAttribute('data-field-name').trim();
+          const fieldValue = parseFloat(this.value) || 0;
+
+          const fieldIndex = customsArray.findIndex(
+            (item) => item.field_name === fieldName
+          );
+          if (fieldIndex !== -1) {
+            customsArray[fieldIndex].value = fieldValue;
           } else {
-            console.log('No custom fields found.');
-            quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
+            customsArray.push({ field_name: fieldName, value: fieldValue });
           }
+          const customPriceJSON = JSON.stringify(customsArray);
+          document.getElementById('customprice').value = customPriceJSON;
+          console.log('Custom Fields Array Updated:', customsArray);
+          updateHistorySellingPrice();
+        });
+      });
+
+      // Update the hidden field initially with the full customsArray
+      const customPriceJSON = JSON.stringify(customsArray);
+      document.getElementById('customprice').value = customPriceJSON;
+      console.log('Initial Custom Fields Array:', customsArray);
+
+    } else {
+      console.log('No custom fields found.');
+      quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
+    }
+
         })
         .catch((error) => {
           console.error('Error fetching custom fields:', error);
@@ -2284,12 +2301,12 @@
 
 
   document.addEventListener('DOMContentLoaded', function() {
-    // Attach the event listener to the "Save" button
+
     document.getElementById('saveCustomFields').addEventListener('click', function() {
 
       $(this).prop('disabled', true);
 
-      // Collect values from the form fields
+
       let sellingPrice = $('#sellingPriceCustom').val();
       let marginPercentage = $('#marginPercentageCustom').val();
       let quoteCurrency = $('#quoteCurrencyCustom').val();

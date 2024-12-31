@@ -487,13 +487,13 @@
               const exists = customPriceArray.some(item => item.id === response.customPrices.id);
 
             if (!exists) {
-              // Push new data into the customPriceArray
               customPriceArray.push(response.customPrices);
               const customPriceJSON = JSON.stringify(customPriceArray);
 
 
-              document.getElementById('customprice').value = customPriceJSON;
+              document.getElementById('customprices').value = customPriceJSON;
               updateQuotationCharges(customPriceArray);
+
 
               } else {
                 console.log('Duplicate ID detected. Not adding to customPriceArray:', response.customPrices.id);
