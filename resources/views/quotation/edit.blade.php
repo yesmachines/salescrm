@@ -2161,6 +2161,8 @@ function fetchCustomPriceArray(quoteId) {
       customPriceArray = data;
       console.log(customPriceArray);
       updateQuotationCharges(customPriceArray);
+      const customPriceJSON = JSON.stringify(customPriceArray);
+      document.getElementById('customprices').value = customPriceJSON;
     },
     error: function (xhr, status, error) {
       console.error('Error fetching custom price array:', error);

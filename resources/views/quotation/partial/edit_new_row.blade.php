@@ -1268,7 +1268,8 @@ function updateQuotationCharges(customPriceArray) {
   customPriceArray.forEach(item => {
     Object.keys(item).forEach(key => {
       if (key !== 'product_id' && key !== 'id' && key !== 'source' && item[key] !== null && item[key] !== undefined) {
-        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); // Format key for display
+        const formattedKey = key.replace(/_/g, ' '); // Keep key as is, except replacing underscores with spaces
+
         if (groupedCharges[formattedKey]) {
           groupedCharges[formattedKey].amount += item[key];
         } else {

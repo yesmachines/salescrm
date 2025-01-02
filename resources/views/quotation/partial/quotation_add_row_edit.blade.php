@@ -900,21 +900,19 @@
       var chargeName = $('#row-' + rowId).find('input[name="charge_name[]"]').val()?.trim();
       var quotationId = $('input[name="quotation_id"]').val(); // Assuming the quotation ID is stored in a hidden input field
 
-      // Ensure that required data exists
-      if (!chargeName || !quotationId) {
-          console.error('Missing required data: Charge Name or Quotation ID is undefined.');
-          return;
-      }
-
-      console.log('Charge Name:', chargeName, 'Charge Amount:', chargeAmount, 'Quotation ID:', quotationId);
+      // Remove the row immediately (for better user experience)
+      $('#row-' + rowId).remove();
 
       // Update the total amount
       var totalAmount = parseFloat($('input[name="total_value"]').val()) || 0;
       var newTotalAmount = totalAmount - chargeAmount;
       $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
 
-      // Remove the row immediately (for better user experience)
-      $('#row-' + rowId).remove();
+      // Ensure that the required data exists before making the AJAX call
+      if (!chargeName || chargeAmount === 0) {
+          console.log('Row removed without triggering an AJAX request (empty or zero value).');
+          return;
+      }
 
       // Send an AJAX request to the server to delete the charge
       $.ajax({
