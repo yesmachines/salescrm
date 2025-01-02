@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('quotation_charges', function (Blueprint $table) {
-          $table->boolean('quote_visible')->default(0)->after('sort_order'); 
+          $table->boolean('quote_visible')->default(0)->after('sort_order');
         });
     }
 
