@@ -300,7 +300,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <select class="form-control" name="price_basis" id="paymentTerm" required  required>
+                  <select class="form-control" name="price_basis" id="paymentTerm" required onchange="updateQuotationTerms()">
                     <option value="">-Select Delivery Terms-</option>
                     @foreach($paymentTermList as $paymentTerm)
                     <option value="{{ $paymentTerm->short_code }}" data-title="{{ $paymentTerm->title }}" data-parent="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
@@ -1281,10 +1281,10 @@ document.addEventListener('DOMContentLoaded', function () {
   marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
   priceBasisElement.addEventListener('change', function () {
+
     const priceBasis = this.value;
     const paymentTermId = paymentTermIdElement.value;
     historyCustomFieldsContainer.innerHTML = '';
-
     if (priceBasis) {
       fetch('/get-custom-fields', {
         method: 'POST',

@@ -420,7 +420,7 @@ $(document).ready(function() {
 
               document.getElementById('customprice').value = customPriceJSON;
               updateQuotationCharges(customPriceArray);
-                calculateOverallTotal();
+
             } else {
               console.log('Duplicate ID detected. Not adding to customPriceArray:', response.customPrices.id);
             }
@@ -559,57 +559,6 @@ $(document).ready(function() {
   });
 
 });
-
-function updateQuotationTerms() {
-  var paymentTerm = $('#paymentTerm').val();
-  var parentID = $('#paymentTerm option:selected').data('parent');
-  if (!paymentTerm) {
-    $('#sub-delivery').hide();
-    return;
-  }
-  $.ajax({
-    url: '/delivery-sub-dropdowns/' + parentID,
-    type: 'GET',
-    success: function(data) {
-      $('#subDropdownContainer').html('');
-
-      $('#subDropdownContainer').append('<option value="">--Select--</option>');
-      $.each(data, function(index, item) {
-        $('#subDropdownContainer').append('<option value="' + item.title + '" data-extra-options="' + item.extra_options + '">' + item.title + '</option>');
-      });
-
-      $('#sub-delivery').show();
-    },
-    error: function(xhr, status, error) {
-      console.error(error);
-    }
-  });
-  $('#subDeliveryInput').hide();
-  var selectedCurrency = document.getElementById("currencyDropdown").value.toUpperCase();
-  var labels = document.getElementsByClassName("currency-label");
-  var labelsTerm = document.getElementsByClassName("currency-label-terms");
-
-  for (var i = 0; i < labels.length; i++) {
-    var labelText = labels[i].textContent;
-    labelText = labelText.replace(/\([A-Z]+\)/g, '');
-    labels[i].textContent = labelText + ' (' + selectedCurrency + ')';
-
-    if (labelsTerm[i]) {
-      var paymentTermDropdown = document.getElementById("paymentTerm");
-      var selectedOption = paymentTermDropdown.options[paymentTermDropdown.selectedIndex];
-      var paymentTitle = selectedOption.getAttribute("data-title");
-
-      labelsTerm[i].textContent = "Quoted in" + ' ' + selectedCurrency + '. ';
-      if (paymentTitle && selectedOption.value !== "") {
-        labelsTerm[i].textContent += paymentTitle;
-      }
-
-      var categoryDropdown = $('select[name="product[]"]');
-      // initializeModelDropdown(categoryDropdown);
-    }
-  }
-
-}
 
 function updateCurrencyLabel() {
 
@@ -1291,7 +1240,7 @@ function calculateOverallTotal() {
   var overallTotal = 0;
   var overallMargin = 0;
   var vatRate = 0.05; // VAT rate of 5%
-  var vatIncluded = $('input[name="vat_option"]:checked').val(); // error
+  var vatIncluded = $('input[name="vat_option"]:checked').val();  // Get VAT option (if checked)
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
@@ -1299,57 +1248,90 @@ function calculateOverallTotal() {
   var totalMarginSum = 0;
   var customVatAmount = parseFloat($('#vatAmountLabelService').val());
 
+  // Initialize sum after discount based on the rows
   $('input[name="total_after_discount[]"]').each(function() {
     var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
-
     sumAfterDiscount += rowTotalAfterDiscount;
   });
 
+  // Initialize total margin based on the margin amount rows
   $('input[name="margin_amount_row[]"]').each(function() {
     var rowTotalMargin = parseFloat($(this).val()) || 0;
-
     totalMargin += rowTotalMargin;
   });
 
-
-
+  // Initialize quotation charges (existing charges already on the page)
   $('input[name="charge_amount[]"]').each(function() {
     var chargeAmount = parseFloat($(this).val()) || 0;
-    quotationCharges += chargeAmount;
+
+    // Only include non-disabled charge amount fields
+    if (!$(this).prop('disabled')) {
+      quotationCharges += chargeAmount;
+    }
   });
-  console.log(quotationCharges);
+
+  // Add manually entered charges to quotation charges (adjust for your use case)
+  var manualChargesTotal = 0;
+  $('input[name="charge_name[]"]').each(function(index) {
+    var chargeName = $(this).val();
+    var chargeAmount = parseFloat($('input[name="charge_amount[]"]').eq(index).val()) || 0;
+
+    // Assuming manually entered charges have non-disabled fields
+    if (!$(this).prop('disabled')) {
+      manualChargesTotal += chargeAmount;  // Add the manual charge to the total
+    }
+  });
+
+  // Add manual charges to the sum after discount
+  sumAfterDiscount += manualChargesTotal;
+
+  // Add the regular charges to the sum after discount
   sumAfterDiscount += quotationCharges;
 
+  // If VAT is included, calculate VAT based on the total
   if (vatIncluded == 1) {
     vatAmount = sumAfterDiscount * vatRate;
     sumAfterDiscount += vatAmount;
   }
+
+  // Set the total value in the input field
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
 
-
+  // Set the total margin value in the input field
   $('#totalMarginValue').val(totalMargin.toFixed(2));
 
-  //$('input[name="total_amount"]').val(sumAfterDiscount.toFixed(2));
-
-  //$('input[name="gross_margin"]').val(totalMargin.toFixed(2));
+  // Set VAT amount text and input field
   $('#vatAmountLabel').text(vatAmount.toFixed(2));
-
   $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
 
+  // If VAT is not included, reset the VAT fields
   if (!vatIncluded) {
     $('#vatAmountLabel').text('0.00');
-
   }
 }
-function updateQuotationCharges(customPriceArray) {
+
+function updateQuotationCharges(customPriceArray, sellingPrice) {
   const quotationChargesContainer = document.getElementById('quotationChargesContainer');
+  let manualChargesTotal = 0; // Track the total of manually entered charges
+
+  // Persist custom charge status
+  const customChargesSet = new Set(); // Store custom charge names to track them reliably
+
+  // Populate customChargesSet with charges from customPriceArray
+  customPriceArray.forEach(item => {
+    Object.keys(item).forEach(key => {
+      if (key !== 'product_id' && key !== 'id' && item[key] !== null && item[key] !== undefined) {
+        customChargesSet.add(key);
+      }
+    });
+  });
 
   // Fetch existing charges that were rendered on the page
   const existingCharges = [];
   document.querySelectorAll('.row[data-charge-id]').forEach(row => {
     const chargeId = row.getAttribute('data-charge-id');
     const chargeName = row.querySelector('input[name^="charge_name"]').value;
-    const chargeAmount = row.querySelector('input[name^="charge_amount"]').value;
+    const chargeAmount = parseFloat(row.querySelector('input[name^="charge_amount"]').value) || 0;
     const isVisible = row.querySelector('input[name^="is_visible"]').checked ? 1 : 0;
 
     existingCharges.push({ id: chargeId, charge_name: chargeName, charge_amount: chargeAmount, is_visible: isVisible });
@@ -1380,7 +1362,7 @@ function updateQuotationCharges(customPriceArray) {
 
   // If no charges exist, create a default empty row
   if (Object.keys(groupedCharges).length === 0) {
-    groupedCharges[''] = '';  // Adding an empty charge for at least one row
+    groupedCharges[''] = ''; // Adding an empty charge for at least one row
   }
 
   let index = 0;
@@ -1390,49 +1372,60 @@ function updateQuotationCharges(customPriceArray) {
     rowContainer.classList.add('row');
     rowContainer.id = 'row-' + index;
 
+    // Determine if the charge is a custom charge
+    const isCustomCharge = customChargesSet.has(key);
+
     // Add the "plus" button only for the first row
     const plusButtonHTML = index === 0 ? `
-    <div class="col-sm-1">
-      <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
-        <i class="fas fa-plus"></i>
-      </button>
-    </div>
+      <div class="col-sm-1">
+        <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
     ` : '';
 
-    const deleteButtonHTML = index > 0 ? `
-    <div class="col-sm-1">
-      <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
-        <i class="fas fa-trash"></i>
-      </button>
-    </div>
+    // Only show the delete button for manually entered rows (not custom)
+    const deleteButtonHTML = !isCustomCharge ? `
+      <div class="col-sm-1">
+        <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
     ` : '';
+
+    // If it's a manual charge (not from customPriceArray), add it to the manualChargesTotal
+    if (!isCustomCharge) {
+      manualChargesTotal += parseFloat(value) || 0;
+    }
 
     rowContainer.innerHTML = `
-    <div class="col-sm-3"></div>
-    <div class="col-sm-1">
-      <div class="form-check" style="display: flex; justify-content: flex-end;">
-        <!-- Hidden input for unchecked state -->
-        <input type="hidden" name="is_visible[]" value="0">
-        <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
+      <div class="col-sm-3"></div>
+      <div class="col-sm-1">
+        <div class="form-check" style="display: flex; justify-content: flex-end;">
+          <!-- Hidden input for unchecked state -->
+          <input type="hidden" name="is_visible[]" value="0">
+          <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
+        </div>
       </div>
-    </div>
-    <div class="col-sm-4">
-      <div class="form-group">
-        <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key.replace(/_/g, ' ')}"/>
+      <div class="col-sm-4">
+        <div class="form-group">
+          <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key.replace(/_/g, ' ')}" ${isCustomCharge ? 'disabled' : ''}/>
+        </div>
       </div>
-    </div>
-    <div class="col-sm-3">
-      <div class="form-group">
-        <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" />
+      <div class="col-sm-3">
+        <div class="form-group">
+          <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomCharge ? 'disabled' : ''}/>
+        </div>
       </div>
-    </div>
-    ${plusButtonHTML}
-    ${deleteButtonHTML}
+      ${plusButtonHTML}
+      ${deleteButtonHTML}
     `;
 
     quotationChargesContainer.appendChild(rowContainer);
     index++;
   });
+
+  return manualChargesTotal;
 }
 
 </script>

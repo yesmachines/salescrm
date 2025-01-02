@@ -36,16 +36,11 @@
       <div class="col-sm-1">
 
       </div>
-      <div class="col-sm-2" style="text-align-last: right;">
+      <div class="col-sm-3" style="text-align-last: right;">
 
         Include in Quotation(✔)
       </div>
-      <div class="col-sm-1">
-        <div class="form-check" style="display: flex; justify-content: flex-end;">
-          <input type="hidden" name="is_visible[]" value="0">
-          <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" />
-        </div>
-      </div>
+
       <div class="col-sm-4">
         <div class="form-group">
           <select class="form-control charge-name-input title-input" name="charge_name[]" placeholder="Charge Type" data-row-id="0" ></select>
@@ -570,13 +565,8 @@
     var rowId = Date.now();
     var newRows = `
     <div class="row" id="row-${rowId}">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-1">
-    <div class="form-check" style="display: flex; justify-content: flex-end;">
-    <input type="hidden" name="is_visible[]" value="0">
-    <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
-    </div>
-    </div>
+    <div class="col-sm-4"></div>
+
     <div class="col-sm-4">
     <div class="form-group">
     <select class="form-control charge-name-input title-input" name="charge_name[]" placeholder="Charge Type" data-row-id="${rowId}"></select>
@@ -725,55 +715,59 @@
   }
 
   function updateQuotationTerms() {
+      var paymentTerm = $('#paymentTerm').val();
+      var parentID = $('#paymentTerm option:selected').data('parent');
 
-    var paymentTerm = $('#paymentTerm').val();
-    var parentID = $('#paymentTerm option:selected').data('parent');
-    if (!paymentTerm) {
       $('#sub-delivery').hide();
-      return;
-    }
-    $.ajax({
-      url: '/delivery-sub-dropdowns/' + parentID,
-      type: 'GET',
-      success: function(data) {
-        $('#subDropdownContainer').html('');
 
-        $('#subDropdownContainer').append('<option value="">--Select--</option>');
-        $.each(data, function(index, item) {
-          $('#subDropdownContainer').append('<option value="' + item.title + '" data-extra-options="' + item.extra_options + '">' + item.title + '</option>');
-        });
-
-        $('#sub-delivery').show();
-      },
-      error: function(xhr, status, error) {
-        console.error(error);
+      if (!paymentTerm) {
+          return;
       }
-    });
-    $('#subDeliveryInput').hide();
-    var selectedCurrency = document.getElementById("currencyDropdown").value.toUpperCase();
-    var labels = document.getElementsByClassName("currency-label");
-    var labelsTerm = document.getElementsByClassName("currency-label-terms");
 
-    for (var i = 0; i < labels.length; i++) {
-      var labelText = labels[i].textContent;
-      labelText = labelText.replace(/\([A-Z]+\)/g, '');
-      labels[i].textContent = labelText + ' (' + selectedCurrency + ')';
+      $.ajax({
+          url: '/delivery-sub-dropdowns/' + parentID,
+          type: 'GET',
+          success: function(data) {
+              $('#subDropdownContainer').html('');
 
-      if (labelsTerm[i]) {
-        var paymentTermDropdown = document.getElementById("paymentTerm");
-        var selectedOption = paymentTermDropdown.options[paymentTermDropdown.selectedIndex];
-        var paymentTitle = selectedOption.getAttribute("data-title");
+              if (data && data.length > 0) {
+                  $('#subDropdownContainer').append('<option value="">--Select--</option>');
+                  $.each(data, function(index, item) {
+                      $('#subDropdownContainer').append('<option value="' + item.id + '" data-extra-options="' + item.extra_options + '">' + item.title + '</option>');
+                  });
+                  $('#sub-delivery').show();
+              }
+          },
+          error: function(xhr, status, error) {
+              console.error(error);
+          }
+      });
 
-        labelsTerm[i].textContent = "Quoted in" + ' ' + selectedCurrency + '. ';
-        if (paymentTitle && selectedOption.value !== "") {
-          labelsTerm[i].textContent += paymentTitle;
-        }
+      $('#subDeliveryInput').hide();
+      var selectedCurrency = $('#currencyDropdown').val().toUpperCase();
+      var labels = $('.currency-label');
+      var labelsTerm = $('.currency-label-terms');
 
-        var categoryDropdown = $('select[name="product[]"]');
-        // initializeModelDropdown(categoryDropdown);
+      labels.each(function() {
+          var labelText = $(this).text().replace(/\([A-Z]+\)/g, '');
+          $(this).text(labelText + ' (' + selectedCurrency + ')');
+      });
+
+      labelsTerm.each(function() {
+          var paymentTermDropdown = $('#paymentTerm');
+          var selectedOption = paymentTermDropdown.find('option:selected');
+          var paymentTitle = selectedOption.data('title');
+
+          var labelContent = 'Quoted in ' + selectedCurrency + '.';
+          if (paymentTitle && selectedOption.val() !== "") {
+              labelContent += ' ' + paymentTitle;
+          }
+          $(this).text(labelContent);
+      });
+
+      if ($('#subDropdownContainer option').length <= 1) {
+          $('#sub-delivery').hide();
       }
-    }
-
   }
 
   function updateTextarea() {

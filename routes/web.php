@@ -198,6 +198,7 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('/quotations-charge-checkbox/{quotation}', [CustomPriceController::class, 'editQuotationCharge']);
     Route::get('quotations/custom/{id}', [CustomPriceController::class, 'downloadCustomPrice'])->name('quotation.customDownload');
     Route::get('/get-item-details/{itemId}/quotation/{quotationId}', [CustomPriceController::class, 'getItemDetails'])->name('custom-item-edit');
+    Route::post('/quotation/delete-charge', [CustomPriceController::class, 'deleteQuotationCharge'])->name('delete-quotation-charge');
 
 
 });

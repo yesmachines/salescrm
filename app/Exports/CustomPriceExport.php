@@ -126,8 +126,9 @@ class CustomPriceExport implements FromCollection, WithHeadings, WithMapping
 
     foreach ($this->customHeadings as $customField) {
       $fieldName = $customField->field_name;
-      $mappedData[] = $customFieldValues[$fieldName] ?? 'N/A';
-    }
+      $mappedData[] = $customFieldValues[$fieldName] ?? 0;
+  }
+
 
     $mappedData[] = number_format($unitPrice );
     $mappedData[] = number_format($marginPercent, 2);

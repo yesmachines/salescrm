@@ -21,7 +21,7 @@ class PaymentTermsSeeder extends Seeder
 
         DB::table('payment_terms')->insert([
             [
-                'title' => 'Exworks',
+                'title' => 'Exworks Yesmachinery',
                 'short_code' => 'Exworks',
                 'isdefault' => 1,
                 'status' => 1,
@@ -64,7 +64,7 @@ class PaymentTermsSeeder extends Seeder
                 'title' => 'Manufacturer’s Factory',
                 'short_code' => 'manufacturer_factory',
                 'isdefault' => 0,
-                'status' => 1,
+                'status' => 0,
                 'parent_id' => 1,
                 'extra_options' => 1
             ],
@@ -72,7 +72,7 @@ class PaymentTermsSeeder extends Seeder
                 'title' => 'Our Warehouse',
                 'short_code' => 'our_warehouse',
                 'isdefault' => 0,
-                'status' => 1,
+                'status' => 0,
                 'parent_id' => 1,
                 'extra_options' => 0
             ],
@@ -80,7 +80,7 @@ class PaymentTermsSeeder extends Seeder
                 'title' => 'Manufacturer’s Nearest Port',
                 'short_code' => 'manufacturers_nearest',
                 'isdefault' => 0,
-                'status' => 1,
+                'status' => 0,
                 'parent_id' => 2,
                 'extra_options' => 1
             ],
@@ -107,6 +107,14 @@ class PaymentTermsSeeder extends Seeder
                 'status' => 1,
                 'parent_id' => 5,
                 'extra_options' => 1
+            ],
+            [
+                'title' => 'Exworks Manufacturer’s Factory',
+                'short_code' => 'exworks_manufacturer_factory',
+                'isdefault' => 0,
+                'status' => 1,
+                'parent_id' => 0,
+                'extra_options' => 0
             ],
         ]);
     }

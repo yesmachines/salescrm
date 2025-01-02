@@ -362,7 +362,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <select class="form-control" name="price_basis" id="paymentTerm" required onchange="updateQuotationTerms()" required>
+                  <select class="form-control" name="price_basis" id="paymentTerm" required onchange="updateQuotationTerms()">
                     <option value="">-Select Delivery Terms-</option>
                     @foreach($paymentTermList as $paymentTerm)
                     <option value="{{ $paymentTerm->short_code }}" {{ $quotation->price_basis == $paymentTerm->short_code ? 'selected' : '' }} data-title="{{ $paymentTerm->title }}" data-parent="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
@@ -1015,12 +1015,10 @@
         </div>
         <div class="modal-body">
           <div class="row">
-
-            <div class="col-md-6">
+            <!-- Price Basis Section -->
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Price Basis<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <select class="form-control" name="payment_term" id="customPriceBasis" readonly>
                   <option value="" disabled selected>-- Select Price Basis --</option>
                   @foreach($paymentTerms as $paymentTerm)
@@ -1030,57 +1028,49 @@
                 <input type="hidden" name="payment_term_id" id="customPaymentTermId" />
               </div>
             </div>
+          </div>
 
-            <div class="row gx-3 mt-2 mb-2">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+          <!-- Buying Price Details -->
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2">
+                <span>Buying Price Details</span>
               </div>
             </div>
-
-            <div class="col-md-6">
+          </div>
+          <div class="row">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Gross Price<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_gross_price" id="custom_gross_price" required />
                 <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
               </div>
             </div>
-
-            <div class="col-md-6" id="purchase_discount_percent">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Purchase Discount(%)</label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_discount" id="custom_purchase_discount">
-                <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
+                <div class="invalid-data" style="display: none;">Please enter a purchase discount.</div>
               </div>
             </div>
-            <div class="col-md-6" id="purchase_discount_price">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_discount_amount" id="custom_purchase_discount_amount" required />
                 <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Buying Price<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_buying_price" id="custom_buying_prices" readonly />
                 <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
               </div>
             </div>
-
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Currency<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <select class="form-control" name="custom_buying_currency" id="customCurrencyCustom">
+                <select class="form-control" name="custom_buying_currency" id="buyingCurrencyCustom">
                   <option value="">-Select Currency-</option>
                   @foreach($currencies as $currency)
                   <option value="{{ $currency->code }}">{{ $currency->name }}</option>
@@ -1089,50 +1079,121 @@
                 <div class="invalid-feedback">Please select currency.</div>
               </div>
             </div>
+          </div>
 
-            <div class="row gx-3 mt-2 mb-2">
-              <div class="col-12">
-                <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+          <!-- Selling Price Details -->
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2">
+                <span>Selling Price Details</span>
               </div>
             </div>
-            <div id="quotationCustomFieldsContainer" class="col-12 mt-3">
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="packing">Packing</label>
+                <input class="form-control" type="number" min="0" id="packing" name="packing" value="0" data-field-name="packing" />
+                <div class="invalid-feedback">Please enter a valid Packing.</div>
+              </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="road_transport_to_port">Road Transport To Port</label>
+                <input class="form-control" type="number" min="0" id="road_transport_to_port" name="road_transport_to_port" value="100" data-field-name="road_transport_to_port" />
+                <div class="invalid-feedback">Please enter a valid Road Transport To Port.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="freight">Freight</label>
+                <input class="form-control" type="number" min="0" id="freight" name="freight" value="0" data-field-name="freight" />
+                <div class="invalid-feedback">Please enter a valid Freight.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="insurance">Insurance</label>
+                <input class="form-control" type="number" min="0" id="insurance" name="insurance" value="0" data-field-name="insurance" />
+                <div class="invalid-feedback">Please enter a valid Insurance.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="clearing">Clearing</label>
+                <input class="form-control" type="number" min="0" id="clearing" name="clearing" value="0" data-field-name="clearing" />
+                <div class="invalid-feedback">Please enter a valid Clearing.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="boe">BOE</label>
+                <input class="form-control" type="number" min="0" id="boe" name="boe" value="0" data-field-name="boe" />
+                <div class="invalid-feedback">Please enter a valid BOE.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="handling_and_local_transport">Handling and Local Transport</label>
+                <input class="form-control" type="number" min="0" id="handling_and_local_transport" name="handling_and_local_transport" value="0" data-field-name="handling_and_local_transport" />
+                <div class="invalid-feedback">Please enter a valid Handling and Local Transport.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="customs">Customs</label>
+                <input class="form-control" type="number" min="0" id="customs" name="customs" value="0" data-field-name="customs" />
+                <div class="invalid-feedback">Please enter a valid Customs.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="delivery_charge">Delivery Charge</label>
+                <input class="form-control" type="number" min="0" id="delivery_charge" name="delivery_charge" value="0" data-field-name="delivery_charge" />
+                <div class="invalid-feedback">Please enter a valid Delivery Charge.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="mofaic">MOFAIC</label>
+                <input class="form-control" type="number" min="0" id="mofaic" name="mofaic" value="0" data-field-name="mofaic" />
+                <div class="invalid-feedback">Please enter a valid MOFAIC.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label" for="surcharges">Surcharges</label>
+                <input class="form-control" type="number" min="0" id="surcharges" name="surcharges" value="0" data-field-name="surcharges" />
+                <div class="invalid-feedback">Please enter a valid Surcharges.</div>
+              </div>
+            </div>
+          </div>
 
-            <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Margin Price</label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_margin_price" id="marginPriceCustom" />
                 <div class="invalid-feedback">Please enter margin price.</div>
               </div>
             </div>
-
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">MOSP<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <input class="form-control" type="text" name="custom_margin_percentage" id="marginPercentageCustom" />
                 <div class="invalid-feedback">Please enter a MOSP.</div>
               </div>
             </div>
-
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="custom_selling_price" id="sellingPriceCustom" readonly/>
+                <input class="form-control" type="text" name="custom_selling_price" id="sellingPriceCustom" readonly />
                 <div class="invalid-feedback">Please enter a selling price.</div>
               </div>
             </div>
-
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Currency<span class="text-danger">*</span></label>
-              </div>
-              <div class="form-group">
                 <select class="form-control" name="quote_curr" id="quoteCurrencyCustom">
                   <option value="">-Select Currency-</option>
                   @foreach($currencies as $currency)
@@ -1144,8 +1205,12 @@
             </div>
           </div>
         </div>
+
+        <!-- Hidden Inputs -->
         <input type="hidden" name="customprice" id="customprice">
         <input type="hidden" id="itemId" name="item_id">
+
+        <!-- Modal Footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAdditionalFieldsModal">Close</button>
           <button type="button" class="btn btn-primary" id="saveCustomFields">Save</button>
@@ -1153,6 +1218,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- ------------------- end models ------------------- -->
 
@@ -1406,481 +1472,868 @@
       dateRangeGroup.style.display = 'none';
     }
   }
-  </script>
-  <script>
-  // Select DOM elements
-  const marginPriceCustomInput = document.getElementById('marginPriceCustom');
-  const marginPercentageCustomInput = document.getElementById('marginPercentageCustom');
-  const sellingPriceCustomInput = document.getElementById('sellingPriceCustom');
-  const buyingPriceCustomInput = document.getElementById('custom_buying_prices');
+</script>
+<script>
+// Select DOM elements
+const marginPriceCustomInput = document.getElementById('marginPriceCustom');
+const marginPercentageCustomInput = document.getElementById('marginPercentageCustom');
+const sellingPriceCustomInput = document.getElementById('sellingPriceCustom');
+const buyingPriceCustomInput = document.getElementById('custom_buying_prices');
 
-  // Store the old values of dynamic fields to avoid multiple additions
-  let oldDynamicFieldValues = {};
+// Store the old values of dynamic fields to avoid multiple additions
+let oldDynamicFieldValues = {};
 
-  // Add event listeners for custom fields
-  document.getElementById('custom_gross_price').addEventListener('input', updateCustomBuyingPrice);
-  document.getElementById('custom_purchase_discount').addEventListener('input', updateCustomBuyingPrice);
-  document.getElementById('custom_purchase_discount_amount').addEventListener('input', updateCustomBuyingPriceWithAmount);
-  marginPriceCustomInput.addEventListener('input', updateCustomMarginPrice);
-  marginPercentageCustomInput.addEventListener('input', updateCustomMarginPercentage);
+// Add event listeners for custom fields
+document.getElementById('custom_gross_price').addEventListener('input', updateCustomBuyingPrice);
+document.getElementById('custom_purchase_discount').addEventListener('input', updateCustomBuyingPrice);
+document.getElementById('custom_purchase_discount_amount').addEventListener('input', updateCustomBuyingPriceWithAmount);
+marginPriceCustomInput.addEventListener('input', updateCustomMarginPrice);
+marginPercentageCustomInput.addEventListener('input', updateCustomMarginPercentage);
 
-  // Add event listener to detect changes in dynamic custom fields
-  $(document).on('input', '.dynamic-field', function() {
-      updateCustomSellingPrice();  // Recalculate when dynamic field changes
+// Add event listener to detect changes in dynamic custom fields
+$(document).on('input', '.dynamic-field', function() {
+  updateCustomSellingPrice();  // Recalculate when dynamic field changes
+});
+
+// Update Margin Price Calculation
+function updateCustomMarginPrice() {
+  const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
+  const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
+
+  // Calculate total custom field values (like packing, freight, etc.)
+  const totalCustomFieldsValue = calculateTotalCustomFields();
+
+  if (buyingPrice > 0) {
+    // Calculate margin percentage and selling price
+    const marginPercentage = (marginPrice / buyingPrice) * 100;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPercentageCustomInput.value = marginPercentage.toFixed(2);
+    sellingPriceCustomInput.value = sellingPrice.toFixed(2);
+  }
+
+  // Recalculate selling price after updating margin
+  updateCustomSellingPrice();
+}
+
+// Update Margin Percentage Calculation
+function updateCustomMarginPercentage() {
+  const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
+  const marginPercentage = parseFloat(marginPercentageCustomInput.value.replace(/,/g, '')) || 0;
+
+  // Calculate total custom field values (like packing, freight, etc.)
+  const totalCustomFieldsValue = calculateTotalCustomFields();
+
+  if (buyingPrice > 0) {
+    // Calculate margin price and selling price
+    const marginPrice = (marginPercentage / 100) * buyingPrice;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPriceCustomInput.value = marginPrice.toFixed(2);
+    sellingPriceCustomInput.value = sellingPrice.toFixed(2);
+  }
+
+  // Recalculate selling price after updating margin percentage
+  updateCustomSellingPrice();
+}
+
+// Update Buying Price Based on Discount Amount
+function updateCustomBuyingPriceWithAmount() {
+  let gross_price = $('#custom_gross_price').val();
+  let purchase_discount = $('#custom_purchase_discount_amount').val();
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
+  let dAmount = parseFloat(purchase_discount.replace(/,/g, '')) || 0;
+
+  if (!isNaN(basePrice) && !isNaN(dAmount)) {
+    let calculatedDPrice = basePrice - dAmount;
+    let dpercent = (dAmount / basePrice) * 100;
+    dpercent = parseFloat(dpercent).toFixed(2);
+    $('#custom_purchase_discount').val(dpercent);
+
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
+    updateCustomSellingPrice(); // Recalculate selling price
+  }
+}
+
+// Update Buying Price Based on Discount Percentage
+function updateCustomBuyingPrice() {
+  let gross_price = $('#custom_gross_price').val();
+  let purchase_discount = $('#custom_purchase_discount').val();
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
+  let dPercentage = parseFloat(purchase_discount.replace(/,/g, '')) || 0;
+
+  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+    let calculatedDPrice = basePrice * (dPercentage / 100);
+    $('#custom_purchase_discount_amount').val(calculatedDPrice);
+    calculatedDPrice = basePrice - calculatedDPrice;
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
+    updateCustomSellingPrice(); // Recalculate selling price
+  } else if (!isNaN(basePrice)) {
+    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
+    updateCustomSellingPrice(); // Recalculate selling price
+  }
+}
+
+// Calculate the total of all dynamic custom fields (like packing, freight, etc.)
+function calculateTotalCustomFields() {
+  let total = 0;
+
+  // Iterate over all dynamic fields (like packing, freight, etc.)
+  $('.dynamic-field').each(function () {
+    let value = parseFloat($(this).val().replace(/,/g, '')) || 0;
+    const fieldId = $(this).attr('id'); // Get the dynamic field ID
+
+    // Check if the value is different from the previous value
+    if (oldDynamicFieldValues[fieldId] !== value) {
+      // Subtract the old value and add the new value
+      total -= oldDynamicFieldValues[fieldId] || 0;
+      oldDynamicFieldValues[fieldId] = value; // Update the old value
+    }
+
+    // Add the updated value to the total
+    total += value;
   });
 
-  // Update Margin Price Calculation
-  function updateCustomMarginPrice() {
-      const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
-      const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
+  return total;
+}
 
-      // Calculate total custom field values (like packing, freight, etc.)
-      const totalCustomFieldsValue = calculateTotalCustomFields();
+// Update selling price by considering buying price, margin, and total custom field values
+function updateCustomSellingPrice() {
+  const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
+  const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
 
-      if (buyingPrice > 0) {
-          // Calculate margin percentage and selling price
-          const marginPercentage = (marginPrice / buyingPrice) * 100;
-          const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+  // Calculate total custom fields value (packing, freight, etc.)
+  const totalCustomFieldsValue = calculateTotalCustomFields();
 
-          marginPercentageCustomInput.value = marginPercentage.toFixed(2);
-          sellingPriceCustomInput.value = sellingPrice.toFixed(2);
-      }
+  // Calculate the selling price
+  const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
 
-      // Recalculate selling price after updating margin
-      updateCustomSellingPrice();
+  // Update the selling price input
+  sellingPriceCustomInput.value = sellingPrice.toFixed(2);
+  const event = new Event('input', { bubbles: true });
+  sellingPriceCustomInput.dispatchEvent(event); // Trigger input event if necessary
+}
+
+// Utility function to format numbers with commas
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+</script>
+
+
+
+<script>
+document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
+document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
+document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+document.getElementById('buying_gross_price').addEventListener('input', updateBuyingPrice);
+document.getElementById('buying_purchase_discount').addEventListener('input', updateBuyingPrice);
+document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+
+
+
+const marginPriceInput = document.getElementById('marginPriceProduct');
+const marginPercentageInput = document.getElementById('marginPercentage');
+const sellingPriceInput = document.getElementById('sellingPrice');
+const buyingPriceInput = document.getElementById('buying_price');
+
+const marginPriceHistoryInput = document.getElementById('marginPriceHistory');
+const marginPercentageHistoryInput = document.getElementById('marginPercentageHistory');
+const sellingPriceHistoryInput = document.getElementById('sellingPriceHistory');
+const buyingPriceHistoryInput = document.getElementById('buying_prices');
+
+
+
+
+marginPriceInput.addEventListener('input', updateMarginPrice);
+marginPercentageInput.addEventListener('input', updateMarginPercentage);
+
+marginPriceHistoryInput.addEventListener('input', updateHistoryMarginPrice);
+marginPercentageHistoryInput.addEventListener('input', updateHistoryMarginPercentage);
+
+
+
+function updateHistoryMarginPrice() {
+  const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
+  const marginPrice = parseFloat(marginPriceHistoryInput.value) || 0;
+
+  // Sum the custom fields values
+  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+    return sum + (item.value || 0);
+  }, 0);
+
+  if (buyingPrice > 0) {
+    const marginPercentage = (marginPrice / buyingPrice) * 100;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPercentageHistoryInput.value = marginPercentage.toFixed(2);
+    sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
+  }
+}
+
+function updateHistoryMarginPercentage() {
+  const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
+  const marginPercentage = parseFloat(marginPercentageHistoryInput.value) || 0;
+
+  // Sum the custom fields values
+  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+    return sum + (item.value || 0);
+  }, 0);
+
+  if (buyingPrice > 0) {
+    const marginPrice = (marginPercentage / 100) * buyingPrice;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPriceHistoryInput.value = marginPrice.toFixed(2);
+    sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
+  }
+}
+
+function updateMarginPrice() {
+  const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
+  const marginPrice = parseFloat(marginPriceInput.value) || 0;
+
+  // Sum the custom fields values
+  const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+    return sum + (item.value || 0);
+  }, 0);
+
+  if (buyingPrice > 0) {
+    const marginPercentage = (marginPrice / buyingPrice) * 100;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPercentageInput.value = marginPercentage.toFixed(2);
+    sellingPriceInput.value = sellingPrice.toFixed(2);
+  }
+}
+
+function updateMarginPercentage() {
+  const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
+  const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+
+  // Sum the custom fields values
+  const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+    return sum + (item.value || 0);
+  }, 0);
+
+  if (buyingPrice > 0) {
+    const marginPrice = (marginPercentage / 100) * buyingPrice;
+    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+
+    marginPriceInput.value = marginPrice.toFixed(2);
+    sellingPriceInput.value = sellingPrice.toFixed(2);
+  }
+}
+
+
+$('#gross_price, #purchase_discount').on('input', function() {
+  updateBuyingPrice();
+});
+
+$('#buying_gross_price, #buying_purchase_discount').on('input', function() {
+  updateHistoryBuyingPrice();
+});
+
+
+
+function updateBuyingPriceWithAmount() {
+  let gross_price = $('#gross_price').val();
+  let purchase_discount = $('#purchase_discount_amount').val();
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+  let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+  let buyingPriceInput = $('#buying_price');
+
+  if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+    let calculatedDPrice = basePrice - dAmount;
+    let dpercent = (dAmount / basePrice) * 100;
+    dpercent = parseFloat(dpercent).toFixed(2);
+    $('#purchase_discount').val(dpercent);
+
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  }
+}
+function updateHistoryBuyingPriceWithAmount() {
+  let gross_price = $('#buying_gross_price').val();
+  let purchase_discount = $('#buying_purchase_discount_amount').val();
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+  let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
+
+  let buyingPriceInput = $('#buying_prices');
+
+  if (!isNaN(basePrice) && !isNaN(dAmount)) {
+
+    let calculatedDPrice = basePrice - dAmount;
+    let dpercent = (dAmount / basePrice) * 100;
+    dpercent = parseFloat(dpercent).toFixed(2);
+    $('#buying_purchase_discount').val(dpercent);
+
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  }
+}
+function updateHistoryBuyingPrice() {
+  let gross_price = $('#buying_gross_price').val(); // Get the value using jQuery
+  let purchase_discount = $('#buying_purchase_discount').val(); // Get the value using jQuery
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+  let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+  let buyingPriceInput = $('#buying_prices');
+
+  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+    let calculatedDPrice = basePrice * (dPercentage / 100);
+    $('#buying_purchase_discount_amount').val(calculatedDPrice);
+    calculatedDPrice = basePrice - calculatedDPrice;
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  } else if (!isNaN(basePrice)) {
+    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  }
+}
+
+
+
+function updateBuyingPrice() {
+  let gross_price = $('#gross_price').val(); // Get the value using jQuery
+  let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
+
+  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
+  let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
+
+  let buyingPriceInput = $('#buying_price');
+
+  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
+
+    let calculatedDPrice = basePrice * (dPercentage / 100);
+    $('#purchase_discount_amount').val(calculatedDPrice);
+    calculatedDPrice = basePrice - calculatedDPrice;
+    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  } else if (!isNaN(basePrice)) {
+    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
+
+    buyingPriceInput.val(formattedMarginPrice);
+  }
+}
+
+
+
+document.getElementById('historyPriceBasis').addEventListener('change', function () {
+
+  const selectedOption = this.options[this.selectedIndex];
+  const paymentTermId = selectedOption.getAttribute('data-id');
+
+
+  document.getElementById('historyPaymentTermId').value = paymentTermId;
+});
+document.getElementById('productPriceBasis').addEventListener('change', function () {
+
+  const selectedOption = this.options[this.selectedIndex];
+  const paymentTermId = selectedOption.getAttribute('data-id');
+
+  document.getElementById('productPaymentTermId').value = paymentTermId;
+});
+
+
+
+</script>
+
+<script>
+let customsArray = [];
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const priceBasisElement = document.getElementById('historyPriceBasis');
+  const paymentTermIdElement = document.getElementById('historyPaymentTermId');
+  const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
+  const marginPercentageInput = document.getElementById('marginPercentageHistory');
+  const marginPriceInput = document.getElementById('marginPriceHistory');
+  const sellingPriceInput = document.getElementById('sellingPriceHistory');
+  const buyingPriceInput = document.getElementById('buying_prices');
+
+
+
+
+  function updateHistorySellingPrice() {
+    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
+
+    const marginPrice = parseFloat(marginPriceInput.value) || 0;
+    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+    let calculatedSellingPrice;
+    if (marginPrice === 0) {
+      calculatedSellingPrice = totalCustomFieldsValue;
+
+    } else {
+      const basePrice = parseFloat(buyingPriceInput.value) || 0;
+      console.log(basePrice);
+      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+
+    }
+
+    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+
   }
 
-  // Update Margin Percentage Calculation
-  function updateCustomMarginPercentage() {
-      const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
-      const marginPercentage = parseFloat(marginPercentageCustomInput.value.replace(/,/g, '')) || 0;
+  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
 
-      // Calculate total custom field values (like packing, freight, etc.)
-      const totalCustomFieldsValue = calculateTotalCustomFields();
+  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
-      if (buyingPrice > 0) {
-          // Calculate margin price and selling price
-          const marginPrice = (marginPercentage / 100) * buyingPrice;
-          const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+  priceBasisElement.addEventListener('change', function () {
+    const priceBasis = this.value;
+    const paymentTermId = paymentTermIdElement.value;
 
-          marginPriceCustomInput.value = marginPrice.toFixed(2);
-          sellingPriceCustomInput.value = sellingPrice.toFixed(2);
-      }
 
-      // Recalculate selling price after updating margin percentage
-      updateCustomSellingPrice();
-  }
+    historyCustomFieldsContainer.innerHTML = '';
 
-  // Update Buying Price Based on Discount Amount
-  function updateCustomBuyingPriceWithAmount() {
-      let gross_price = $('#custom_gross_price').val();
-      let purchase_discount = $('#custom_purchase_discount_amount').val();
+    if (priceBasis) {
+      fetch('/get-custom-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+          price_basis: priceBasis,
+          payment_term_id: paymentTermId,
+        }),
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        historyCustomFieldsContainer.innerHTML = '';
 
-      let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
-      let dAmount = parseFloat(purchase_discount.replace(/,/g, '')) || 0;
+        let rowContainer = document.createElement('div');
+        rowContainer.classList.add('row');
 
-      if (!isNaN(basePrice) && !isNaN(dAmount)) {
-          let calculatedDPrice = basePrice - dAmount;
-          let dpercent = (dAmount / basePrice) * 100;
-          dpercent = parseFloat(dpercent).toFixed(2);
-          $('#custom_purchase_discount').val(dpercent);
+        data.forEach((field, index) => {
+          const fieldHTML = `
+          <div class="form-group col-md-6">
+          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <input class="form-control dynamic-field" type="text"
+          name="${field.short_code}" data-field-name="${field.short_code}" />
+          </div>`;
+          rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
-          let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-          $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-          updateCustomSellingPrice(); // Recalculate selling price
-      }
-  }
-
-  // Update Buying Price Based on Discount Percentage
-  function updateCustomBuyingPrice() {
-      let gross_price = $('#custom_gross_price').val();
-      let purchase_discount = $('#custom_purchase_discount').val();
-
-      let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
-      let dPercentage = parseFloat(purchase_discount.replace(/,/g, '')) || 0;
-
-      if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-          let calculatedDPrice = basePrice * (dPercentage / 100);
-          $('#custom_purchase_discount_amount').val(calculatedDPrice);
-          calculatedDPrice = basePrice - calculatedDPrice;
-          let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-          $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-          updateCustomSellingPrice(); // Recalculate selling price
-      } else if (!isNaN(basePrice)) {
-          let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-          $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-          updateCustomSellingPrice(); // Recalculate selling price
-      }
-  }
-
-  // Calculate the total of all dynamic custom fields (like packing, freight, etc.)
-  function calculateTotalCustomFields() {
-      let total = 0;
-
-      // Iterate over all dynamic fields (like packing, freight, etc.)
-      $('.dynamic-field').each(function () {
-          let value = parseFloat($(this).val().replace(/,/g, '')) || 0;
-          const fieldId = $(this).attr('id'); // Get the dynamic field ID
-
-          // Check if the value is different from the previous value
-          if (oldDynamicFieldValues[fieldId] !== value) {
-              // Subtract the old value and add the new value
-              total -= oldDynamicFieldValues[fieldId] || 0;
-              oldDynamicFieldValues[fieldId] = value; // Update the old value
+          if ((index + 1) % 2 === 0) {
+            historyCustomFieldsContainer.appendChild(rowContainer);
+            rowContainer = document.createElement('div');
+            rowContainer.classList.add('row');
           }
+        });
 
-          // Add the updated value to the total
-          total += value;
-      });
+        if (rowContainer.children.length > 0) {
+          customFieldsContainer.appendChild(rowContainer);
+        }
 
-      return total;
-  }
+        const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
+        dynamicFields.forEach((input) => {
+          input.addEventListener('input', function () {
+            const fieldName = this.getAttribute('data-field-name').trim();
+            const fieldValue = parseFloat(this.value) || 0;
 
-  // Update selling price by considering buying price, margin, and total custom field values
-  function updateCustomSellingPrice() {
-      const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
-      const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
+            const fieldIndex = customsArray.findIndex(
+              (item) => item.field_name === fieldName
+            );
+            if (fieldIndex !== -1) {
+              customsArray[fieldIndex].value = fieldValue;
+            } else {
+              customsArray.push({ field_name: fieldName, value: fieldValue });
+            }
 
-      // Calculate total custom fields value (packing, freight, etc.)
-      const totalCustomFieldsValue = calculateTotalCustomFields();
+            console.log("Custom Fields Array Updated:", customsArray);
 
-      // Calculate the selling price
-      const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+            updateHistorySellingPrice();
+          });
+        });
+      })
+      .catch((error) => console.error('Error fetching custom fields:', error));
+    } else {
+      customFieldsContainer.innerHTML = '';
+    }
+  });
+});
 
-      // Update the selling price input
-      sellingPriceCustomInput.value = sellingPrice.toFixed(2);
-      const event = new Event('input', { bubbles: true });
-      sellingPriceCustomInput.dispatchEvent(event); // Trigger input event if necessary
-  }
+</script>
 
-  // Utility function to format numbers with commas
-  function numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-
-  </script>
-
-
-
-  <script>
-  document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
-  document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
-  document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
-
-  document.getElementById('buying_gross_price').addEventListener('input', updateBuyingPrice);
-  document.getElementById('buying_purchase_discount').addEventListener('input', updateBuyingPrice);
-  document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
-
-
-
-
-  const marginPriceInput = document.getElementById('marginPriceProduct');
-  const marginPercentageInput = document.getElementById('marginPercentage');
+<script>
+let productCustomFieldsArray = [];
+document.addEventListener('DOMContentLoaded', function () {
+  const priceBasisElement = document.getElementById('productPriceBasis');
+  const paymentTermIdElement = document.getElementById('productPaymentTermId');
+  const customFieldsContainer = document.getElementById('productCustomFieldsContainer');
   const sellingPriceInput = document.getElementById('sellingPrice');
   const buyingPriceInput = document.getElementById('buying_price');
+  const marginPriceInput = document.getElementById('marginPriceProduct');
+  const marginPercentageInput = document.getElementById('marginPercentage');
 
-  const marginPriceHistoryInput = document.getElementById('marginPriceHistory');
-  const marginPercentageHistoryInput = document.getElementById('marginPercentageHistory');
-  const sellingPriceHistoryInput = document.getElementById('sellingPriceHistory');
-  const buyingPriceHistoryInput = document.getElementById('buying_prices');
-
-
-
-
-  marginPriceInput.addEventListener('input', updateMarginPrice);
-  marginPercentageInput.addEventListener('input', updateMarginPercentage);
-
-  marginPriceHistoryInput.addEventListener('input', updateHistoryMarginPrice);
-  marginPercentageHistoryInput.addEventListener('input', updateHistoryMarginPercentage);
-
-
-
-  function updateHistoryMarginPrice() {
-    const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
-    const marginPrice = parseFloat(marginPriceHistoryInput.value) || 0;
-
-    // Sum the custom fields values
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (item.value || 0);
+  function updateSellingPrice() {
+    const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
     }, 0);
 
-    if (buyingPrice > 0) {
-      const marginPercentage = (marginPrice / buyingPrice) * 100;
-      const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-      marginPercentageHistoryInput.value = marginPercentage.toFixed(2);
-      sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
-    }
-  }
-
-  function updateHistoryMarginPercentage() {
-    const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
-    const marginPercentage = parseFloat(marginPercentageHistoryInput.value) || 0;
-
-    // Sum the custom fields values
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (item.value || 0);
-    }, 0);
-
-    if (buyingPrice > 0) {
-      const marginPrice = (marginPercentage / 100) * buyingPrice;
-      const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-      marginPriceHistoryInput.value = marginPrice.toFixed(2);
-      sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
-    }
-  }
-
-  function updateMarginPrice() {
-    const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
     const marginPrice = parseFloat(marginPriceInput.value) || 0;
-
-    // Sum the custom fields values
-    const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-      return sum + (item.value || 0);
-    }, 0);
-
-    if (buyingPrice > 0) {
-      const marginPercentage = (marginPrice / buyingPrice) * 100;
-      const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-      marginPercentageInput.value = marginPercentage.toFixed(2);
-      sellingPriceInput.value = sellingPrice.toFixed(2);
-    }
-  }
-
-  function updateMarginPercentage() {
-    const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
     const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+    let calculatedSellingPrice;
+    if (marginPrice === 0) {
+      calculatedSellingPrice = totalCustomFieldsValue;
 
-    // Sum the custom fields values
-    const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-      return sum + (item.value || 0);
-    }, 0);
+    } else {
+      const basePrice = parseFloat(buyingPriceInput.value) || 0;
 
-    if (buyingPrice > 0) {
-      const marginPrice = (marginPercentage / 100) * buyingPrice;
-      const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
 
-      marginPriceInput.value = marginPrice.toFixed(2);
-      sellingPriceInput.value = sellingPrice.toFixed(2);
     }
+
+    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+
+  }
+
+  marginPriceInput.addEventListener('input', updateSellingPrice);
+
+  marginPercentageInput.addEventListener('input', updateSellingPrice);
+
+  priceBasisElement.addEventListener('change', function () {
+    const priceBasis = this.value;
+    const paymentTermId = paymentTermIdElement.value;
+
+    productCustomFieldsArray = [];
+    customFieldsContainer.innerHTML = '';
+
+    if (priceBasis) {
+      fetch('/get-custom-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+          price_basis: priceBasis,
+          payment_term_id: paymentTermId,
+        }),
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        customFieldsContainer.innerHTML = '';
+
+        let rowContainer = document.createElement('div');
+        rowContainer.classList.add('row');
+
+        data.forEach((field, index) => {
+          const fieldHTML = `
+          <div class="form-group col-md-6">
+          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <input class="form-control dynamic-field" type="text"
+          name="${field.short_code}" data-field-name="${field.short_code}" />
+          </div>`;
+          rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+
+          if ((index + 1) % 2 === 0) {
+            customFieldsContainer.appendChild(rowContainer);
+            rowContainer = document.createElement('div');
+            rowContainer.classList.add('row');
+          }
+        });
+
+        if (rowContainer.children.length > 0) {
+          customFieldsContainer.appendChild(rowContainer);
+        }
+
+        const dynamicFields = customFieldsContainer.querySelectorAll('.dynamic-field');
+        dynamicFields.forEach((input) => {
+          input.addEventListener('input', function () {
+            const fieldName = this.getAttribute('data-field-name').trim();
+            const fieldValue = parseFloat(this.value) || 0;
+
+            // Update or add the field value in the array
+            const fieldIndex = productCustomFieldsArray.findIndex(
+              (item) => item.field_name === fieldName
+            );
+            if (fieldIndex !== -1) {
+              productCustomFieldsArray[fieldIndex].value = fieldValue;
+            } else {
+              productCustomFieldsArray.push({ field_name: fieldName, value: fieldValue });
+            }
+
+            console.log("Custom Fields Array Updated:", productCustomFieldsArray);
+
+            updateSellingPrice();
+          });
+        });
+      })
+      .catch((error) => console.error('Error fetching custom fields:', error));
+    } else {
+      customFieldsContainer.innerHTML = '';
+    }
+  });
+});
+</script>
+
+
+<script>
+
+let customPriceArray = [];
+$(document).ready(function () {
+
+
+  const quoteId = $('#quotation_id').val();
+
+  if (quoteId) {
+    fetchCustomPriceArray(quoteId);
   }
 
 
-  $('#gross_price, #purchase_discount').on('input', function() {
+  $('#buying_gross_price, #buying_purchase_discount, #buying_purchase_discount_amount').on('input', function () {
     updateBuyingPrice();
   });
 
-  $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
-    updateHistoryBuyingPrice();
-  });
-
-
-
-  function updateBuyingPriceWithAmount() {
-    let gross_price = $('#gross_price').val();
-    let purchase_discount = $('#purchase_discount_amount').val();
-
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_price');
-
-    if (!isNaN(basePrice) && !isNaN(dAmount)) {
-
-      let calculatedDPrice = basePrice - dAmount;
-      let dpercent = (dAmount / basePrice) * 100;
-      dpercent = parseFloat(dpercent).toFixed(2);
-      $('#purchase_discount').val(dpercent);
-
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
-  function updateHistoryBuyingPriceWithAmount() {
-    let gross_price = $('#buying_gross_price').val();
-    let purchase_discount = $('#buying_purchase_discount_amount').val();
-
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_prices');
-
-    if (!isNaN(basePrice) && !isNaN(dAmount)) {
-
-      let calculatedDPrice = basePrice - dAmount;
-      let dpercent = (dAmount / basePrice) * 100;
-      dpercent = parseFloat(dpercent).toFixed(2);
-      $('#buying_purchase_discount').val(dpercent);
-
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
-  function updateHistoryBuyingPrice() {
-    let gross_price = $('#buying_gross_price').val(); // Get the value using jQuery
-    let purchase_discount = $('#buying_purchase_discount').val(); // Get the value using jQuery
-
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_prices');
-
-    if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-
-      let calculatedDPrice = basePrice * (dPercentage / 100);
-      $('#buying_purchase_discount_amount').val(calculatedDPrice);
-      calculatedDPrice = basePrice - calculatedDPrice;
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    } else if (!isNaN(basePrice)) {
-      let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
-
-
-
   function updateBuyingPrice() {
-    let gross_price = $('#gross_price').val(); // Get the value using jQuery
-    let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
 
-    let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-    let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
-
-    let buyingPriceInput = $('#buying_price');
-
-    if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-
-      let calculatedDPrice = basePrice * (dPercentage / 100);
-      $('#purchase_discount_amount').val(calculatedDPrice);
-      calculatedDPrice = basePrice - calculatedDPrice;
-      let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    } else if (!isNaN(basePrice)) {
-      let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-
-      buyingPriceInput.val(formattedMarginPrice);
-    }
-  }
+    let gross_price = $('#buying_gross_price').val();
+    let purchase_discount = $('#buying_purchase_discount').val();
+    let purchase_discount_amount = $('#buying_purchase_discount_amount').val();
 
 
+    let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
+    let discountPercentage = parseFloat(purchase_discount) || 0;
+    let discountAmount = parseFloat(purchase_discount_amount.replace(/,/g, '')) || 0;
 
-  document.getElementById('historyPriceBasis').addEventListener('change', function () {
+    if (basePrice > 0) {
+      if (discountPercentage > 0 && purchase_discount_amount === '') {
 
-    const selectedOption = this.options[this.selectedIndex];
-    const paymentTermId = selectedOption.getAttribute('data-id');
-
-
-    document.getElementById('historyPaymentTermId').value = paymentTermId;
-  });
-  document.getElementById('productPriceBasis').addEventListener('change', function () {
-
-    const selectedOption = this.options[this.selectedIndex];
-    const paymentTermId = selectedOption.getAttribute('data-id');
-
-    document.getElementById('productPaymentTermId').value = paymentTermId;
-  });
-
-
-
-  </script>
-
-  <script>
-  let customsArray = [];
-
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const priceBasisElement = document.getElementById('historyPriceBasis');
-    const paymentTermIdElement = document.getElementById('historyPaymentTermId');
-    const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
-    const marginPercentageInput = document.getElementById('marginPercentageHistory');
-    const marginPriceInput = document.getElementById('marginPriceHistory');
-    const sellingPriceInput = document.getElementById('sellingPriceHistory');
-    const buyingPriceInput = document.getElementById('buying_prices');
-
-
-
-
-    function updateHistorySellingPrice() {
-      const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-        return sum + (parseFloat(item.value) || 0);
-      }, 0);
-
-      const marginPrice = parseFloat(marginPriceInput.value) || 0;
-      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-      let calculatedSellingPrice;
-      if (marginPrice === 0) {
-        calculatedSellingPrice = totalCustomFieldsValue;
-
-      } else {
-        const basePrice = parseFloat(buyingPriceInput.value) || 0;
-        console.log(basePrice);
-        calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-
+        discountAmount = basePrice * (discountPercentage / 100);
+        $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
       }
 
-      sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+      if (discountAmount > 0 && purchase_discount === '') {
+        discountPercentage = (discountAmount / basePrice) * 100;
+        $('#buying_purchase_discount').val(discountPercentage.toFixed(2));
+      }
 
+      if (discountPercentage > 0) {
+
+        discountAmount = basePrice * (discountPercentage / 100);
+        $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
+      }
+
+
+      let buyingPrice = basePrice - discountAmount;
+      $('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
+    } else {
+
+      $('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');
+    }
+  }
+
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  loadQuotationCharges(quoteId);
+
+});
+function fetchCustomPriceArray(quoteId) {
+
+  $.ajax({
+    url: `/edit-quote-custom/${quoteId}`,
+    method: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      customPriceArray = data;
+      console.log(customPriceArray);
+      updateQuotationCharges(customPriceArray);
+    },
+    error: function (xhr, status, error) {
+      console.error('Error fetching custom price array:', error);
+    }
+  });
+}
+
+$(document).on('click', 'a[data-bs-toggle="modal"]', function () {
+  var itemId = $(this).data('id');
+  var quotationId = $('#quotation_id').val();
+
+  // Fetch the item details only if they haven't been loaded previously
+  if (!$('#itemId').data('loaded') || $('#itemId').val() !== itemId) {
+    $.ajax({
+      url: '/get-item-details/' + itemId + '/quotation/' + quotationId,
+      method: 'GET',
+      success: function(response) {
+
+        // Mark as loaded to prevent resetting the data on subsequent opens
+        $('#itemId').data('loaded', true);
+        $('#itemId').val(itemId);
+
+        // Define the fields with their response values
+        const fields = [
+          { id: '#custom_gross_price', value: response.gross_price },
+          { id: '#custom_purchase_discount', value: response.purchase_discount },
+          { id: '#custom_purchase_discount_amount', value: response.purchase_discount_amount },
+          { id: '#custom_buying_prices', value: response.buying_price },
+          { id: '#customCurrencyCustom', value: response.buying_currency },
+          { id: '#marginPriceCustom', value: response.unit_margin },
+          { id: '#marginPercentageCustom', value: response.mosp },
+          { id: '#sellingPriceCustom', value: response.unit_price },
+          { id: '#quoteCurrencyCustom', value: response.selling_currency },
+          { id: '#packing', value: response.packing },
+          { id: '#road_transport_to_port', value: response.road_transport_to_port },
+          { id: '#freight', value: response.freight },
+          { id: '#insurance', value: response.insurance },
+          { id: '#clearing', value: response.clearing },
+          { id: '#boe', value: response.boe },
+          { id: '#handling_and_local_transport', value: response.handling_and_local_transport },
+          { id: '#customs', value: response.customs },
+          { id: '#delivery_charge', value: response.delivery_charge },
+          { id: '#mofaic', value: response.mofaic },
+          { id: '#surcharges', value: response.surcharges },
+          { id: '#buyingCurrencyCustom', value: response.buying_currency }
+        ];
+
+        // Loop through each field and process based on the value
+        fields.forEach(function(field) {
+          if (field.value === null || field.value === undefined || field.value === '') {
+            // Completely remove the entire .col-md-4 and .form-group elements
+            $(field.id).closest('.col-md-4').remove();
+          } else {
+            // Set the field value and ensure the form group is visible
+            $(field.id).val(field.value);
+            $(field.id).closest('.col-md-4').show();  // Ensure the column is visible
+          }
+        });
+
+        // Trigger the change event for the quote currency field
+        $('#quoteCurrencyCustom').change();
+      },
+      error: function(xhr, status, error) {
+        console.log('Error fetching data:', error);
+      }
+    });
+  }
+});
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const customPriceBasis = document.getElementById('customPriceBasis');
+  const customPaymentTermId = document.getElementById('customPaymentTermId');
+  const quotationCustomFieldsContainer = document.getElementById('quotationCustomFieldsContainer');
+  const marginPercentageInput = document.getElementById('marginPercentageCustom');
+  const marginPriceInput = document.getElementById('marginPriceCustom');
+  const sellingPriceInput = document.getElementById('sellingPriceCustom');
+  const buyingPriceInput = document.getElementById('buying_prices');
+  let customsArray = [];
+
+  // Set initial hidden input values to match dropdown selections
+  customPaymentTermId.value = customPriceBasis.value;
+
+  // Function to update the selling price
+  function updateHistorySellingPrice() {
+    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
+
+    const marginPrice = parseFloat(marginPriceInput.value) || 0;
+    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+    let calculatedSellingPrice;
+
+    if (marginPrice === 0) {
+      calculatedSellingPrice = totalCustomFieldsValue;
+    } else {
+      const basePrice = parseFloat(buyingPriceInput.value) || 0;
+      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
     }
 
-    marginPriceInput.addEventListener('input', updateHistorySellingPrice);
+    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+  }
 
-    marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
+  // Attach event listeners to margin inputs
+  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
+  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
+  function fetchAndDisplayCustomFields(priceBasis, paymentTermId, previousCustomFields = []) {
+    if (priceBasis) {
+      fetch('/get-custom-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+          price_basis: priceBasis,
+          payment_term_id: paymentTermId,
+        }),
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        quotationCustomFieldsContainer.innerHTML = ''; // Clear any previous custom fields
 
-    priceBasisElement.addEventListener('change', function () {
-      const priceBasis = this.value;
-      const paymentTermId = paymentTermIdElement.value;
-
-
-      historyCustomFieldsContainer.innerHTML = '';
-
-      if (priceBasis) {
-        fetch('/get-custom-fields', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-          },
-          body: JSON.stringify({
-            price_basis: priceBasis,
-            payment_term_id: paymentTermId,
-          }),
-        })
-        .then((response) => response.json())
-        .then((data) => {
-          historyCustomFieldsContainer.innerHTML = '';
-
+        if (data && data.length > 0) {
           let rowContainer = document.createElement('div');
           rowContainer.classList.add('row');
 
+          // Initialize customsArray with all fields and default values
           data.forEach((field, index) => {
             const fieldHTML = `
             <div class="form-group col-md-6">
             <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-            <input class="form-control dynamic-field" type="text"
+            <input class="form-control dynamic-field" type="number" min="0" value="0"
             name="${field.short_code}" data-field-name="${field.short_code}" />
             </div>`;
             rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
+
+            const fieldIndex = customsArray.findIndex(
+              (item) => item.field_name === field.short_code
+            );
+            if (fieldIndex === -1) {
+              customsArray.push({ field_name: field.short_code, value: 0 });
+            }
+
+            // Check if a previous value exists and pre-populate the field
+            const previousField = previousCustomFields.find(item => item.field_name === field.short_code);
+            if (previousField) {
+              const fieldInput = rowContainer.querySelector(`[data-field-name="${field.short_code}"]`);
+              fieldInput.value = previousField.value;
+
+              // Only update customsArray if the value is different from the default (0) or the previous one
+              if (previousField.value !== 0) {
+                customsArray[fieldIndex].value = previousField.value;
+              }
+            }
+
             if ((index + 1) % 2 === 0) {
-              historyCustomFieldsContainer.appendChild(rowContainer);
+              quotationCustomFieldsContainer.appendChild(rowContainer);
               rowContainer = document.createElement('div');
               rowContainer.classList.add('row');
             }
           });
 
           if (rowContainer.children.length > 0) {
-            customFieldsContainer.appendChild(rowContainer);
+            quotationCustomFieldsContainer.appendChild(rowContainer);
           }
 
-          const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
+          // Add event listeners to dynamic fields for value updates
+          const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
           dynamicFields.forEach((input) => {
             input.addEventListener('input', function () {
               const fieldName = this.getAttribute('data-field-name').trim();
@@ -1889,546 +2342,309 @@
               const fieldIndex = customsArray.findIndex(
                 (item) => item.field_name === fieldName
               );
+
+              // Only update the customsArray if the value has changed
               if (fieldIndex !== -1) {
-                customsArray[fieldIndex].value = fieldValue;
+                // Update the value only if it's different from the existing one
+                if (customsArray[fieldIndex].value !== fieldValue) {
+                  customsArray[fieldIndex].value = fieldValue;
+                }
               } else {
                 customsArray.push({ field_name: fieldName, value: fieldValue });
               }
 
-              console.log("Custom Fields Array Updated:", customsArray);
-
+              const customPriceJSON = JSON.stringify(customsArray);
+              document.getElementById('customprice').value = customPriceJSON;
+              console.log('Custom Fields Array Updated:', customsArray);
               updateHistorySellingPrice();
             });
           });
-        })
-        .catch((error) => console.error('Error fetching custom fields:', error));
-      } else {
-        customFieldsContainer.innerHTML = '';
-      }
-    });
-  });
-
-  </script>
-
-  <script>
-  let productCustomFieldsArray = [];
-  document.addEventListener('DOMContentLoaded', function () {
-    const priceBasisElement = document.getElementById('productPriceBasis');
-    const paymentTermIdElement = document.getElementById('productPaymentTermId');
-    const customFieldsContainer = document.getElementById('productCustomFieldsContainer');
-    const sellingPriceInput = document.getElementById('sellingPrice');
-    const buyingPriceInput = document.getElementById('buying_price');
-    const marginPriceInput = document.getElementById('marginPriceProduct');
-    const marginPercentageInput = document.getElementById('marginPercentage');
-
-    function updateSellingPrice() {
-      const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-        return sum + (parseFloat(item.value) || 0);
-      }, 0);
-
-      const marginPrice = parseFloat(marginPriceInput.value) || 0;
-      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-      let calculatedSellingPrice;
-      if (marginPrice === 0) {
-        calculatedSellingPrice = totalCustomFieldsValue;
-
-      } else {
-        const basePrice = parseFloat(buyingPriceInput.value) || 0;
-
-        calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-
-      }
-
-      sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-
-    }
-
-    marginPriceInput.addEventListener('input', updateSellingPrice);
-
-    marginPercentageInput.addEventListener('input', updateSellingPrice);
-
-    priceBasisElement.addEventListener('change', function () {
-      const priceBasis = this.value;
-      const paymentTermId = paymentTermIdElement.value;
-
-      productCustomFieldsArray = [];
-      customFieldsContainer.innerHTML = '';
-
-      if (priceBasis) {
-        fetch('/get-custom-fields', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-          },
-          body: JSON.stringify({
-            price_basis: priceBasis,
-            payment_term_id: paymentTermId,
-          }),
-        })
-        .then((response) => response.json())
-        .then((data) => {
-          customFieldsContainer.innerHTML = '';
-
-          let rowContainer = document.createElement('div');
-          rowContainer.classList.add('row');
-
-          data.forEach((field, index) => {
-            const fieldHTML = `
-            <div class="form-group col-md-6">
-            <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-            <input class="form-control dynamic-field" type="text"
-            name="${field.short_code}" data-field-name="${field.short_code}" />
-            </div>`;
-            rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
-
-            if ((index + 1) % 2 === 0) {
-              customFieldsContainer.appendChild(rowContainer);
-              rowContainer = document.createElement('div');
-              rowContainer.classList.add('row');
-            }
-          });
-
-          if (rowContainer.children.length > 0) {
-            customFieldsContainer.appendChild(rowContainer);
-          }
-
-          const dynamicFields = customFieldsContainer.querySelectorAll('.dynamic-field');
-          dynamicFields.forEach((input) => {
-            input.addEventListener('input', function () {
-              const fieldName = this.getAttribute('data-field-name').trim();
-              const fieldValue = parseFloat(this.value) || 0;
-
-              // Update or add the field value in the array
-              const fieldIndex = productCustomFieldsArray.findIndex(
-                (item) => item.field_name === fieldName
-              );
-              if (fieldIndex !== -1) {
-                productCustomFieldsArray[fieldIndex].value = fieldValue;
-              } else {
-                productCustomFieldsArray.push({ field_name: fieldName, value: fieldValue });
-              }
-
-              console.log("Custom Fields Array Updated:", productCustomFieldsArray);
-
-              updateSellingPrice();
-            });
-          });
-        })
-        .catch((error) => console.error('Error fetching custom fields:', error));
-      } else {
-        customFieldsContainer.innerHTML = '';
-      }
-    });
-  });
-  </script>
 
 
-  <script>
-
-  let customPriceArray = [];
-  $(document).ready(function () {
-
-
-    const quoteId = $('#quotation_id').val();
-    console.log(quoteId);
-    if (quoteId) {
-      fetchCustomPriceArray(quoteId);
-    } else {
-      console.error('Quote ID not found');
-    }
-
-    function fetchCustomPriceArray(quoteId) {
-
-      $.ajax({
-        url: `/edit-quote-custom/${quoteId}`,
-        method: 'GET',
-        dataType: 'json',
-        success: function (data) {
-          customPriceArray = data;
-
-          updateQuotationCharges(customPriceArray);
-        },
-        error: function (xhr, status, error) {
-          console.error('Error fetching custom price array:', error);
-        }
-      });
-    }
-
-    $('#buying_gross_price, #buying_purchase_discount, #buying_purchase_discount_amount').on('input', function () {
-      updateBuyingPrice();
-    });
-
-    function updateBuyingPrice() {
-
-      let gross_price = $('#buying_gross_price').val();
-      let purchase_discount = $('#buying_purchase_discount').val();
-      let purchase_discount_amount = $('#buying_purchase_discount_amount').val();
-
-
-      let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
-      let discountPercentage = parseFloat(purchase_discount) || 0;
-      let discountAmount = parseFloat(purchase_discount_amount.replace(/,/g, '')) || 0;
-
-      if (basePrice > 0) {
-        if (discountPercentage > 0 && purchase_discount_amount === '') {
-
-          discountAmount = basePrice * (discountPercentage / 100);
-          $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
-        }
-
-        if (discountAmount > 0 && purchase_discount === '') {
-          discountPercentage = (discountAmount / basePrice) * 100;
-          $('#buying_purchase_discount').val(discountPercentage.toFixed(2));
-        }
-
-        if (discountPercentage > 0) {
-
-          discountAmount = basePrice * (discountPercentage / 100);
-          $('#buying_purchase_discount_amount').val(numberWithCommas(discountAmount.toFixed(2)));
-        }
-
-
-        let buyingPrice = basePrice - discountAmount;
-        $('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
-      } else {
-
-        $('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');
-      }
-    }
-
-    function numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-    loadQuotationCharges(quoteId);
-
-  });
-  // $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
-  //   console.log("dasdad");
-  //
-  //   var itemId = $(this).data('id');
-  //   var quotationId = $('#quotation_id').val();
-  //
-  //   $.ajax({
-  //     url: '/get-item-details/' + itemId + '/quotation/' + quotationId,
-  //     method: 'GET',
-  //     success: function(response) {
-  //
-  //       $('#custom_gross_price').val(response.gross_price);
-  //       $('#custom_purchase_discount').val(response.purchase_discount);
-  //       $('#custom_purchase_discount_amount').val(response.purchase_discount_amount);
-  //       $('#custom_buying_prices').val(response.buying_price);
-  //       $('#customCurrencyCustom').val(response.buying_currency);
-  //       $('#marginPriceCustom').val(response.unit_margin);
-  //       $('#marginPercentageCustom').val(response.mosp);
-  //       $('#sellingPriceCustom').val(response.unit_price);
-  //       $('#quoteCurrencyCustom').val(response.selling_currency).change();
-  //       $('#itemId').val(itemId);
-  //       const chargeFields = {
-  //         packing: response.packing,
-  //         road_transport_to_port: response.road_transport_to_port,
-  //         freight: response.freight,
-  //         insurance: response.insurance,
-  //         clearing: response.clearing,
-  //         boe: response.boe,
-  //         handling_and_local_transport: response.handling_and_local_transport,
-  //       };
-  //       Object.keys(chargeFields).forEach((fieldName) => {
-  //         const value = chargeFields[fieldName];
-  //         const inputField = $(`input[data-field-name="${fieldName}"]`);
-  //
-  //         if (inputField.length > 0) {
-  //           inputField.val(value);
-  //         }
-  //       });
-  //
-  //     },
-  //     error: function(xhr, status, error) {
-  //       console.log('Error fetching data:', error);
-  //     }
-  //   });
-  // });
-
-  </script>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-
-    const customPriceBasis = document.getElementById('customPriceBasis');
-    const customPaymentTermId = document.getElementById('customPaymentTermId');
-    const quotationCustomFieldsContainer = document.getElementById('quotationCustomFieldsContainer');
-    const marginPercentageInput = document.getElementById('marginPercentageCustom');
-    const marginPriceInput = document.getElementById('marginPriceCustom');
-    const sellingPriceInput = document.getElementById('sellingPriceCustom');
-    const buyingPriceInput = document.getElementById('buying_prices');
-    let customsArray = [];
-
-    // Set initial hidden input values to match dropdown selections
-    customPaymentTermId.value = customPriceBasis.value;
-
-    // Function to update the selling price
-    function updateHistorySellingPrice() {
-      const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-        return sum + (parseFloat(item.value) || 0);
-      }, 0);
-
-      const marginPrice = parseFloat(marginPriceInput.value) || 0;
-      const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-      let calculatedSellingPrice;
-
-      if (marginPrice === 0) {
-        calculatedSellingPrice = totalCustomFieldsValue;
-      } else {
-        const basePrice = parseFloat(buyingPriceInput.value) || 0;
-        calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-      }
-
-      sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-    }
-
-    // Attach event listeners to margin inputs
-    marginPriceInput.addEventListener('input', updateHistorySellingPrice);
-    marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
-
-    // Function to fetch and display custom fields
-    function fetchAndDisplayCustomFields(priceBasis, paymentTermId) {
-      if (priceBasis) {
-        fetch('/get-custom-fields', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-          },
-          body: JSON.stringify({
-            price_basis: priceBasis,
-            payment_term_id: paymentTermId,
-          }),
-        })
-        .then((response) => response.json())
-        .then((data) => {
-          quotationCustomFieldsContainer.innerHTML = ''; // Clear any previous custom fields
-
-          if (data && data.length > 0) {
-      let rowContainer = document.createElement('div');
-      rowContainer.classList.add('row');
-
-      // Initialize customsArray with all fields and default values
-      data.forEach((field, index) => {
-        const fieldHTML = `
-        <div class="form-group col-md-6">
-          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-          <input class="form-control dynamic-field" type="number" min="0" value="0"
-          name="${field.short_code}" data-field-name="${field.short_code}" />
-        </div>`;
-        rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
-
-        // Initialize customsArray with default value 0 for this field
-        const fieldIndex = customsArray.findIndex(
-          (item) => item.field_name === field.short_code
-        );
-        if (fieldIndex === -1) {
-          customsArray.push({ field_name: field.short_code, value: 0 });
-        }
-
-        if ((index + 1) % 2 === 0) {
-          quotationCustomFieldsContainer.appendChild(rowContainer);
-          rowContainer = document.createElement('div');
-          rowContainer.classList.add('row');
-        }
-      });
-
-      if (rowContainer.children.length > 0) {
-        quotationCustomFieldsContainer.appendChild(rowContainer);
-      }
-
-      // Add event listeners to dynamic fields for value updates
-      const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
-      dynamicFields.forEach((input) => {
-        input.addEventListener('input', function () {
-          const fieldName = this.getAttribute('data-field-name').trim();
-          const fieldValue = parseFloat(this.value) || 0;
-
-          const fieldIndex = customsArray.findIndex(
-            (item) => item.field_name === fieldName
-          );
-          if (fieldIndex !== -1) {
-            customsArray[fieldIndex].value = fieldValue;
-          } else {
-            customsArray.push({ field_name: fieldName, value: fieldValue });
-          }
           const customPriceJSON = JSON.stringify(customsArray);
           document.getElementById('customprice').value = customPriceJSON;
-          console.log('Custom Fields Array Updated:', customsArray);
-          updateHistorySellingPrice();
-        });
+          console.log('Initial Custom Fields Array:', customsArray);
+
+        } else {
+          console.log('No custom fields found.');
+          quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
+        }
+
+      })
+      .catch((error) => {
+        console.error('Error fetching custom fields:', error);
+        quotationCustomFieldsContainer.innerHTML = 'Error loading custom fields.';
       });
-
-      // Update the hidden field initially with the full customsArray
-      const customPriceJSON = JSON.stringify(customsArray);
-      document.getElementById('customprice').value = customPriceJSON;
-      console.log('Initial Custom Fields Array:', customsArray);
-
     } else {
-      console.log('No custom fields found.');
-      quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
-    }
-
-        })
-        .catch((error) => {
-          console.error('Error fetching custom fields:', error);
-          quotationCustomFieldsContainer.innerHTML = 'Error loading custom fields.';
-        });
-      } else {
-        quotationCustomFieldsContainer.innerHTML = '';
-      }
-    }
-    const initialPriceBasis = customPriceBasis.value;
-    const selectedOption = document.getElementById('customPriceBasis').options[document.getElementById('customPriceBasis').selectedIndex];
-    const dataId = selectedOption.getAttribute('data-id');
-    fetchAndDisplayCustomFields(initialPriceBasis, dataId);
-  });
-  </script>
-  <script>
-  const selectedValue = document.getElementById('paymentTerm').value;
-  const customPriceBasis = document.getElementById('customPriceBasis');
-
-  for (let i = 0; i < customPriceBasis.options.length; i++) {
-    if (customPriceBasis.options[i].value === selectedValue) {
-      customPriceBasis.selectedIndex = i;
-      break;
+      quotationCustomFieldsContainer.innerHTML = '';
     }
   }
 
 
-  document.addEventListener('DOMContentLoaded', function() {
+  // Function to fetch and display custom fields
+  // function fetchAndDisplayCustomFields(priceBasis, paymentTermId) {
+  //   if (priceBasis) {
+  //     fetch('/get-custom-fields', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+  //       },
+  //       body: JSON.stringify({
+  //         price_basis: priceBasis,
+  //         payment_term_id: paymentTermId,
+  //       }),
+  //     })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       quotationCustomFieldsContainer.innerHTML = ''; // Clear any previous custom fields
+  //
+  //       if (data && data.length > 0) {
+  //         let rowContainer = document.createElement('div');
+  //         rowContainer.classList.add('row');
+  //
+  //         // Initialize customsArray with all fields and default values
+  //         data.forEach((field, index) => {
+  //           const fieldHTML = `
+  //           <div class="form-group col-md-6">
+  //           <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+  //           <input class="form-control dynamic-field" type="number" min="0" value="0"
+  //           name="${field.short_code}" data-field-name="${field.short_code}" />
+  //           </div>`;
+  //           rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+  //
+  //           // Initialize customsArray with default value 0 for this field
+  //           const fieldIndex = customsArray.findIndex(
+  //             (item) => item.field_name === field.short_code
+  //           );
+  //           if (fieldIndex === -1) {
+  //             customsArray.push({ field_name: field.short_code, value: 0 });
+  //           }
+  //
+  //           if ((index + 1) % 2 === 0) {
+  //             quotationCustomFieldsContainer.appendChild(rowContainer);
+  //             rowContainer = document.createElement('div');
+  //             rowContainer.classList.add('row');
+  //           }
+  //         });
+  //
+  //         if (rowContainer.children.length > 0) {
+  //           quotationCustomFieldsContainer.appendChild(rowContainer);
+  //         }
+  //
+  //         // Add event listeners to dynamic fields for value updates
+  //         const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
+  //         dynamicFields.forEach((input) => {
+  //           input.addEventListener('input', function () {
+  //             const fieldName = this.getAttribute('data-field-name').trim();
+  //             const fieldValue = parseFloat(this.value) || 0;
+  //
+  //             const fieldIndex = customsArray.findIndex(
+  //               (item) => item.field_name === fieldName
+  //             );
+  //             if (fieldIndex !== -1) {
+  //               customsArray[fieldIndex].value = fieldValue;
+  //             } else {
+  //               customsArray.push({ field_name: fieldName, value: fieldValue });
+  //             }
+  //             const customPriceJSON = JSON.stringify(customsArray);
+  //             document.getElementById('customprice').value = customPriceJSON;
+  //             console.log('Custom Fields Array Updated:', customsArray);
+  //             updateHistorySellingPrice();
+  //           });
+  //         });
+  //
+  //         // Update the hidden field initially with the full customsArray
+  //         const customPriceJSON = JSON.stringify(customsArray);
+  //         document.getElementById('customprice').value = customPriceJSON;
+  //         console.log('Initial Custom Fields Array:', customsArray);
+  //
+  //       } else {
+  //         console.log('No custom fields found.');
+  //         quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
+  //       }
+  //
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching custom fields:', error);
+  //       quotationCustomFieldsContainer.innerHTML = 'Error loading custom fields.';
+  //     });
+  //   } else {
+  //     quotationCustomFieldsContainer.innerHTML = '';
+  //   }
+  // }
+  const initialPriceBasis = customPriceBasis.value;
+  const selectedOption = document.getElementById('customPriceBasis').options[document.getElementById('customPriceBasis').selectedIndex];
+  const dataId = selectedOption.getAttribute('data-id');
+  fetchAndDisplayCustomFields(initialPriceBasis, dataId);
+});
+</script>
+<script>
+const selectedValue = document.getElementById('paymentTerm').value;
+const customPriceBasis = document.getElementById('customPriceBasis');
 
-    document.getElementById('saveCustomFields').addEventListener('click', function() {
-
-      $(this).prop('disabled', true);
-
-
-      let sellingPrice = $('#sellingPriceCustom').val();
-      let marginPercentage = $('#marginPercentageCustom').val();
-      let quoteCurrency = $('#quoteCurrencyCustom').val();
-      let marginPrice = $('#marginPriceCustom').val();
-      let priceBasis = $('#customPriceBasis').val();
-      let buyingGrossPrice = $('#custom_gross_price').val();
-      let buyingPurchaseDiscount = $('#custom_purchase_discount').val();
-      let buyingPurchaseDiscountAmount = $('#custom_purchase_discount_amount').val();
-      let buyingPrices = $('#custom_buying_prices').val();
-      let buyingCurrencyCustom = $('#customCurrencyCustom').val();
-      let customprice = $('#customprice').val();
-      var quotationId = $('#quotation_id').val();
-      var product_id = $('#itemId').val();
+for (let i = 0; i < customPriceBasis.options.length; i++) {
+  if (customPriceBasis.options[i].value === selectedValue) {
+    customPriceBasis.selectedIndex = i;
+    break;
+  }
+}
 
 
-      let customFields = [];
-      $('.custom-field').each(function() {
-        customFields.push({
-          name: $(this).data('name'),
-          value: $(this).val()
-        });
-      });
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach the event listener to the "Save" button
+  document.getElementById('saveCustomFields').addEventListener('click', function() {
 
-      $.ajax({
-        url: '{{ route("quotation.custom_price_edit") }}',
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        data: {
-          selling_price: sellingPrice,
-          margin_percentage: marginPercentage,
-          quote_currency: quoteCurrency,
-          margin_price: marginPrice,
-          price_basis: priceBasis,
-          custom_fields: customFields,
-          buying_gross_price: buyingGrossPrice,
-          buying_purchase_discount: buyingPurchaseDiscount,
-          buying_purchase_discount_amount: buyingPurchaseDiscountAmount,
-          buying_prices: buyingPrices,
-          buying_currency: buyingCurrencyCustom,
-          customprice: customprice,
-          quotation_id: quotationId,
-          product_id: product_id,
-        },
-        success: function(response) {
-          console.log('Response from server:', response);
-          if (response.success) {
-            $('#customFieldsModal').modal('hide');
-            location.reload();
-          } else {
-            console.error('Error in response:', response);
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error('Error saving values:', error);
-        },
-        complete: function() {
-          // Re-enable the button after the request is complete
-          $('#saveCustomFields').prop('disabled', false);
-        }
+    $(this).prop('disabled', true);
+
+    // Collect values from the form fields
+    let sellingPrice = $('#sellingPriceCustom').val();
+    let marginPercentage = $('#marginPercentageCustom').val();
+    let quoteCurrency = $('#quoteCurrencyCustom').val();
+    let marginPrice = $('#marginPriceCustom').val();
+    let priceBasis = $('#customPriceBasis').val();
+    let buyingGrossPrice = $('#custom_gross_price').val();
+    let buyingPurchaseDiscount = $('#custom_purchase_discount').val();
+    let buyingPurchaseDiscountAmount = $('#custom_purchase_discount_amount').val();
+    let buyingPrices = $('#custom_buying_prices').val();
+    let buyingCurrencyCustom = $('#buyingCurrencyCustom').val();
+    let customprice = $('#customprice').val();
+    var quotationId = $('#quotation_id').val();
+    var product_id = $('#itemId').val();
+    let packing = $('#packing').val();
+    let roadTransportToPort = $('#road_transport_to_port').val();
+    let freight = $('#freight').val();
+    let insurance = $('#insurance').val();
+    let clearing = $('#clearing').val();
+    let boe = $('#boe').val();
+    let handlingAndLocalTransport = $('#handling_and_local_transport').val();
+    let customs = $('#customs').val();
+    let deliveryCharge = $('#delivery_charge').val();
+    let mofaic = $('#mofaic').val();
+    let surcharges = $('#surcharges').val();
+
+    let customFields = [];
+    $('.custom-field').each(function() {
+      customFields.push({
+        name: $(this).data('name'),
+        value: $(this).val()
       });
     });
-  });
-
-  </script>
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Bind change events to the dropdowns
-    const productPriceBasis = document.getElementById("productPriceBasis");
-    const historyPriceBasis = document.getElementById("historyPriceBasis");
-    const paymentTerm = document.getElementById("paymentTerm");
-
-    if (productPriceBasis) {
-      productPriceBasis.addEventListener("change", updateQuotationPriceBasis);
-    }
-    if (historyPriceBasis) {
-      historyPriceBasis.addEventListener("change", updateQuotationPriceBasis);
-    }
-    if (paymentTerm) {
-      paymentTerm.addEventListener("change", updateQuotationPriceBasis);
-    }
-  });
-
-  function updateQuotationPriceBasis() {
-    const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
-    const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
-    const selectedDeliveryTerm = document.getElementById("paymentTerm") ? document.getElementById("paymentTerm").value : '';
-
-    let errorMessage = "";
-    let fieldToClear = null;
 
 
-    if (selectedPaymentTerm && selectedDeliveryTerm && selectedPaymentTerm !== selectedDeliveryTerm) {
-      errorMessage = "The selected Payment Term does not match the selected Delivery Term.";
-      fieldToClear = "productPriceBasis";
-    }
+    $.ajax({
+      url: '{{ route("quotation.custom_price_edit") }}',
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      data: {
+        selling_price: sellingPrice,
+        margin_percentage: marginPercentage,
+        quote_currency: quoteCurrency,
+        margin_price: marginPrice,
+        price_basis: priceBasis,
+        custom_fields: customFields,
+        buying_gross_price: buyingGrossPrice,
+        buying_purchase_discount: buyingPurchaseDiscount,
+        buying_purchase_discount_amount: buyingPurchaseDiscountAmount,
+        buying_prices: buyingPrices,
+        buying_currency: buyingCurrencyCustom,
+        customprice: customprice,
+        quotation_id: quotationId,
+        product_id: product_id,
+        packing: packing,
+        road_transport_to_port: roadTransportToPort,
+        freight: freight,
+        insurance: insurance,
+        clearing: clearing,
+        boe: boe,
+        handling_and_local_transport: handlingAndLocalTransport,
+        customs: customs,
+        delivery_charge: deliveryCharge,
+        mofaic: mofaic,
+        surcharges: surcharges
+      },
+      success: function(response) {
 
-    else if (selectedHistoryPaymentTerm && selectedDeliveryTerm && selectedHistoryPaymentTerm !== selectedDeliveryTerm) {
-      errorMessage = "The selected History Payment Term does not match the selected Delivery Term.";
-      fieldToClear = "historyPriceBasis";
-    }
+        if (response.success) {
 
-    if (errorMessage) {
-      Swal.fire({
-        icon: "error",
-        title: "Mismatch Detected",
-        text: errorMessage,
-        confirmButtonText: "OK",
-      }).then(() => {
-        if (fieldToClear) {
-          document.getElementById(fieldToClear).value = "";
+          $('#customFieldsModal').modal('hide');
+
+          location.reload();
+        } else {
+          console.error('Error in response:', response);
         }
-      });
-    }
+      },
+      error: function(xhr, status, error) {
+        console.error('Error saving values:', error);
+      },
+      complete: function() {
+
+        $('#saveCustomFields').prop('disabled', false);
+      }
+    });
+  });
+});
 
 
-    if (!selectedPaymentTerm) {
-      document.getElementById("paymentTermError").style.display = "block";
-    } else {
-      document.getElementById("paymentTermError").style.display = "none";
-    }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Bind change events to the dropdowns
+  const productPriceBasis = document.getElementById("productPriceBasis");
+  const historyPriceBasis = document.getElementById("historyPriceBasis");
+  const paymentTerm = document.getElementById("paymentTerm");
+
+  if (productPriceBasis) {
+    productPriceBasis.addEventListener("change", updateQuotationPriceBasis);
   }
-  </script>
-  @endsection
+  if (historyPriceBasis) {
+    historyPriceBasis.addEventListener("change", updateQuotationPriceBasis);
+  }
+  if (paymentTerm) {
+    paymentTerm.addEventListener("change", updateQuotationPriceBasis);
+  }
+});
+
+function updateQuotationPriceBasis() {
+  const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
+  const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
+  const selectedDeliveryTerm = document.getElementById("paymentTerm") ? document.getElementById("paymentTerm").value : '';
+
+  let errorMessage = "";
+  let fieldToClear = null;
+
+
+  if (selectedPaymentTerm && selectedDeliveryTerm && selectedPaymentTerm !== selectedDeliveryTerm) {
+    errorMessage = "The selected Payment Term does not match the selected Delivery Term.";
+    fieldToClear = "productPriceBasis";
+  }
+
+  else if (selectedHistoryPaymentTerm && selectedDeliveryTerm && selectedHistoryPaymentTerm !== selectedDeliveryTerm) {
+    errorMessage = "The selected History Payment Term does not match the selected Delivery Term.";
+    fieldToClear = "historyPriceBasis";
+  }
+
+  if (errorMessage) {
+    Swal.fire({
+      icon: "error",
+      title: "Mismatch Detected",
+      text: errorMessage,
+      confirmButtonText: "OK",
+    }).then(() => {
+      if (fieldToClear) {
+        document.getElementById(fieldToClear).value = "";
+      }
+    });
+  }
+
+
+  if (!selectedPaymentTerm) {
+    document.getElementById("paymentTermError").style.display = "block";
+  } else {
+    document.getElementById("paymentTermError").style.display = "none";
+  }
+}
+</script>
+@endsection

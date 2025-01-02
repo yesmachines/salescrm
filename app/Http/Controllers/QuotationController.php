@@ -161,7 +161,7 @@ class QuotationController extends Controller
     $divisions = $divisionService->getDivisionList();
     $managers = $productService->employeesList();
     $paymentCycles = $quotationChargeService->getPaymentCyclesList();
-    $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->get();
+    $paymentTermList = PaymentTerm::where('parent_id', 0)->orderByDesc('isdefault')->where('status','1')->get();
 
     if($quotationType=='service'){
 
@@ -263,11 +263,11 @@ class QuotationController extends Controller
     }
     // create new quotation
     $quotes = $quotationService->createQuote($data);
-
-    $quotationItem = $quotationItemService->createQuotationItem($quotes, $data);
     if($data['customprice']){
       $quotationCustomPrice = $quotationCustomService->updateQuotationCustom($quotes, $data);
     }
+    $quotationItem = $quotationItemService->createQuotationItem($quotes, $data);
+
     // add Quote history
     $status = $quotationService->getQuoteStatusById($data['status_id']);
     $quoteHistoryService->addHistory([
@@ -614,6 +614,7 @@ class QuotationController extends Controller
 
     // $itemData = $quotationItemService->getQuotionId($id);
     $qItemExits = QuotationItem::where('quotation_id', $id)->count();
+
     if ($qItemExits > 0) {
       $quotationItemService->updateQuoteItem($data);
     } else {
@@ -622,6 +623,7 @@ class QuotationController extends Controller
     if($data['customprice']){
       $quotationCustomPrice = $quotationCustomService->updateQuotationCustom($quotation,$data);
     }
+
     /***********************************************
     * Update Sales Commision - Calculation
     ***********************************************/
@@ -1335,7 +1337,7 @@ class QuotationController extends Controller
     public function fetchDeliveryDropdown($id, Request $request)
     {
 
-      $paymentSubList = PaymentTerm::where('parent_id', $id)->get();
+      $paymentSubList = PaymentTerm::where('parent_id', $id)->where('status','1')->get();
       return response()->json($paymentSubList);
     }
     public function quotationStatusList(QuotationService $quotationService)

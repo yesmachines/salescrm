@@ -602,6 +602,7 @@
 
 
       function updateQuotationTerms() {
+
         var selectedCurrency = document.getElementById("currencyDropdown").value.toUpperCase();
         var labels = document.getElementsByClassName("currency-label");
         var labelsTerm = document.getElementsByClassName("currency-label-terms");
@@ -842,13 +843,7 @@
         var rowId = Date.now();
         var newRows = `
         <div class="row" id="row-${rowId}">
-        <div class="col-sm-3"></div>
-        <div class="col-sm-1">
-        <div class="form-check" style="display: flex; justify-content: flex-end;">
-        <input type="hidden" name="is_visible[]" value="0">
-        <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" />
-        </div>
-        </div>
+        <div class="col-sm-4"></div>
 
         <div class="col-sm-4">
         <div class="form-group">
@@ -899,15 +894,59 @@
         $('#quotationOptionalContainer').append(newRows);
 
       }
-
-
       function removeQuotationCharge(rowId) {
-        var chargeAmount = parseFloat($('#row-' + rowId).find('input[name="charge_amount[]"]').val()) || 0;
-        var totalAmount = parseFloat($('input[name="total_value"]').val()) || 0;
-        var newTotalAmount = totalAmount - chargeAmount;
-        $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
-        $('#row-' + rowId).remove();
+      // Retrieve the necessary data from the row
+      var chargeAmount = parseFloat($('#row-' + rowId).find('input[name="charge_amount[]"]').val()) || 0;
+      var chargeName = $('#row-' + rowId).find('input[name="charge_name[]"]').val()?.trim();
+      var quotationId = $('input[name="quotation_id"]').val(); // Assuming the quotation ID is stored in a hidden input field
+
+      // Ensure that required data exists
+      if (!chargeName || !quotationId) {
+          console.error('Missing required data: Charge Name or Quotation ID is undefined.');
+          return;
       }
+
+      console.log('Charge Name:', chargeName, 'Charge Amount:', chargeAmount, 'Quotation ID:', quotationId);
+
+      // Update the total amount
+      var totalAmount = parseFloat($('input[name="total_value"]').val()) || 0;
+      var newTotalAmount = totalAmount - chargeAmount;
+      $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
+
+      // Remove the row immediately (for better user experience)
+      $('#row-' + rowId).remove();
+
+      // Send an AJAX request to the server to delete the charge
+      $.ajax({
+          url: '/quotation/delete-charge', // URL defined in web.php
+          method: 'POST',
+          data: {
+              _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token for Laravel
+              charge_name: chargeName,
+              charge_amount: chargeAmount,
+              quotation_id: quotationId,
+          },
+          success: function (response) {
+              if (response.message === 'Charge deleted successfully') {
+                  fetchCustomPriceArray(quotationId);
+              }
+          },
+          error: function (xhr, status, error) {
+              console.error('Error deleting charge:', error);
+          }
+      });
+  }
+
+      // function removeQuotationCharge(rowId) {
+      //
+      //   var chargeAmount = parseFloat($('#row-' + rowId).find('input[name="charge_amount[]"]').val()) || 0;
+      //  var chargeName = $('#row-' + rowId).find('input[name="charge_name[]"]').val().trim();
+      //
+      //   var totalAmount = parseFloat($('input[name="total_value"]').val()) || 0;
+      //   var newTotalAmount = totalAmount - chargeAmount;
+      //   $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
+      //   $('#row-' + rowId).remove();
+      // }
 
       function removeCharge(rowId) {
         var rowToRemove = $('[data-charge-id="' + rowId + '"]');
