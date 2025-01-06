@@ -1017,17 +1017,22 @@
           <div class="row">
             <!-- Price Basis Section -->
             <div class="col-md-4">
-              <div class="form-group">
-                <label class="form-label">Price Basis<span class="text-danger">*</span></label>
-                <select class="form-control" name="payment_term" id="customPriceBasis" readonly>
-                  <option value="" disabled selected>-- Select Price Basis --</option>
-                  @foreach($paymentTerms as $paymentTerm)
-                  <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
-                  @endforeach
-                </select>
-                <input type="hidden" name="payment_term_id" id="customPaymentTermId" />
-              </div>
-            </div>
+    <div class="form-group">
+      <label class="form-label">Price Basis<span class="text-danger">*</span></label>
+      <select class="form-control" name="payment_term" id="customPriceBasis" readonly>
+        <option value="" disabled selected>-- Select Price Basis --</option>
+        @foreach($paymentTerms as $paymentTerm)
+          <option value="{{ $paymentTerm->short_code }}"
+                  data-id="{{ $paymentTerm->id }}"
+                  {{ $paymentTerm->short_code == $quotation->price_basis ? 'selected' : '' }}>
+            {{ $paymentTerm->title }}
+          </option>
+        @endforeach
+      </select>
+      <input type="hidden" name="payment_term_id" id="customPaymentTermId" value="{{ $quotation->price_basis ? $paymentTerm->id : '' }}" />
+    </div>
+  </div>
+
           </div>
 
           <!-- Buying Price Details -->
@@ -2171,16 +2176,56 @@ function fetchCustomPriceArray(quoteId) {
 }
 
 $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
+
   var itemId = $(this).data('id');
   var quotationId = $('#quotation_id').val();
+  var selectedOption = document.getElementById('customPriceBasis').selectedOptions[0];
+  var selectedId = selectedOption.getAttribute('data-id');
 
-  // Fetch the item details only if they haven't been loaded previously
+  // Fetch short codes
+  fetch('/get-custom-fields', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+    },
+    body: JSON.stringify({
+      payment_term_id: selectedId,
+    }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    const shortCodes = data.map(item => item.short_code);  // Get all short_codes from the response
+    console.log("Short Codes:", shortCodes);
+
+    // Define the list of target fields you want to check against the short codes
+    const targetFields = [
+      '#packing', '#road_transport_to_port', '#freight', '#insurance', '#clearing', '#boe',
+      '#handling_and_local_transport', '#customs', '#delivery_charge', '#mofaic', '#surcharges'
+    ];
+
+    // Loop through each target field in the modal
+    targetFields.forEach(function(fieldId) {
+      // Check if the fieldId matches a short_code from the response
+      if (shortCodes.includes(fieldId.replace('#', ''))) {
+        console.log(fieldId + " matches a short_code");
+        $(fieldId).closest('.col-md-4').show();  // Show the field if it matches the short_code
+      } else {
+        console.log(fieldId + " does not match any short_code");
+        $(fieldId).closest('.col-md-4').hide();  // Hide the field if it doesn't match
+      }
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error); // Handle any errors here
+  });
+
+  // Fetch item details if not loaded yet
   if (!$('#itemId').data('loaded') || $('#itemId').val() !== itemId) {
     $.ajax({
       url: '/get-item-details/' + itemId + '/quotation/' + quotationId,
       method: 'GET',
       success: function(response) {
-
         // Mark as loaded to prevent resetting the data on subsequent opens
         $('#itemId').data('loaded', true);
         $('#itemId').val(itemId);
@@ -2210,19 +2255,19 @@ $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
           { id: '#buyingCurrencyCustom', value: response.buying_currency }
         ];
 
-        // Loop through each field and process based on the value
+        // Loop through each field and set the values
         fields.forEach(function(field) {
+          console.log("Setting value for " + field.id + ": " + field.value);  // Debugging line
+
+          // Check if the field value exists
           if (field.value === null || field.value === undefined || field.value === '') {
-            // Completely remove the entire .col-md-4 and .form-group elements
-            $(field.id).closest('.col-md-4').remove();
+            $(field.id).val('');  // Clear the field value if empty or undefined
           } else {
-            // Set the field value and ensure the form group is visible
-            $(field.id).val(field.value);
-            $(field.id).closest('.col-md-4').show();  // Ensure the column is visible
+            $(field.id).val(field.value);  // Set the field value
           }
         });
 
-        // Trigger the change event for the quote currency field
+        // Trigger any additional events if needed
         $('#quoteCurrencyCustom').change();
       },
       error: function(xhr, status, error) {
@@ -2231,6 +2276,7 @@ $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
     });
   }
 });
+
 
 </script>
 

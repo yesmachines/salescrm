@@ -242,11 +242,12 @@ class QuotationController extends Controller
 
     $data = $request->all();
 
+
     if (isset($data['lead_id']) && !empty($data['lead_id'])) {
 
       $lead = $leadService->getLead($data['lead_id']);
 
-      $leadService->updateLead($lead, ['status_id' => 6]); // converted = 6
+      $leadService->updateLead($lead, ['status_id' => 6]);
 
       $historyService->updateHistory([
         'status_id' => 6, // converted = 6
@@ -264,7 +265,7 @@ class QuotationController extends Controller
     // create new quotation
     $quotes = $quotationService->createQuote($data);
     if($data['customprice']){
-      $quotationCustomPrice = $quotationCustomService->updateQuotationCustom($quotes, $data);
+      $quotationCustomPrice = $quotationCustomService->createQuotationCustom($quotes, $data);
     }
     $quotationItem = $quotationItemService->createQuotationItem($quotes, $data);
 
