@@ -141,7 +141,9 @@ class CreateWordDocxService
       $html .= '<ul style="' . $commonStyle . '"><li>' . htmlspecialchars($quotation->product_model) . '</li></ul>';
       $html .= '<br>';
       $html .= '<p style="' . $commonStyle . '">from our Principals ';
-      $html .= '<b>' . isset($quotation->supplier) ? $quotation->supplier->brand : '';
+      if ($quotation->supplier->country_id != 1) { // excluide local supplier
+        $html .= '<b>' . isset($quotation->supplier) ? $quotation->supplier->brand : '';
+      }
       $html .= '</b>.</p>';
     } else {
       $supplier = [];
@@ -197,7 +199,9 @@ class CreateWordDocxService
             $addedSuppliers[$supplierName] = true;
 
             // Build the HTML output
-            $html .= '<b>' . htmlspecialchars($supplierName) . ', ' . htmlspecialchars($countryName) . '</b><br>';
+            if ($value->supplier->country_id != 1) { // excluide local supplier
+              $html .= '<b>' . htmlspecialchars($supplierName) . ', ' . htmlspecialchars($countryName) . '</b><br>';
+            }
           }
         }
         $html .= '</b></p>';
@@ -297,7 +301,11 @@ class CreateWordDocxService
 
       foreach ($quotationItems as $key => $value) {
         $title = htmlspecialchars(str_replace('&', ' ', $value->description));
-        $brand = htmlspecialchars(str_replace('&', ' ', $value->supplier->brand));
+        $brand = '';
+        if ($value->supplier->country_id != 1) { // excluide local supplier
+          $brand = htmlspecialchars(str_replace('&', ' ', $value->supplier->brand)) . '<br>';
+        }
+
         $s_no = $key + 1;
 
         $html .= '<tr>';
@@ -307,7 +315,7 @@ class CreateWordDocxService
         if (isset($value->product->image_url)) {
           $html .= '<img src="' . asset('storage/' .  $value->product->image_url) . '" style="width:60px; height:60px;" alt="Product Image"><br>';
         }
-        $html .= '<br>' . $brand . '<br>' . nl2br($title) . '</td>';
+        $html .= '<br>' . $brand . nl2br($title) . '</td>';
         if (collect($quotationItems)->contains('discount_status', 1)) {
           $html .= '<td style="border: 1px solid ' . $color . '; padding: 8px; font-size: 10pt; font-family: Calibri;">' . htmlspecialchars(number_format($value['unit_price'], 2)) . ' ' . $quotation->preferred_currency . '</td>';
         } else {

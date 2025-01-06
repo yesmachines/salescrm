@@ -20,6 +20,7 @@ class Supplier extends Model
         'description',
         'country_id',
         'manager_id',
+        'is_local',
         'status'
     ];
 

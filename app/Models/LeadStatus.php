@@ -12,6 +12,8 @@ class LeadStatus extends Model
 
     protected $fillable = [
         'name',
+        'is_qualify',
+        'send_mail',
         'priority',
         'status'
     ];

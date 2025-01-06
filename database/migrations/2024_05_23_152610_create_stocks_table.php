@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->string('purchase_mode');
-            $table->string('order_for')->default('yesmachinery');
+            //  $table->string('order_for')->default('yesmachinery');
             $table->string('os_number');
             $table->date('os_date');
             $table->text('description')->nullable();

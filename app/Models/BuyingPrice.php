@@ -47,5 +47,8 @@ class BuyingPrice extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'added_by', 'id');
+    }
 }

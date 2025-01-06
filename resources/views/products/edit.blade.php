@@ -469,6 +469,7 @@
               <th>Buying Price</th>
               <th>Created Date</th>
               <th>Price Validity Period</th>
+              <th>Added By</th>
             </tr>
           </thead>
           <tbody>
@@ -483,6 +484,7 @@
               <td>{{$value->buying_price}} {{$value->buying_currency}} </td>
               <td>{{ \Carbon\Carbon::parse($value->created_at)->format('d/m/Y') }}</td>
               <td>{{ $value->validity_from }} to <br>{{$value->validity_to }}</td>
+              <th>{{isset($value->user)? $value->user->name: '--'}}</th>
             </tr>
             @endforeach
           </tbody>

@@ -138,7 +138,12 @@ class LeadService
         * 3 = VeryGood  
         * 5 = Future Potential
         */
-        return Lead::where('id', $id)->whereIn('status_id', [2, 3, 5])->count();
+        // return Lead::where('id', $id)->whereIn('status_id', [2, 3, 5])->count();
+
+        return Lead::with('leadStatus', function ($query) {
+            $query->where('is_qualify', 1);
+        })->where('id', $id)
+            ->count();
     }
 
     public function leadsByEmployee($data = []): Object
@@ -182,8 +187,8 @@ class LeadService
 
         return $sql->get();
     }
-      public function leadStatus()
+    public function leadStatus()
     {
-        return LeadStatus::where('status',1)->get();
+        return LeadStatus::where('status', 1)->get();
     }
 }
