@@ -24,6 +24,7 @@ class Lead extends Model
         'assigned_on',
         'respond_on',
         'status_id',
+        'interested',
         'created_by'
     ];
     public function setEnquiryDateAttribute($value)
