@@ -16,6 +16,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('meeting:push day')
+                ->dailyAt('07:00')
+                ->withoutOverlapping(30)
+                ->onOneServer();
+        
+        $schedule->command('meeting:push night')
+                ->dailyAt('19:00')
+                ->withoutOverlapping(30)
+                ->onOneServer();
     }
 
     /**

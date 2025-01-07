@@ -152,13 +152,50 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <select class="form-select" name="lead_type" required>
+                                        <select class="form-select" name="lead_type" id="lead_type" required>
                                             <option value="">--</option>
-                                            <option value="internal">Internal/ Inside</option>
-                                            <option value="external">External/ Outside</option>
+                                            @foreach ($enquirySource as $k => $enum)
+                                            <option value="{{$k}}">{{ $enum->label() }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
+                                
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Enquiry Mode</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <select class="form-select" name="enquiry_mode" id="enquiry_mode">
+                                            <option value="">--</option>
+                                            @foreach ($enquiryMode as $k => $enum)
+                                            <option value="{{$k}}">{{ $enum->label() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div id="expodiv" class="row" style="padding: 0px; margin: 0px; --bs-gutter-x: 1.0rem; display: none;">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Expo</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <select class="form-select" name="expo_id" id="expo_id">
+                                            <option value="">--</option>
+                                            @foreach ($expo as $k => $v)
+                                            <option value="{{$k}}">{{ $v }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                </div>
+                                
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label class="form-label">Enquiry Date <span class="text-danger">*</span></label>
@@ -318,6 +355,19 @@
                 $('#email').val(data.email);
                 $('#phone').val(data.phone);
             });
+        });
+        
+        $('#lead_type').on('change', function(e) {
+            var val = $(this).val();
+            if(val == 'expo'){
+                $("#expodiv").show();
+                $("#expo_id").attr("required",true);
+            } else {
+                $("#expodiv").hide();
+                $("#expo_id").attr("required",false);
+                 $('#expo_id option').removeAttr('selected');
+            }
+            $("#expo_id").val("");
         });
     });
 </script>

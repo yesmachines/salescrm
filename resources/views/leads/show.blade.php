@@ -95,6 +95,11 @@
                         <span class="nav-link-text">Qualify Leads</span>
                       </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#tabit_3">
+                            <span class="nav-link-text">Call Logs</span>
+                        </a>
+                    </li>
 
                   </ul>
                   <div class="tab-content py-7">
@@ -253,6 +258,18 @@
 
                       </div>
                     </div>
+                      <div class="tab-pane fade" id="tabit_3">
+
+                          <ul class="timeline">
+                              @foreach($calllogs as $calllog)
+                              <li>
+                                  <a target="_blank">{{strtoupper($calllog->call_status)}}</a>
+                                  <a class="container-fluid d-flex justify-content-end">{{$calllog->called_at}}</a>
+                                  <p>{{$calllog->remarks}}</p>
+                              </li>
+                              @endforeach
+                          </ul>
+                      </div> 
 
                   </div>
                 </div>
@@ -492,3 +509,37 @@ $("#frmStatus").submit(function(e) {
 </script>
 
 @endsection
+ @push('css')
+ <style>
+ ul.timeline {
+    list-style-type: none;
+    position: relative;
+}
+ul.timeline:before {
+    content: ' ';
+    background: #d4d9df;
+    display: inline-block;
+    position: absolute;
+    left: 29px;
+    width: 2px;
+    height: 100%;
+    z-index: 400;
+}
+ul.timeline > li {
+    margin: 20px 0;
+    padding-left: 20px;
+}
+ul.timeline > li:before {
+    content: ' ';
+    background: white;
+    display: inline-block;
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid #22c0e8;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    z-index: 400;
+}
+</style>
+ @endpush

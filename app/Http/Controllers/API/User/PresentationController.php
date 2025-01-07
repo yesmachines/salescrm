@@ -13,7 +13,7 @@ class PresentationController extends Controller {
     private $ym_url;
 
     public function __construct() {
-        $this->ym_url = env('YM_IMG_URL', 'https://yesmachinery.bigleap.tech/storage/');
+        $this->ym_url = env('YM_IMG_URL', 'https://admin.yesmachinery.ae/storage/');
         $this->yc_url = env('YC_IMG_URL', 'https://www.admin.yesclean.ae/storage/');
         $this->rf_url = env('RF_IMG_URL', 'https://www.cms.rhinofloor.ae/storage/');
     }
@@ -68,8 +68,9 @@ class PresentationController extends Controller {
                 $imgUrl = $this->ym_url;
         }
 
-        $brands->select('id', 'brand', \DB::raw("CONCAT('$imgUrl', logo_url) as logo"))->where('status', 1);
-        $brands = new PaginateResource($brands->paginate(10));
+        $brands->select('id', 'brand', \DB::raw("CONCAT('$imgUrl', logo_url) as logo"))->where('status', 1)
+                ->orderBy('brand', 'ASC');
+        $brands = new PaginateResource($brands->paginate($this->paginateNumber));
         /* $brands->getCollection()->transform(function ($brand) use ($imgUrl) {
           $brand->logo_url = $imgUrl . '/' . $brand->logo_url;
           return $brand;
@@ -91,46 +92,55 @@ class PresentationController extends Controller {
         return $brands;
     }
 
-    public function products($division, $brand_id = null) {
+    public function products(Request $request, $division, $brand_id = null) {
         switch ($division) {
             case 'ST-YC':
-                $brands = \DB::connection('yesclean');
+                $brands = \DB::connection('yesclean')->table('products as p');
                 $imgUrl = \DB::raw("CONCAT('$this->yc_url', p.default_image) as image");
                 break;
             case 'ST-RF':
-                $brands = \DB::connection('rhinofloor');
+                $brands = \DB::connection('rhinofloor')->table('products as p');
                 $imgUrl = \DB::raw("CONCAT('$this->rf_url', p.default_image) as image");
                 break;
             default:
-                $brands = \DB::connection('yesmachine');
+                $brands = \DB::connection('yesmachine')->table('products as p')
+                        ->where('c.division', $division);
                 $imgUrl = \DB::raw("CONCAT('$this->ym_url', ym_p.default_image) as image");
         }
-        $brands = $brands->table('products as p')
-                ->select('p.id', 'p.name', $imgUrl, 'c.name as category')
+        $brands = $brands->select('p.id', 'p.name', $imgUrl, 'c.name as category', 's.brand')
                 ->leftJoin('categories as c', 'p.category_id', '=', 'c.id')
+                ->leftJoin('suppliers as s', 'p.brand_id', '=', 's.id')
                 ->where('p.status', 1)
                 ->orderBy('p.name', 'ASC');
         if (!empty($brand_id)) {
             $brands->where('p.brand_id', $brand_id);
         }
-        return successResponse(trans('api.success'), new PaginateResource($brands->paginate(10)));
+        if (!empty($request->search_text)) {
+             $brands->where(function ($qry) use ($request) {
+                            $qry->where('p.modelno', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('p.part_number', 'like', '%' . $request->search_text . '%');
+                            $qry->orWhere('p.title', 'like', '%' . $request->search_text . '%');
+                        });
+            //$brands->where('p.name', 'like', '%' . $request->search_text . '%');
+        }
+        return successResponse(trans('api.success'), new PaginateResource($brands->paginate($this->paginateNumber)));
     }
 
     public function productDetails($division, $id) {
         switch ($division) {
             case 'ST-YC':
                 $db = \DB::connection('yesclean');
-                $data['image_url'] = $this->yc_ur;
+                $image_url = $this->yc_url;
                 $share_url = env('YC_SHARE_URL', 'https://www.yesclean.ae/');
                 break;
             case 'ST-RF':
                 $db = \DB::connection('rhinofloor');
-                $data['image_url'] = $this->rf_url;
+                $image_url = $this->rf_url;
                 $share_url = env('RF_SHARE_URL', 'https://www.rhinofloor.ae/');
                 break;
             default:
                 $db = \DB::connection('yesmachine');
-                $data['image_url'] = $this->ym_url;
+                $image_url = $this->ym_url;
                 $share_url = env('YM_SHARE_URL', 'https://yeswebsite.bigleap.tech/');
         }
         $data['product'] = $db->table('products as p')
@@ -144,11 +154,13 @@ class PresentationController extends Controller {
                         'p.description',
                         's.brand',
                         'c.name as category',
-                        'co.name as country'
+                        'co.name as country',
+                        'co.flag_url as country_image'
                 )
                 ->where('p.id', '=', $id)
                 ->first();
         if ($data['product']) {
+            $data['product']->image_url = $image_url;
             $data['product']->share_url = $share_url . $data['product']->slug;
             $data['gallery'] = $db->table('product_images as pi')
                     ->where('pi.product_id', $id)
@@ -172,5 +184,28 @@ class PresentationController extends Controller {
             return successResponse(trans('api.success'), $data);
         }
         return errorResponse(trans('api.no_data'));
+    }
+
+    public function references($division, $id) {
+        switch ($division) {
+            case 'ST-YC':
+                $clients = \DB::connection('yesclean');
+                $imgUrl = \DB::raw("CONCAT('$this->yc_url', c.logo_url) as image");
+                break;
+            case 'ST-RF':
+                $clients = \DB::connection('rhinofloor');
+                $imgUrl = \DB::raw("CONCAT('$this->rf_url', c.logo_url) as image");
+                break;
+            default:
+                $clients = \DB::connection('yesmachine');
+                $imgUrl = \DB::raw("CONCAT('$this->ym_url', ym_c.logo_url) as image");
+        }
+        $clients = $clients->table('clients as c')
+                ->select('c.id', 'c.company', $imgUrl,)
+                ->leftJoin('product_clients as pc', 'pc.client_id', '=', 'c.id')
+                ->where('pc.product_id', $id)
+                ->orderBy('c.company', 'ASC');
+        return successResponse(trans('api.success'), $clients->get());
+        //return successResponse(trans('api.success'), new PaginateResource($clients->paginate($this->paginateNumber)));
     }
 }

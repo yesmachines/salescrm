@@ -26,6 +26,8 @@ class User extends Authenticatable
         'password',
         'last_login_at',
         'last_login_ip',
+        'device_type',
+        'os_sid',
     ];
 
     /**
@@ -38,6 +40,9 @@ class User extends Authenticatable
         'remember_token',
         'created_at',
         'updated_at',
+        'device_type',
+        'os_sid',
+        'pivot',
     ];
 
     /**
@@ -56,5 +61,15 @@ class User extends Authenticatable
     
     public function sendEmailOtp() {
         $this->notify(new UserEmailOtp());
+    }
+    
+    public function areas()
+    {
+        return $this->belongsToMany(Area::class, 'employee_areas')->withTimestamps();
+    }
+    
+    public function getPimgAttribute($value)
+    {
+        return ($value != NULL) ? asset('storage/'  .  $value) : NULL;
     }
 }

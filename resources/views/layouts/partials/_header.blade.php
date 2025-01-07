@@ -230,6 +230,11 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('reports.customers')}}"><span class="nav-link-text">Customer Report</span></a>
                                     </li>
+                                    @canany(['meetings.index'])
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('meetings.index')}}"><span class="nav-link-text">Meetings</span></a>
+                                    </li>
+                                    @endcanany
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('reports.quotationsummary')}}"><span class="nav-link-text">Brand-wise Quotation Report</span></a>
                                     </li>
@@ -383,7 +388,12 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{route('conversion.index')}}"><span class="nav-link-text">Currency Conversion</span></a>
                                     </li>
-
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('areas.index')}}"><span class="nav-link-text">Employee Areas</span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{route('pages.edit', 'privacy-policy')}}"><span class="nav-link-text">Privacy Policy</span></a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>

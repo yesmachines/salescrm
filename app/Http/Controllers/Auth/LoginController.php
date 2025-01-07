@@ -77,4 +77,24 @@ class LoginController extends Controller
                 ->with('error', 'Email & Password are incorrect.');
         }
     }
+    public function testEmail() {
+        $meeting = \App\Models\Meeting::findOrFail('9d7087a2-b577-4488-9973-49c23529b7af');
+        $mailData = \App\Models\MeetingShare::find('9d7a1c2f-89c6-40bd-88b1-390a71f35672');
+         $meetingDate = \Carbon\Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone);
+        $mailData->date = $meetingDate->format('M d, Y g:i A'). ' - '.$meeting->timezone;
+        $mailData->business_card = empty($mailData->business_card) ? null : asset('storage') . '/' . $mailData->business_card;
+        
+         $mailData->products = \App\Models\MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
+                            ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
+                            ->join('products', 'products.id', 'meeting_shared_products.product_id')
+                            ->where('meeting_shared_products.meetings_shared_id', $mailData->id)
+                            ->get();
+         $shareTo = \App\Models\User::findOrFail($mailData->shared_to);
+         
+         /*$shareTo->email =  'shainu.giraf@gmail.com';
+         Notification::send($shareTo, new EmailMeetingNotes($mailData));*/
+         
+        return view('emails.meeting_notes', compact('mailData'));
+        //return view('emails.password_email_otp', compact('mailData'));
+    }
 }

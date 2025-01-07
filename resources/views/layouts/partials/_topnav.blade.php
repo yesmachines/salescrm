@@ -6,7 +6,7 @@
             <button class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover navbar-toggle d-xl-none"><span class="icon"><span class="feather-icon"><i data-feather="align-left"></i></span></span></button>
 
             <!-- Search -->
-            <form class="dropdown navbar-search">
+<!--            <form class="dropdown navbar-search">
                 <div class="dropdown-toggle no-caret" data-bs-toggle="dropdown" data-dropdown-animation data-bs-auto-close="outside">
                     <a href="#" class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover  d-xl-none"><span class="icon"><span class="feather-icon"><i data-feather="search"></i></span></span></a>
                     <div class="input-group d-xl-flex d-none">
@@ -22,7 +22,7 @@
                     </div>
                 </div>
                 <div class="dropdown-menu p-0">
-                    <!-- Mobile Search -->
+                     Mobile Search 
                     <div class="dropdown-item d-xl-none bg-transparent">
                         <div class="input-group mobile-search">
                             <span class="input-affix-wrapper input-search">
@@ -36,7 +36,7 @@
                             </span>
                         </div>
                     </div>
-                    <!--/ Mobile Search -->
+                    / Mobile Search 
                     <div data-simplebar class="dropdown-body p-2">
                         <h6 class="dropdown-header">Recent Search
                         </h6>
@@ -128,7 +128,7 @@
                     </div>
                     <div class="dropdown-footer d-xl-flex d-none"><a href="#"><u>Search all</u></a></div>
                 </div>
-            </form>
+            </form>-->
             <!-- /Search -->
         </div>
         <!-- /Start Nav -->
@@ -136,7 +136,7 @@
         <!-- End Nav -->
         <div class="nav-end-wrap">
             <ul class="navbar-nav flex-row">
-                <li class="nav-item">
+<!--                <li class="nav-item">
                     <a href="email.html" class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover"><span class="icon"><span class=" position-relative"><span class="feather-icon"><i data-feather="inbox"></i></span><span class="badge badge-sm badge-soft-primary badge-sm badge-pill position-top-end-overflow-1">4</span></span></span></a>
                 </li>
                 <li class="nav-item">
@@ -267,7 +267,7 @@
                             <div class="dropdown-footer"><a href="#"><u>View all notifications</u></a></div>
                         </div>
                     </div>
-                </li>
+                </li>-->
                 <li class="nav-item">
                     <div class="dropdown ps-2">
                         <a class=" dropdown-toggle no-caret" href="#" role="button" data-bs-display="static" data-bs-toggle="dropdown" data-dropdown-animation data-bs-auto-close="outside" aria-expanded="false">

@@ -92,9 +92,50 @@ class UserController extends Controller {
         return successResponse(trans('api.success'));
     }
 
+    public function changePassword(Request $request) {
+        $rules = [
+            'password' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->messages();
+            return errorResponse(trans('api.required_fields'), $errorMessage);
+        }
+        $user = $request->user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+        return successResponse(trans('api.password.changed'));
+    }
+
     public function userData(&$user) {
         $user->with('employee');
         $user->employee->image_url = !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null;
         return $user;
+    }
+
+    public function updateDevice(Request $request) {
+        $validator = Validator::make($request->all(), [
+                    'os_sid' => 'required',
+                    'device_type' => 'required|in:android,ios',
+        ]);
+
+        if ($validator->fails()) {
+            $allMessage = $validator->messages();
+            $errorMessage = $validator->errors()->first();
+            return errorResponse($errorMessage, $allMessage);
+        }
+
+        $userExists = auth('sanctum')->user();
+
+        $userExists->device_type = $request->device_type;
+        $userExists->os_sid = $request->os_sid;
+        $userExists->save();
+
+        \App\Models\UserOdevice::updateOrCreate(
+                ['user_id' => $userExists->id, 'os_sid' => $request->os_sid]
+        );
+        return successResponse(trans('api.device_token_same'));
     }
 }

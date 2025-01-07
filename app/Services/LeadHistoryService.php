@@ -73,4 +73,16 @@ class LeadHistoryService
             ->where('lead_id', $leadId)
             ->delete();
     }
+    
+    public function getCallLogs($leadId): Object
+    {
+        return DB::table('lead_call_histories as lh')
+            ->where('lh.lead_id', $leadId)
+            ->orderBy('lh.created_at')
+            ->get()->each(function ($call) {
+            $meetingTimeInUserTimezone = Carbon::parse($call->called_at, 'UTC')->setTimezone(config('app.timezone'));
+            $call->called_at = $meetingTimeInUserTimezone->format('M d,Y h:i:s A');
+            $call->time = $meetingTimeInUserTimezone->format('h:i A');
+        });
+    }
 }

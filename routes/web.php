@@ -16,6 +16,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegionController;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PurchaseRequisitionController;
 use App\Http\Controllers\ProductController;
@@ -25,6 +26,8 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CustomPriceController;
 
@@ -45,6 +48,7 @@ use App\Http\Controllers\CustomPriceController;
 // });
 
 Route::get('/', [LoginController::class, 'showLoginForm']);
+Route::get('test-email-template', [LoginController::class, 'testEmail']);
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -71,12 +75,22 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('regions', RegionController::class);
+    Route::resource('areas', AreaController::class)->except(['show','destroy']);
     Route::resource('leads', LeadController::class);
     Route::resource('orders', OrderController::class);
     Route::resource('departments', DepartmentController::class);
     Route::resource('currency', CurrencyController::class);
     Route::resource('conversion', ConversionController::class);
 
+    /*Meeting Routes*/
+    Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::any('meeting-datatable', [MeetingController::class, 'datatable'])->name('meetings.datatable');
+    Route::get('meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::any('shared-meeting-details/{id}', [MeetingController::class, 'sharedDetails'])->name('meetings.shared.details');
+    Route::post('export-mtmg', [MeetingController::class, 'exportMtmg'])->name('meetings.export.mtmg');
+    Route::get('pages/{slug}', [PageController::class, 'edit'])->name('pages.edit');
+    Route::patch('pages/{id}', [PageController::class, 'update'])->name('pages.update');
+    
     Route::resource('purchaserequisition', PurchaseRequisitionController::class);
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');
     Route::get('purchaserequisition/createstock/{id}', [PurchaseRequisitionController::class, 'stockPR'])->name('purchaserequisition.createstock');

@@ -32,4 +32,35 @@ return [
     'invalid_request' => 'Invalid Request',
     'invalid_otp' => 'OTP is Invalid.',
     'otp_expired' => 'OTP expired.',
+    'company_exist' => 'This company exist.',
+    'customer_exist' => 'This Customer name exist.',
+    'device_token_updated' => 'Device updated successfully.',
+    'enquiry' => [
+        'created' => 'Enquiry created successfully.',
+    ],
+    'meeting' => [
+        'not_done' => 'Meeting still not finished..',
+        'business_card' => 'Business card u[dloaded successfully',
+        'created' => 'Meeting created successfully.',
+        'notes_created' => 'Meeting notes created successfully.',
+        'feedback_exist' => 'Already submitted the feedback',
+        'feedback_success' => 'Feedback submitted successfully.Thank you!',
+        'already_shared_to' => 'This meeting is already shared to :name',
+        'not_confirmed' => 'This meeting is shared already and not confirmed .',
+        'shared' => 'Meeting shared successfully.',
+    ],
+    'notification' => [
+        'title' => [
+            'shared' => ':name shared a meeting',
+            'accepted' => ':name accpted your meeting request',
+            'rejected' => ':name rejected your meeting request',
+            'cron' => 'Upcoming Meetings',
+            'area' => 'Meeting with :name',
+            'area_enquiry' => 'New :type Enquiry',
+        ],
+        'message' => [
+            'cron' => 'You have :count upcoming meetings.',
+            'area_enquiry' => ':name created :type enquiry for :count products.',
+        ]
+    ],
 ];

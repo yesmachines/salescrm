@@ -76,7 +76,7 @@ class EmployeeService
 
     public function getAllEmployee($data = []): Object
     {
-        $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators','admin'];
+        $authorizedRoles = ['divisionmanager', 'salesmanager', 'coordinators','admin', 'satellite'];
 
         $sql = Employee::with('user')
             ->with('user.roles')->whereHas('user.roles', function ($query) use ($authorizedRoles) {

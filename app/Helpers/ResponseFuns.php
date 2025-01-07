@@ -18,7 +18,7 @@ function successResponse($status, $data = null) {
                         ], 200);
     } else {
         return response()->json([
-                    "status" => 10000,
+                    "status" => 200,
                     "message" => $status
                         ], 200);
     }

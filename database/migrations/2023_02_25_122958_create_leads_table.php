@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('company_id');
             $table->unsignedBigInteger('customer_id');
-            $table->enum('lead_type', ['internal', 'external']);
+            $table->enum('lead_type', ['internal', 'external', 'democenter', 'expo']);
             $table->date('enquiry_date')->nullable();
             $table->text('details')->nullable();
             $table->integer('assigned_to')->default(0);

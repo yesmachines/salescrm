@@ -18,14 +18,16 @@ class Lead extends Model
         'company_id',
         'customer_id',
         'lead_type',
+        'enquiry_mode',
         'enquiry_date',
         'details',
         'assigned_to',
         'assigned_on',
         'respond_on',
         'status_id',
+        'created_by',
         'interested',
-        'created_by'
+        'expo_id'
     ];
     public function setEnquiryDateAttribute($value)
     {
@@ -55,5 +57,20 @@ class Lead extends Model
     public function assigned()
     {
         return $this->belongsTo(Employee::class, 'assigned_to', 'id');
+    }
+    public function getLeadTypeLabelAttribute()
+    {
+        return \App\Enums\EnquirySource::from($this->lead_type)->label(); // assuming $this->status contains the string value
+    }
+    public function getEnquiryModeLabelAttribute()
+    {
+        return \App\Enums\EnquiryMode::from($this->enquiry_mode)->label();
+    }
+    public function expo()
+    {
+        return $this->hasOne(Expo::class, 'id', 'expo_id');
+    }
+     public function calls() {
+        return $this->hasMany(LeadCallHistory::class, 'lead_id', 'id');
     }
 }
