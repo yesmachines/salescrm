@@ -419,6 +419,7 @@ $(document).ready(function() {
               const customPriceJSON = JSON.stringify(customPriceArray);
 
               document.getElementById('customprice').value = customPriceJSON;
+              console.log(customPriceArray);
               updateQuotationCharges(customPriceArray);
 
             } else {
@@ -1043,6 +1044,7 @@ function updateMarginPercentageHistory() {
   let sellingPriceStr = $('#sellingPriceHistory').val();
   let marginPriceStr = $('#marginPriceHistory').val();
 
+
   if (sellingPriceStr.trim() == '' && marginPriceStr.trim() == '') {
     return;
   }
@@ -1050,8 +1052,6 @@ function updateMarginPercentageHistory() {
   let basePrice = parseFloat(sellingPriceStr.replace(/,/g, ''));
   let marginPrice = parseFloat(marginPriceStr.replace(/,/g, ''));
 
-  // console.log('Base Price:', basePrice);
-  // console.log('Margin Price:', marginPrice);
 
   let marginPercentageInput = $('#marginPercentageHistory');
 
@@ -1067,14 +1067,15 @@ function updateMarginPercentageHistory() {
       return false;
 
     } else {
-      let calculatedMarginPercentage = (marginPrice / basePrice) * 100;
+      let calculatedMarginPercentage = (marginPrice / sellingPriceStr);
+      console.log("margin",calculatedMarginPercentage);
       marginPercentageInput.val(calculatedMarginPercentage.toFixed(2));
     }
   } else {
     marginPercentageInput.val('');
   }
 }
-console.log(customPriceArray);
+
 function createNewProduct(isValid) {
 
   let asset_url = `{{ env('APP_URL') }}`;
@@ -1237,6 +1238,7 @@ function createNewProduct(isValid) {
 }
 
 function calculateOverallTotal() {
+
   var overallTotal = 0;
   var overallMargin = 0;
   var vatRate = 0.05; // VAT rate of 5%

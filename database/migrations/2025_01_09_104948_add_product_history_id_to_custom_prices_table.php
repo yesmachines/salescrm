@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('custom_fields', function (Blueprint $table) {
-          $table->string('short_code')->nullable()->after('price_basis');
+        Schema::table('custom_prices', function (Blueprint $table) {
+            $table->unsignedBigInteger('product_history_id')->nullable()->after('id');
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('custom_fields', function (Blueprint $table) {
+        Schema::table('custom_prices', function (Blueprint $table) {
             //
         });
     }

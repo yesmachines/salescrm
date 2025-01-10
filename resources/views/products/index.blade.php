@@ -15,12 +15,14 @@
                 <h1>Products</h1>
               </a>
             </div>
+            @canany(['products.create'])
             <div class="dropdown ms-3">
               <button class="btn btn-sm btn-outline-secondary flex-shrink-0 dropdown-toggle d-lg-inline-block d-none" data-bs-toggle="dropdown">Create New</button>
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="{{route('products.create')}}">Add New Product</a>
               </div>
             </div>
+            @endcanany
           </div>
           <div class="contact-options-wrap">
 
@@ -122,6 +124,7 @@
                         <small class="text-muted">({{$product->margin_price}} {{$product->currency}})</small>
                       </td>
                       <td>{{$product->product_category}}</td>
+
                       <td>
                         <div class="d-flex align-items-center">
                           <div class="d-flex">
@@ -138,6 +141,7 @@
 
                         </div>
                       </td>
+
                     </tr>
                     @endforeach
                   </tbody>

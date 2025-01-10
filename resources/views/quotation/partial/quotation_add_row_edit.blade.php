@@ -154,17 +154,27 @@
       <div class="currency-label col-sm-3" style="text-align: left">
         <label class="form-check-label currency-label">Vat Amount ({{$quotation->preferred_currency}})</label>
       </div>:
-      @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
       <div class="col-sm-3">
-        <label class="form-check-label" id="vatAmountLabel">{{ $quotation->vat_amount }}</label>
-      </div>
-      <input class="form-check-input" type="hidden" name="vat_amount" value="{{ $quotation->vat_amount }}">
-      @else
-      <div class="col-sm-3">
-        <input type="text" class="form-control" id="vatAmountLabel" name="vat_amount"  value="{{ $quotation->vat_amount }}">
-      </div>
-      @endif
+    @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
+      <input
+        type="text"
+        class="form-control"
+        id="vatAmountLabel"
+        name="vat_amount"
+        value="{{ $quotation->vat_amount }}"
+      >
+    @else
+      <input
+        type="text"
+        class="form-control"
+        id="vatAmountLabel"
+        name="vat_amount"
+        value="{{ $quotation->vat_amount }}"
+    >
+    @endif
+  </div>
 
+     <input class="form-check-input" type="hidden" name="vat_amount" value="{{ $quotation->vat_amount }}">
     </div>
     <div class="row" style="margin-top: 21px;margin-left:89px;">
       <div class="col-sm-5">
@@ -485,7 +495,7 @@
         $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"], input[name="margin[]"]', function() {
           calculateOverallTotal();
         });
-        $('#vatAmountLabelService').on('input', function() {
+        $('#vatAmountLabel').on('input', function() {
           calculateOverallTotal();
         });
 

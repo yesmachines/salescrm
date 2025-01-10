@@ -193,7 +193,6 @@
                 </div>
               </div>
 
-
               <div class="col-sm-6">
                 <div class="form-group">
                   <label class="form-label">Quote Submitted On <span class="text-danger">*</span></label>
@@ -304,7 +303,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <select class="form-control" name="price_basis" id="paymentTerm" required onchange="updateQuotationTerms()" required>
+                  <select class="form-control" name="price_basis" id="paymentTerm" required onchange="updateQuotationTerms()">
                     <option value="">-Select Delivery Terms-</option>
                     @foreach($paymentTermList as $paymentTerm)
                     <option value="{{ $paymentTerm->short_code }}" data-title="{{ $paymentTerm->title }}" data-parent="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
@@ -360,271 +359,482 @@
 <!-- ------------------- MODELS ------------------- -->
 <!-- Add New Product -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
-<div class="modal-dialog modal-lg" role="document">
-  <div class="modal-content" style="padding: 16px;">
-    <div class="modal-header">
-      <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" style="padding: 16px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <input type="hidden" name="allowed_discount" id="allowed_discount" value="0" />
+          <input type="hidden" name="product_type" value="custom" />
+          <input type="hidden" name="status" value="active" />
+          <div class="row gx-3">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Product Details</span></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" id="titleInput" name="title" />
+                <div class="invalid-feedback">Please enter a title.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Division<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="division_id" id="divisionInput">
+                  <option value="">--</option>
+                  @foreach ($divisions as $division)
+                  <option value="{{ $division->id }}">{{ $division->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a Division.</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Brand<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="brand_id" id="brandInput">
+                  <option value="">--</option>
+                  @foreach ($suppliers as $k => $sup)
+                  <option value=" {{ $sup->id }}">
+                    {{ $sup->brand }}
+                  </option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a brand.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Model No</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="model_no">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Part Number</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="part_number" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Description </label>
+              </div>
+              <div class="form-group">
+                <textarea class="form-control" name="description" rows="2" cols="1"></textarea>
+
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Product Category<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="product_category" id="productcategoryInput">
+                  <option value="">-Select-</option>
+                  <option value="products">Products</option>
+                  <option value="accessories">Accessories</option>
+                  <option value="consumables">Consumables</option>
+                  <option value="spares">Spares</option>
+                  <option value="services">Services</option>
+                </select>
+                <div class="invalid-feedback">Please select a product category.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Manager<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-select" name="manager_id" id="managerInput">
+                  <option value="" selected="">--</option>
+                  @foreach ($managers as $key => $row)
+                  <option value="{{ $row->id }}">
+                    {{ $row->user->name }}
+                  </option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please select product manager.</div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="form-label">Image</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="file" name="image" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="buying_currency" id="productBuyingCurrency" required>
+                  <option value="">-Select Currency-</option>
+                  @foreach($currencies as $currency)
+                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please select a currency.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="gross_price" id="gross_price" required />
+
+                <div class="invalid-feedback">Please enter a gross price.</div>
+              </div>
+            </div>
+            <div class="col-md-4" id="purchase_discount_percent">
+              <div class="form-group">
+                <label class="form-label">Purchase Discount(%)</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="number" name="discount" id="purchase_discount">
+                <div class="invalid-feedback">Please enter a purchase discount.</div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4" id="purchase_discount_price">
+              <div class="form-group">
+                <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
+                <div class="invalid-feedback">Please enter a purchase discount price.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="buying_price" id="buying_price" required />
+                <div class="invalid-feedback">Please enter a buying price.</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
+                  <option value="">Select</option>
+                  <option value="1" selected>1 Month</option>
+                  <option value="3">3 Month</option>
+                  <option value="6">6 Month</option>
+                  <option value="9">9 Month</option>
+                  <option value="12">12 Month</option>
+                </select>
+                <div class="invalid-feedback">Please choose a date.</div>
+              </div>
+
+              <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
+                <label class="form-label">Dates:</label>
+                <span id="purchasedateRange"></span>
+                <input type="hidden" name="validity_from" id="validity_from" />
+                <input type="hidden" name="validity_to" id="validity_to" />
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Payment Term<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="product_payment_term"  id="productPriceBasis" >
+                  <option value="" disabled selected>Select a payment term</option>
+                  @foreach($paymentTerms as $paymentTerm)
+                  <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
+                  @endforeach
+                </select>
+                <input type="hidden" name="product_payment_id" id="productPaymentTermId" />
+                <div class="invalid-feedback">Please enter a product payment term.</div>
+
+              </div>
+
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Currency<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="currency" id="currencyInput">
+                  <option value="">-Select Currency-</option>
+                  @foreach($currencies as $currency)
+                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please enter a product currency.</div>
+              </div>
+            </div>
+
+          </div>
+          <div id="productCustomFieldsContainer" class="col-12 mt-3">
+
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Margin Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="margin_price" id="marginPrice">
+                <div class="invalid-feedback">Please enter a margin price.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">MOSP<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
+                <div class="invalid-feedback">Please enter a MOSP.</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
+                <div class="invalid-feedback">Please enter a price.</div>
+              </div>
+            </div>
+
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <select class="form-control" name="date" id="durationSelect">
+                  <option value="1" selected>1 Month</option>
+                  <option value="3">3 Month</option>
+                  <option value="6">6 Month</option>
+                  <option value="9">9 Month</option>
+                  <option value="12">12 Month</option>
+                </select>
+                <div class="invalid-feedback">Please select an date.</div>
+              </div>
+              <div class="form-group small" id="dateRangeGroup" style="display: none;">
+                <label class="form-label">Dates:</label>
+                <span id="dateRange"></span>
+                <input type="hidden" name="start_date" id="startDateInput" />
+                <input type="hidden" name="end_date" id="endDateInput" />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Is Demo<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="1">
+                <label class="form-check-label" for="is_demo">
+                  Yes
+                </label>
+                <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="0" checked>
+                <label class="form-check-label" for="is_demo">
+                  No
+                </label>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
+          </div>
+        </div>
+      </form>
+
     </div>
-    <div class="modal-body">
-      <form id="productForm">
-        <input type="hidden" name="allowed_discount" id="allowed_discount" value="0" />
-        <input type="hidden" name="product_type" value="custom" />
-        <input type="hidden" name="status" value="active" />
-        <div class="row gx-3">
-          <div class="col-12">
-            <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Product Details</span></div>
-          </div>
+
+    <!-- <input class="form-control" type="hidden" name="total_amount" />
+    <input class="form-control" type="hidden" name="gross_margin" />
+    <input class="form-control" type="hidden" name="product_currency" /> -->
+  </div>
+
+</div>
+
+<!-- Select Existing Price from history of a Product -->
+<div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Existing Product's Pricing</h5>
+      </div>
+      <div class="modal-body">
+        <p class="small">Please refer and select any of the 3 latest price of this product, else please add your own price below.</p>
+        <div id="productDetails">
+        </div>
+        <div id="additionalText" style="cursor: pointer; color: #007D88;" data-bs-toggle="modal" data-bs-target="#additionalFieldsModal">Do you want to add a new price?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelProduct" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary btn-select">Select Price</button>
         </div>
 
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add New Price for a product -->
+<div class="modal fade" id="additionalFieldsModal" tabindex="-1" aria-labelledby="additionalFieldsModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="additionalFieldsModalLabel">Add New Price</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
         <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Title <span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" id="titleInput" name="title" />
-              <div class="invalid-feedback">Please enter a title.</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Division<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="division_id" id="divisionInput">
-                <option value="">--</option>
-                @foreach ($divisions as $division)
-                <option value="{{ $division->id }}">{{ $division->name }}</option>
-                @endforeach
-              </select>
-              <div class="invalid-feedback">Please enter a Division.</div>
-            </div>
-          </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Brand<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="brand_id" id="brandInput">
-                <option value="">--</option>
-                @foreach ($suppliers as $k => $sup)
-                <option value=" {{ $sup->id }}">
-                  {{ $sup->brand }}
-                </option>
-                @endforeach
-              </select>
-              <div class="invalid-feedback">Please enter a brand.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Model No</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="model_no">
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Part Number</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="part_number" />
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Description </label>
-            </div>
-            <div class="form-group">
-              <textarea class="form-control" name="description" rows="2" cols="1"></textarea>
-
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Product Category<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="product_category" id="productcategoryInput">
-                <option value="">-Select-</option>
-                <option value="products">Products</option>
-                <option value="accessories">Accessories</option>
-                <option value="consumables">Consumables</option>
-                <option value="spares">Spares</option>
-                <option value="services">Services</option>
-              </select>
-              <div class="invalid-feedback">Please select a product category.</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Manager<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-select" name="manager_id" id="managerInput">
-                <option value="" selected="">--</option>
-                @foreach ($managers as $key => $row)
-                <option value="{{ $row->id }}">
-                  {{ $row->user->name }}
-                </option>
-                @endforeach
-              </select>
-              <div class="invalid-feedback">Please select product manager.</div>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="form-label">Image</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="file" name="image" />
-            </div>
-          </div>
-        </div>
-
-        <div class="row gx-3 mt-2 mb-2">
-          <div class="col-12">
-            <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Buying Currency<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="buying_currency" id="productBuyingCurrency" required>
-                <option value="">-Select Currency-</option>
-                @foreach($currencies as $currency)
-                <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                @endforeach
-              </select>
-              <div class="invalid-feedback">Please select a currency.</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Gross Price<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="gross_price" id="gross_price" required />
-
-              <div class="invalid-feedback">Please enter a gross price.</div>
-            </div>
-          </div>
-          <div class="col-md-4" id="purchase_discount_percent">
-            <div class="form-group">
-              <label class="form-label">Purchase Discount(%)</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="number" name="discount" id="purchase_discount">
-              <div class="invalid-feedback">Please enter a purchase discount.</div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4" id="purchase_discount_price">
-            <div class="form-group">
-              <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="discount_amount" id="purchase_discount_amount" required />
-              <div class="invalid-feedback">Please enter a purchase discount price.</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Buying Price<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="buying_price" id="buying_price" required />
-              <div class="invalid-feedback">Please enter a buying price.</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="purchase_price_duration" id="purchasedurationSelect">
-                <option value="">Select</option>
-                <option value="1" selected>1 Month</option>
-                <option value="3">3 Month</option>
-                <option value="6">6 Month</option>
-                <option value="9">9 Month</option>
-                <option value="12">12 Month</option>
-              </select>
-              <div class="invalid-feedback">Please choose a date.</div>
-            </div>
-
-            <div class="form-group small" id="purchasedateRangeGroup" style="display: none;">
-              <label class="form-label">Dates:</label>
-              <span id="purchasedateRange"></span>
-              <input type="hidden" name="validity_from" id="validity_from" />
-              <input type="hidden" name="validity_to" id="validity_to" />
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row gx-3 mt-2 mb-2">
-          <div class="col-12">
-            <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
-          </div>
-        </div>
-
-        <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Payment Term<span class="text-danger">*</span></label>
+              <label class="form-label">Price Basis<span class="text-danger">*</span></label>
             </div>
             <div class="form-group">
-              <select class="form-control" name="product_payment_term"  id="productPriceBasis" >
-                <option value="" disabled selected>Select a payment term</option>
+              <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="updateQuotationPriceBasis()">
+                <option value="" disabled selected>-- Select Price Basis --</option>
                 @foreach($paymentTerms as $paymentTerm)
                 <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
                 @endforeach
               </select>
-              <input type="hidden" name="product_payment_id" id="productPaymentTermId" />
-              <div class="invalid-feedback">Please enter a product payment term.</div>
-
+              <input type="hidden" name="payment_term_id" id="historyPaymentTermId" />
             </div>
-
           </div>
+
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Gross Price<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="gross_price" id="buying_gross_price" required />
+              <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6" id="purchase_discount_percent">
+            <div class="form-group">
+              <label class="form-label">Purchase Discount(%)</label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="discount" id="buying_purchase_discount">
+              <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
+            </div>
+          </div>
+          <div class="col-md-6" id="purchase_discount_price">
+            <div class="form-group">
+              <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="discount_amount" id="buying_purchase_discount_amount" required />
+              <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="buying_price" id="buying_prices" readonly />
+              <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
+            </div>
+          </div>
+
           <div class="col-md-6">
             <div class="form-group">
               <label class="form-label">Currency<span class="text-danger">*</span></label>
             </div>
             <div class="form-group">
-              <select class="form-control" name="currency" id="currencyInput">
+              <select class="form-control" name="buying_currency" id="buyingCurrencyHistory">
                 <option value="">-Select Currency-</option>
                 @foreach($currencies as $currency)
                 <option value="{{ $currency->code }}">{{ $currency->name }}</option>
                 @endforeach
               </select>
-              <div class="invalid-feedback">Please enter a product currency.</div>
+              <div class="invalid-feedback">Please select currency.</div>
             </div>
           </div>
 
-        </div>
-        <div id="productCustomFieldsContainer" class="col-12 mt-3">
 
-        </div>
-        <div class="row">
+
+          <div class="form-group">
+            <input class="form-check-input" type="checkbox" name="default_buying_price" id="defaultBuyingPrice" value="1"/>
+            <label class="form-check-label" for="defaultPriceCheckbox">
+              Do you want to make this the default buying price?
+            </label>
+          </div>
+          <div class="row gx-3 mt-2 mb-2">
+            <div class="col-12">
+              <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
+            </div>
+          </div>
+          <div id="customFieldsContainer" class="col-12 mt-3">
+          </div>
+
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Margin Price<span class="text-danger">*</span></label>
+              <label class="form-label">Margin Price</label>
             </div>
             <div class="form-group">
-              <input class="form-control" type="text" name="margin_price" id="marginPrice">
-              <div class="invalid-feedback">Please enter a margin price.</div>
+              <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
+              <div class="invalid-feedback">Please enter margin price.</div>
             </div>
           </div>
 
@@ -633,265 +843,54 @@
               <label class="form-label">MOSP<span class="text-danger">*</span></label>
             </div>
             <div class="form-group">
-              <input class="form-control" type="text" name="margin_percentage" id="marginPercentage" />
+              <input class="form-control" type="text" name="margin_percentage" id="marginPercentageHistory" />
               <div class="invalid-feedback">Please enter a MOSP.</div>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="selling_price" id="sellingPrice" />
-              <div class="invalid-feedback">Please enter a price.</div>
-            </div>
-          </div>
-
-
-          <div class="col-md-4">
-            <div class="form-group">
-              <label class="form-label">Price Validity Period<span class="text-danger">*</span></label>
-            </div>
-            <div class="form-group">
-              <select class="form-control" name="date" id="durationSelect">
-                <option value="1" selected>1 Month</option>
-                <option value="3">3 Month</option>
-                <option value="6">6 Month</option>
-                <option value="9">9 Month</option>
-                <option value="12">12 Month</option>
-              </select>
-              <div class="invalid-feedback">Please select an date.</div>
-            </div>
-            <div class="form-group small" id="dateRangeGroup" style="display: none;">
-              <label class="form-label">Dates:</label>
-              <span id="dateRange"></span>
-              <input type="hidden" name="start_date" id="startDateInput" />
-              <input type="hidden" name="end_date" id="endDateInput" />
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Is Demo<span class="text-danger">*</span></label>
+              <label class="form-label">Selling Price<span class="text-danger">*</span></label>
             </div>
             <div class="form-group">
-              <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="1">
-              <label class="form-check-label" for="is_demo">
-                Yes
-              </label>
-              <input class="form-check-input" type="radio" name="is_demo" id="is_demo" value="0" checked>
-              <label class="form-check-label" for="is_demo">
-                No
-              </label>
+              <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" readonly/>
+              <div class="invalid-feedback">Please enter a selling price.</div>
             </div>
           </div>
 
+          <div class="col-md-4">
+            <div class="form-group">
+              <label class="form-label">Currency<span class="text-danger">*</span></label>
+            </div>
+            <div class="form-group">
+              <select class="form-control" name="quote_curr" id="quoteCurrencyHistory">
+                <option value="">-Select Currency-</option>
+                @foreach($currencies as $currency)
+                <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                @endforeach
+              </select>
+              <div class="invalid-feedback">Please select currency.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <input class="form-check-input" type="checkbox" name="default_selling_price" id="defaultSellingPrice" value="1"/>
+                <label class="form-check-label" for="defaultPriceCheckbox">Do you want to make this the default selling  price?
+                </label>
+              </div>
+            </div>
+          </div>
 
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
-        </div>
       </div>
-    </form>
-
-  </div>
-
-  <!-- <input class="form-control" type="hidden" name="total_amount" />
-  <input class="form-control" type="hidden" name="gross_margin" />
-  <input class="form-control" type="hidden" name="product_currency" /> -->
-</div>
-
-</div>
-
-<!-- Select Existing Price from history of a Product -->
-<div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
-<div class="modal-dialog modal-dialog-centered modal-xl">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Existing Product's Pricing</h5>
-    </div>
-    <div class="modal-body">
-      <p class="small">Please refer and select any of the 3 latest price of this product, else please add your own price below.</p>
-      <div id="productDetails">
-      </div>
-      <div id="additionalText" style="cursor: pointer; color: #007D88;" data-bs-toggle="modal" data-bs-target="#additionalFieldsModal">Do you want to add a new price?</div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelProduct" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-secondary btn-select">Select Price</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Add New Price for a product -->
-<div class="modal fade" id="additionalFieldsModal" tabindex="-1" aria-labelledby="additionalFieldsModalLabel" aria-hidden="true" data-bs-backdrop="static">
-<div class="modal-dialog modal-dialog-centered modal-lg">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title" id="additionalFieldsModalLabel">Add New Price</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Price Basis<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="updateQuotationPriceBasis()">
-              <option value="" disabled selected>-- Select Price Basis --</option>
-              @foreach($paymentTerms as $paymentTerm)
-              <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
-              @endforeach
-            </select>
-            <input type="hidden" name="payment_term_id" id="historyPaymentTermId" />
-          </div>
-        </div>
-
-        <div class="row gx-3 mt-2 mb-2">
-          <div class="col-12">
-            <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Buying Price Details</span></div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Gross Price<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="gross_price" id="buying_gross_price" required />
-            <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
-          </div>
-        </div>
-
-        <div class="col-md-6" id="purchase_discount_percent">
-          <div class="form-group">
-            <label class="form-label">Purchase Discount(%)</label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="discount" id="buying_purchase_discount">
-            <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
-          </div>
-        </div>
-        <div class="col-md-6" id="purchase_discount_price">
-          <div class="form-group">
-            <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="discount_amount" id="buying_purchase_discount_amount" required />
-            <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Buying Price<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="buying_price" id="buying_prices" readonly />
-            <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Currency<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <select class="form-control" name="buying_currency" id="buyingCurrencyHistory">
-              <option value="">-Select Currency-</option>
-              @foreach($currencies as $currency)
-              <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-              @endforeach
-            </select>
-            <div class="invalid-feedback">Please select currency.</div>
-          </div>
-        </div>
-
-
-
-        <div class="form-group">
-          <input class="form-check-input" type="checkbox" name="default_buying_price" id="defaultBuyingPrice" value="1"/>
-          <label class="form-check-label" for="defaultPriceCheckbox">
-            Do you want to make this the default buying price?
-          </label>
-        </div>
-        <div class="row gx-3 mt-2 mb-2">
-          <div class="col-12">
-            <div class="title title-xs title-wth-divider text-primary text-uppercase my-2"><span>Selling Price Details</span></div>
-          </div>
-        </div>
-        <div id="customFieldsContainer" class="col-12 mt-3">
-        </div>
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Margin Price</label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
-            <div class="invalid-feedback">Please enter margin price.</div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">MOSP<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="margin_percentage" id="marginPercentageHistory" />
-            <div class="invalid-feedback">Please enter a MOSP.</div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="form-label">Selling Price<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" readonly/>
-            <div class="invalid-feedback">Please enter a selling price.</div>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="form-group">
-            <label class="form-label">Currency<span class="text-danger">*</span></label>
-          </div>
-          <div class="form-group">
-            <select class="form-control" name="quote_curr" id="quoteCurrencyHistory">
-              <option value="">-Select Currency-</option>
-              @foreach($currencies as $currency)
-              <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-              @endforeach
-            </select>
-            <div class="invalid-feedback">Please select currency.</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <div class="form-group">
-              <input class="form-check-input" type="checkbox" name="default_selling_price" id="defaultSellingPrice" value="1"/>
-              <label class="form-check-label" for="defaultPriceCheckbox">Do you want to make this the default selling  price?
-              </label>
-            </div>
-          </div>
-        </div>
-
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAdditionalFieldsModal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveAdditionalFields">Save</button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAdditionalFieldsModal">Close</button>
-      <button type="button" class="btn btn-primary" id="saveAdditionalFields">Save</button>
-    </div>
   </div>
-</div>
 </div>
 
 <!-- ------------------- end models ------------------- -->
@@ -979,6 +978,7 @@ $(document).ready(function() {
       $(this).val(''); // Clear the margin price input
     }
   });
+
   document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
   document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
   document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
@@ -986,6 +986,29 @@ $(document).ready(function() {
   document.getElementById('buying_gross_price').addEventListener('input', updateBuyingPrice);
   document.getElementById('buying_purchase_discount').addEventListener('input', updateBuyingPrice);
   document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+
+
+
+
+  const marginPriceInput = document.getElementById('marginPrice');
+  const marginPercentageInput = document.getElementById('marginPercentage');
+  const sellingPriceInput = document.getElementById('sellingPrice');
+  const buyingPriceInput = document.getElementById('buying_price');
+
+  const marginPriceHistoryInput = document.getElementById('marginPriceHistory');
+  const marginPercentageHistoryInput = document.getElementById('marginPercentageHistory');
+  const sellingPriceHistoryInput = document.getElementById('sellingPriceHistory');
+  const buyingPriceHistoryInput = document.getElementById('buying_prices');
+
+
+
+  marginPriceInput.addEventListener('input', updateMarginPrice);
+  marginPercentageInput.addEventListener('input', updateMarginPercentage);
+
+  marginPriceHistoryInput.addEventListener('input', updateHistoryMarginPrice);
+  marginPercentageHistoryInput.addEventListener('input', updateHistoryMarginPercentage);
+
+
 
   function updateHistoryMarginPrice() {
     const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
@@ -1070,6 +1093,8 @@ $(document).ready(function() {
   $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
     updateHistoryBuyingPrice();
   });
+
+
 
   function updateBuyingPriceWithAmount() {
     let gross_price = $('#gross_price').val();
@@ -1165,24 +1190,26 @@ $(document).ready(function() {
 
 
 
+
 });
 
 
 document.getElementById('historyPriceBasis').addEventListener('change', function () {
 
-const selectedOption = this.options[this.selectedIndex];
-const paymentTermId = selectedOption.getAttribute('data-id');
+  const selectedOption = this.options[this.selectedIndex];
+  const paymentTermId = selectedOption.getAttribute('data-id');
 
 
-document.getElementById('historyPaymentTermId').value = paymentTermId;
+  document.getElementById('historyPaymentTermId').value = paymentTermId;
 });
 document.getElementById('productPriceBasis').addEventListener('change', function () {
 
-const selectedOption = this.options[this.selectedIndex];
-const paymentTermId = selectedOption.getAttribute('data-id');
+  const selectedOption = this.options[this.selectedIndex];
+  const paymentTermId = selectedOption.getAttribute('data-id');
 
-document.getElementById('productPaymentTermId').value = paymentTermId;
+  document.getElementById('productPaymentTermId').value = paymentTermId;
 });
+
 
 
 function setPurchaseDateRange(selectedValue) {
@@ -1215,11 +1242,8 @@ function setPurchaseDateRange(selectedValue) {
   }
 }
 </script>
-
-
 <script>
 let customsArray = [];
-console.log(customsArray);
 
 document.addEventListener('DOMContentLoaded', function () {
   const priceBasisElement = document.getElementById('historyPriceBasis');
@@ -1233,51 +1257,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-function updateHistorySellingPrice() {
-  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-    return sum + (parseFloat(item.value) || 0);
-  }, 0);
+  function updateHistorySellingPrice() {
+    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
 
-  const marginPrice = parseFloat(marginPriceInput.value) || 0;
-  const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-  let calculatedSellingPrice;
-  if (marginPrice === 0) {
-    calculatedSellingPrice = totalCustomFieldsValue;
+    const marginPrice = parseFloat(marginPriceInput.value) || 0;
+    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+    let calculatedSellingPrice;
+    if (marginPrice === 0) {
+      calculatedSellingPrice = totalCustomFieldsValue;
 
-  } else {
-    const basePrice = parseFloat(buyingPriceInput.value) || 0;
-    console.log(basePrice);
-    calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+    } else {
+      const basePrice = parseFloat(buyingPriceInput.value) || 0;
+      console.log(basePrice);
+      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+
+    }
+
+    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
 
   }
 
-  sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
 
-}
+  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
-marginPriceInput.addEventListener('input', updateHistorySellingPrice);
+  priceBasisElement.addEventListener('change', function () {
 
-marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
-
-priceBasisElement.addEventListener('change', function () {
-   const priceBasis = this.value;
-   const paymentTermId = paymentTermIdElement.value;
-
-
-  historyCustomFieldsContainer.innerHTML = '';
-
-  if (priceBasis) {
-    fetch('/get-custom-fields', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-      },
-      body: JSON.stringify({
-        price_basis: priceBasis,
-        payment_term_id: paymentTermId,
-      }),
-    })
+    const priceBasis = this.value;
+    const paymentTermId = paymentTermIdElement.value;
+    historyCustomFieldsContainer.innerHTML = '';
+    if (priceBasis) {
+      fetch('/get-custom-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+          price_basis: priceBasis,
+          payment_term_id: paymentTermId,
+        }),
+      })
       .then((response) => response.json())
       .then((data) => {
         historyCustomFieldsContainer.innerHTML = '';
@@ -1287,11 +1309,11 @@ priceBasisElement.addEventListener('change', function () {
 
         data.forEach((field, index) => {
           const fieldHTML = `
-            <div class="form-group col-md-6">
-              <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-              <input class="form-control dynamic-field" type="text"
-              name="${field.short_code}" data-field-name="${field.short_code}" />
-            </div>`;
+          <div class="form-group col-md-6">
+          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <input class="form-control dynamic-field" type="text"
+          name="${field.short_code}" data-field-name="${field.short_code}" />
+          </div>`;
           rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
           if ((index + 1) % 2 === 0) {
@@ -1327,10 +1349,10 @@ priceBasisElement.addEventListener('change', function () {
         });
       })
       .catch((error) => console.error('Error fetching custom fields:', error));
-  } else {
-    customFieldsContainer.innerHTML = '';
-  }
-});
+    } else {
+      customFieldsContainer.innerHTML = '';
+    }
+  });
 });
 
 </script>
@@ -1338,59 +1360,59 @@ priceBasisElement.addEventListener('change', function () {
 <script>
 let productCustomFieldsArray = [];
 document.addEventListener('DOMContentLoaded', function () {
-const priceBasisElement = document.getElementById('productPriceBasis');
-const paymentTermIdElement = document.getElementById('productPaymentTermId');
-const customFieldsContainer = document.getElementById('productCustomFieldsContainer');
-const sellingPriceInput = document.getElementById('sellingPrice');
-const buyingPriceInput = document.getElementById('buying_price');
-const marginPriceInput = document.getElementById('marginPrice');
-const marginPercentageInput = document.getElementById('marginPercentage');
+  const productPriceBasisElement = document.getElementById('productPriceBasis');
+  const paymentTermIdElement = document.getElementById('productPaymentTermId');
+  const customFieldsContainer = document.getElementById('productCustomFieldsContainer');
+  const sellingPriceInput = document.getElementById('sellingPrice');
+  const buyingPriceInput = document.getElementById('buying_price');
+  const marginPriceInput = document.getElementById('marginPrice');
+  const marginPercentageInput = document.getElementById('marginPercentage');
 
-function updateSellingPrice() {
-  const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-    return sum + (parseFloat(item.value) || 0);
-  }, 0);
+  function updateSellingPrice() {
+    const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
 
-  const marginPrice = parseFloat(marginPriceInput.value) || 0;
-  const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-  let calculatedSellingPrice;
-  if (marginPrice === 0) {
-    calculatedSellingPrice = totalCustomFieldsValue;
+    const marginPrice = parseFloat(marginPriceInput.value) || 0;
+    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+    let calculatedSellingPrice;
+    if (marginPrice === 0) {
+      calculatedSellingPrice = totalCustomFieldsValue;
 
-  } else {
-    const basePrice = parseFloat(buyingPriceInput.value) || 0;
+    } else {
+      const basePrice = parseFloat(buyingPriceInput.value) || 0;
 
-    calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+
+    }
+
+    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
 
   }
 
-  sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+  marginPriceInput.addEventListener('input', updateSellingPrice);
 
-}
+  marginPercentageInput.addEventListener('input', updateSellingPrice);
 
-marginPriceInput.addEventListener('input', updateSellingPrice);
+  productPriceBasisElement.addEventListener('change', function () {
+    const priceBasis = this.value;
+    const paymentTermId = paymentTermIdElement.value;
 
-marginPercentageInput.addEventListener('input', updateSellingPrice);
+    productCustomFieldsArray = [];
+    customFieldsContainer.innerHTML = '';
 
-priceBasisElement.addEventListener('change', function () {
-  const priceBasis = this.value;
-  const paymentTermId = paymentTermIdElement.value;
-
-  productCustomFieldsArray = [];
-  customFieldsContainer.innerHTML = '';
-
-  if (priceBasis) {
-    fetch('/get-custom-fields', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-      },
-      body: JSON.stringify({
-        price_basis: priceBasis,
-        payment_term_id: paymentTermId,
-      }),
-    })
+    if (priceBasis) {
+      fetch('/get-custom-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+          price_basis: priceBasis,
+          payment_term_id: paymentTermId,
+        }),
+      })
       .then((response) => response.json())
       .then((data) => {
         customFieldsContainer.innerHTML = '';
@@ -1400,11 +1422,11 @@ priceBasisElement.addEventListener('change', function () {
 
         data.forEach((field, index) => {
           const fieldHTML = `
-            <div class="form-group col-md-6">
-              <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-              <input class="form-control dynamic-field" type="text"
-              name="${field.short_code}" data-field-name="${field.short_code}" />
-            </div>`;
+          <div class="form-group col-md-6">
+          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <input class="form-control dynamic-field" type="number" min="0"
+          name="${field.short_code}" data-field-name="${field.short_code}" />
+          </div>`;
           rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
           if ((index + 1) % 2 === 0) {
@@ -1440,34 +1462,16 @@ priceBasisElement.addEventListener('change', function () {
         });
       })
       .catch((error) => console.error('Error fetching custom fields:', error));
-  } else {
-    customFieldsContainer.innerHTML = '';
-  }
-});
+    } else {
+      customFieldsContainer.innerHTML = '';
+    }
+  });
 });
 </script>
 
 
-
-
-
 <script>
-$(document).ready(function() {
-  // Initialize select2
-  $('#supplierDropdown').select2();
-
-  // Listen for the select2 "unselect" event
-  $('#supplierDropdown').on('select2:unselect', function(e) {
-    var selectedValues = $(this).val();
-    var yesMachineryId = "{{ $suppliers->firstWhere('brand', 'YES Machinery')->id }}"; // Use the actual ID of YES Machinery
-
-    // If YES Machinery is being deselected, prevent it
-    if (selectedValues && !selectedValues.includes(yesMachineryId)) {
-      $(this).val(selectedValues.concat([yesMachineryId])); // Re-add YES Machinery ID to the selection
-      $(this).trigger('change'); // Trigger change event to update the UI
-    }
-  });
-
+$(document).ready(function () {
   $('#buying_gross_price, #buying_purchase_discount, #buying_purchase_discount_amount').on('input', function () {
     updateBuyingPrice();
   });
@@ -1514,45 +1518,63 @@ $(document).ready(function() {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 });
-
 </script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Bind change events to the dropdowns
-    const productPriceBasis = document.getElementById("productPriceBasis");
-    const historyPriceBasis = document.getElementById("historyPriceBasis");
-    const paymentTerm = document.getElementById("paymentTerm");
+document.addEventListener("DOMContentLoaded", function () {
+  // Bind change events to the dropdowns
+  const productPriceBasis = document.getElementById("productPriceBasis");
+  const historyPriceBasis = document.getElementById("historyPriceBasis");
+  const paymentTerm = document.getElementById("paymentTerm");
 
-    if (productPriceBasis) {
-      productPriceBasis.addEventListener("change", updateQuotationPriceBasis);
-    }
-    if (historyPriceBasis) {
-      historyPriceBasis.addEventListener("change", updateQuotationPriceBasis);
-    }
-    if (paymentTerm) {
-      paymentTerm.addEventListener("change", updateQuotationPriceBasis);
-    }
-  });
-
-  function updateQuotationPriceBasis() {
-    const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
-    const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
-    const selectedDeliveryTerm = document.getElementById("paymentTerm") ? document.getElementById("paymentTerm").value : '';
-
-    if (selectedPaymentTerm && selectedDeliveryTerm && selectedPaymentTerm !== selectedDeliveryTerm) {
-      alert("The selected Payment Term does not match the selected Delivery Term.");
-    }
-    if (selectedHistoryPaymentTerm && selectedDeliveryTerm && selectedHistoryPaymentTerm !== selectedDeliveryTerm) {
-      alert("The selected Payment Term does not match the selected Delivery Term.");
-    }
-
-    if (!selectedPaymentTerm) {
-      document.getElementById("paymentTermError").style.display = "block";
-    } else {
-      document.getElementById("paymentTermError").style.display = "none";
-    }
+  if (productPriceBasis) {
+    productPriceBasis.addEventListener("change", updateQuotationPriceBasis);
   }
-</script>
+  if (historyPriceBasis) {
+    historyPriceBasis.addEventListener("change", updateQuotationPriceBasis);
+  }
+  if (paymentTerm) {
+    paymentTerm.addEventListener("change", updateQuotationPriceBasis);
+  }
+});
 
+function updateQuotationPriceBasis() {
+  const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
+  const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
+  const selectedDeliveryTerm = document.getElementById("paymentTerm") ? document.getElementById("paymentTerm").value : '';
+
+  let errorMessage = "";
+  let fieldToClear = null;
+
+
+  if (selectedPaymentTerm && selectedDeliveryTerm && selectedPaymentTerm !== selectedDeliveryTerm) {
+    errorMessage = "The selected Payment Term does not match the selected Delivery Term.";
+    fieldToClear = "productPriceBasis";
+  }
+
+  else if (selectedHistoryPaymentTerm && selectedDeliveryTerm && selectedHistoryPaymentTerm !== selectedDeliveryTerm) {
+    errorMessage = "The selected History Payment Term does not match the selected Delivery Term.";
+    fieldToClear = "historyPriceBasis";
+  }
+
+  if (errorMessage) {
+    Swal.fire({
+      icon: "error",
+      title: "Mismatch Detected",
+      text: errorMessage,
+      confirmButtonText: "OK",
+    }).then(() => {
+      if (fieldToClear) {
+        document.getElementById(fieldToClear).value = "";
+      }
+    });
+  }
+
+  if (!selectedPaymentTerm) {
+    document.getElementById("paymentTermError").style.display = "block";
+  } else {
+    document.getElementById("paymentTermError").style.display = "none";
+  }
+}
+</script>
 
 @endsection

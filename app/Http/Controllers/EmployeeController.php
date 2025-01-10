@@ -162,11 +162,11 @@ class EmployeeController extends Controller
 
         $employeeService->updateEmployee($employee, $input, $avatar);
 
-
         $empmanagerService->updateManager($input, $id);
         $areaService->updateEmployeeAreas($input,  $employee->user);
 
-        return redirect()->back()->with('success', 'Employee updated successfully');
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully');
+
     }
 
     /**

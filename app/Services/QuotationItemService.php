@@ -38,10 +38,7 @@ class QuotationItemService
     $unitMargin = $userData['product_margin'];
 
 
-    //foreach ($totalAfterDiscounts as $index => $totalAfterDiscount) {
     for ($index = 0; $index < count($itemIds); $index++) {
-      // $brand = Product::where('id', $itemIds[$index])
-      //   ->select('brand_id')->first();
 
       QuotationItem::create([
         'quotation_id' => $quotes->id,
@@ -58,7 +55,7 @@ class QuotationItemService
         'unit_margin' => $unitMargin[$index],
       ]);
     }
-    // charges entry
+
     if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
       $chargeType = $userData['charge_name'];
       $chargeAmount = $userData['charge_amount'];
@@ -78,8 +75,7 @@ class QuotationItemService
             'short_code' => $shortcodeTitle,
             'quote_visible' => $quoteVisible[$index],
           ]);
-          // add to field table
-          // charge type - save to field table
+
           $existingQuotationCharge = QuotationField::where('title', $charge)->first();
           if (!$existingQuotationCharge) {
             $insert = [
@@ -216,9 +212,7 @@ class QuotationItemService
     // quotation items Insert
     $itemCount = count($userData['item_id']);
     if ($itemCount > 0) {
-      //foreach ($userData['item_description'] as $index => $description) {
       for ($index = 0; $index < $itemCount; $index++) {
-        // $brandId = Product::where('id', $userData['item_id'][$index])->value('brand_id');
         QuotationItem::create([
           'quotation_id' => $quotationId,
           'item_id' => $userData['item_id'][$index],
@@ -241,7 +235,6 @@ class QuotationItemService
 
     if (isset($userData['charge_name'])) {
       foreach ($userData['charge_name'] as $index => $charge) {
-        // Check if the title is not null or empty before creating the record
         if ($charge !== null && $charge !== '') {
           $shortcodeTitle = strtolower(str_replace(' ', '_', $charge));
 
@@ -250,7 +243,7 @@ class QuotationItemService
             'title' => $charge,
             'amount' => $userData['charge_amount'][$index],
             'short_code' => $shortcodeTitle,
-            'quote_visible'=> $userData['is_visible'][$index],
+            'quote_visible'=>1,
           ]);
         }
       }
@@ -283,27 +276,27 @@ class QuotationItemService
     QuotationTerm::where('quotation_id', $quotationId)->where('group_title', 'payment_terms')->delete();
     QuotatationPaymentTerm::where('quotation_id', $quotationId)->delete();
     if(isset($userData['payment_name'])){
-    foreach ($userData['payment_name'] as $index => $paymentTerm) {
-      if ($paymentTerm !== null) {
+      foreach ($userData['payment_name'] as $index => $paymentTerm) {
+        if ($paymentTerm !== null) {
 
-        $shortcodepayment = strtolower(str_replace(' ', '_', $paymentTerm));
+          $shortcodepayment = strtolower(str_replace(' ', '_', $paymentTerm));
 
-        $newQuotationPayment = QuotationTerm::create([
-          'quotation_id' => $quotationId,
-          'title' => $userData['payment_name'][$index],
-          'group_title' => 'payment_terms',
-          'description' => $userData['payment_description'][$index],
-          'short_code' => $shortcodepayment,
+          $newQuotationPayment = QuotationTerm::create([
+            'quotation_id' => $quotationId,
+            'title' => $userData['payment_name'][$index],
+            'group_title' => 'payment_terms',
+            'description' => $userData['payment_description'][$index],
+            'short_code' => $shortcodepayment,
 
-        ]);
-        $newQuotationPayment = QuotatationPaymentTerm::create([
-          'quotation_id' => $quotationId,
-          'title' => $userData['payment_name'][$index],
-          'payment_amount' => $userData['payment_description'][$index],
-        ]);
+          ]);
+          $newQuotationPayment = QuotatationPaymentTerm::create([
+            'quotation_id' => $quotationId,
+            'title' => $userData['payment_name'][$index],
+            'payment_amount' => $userData['payment_description'][$index],
+          ]);
+        }
       }
     }
-  }
 
     // Quotation Availability
     QuotationTerm::where('quotation_id', $quotationId)->where('group_title', 'availability')->delete();

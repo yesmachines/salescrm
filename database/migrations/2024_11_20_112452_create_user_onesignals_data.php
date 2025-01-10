@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->char('device_type', 15)->nullable()->after('remember_token');
             //$table->text('device_id')->nullable()->after('device_type');
             //$table->boolean('os_subscribed')->default(0)->after('device_id');
-            $table->string('os_sid')->nullable()->after('os_subscribed');
+            $table->string('os_sid')->nullable()->after('device_type');
         });
 
         Schema::create('user_odevices', function (Blueprint $table) {

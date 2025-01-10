@@ -112,6 +112,20 @@
 
                             </div>
                         </div>
+                        @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('superadmin'))
+                        <div class="row gx-3">
+                          <div class="col-sm-4">
+                            <div class="form-group">
+                              <label class="form-label">Status</label>
+                              <select class="form-select" name="status">
+                                <option value="">--</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                          @endif
                         <div class="row gx-3">
                             <div class="col-sm-6">
 
@@ -172,7 +186,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            
+
                         </div>
 
                     </div>
