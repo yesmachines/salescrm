@@ -38,6 +38,7 @@ class EmployeeService
             'phone'       => $userData['phone'],
             'designation' => $userData['designation'],
             'division'    => $userData['division'],
+            'status'      => $userData['status'],
             'image_url'   => $imageUrl
         ]);
 
@@ -133,7 +134,11 @@ class EmployeeService
             'phone'       => $userData['phone'],
             'designation' => $userData['designation'],
             'division'    => $userData['division']
+
         ];
+        if (isset($userData['status'])) {
+         $update['status'] = $userData['status'];
+        }
         if (!empty($imageUrl)) {
             $update['image_url'] = $imageUrl;
         }
