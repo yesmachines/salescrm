@@ -340,11 +340,11 @@ $(document).ready(function() {
         removeQuotationRow(row);
         row.remove();
         const customPriceJSON = JSON.stringify(customPriceArray);
-        document.getElementById('customprice').value = customPriceJSON;
-
+        document.getElementById('customprices').value = customPriceJSON;
+       calculateOverallTotal();
         deleteCustomPriceQuote(quotationId,productId);
         updateQuotationCharges(customPriceArray);
-        calculateOverallTotal();
+
       }
     });
   });

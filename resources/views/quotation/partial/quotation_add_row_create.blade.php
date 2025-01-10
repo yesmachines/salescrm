@@ -87,14 +87,25 @@
 
     </div>:
     @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
-    <div class="col-sm-3 text-align-left">
-      <label class="form-check-label" id="vatAmountLabel"></label>
-    </div>
-    @else
-    <div class="col-sm-3 text-align-left">
-      <input type="text" class="form-control" id="vatAmountLabel" name="vat_amount">
-    </div>
-    @endif
+      <div class="col-sm-3 text-align-left">
+          <input
+              type="text"
+              class="form-control"
+              id="vatAmountLabel"
+              name="vat_amount"
+            >
+      </div>
+  @else
+      <div class="col-sm-3 text-align-left">
+          <input
+              type="text"
+              class="form-control"
+              id="vatAmountLabel"
+              name="vat_amount"
+              oninput="calculateOverallTotal()">
+      </div>
+  @endif
+
     <!-- <div class="col-sm-3 text-align-left">
     <label class="form-check-label" id="vatAmountLabel"></label>
   </div> -->
@@ -364,9 +375,10 @@
       addItemRow();
       updateTextarea();
     });
-    $('#vatAmountLabelService').on('input', function() {
-      calculateOverallTotal();
-    });
+    $('#vatService').on('input', function() {
+         calculateOverallTotal();
+     });
+
 
     document.getElementById('durationSelect').addEventListener('change', function() {
       var selectedValue = this.value;

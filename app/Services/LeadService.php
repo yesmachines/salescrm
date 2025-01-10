@@ -84,6 +84,7 @@ class LeadService
 
     public function updateLead(Lead $lead, array $userData): void
     {
+
         $update = [];
         if (isset($userData['company_id'])) {
             $update['company_id'] = $userData['company_id'];
@@ -94,9 +95,11 @@ class LeadService
         if (isset($userData['lead_type'])) {
             $update['lead_type'] = $userData['lead_type'];
         }
-        
+
+       if (isset($userData['enquiry_mode']) && !empty($userData['enquiry_mode'])) {
          $update['enquiry_mode'] = $userData['enquiry_mode'];
-       
+       }
+
         if (isset($userData['enquiry_date']) && !empty($userData['enquiry_date'])) {
             $update['enquiry_date'] = $userData['enquiry_date'];
         }
@@ -145,7 +148,7 @@ class LeadService
     public function checkQualifyLead($id): int
     {
         /* 2 = Good
-        * 3 = VeryGood  
+        * 3 = VeryGood
         * 5 = Future Potential
         */
         // return Lead::where('id', $id)->whereIn('status_id', [2, 3, 5])->count();

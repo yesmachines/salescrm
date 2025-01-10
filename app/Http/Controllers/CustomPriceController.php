@@ -269,9 +269,9 @@ class CustomPriceController extends Controller
           'surcharges' => $request['surcharges'],
         ];
 
-        $nonZeroFields = array_filter($fields, function($value) {
-          return $value != 0;
-        });
+        // $nonZeroFields = array_filter($fields, function($value) {
+        //   return $value != 0;
+        // });
 
         $conditions = [
           'quotation_id' => $quotationId,
@@ -291,10 +291,10 @@ class CustomPriceController extends Controller
           'price_basis' => $priceBasis,
         ];
 
-        foreach ($nonZeroFields as $key => $value) {
-          $data[$key] = $value;
-        }
-        $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $data);
+        // foreach ($nonZeroFields as $key => $value) {
+        //   $data[$key] = $value;
+        // }
+        $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $fields);
 
         $quotationCustomPrices = QuotationCustomPrice::where('quotation_id', $quotationId)->get();
         $quotation=Quotation::where('id', $quotationId)->first();
@@ -302,14 +302,14 @@ class CustomPriceController extends Controller
         $customFields=CustomField::where('price_basis',  $paymenterm->id)->get();
         $quotationCharges = QuotationCharge::where('quotation_id', $quotationId)->get();
 
-        // Initialize an array to hold the summed values
+
         $fieldSums = [];
 
-        // Iterate through custom fields and calculate the sum
-        foreach ($customFields as $customField) {
-          $shortCode = $customField->short_code; // Get the short_code of the custom field
 
-          // Filter matching fields in $quotationCustomPrices and calculate their sum
+        foreach ($customFields as $customField) {
+          $shortCode = $customField->short_code;
+
+
           $sum = $quotationCustomPrices
           ->filter(function ($quotePrice) use ($shortCode) {
             return isset($quotePrice[$shortCode]) && is_numeric($quotePrice[$shortCode]);

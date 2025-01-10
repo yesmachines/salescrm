@@ -117,44 +117,36 @@ class QuoteCustomPrice
       }
 
       $visibilityFlags=$userData['is_visible'];
-      // Initialize the mergedCharges array
       $mergedCharges = [];
-
-      // Convert summedCharges to an indexed array
       $summedChargesArray = array_values($summedCharges);
-
-      // Loop through the summedCharges array
       foreach ($summedChargesArray as $index => $chargeAmount) {
-          // Get the corresponding charge name by referencing the original keys
-          $chargeName = array_keys($summedCharges)[$index];
-
-          // Get the corresponding visibility flag using the numeric index
-          $isVisible = isset($visibilityFlags[$index]) ? $visibilityFlags[$index] : 1;
-
-          // Add to the merged array
-          $mergedCharges[] = [
-              'title' => $chargeName,
-              'amount' => $chargeAmount,
-              'quote_visible' => $isVisible
-          ];
+        $chargeName = array_keys($summedCharges)[$index];
+        $isVisible = isset($visibilityFlags[$index]) ? $visibilityFlags[$index] : 1;
+        $mergedCharges[] = [
+          'title' => $chargeName,
+          'amount' => $chargeAmount,
+          'quote_visible' => $isVisible
+        ];
       }
 
-  $quotationId = $quotationId;
+      $quotationId = $quotationId;
 
 
-  foreach ($mergedCharges as $charge) {
+      foreach ($mergedCharges as $charge) {
 
-      $shortcodeTitle = strtolower(str_replace(' ', '_', $charge['title']));
+        $shortcodeTitle = strtolower(str_replace(' ', '_', $charge['title']));
+        $title = str_replace('_', ' ', $charge['title']);
+        $title = ucwords($title);
 
-      QuotationCharge::create([
+        QuotationCharge::create([
           'quotation_id' => $quotationId,
-          'title' => $charge['title'],
+          'title' => $title,
           'amount' => $charge['amount'],
           'short_code' => $shortcodeTitle,
           'quote_visible' => $charge['quote_visible'],
-      ]);
-  }
-}
+        ]);
+      }
+    }
 
     return response()->json(['message' => 'Custom prices updated successfully!']);
   }
@@ -190,6 +182,7 @@ class QuoteCustomPrice
         $values['discount'] = $buyingPriceLatest->discount;
         $values['discount_amount'] = $buyingPriceLatest->discount_amount;
         $values['buying_price'] = $buyingPriceLatest->buying_price;
+        $values['buying_currency'] = $buyingPriceLatest->buying_currency;
       }
 
       QuotationCustomPrice::updateOrCreate($attributes, $values);
@@ -260,56 +253,46 @@ class QuoteCustomPrice
       }
 
       $visibilityFlags=$userData['is_visible'];
-      // Initialize the mergedCharges array
       $mergedCharges = [];
-
-      // Convert summedCharges to an indexed array
       $summedChargesArray = array_values($summedCharges);
-
-      // Loop through the summedCharges array
       foreach ($summedChargesArray as $index => $chargeAmount) {
-          // Get the corresponding charge name by referencing the original keys
-          $chargeName = array_keys($summedCharges)[$index];
-
-          // Get the corresponding visibility flag using the numeric index
-          $isVisible = isset($visibilityFlags[$index]) ? $visibilityFlags[$index] : 1;
-
-          // Add to the merged array
-          $mergedCharges[] = [
-              'title' => $chargeName,
-              'amount' => $chargeAmount,
-              'quote_visible' => $isVisible
-          ];
+        $chargeName = array_keys($summedCharges)[$index];
+        $isVisible = isset($visibilityFlags[$index]) ? $visibilityFlags[$index] : 1;
+        $mergedCharges[] = [
+          'title' => $chargeName,
+          'amount' => $chargeAmount,
+          'quote_visible' => $isVisible
+        ];
       }
 
-  $quotationId = $quotationId;
+      $quotationId = $quotationId;
 
+      foreach ($mergedCharges as $charge) {
 
-  foreach ($mergedCharges as $charge) {
+        $shortcodeTitle = strtolower(str_replace(' ', '_', $charge['title']));
+        $title = str_replace('_', ' ', $charge['title']);
+        $title = ucwords($title);
 
-      $shortcodeTitle = strtolower(str_replace(' ', '_', $charge['title']));
-
-      QuotationCharge::create([
+        QuotationCharge::create([
           'quotation_id' => $quotationId,
-          'title' => $charge['title'],
+          'title' =>  $title,
           'amount' => $charge['amount'],
           'short_code' => $shortcodeTitle,
           'quote_visible' => $charge['quote_visible'],
-      ]);
-  }
+        ]);
+      }
 
 
-  // Ensure that 'charge_name' and 'charge_amount' exist in user data
-if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
-    $chargeNames = $userData['charge_name'];
-    $chargeAmounts = $userData['charge_amount'];
+      if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
+        $chargeNames = $userData['charge_name'];
+        $chargeAmounts = $userData['charge_amount'];
 
-    for ($i = 0; $i < count($chargeNames); $i++) {
-        $chargeName = $chargeNames[$i];
-        $chargeAmount = $chargeAmounts[$i];
+        for ($i = 0; $i < count($chargeNames); $i++) {
+          $chargeName = $chargeNames[$i];
+          $chargeAmount = $chargeAmounts[$i];
 
 
-        if (!is_null($chargeAmount) && $chargeAmount !== '') {
+          if (!is_null($chargeAmount) && $chargeAmount !== '') {
 
             $isVisible = 1;
 
@@ -318,46 +301,42 @@ if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
 
 
             $chargeData = [
-                'quotation_id' => $quotationId,
-                'title' => $chargeName,
-                'amount' => $chargeAmount,
-                'short_code' => $shortcodeTitle,
-                'quote_visible' => $isVisible,
+              'quotation_id' => $quotationId,
+              'title' => $chargeName,
+              'amount' => $chargeAmount,
+              'short_code' => $shortcodeTitle,
+              'quote_visible' => $isVisible,
             ];
 
-            // Save each charge to the QuotationCharge table
             QuotationCharge::create($chargeData);
+          }
         }
-    }
-}else{
+      }else{
 
-  foreach ($productIdNotExist as $productDatas) {
+        foreach ($productIdNotExist as $productDatas) {
 
-      if (!empty($productDatas)) {
-          foreach ($productDatas as $key => $productData) {
+          if (!empty($productDatas)) {
+            foreach ($productDatas as $key => $productData) {
 
               $isVisible = 1;
 
-
               $shortcodeTitle = strtolower(str_replace(' ', '_', $key));
 
-
               $chargeData = [
-                  'quotation_id' => $quotationId,
-                  'title' => $key,
-                  'amount' => $productData,
-                  'short_code' => $shortcodeTitle,
-                  'quote_visible' => $isVisible,
+                'quotation_id' => $quotationId,
+                'title' => $key,
+                'amount' => $productData,
+                'short_code' => $shortcodeTitle,
+                'quote_visible' => $isVisible,
               ];
 
-              // Save each charge to the QuotationCharge table
               QuotationCharge::create($chargeData);
+            }
           }
+        }
       }
-  }
-}
 
-}
+    }
 
     return response()->json(['message' => 'Custom prices updated successfully!']);
   }
