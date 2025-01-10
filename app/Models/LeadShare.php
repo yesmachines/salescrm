@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LeadProduct extends Model {
+class LeadShare extends Model {
 
     use UuidTrait;
 
@@ -18,12 +18,9 @@ class LeadProduct extends Model {
      */
     protected $fillable = [
         'lead_id',
-        'supplier_id',
-        'product_id',
+        'shared_by',
+        'shared_to',
         'notes',
-        'area_id',
-        'manager_id',
-        'assistant_id',
     ];
 
     public function lead() {

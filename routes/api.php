@@ -50,8 +50,11 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('crm-product-details/{id}', 'CrmController@productDetails');
     Route::get('countries', 'CrmController@countries');
     Route::get('areas', 'CrmController@getAreas');
+    Route::get('area-manager/{areaId}/{division}', 'CrmController@getAreaManager');
     Route::post('create-company', 'CrmController@createCompany');
     Route::post('create-customer', 'CrmController@createCustomer');
+    Route::get('employees', 'CrmController@employees');
+    Route::get('seek-assists', 'CrmController@seekAssists');
     /* Meting APIs */
     Route::post('meeting-create', 'MeetingController@store');
     Route::post('meeting-notes-create/{id}', 'MeetingController@notesStore');
@@ -64,7 +67,6 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::post('upload-businesscard', 'MeetingController@businessCard');
     Route::post('meeting-notes', 'MeetingController@meetingNotes');
     /* Meting Shares APIs */
-    Route::get('employees', 'MeetingShareController@employees');
     Route::post('share-meeting/{id}', 'MeetingShareController@share');
     Route::get('share-requests/{status}', 'MeetingShareController@requests');
     Route::post('confirm-share-request/{id}', 'MeetingShareController@confirmRequest');

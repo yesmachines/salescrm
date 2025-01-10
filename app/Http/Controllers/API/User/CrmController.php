@@ -11,6 +11,8 @@ use App\Models\Product;
 use App\Models\Country;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\Area;
+use App\Models\EmployeeArea;
 
 class CrmController extends Controller {
 
@@ -18,6 +20,43 @@ class CrmController extends Controller {
 
     public function __construct() {
         $this->imgUrl = asset('storage') . '/';
+    }
+
+    public function employees() {
+        $roleNames = ['salesmanager', 'coordinators', 'satellite'];
+        $roles = \Spatie\Permission\Models\Role::whereIn('name', $roleNames)
+                ->with(['users' => function ($query) {
+                        $query->where('id', '<>', auth('sanctum')->user()->id)
+                        ->orderBy('name');
+                    }, 'users.employee'])
+                ->get();
+        $groupedByRole = $roles->mapWithKeys(function ($role) {
+            return [
+        $role->name => $role->users->map(function ($user) {
+            return [
+        'id' => $user->id,
+        'name' => $user->name,
+        'image_url' => !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null
+            ];
+        })
+            ];
+        });
+
+        return successResponse(trans('api.success'), $groupedByRole);
+    }
+
+    public function seekAssists() {
+        $roleNames = ['salesmanager', 'satellite'];
+
+        $groupedByRole = \App\Models\User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                ->join('employees', 'employees.user_id', 'users.id')
+                ->whereHas('roles', function ($query) use ($roleNames) {
+                    $query->whereIn('name', $roleNames);
+                })
+                ->where('users.id', '<>', auth('sanctum')->user()->id)
+                ->get();
+
+        return successResponse(trans('api.success'), $groupedByRole);
     }
 
     public function brands(Request $request, $module) {
@@ -100,15 +139,36 @@ class CrmController extends Controller {
     }
 
     public function getAreas() {
-        $areas = \App\Models\Area::select('id', 'name')
-                ->with(['users' => function ($query) {
-                        $query->select('users.id', 'users.name', 'users.email', 'employees.image_url as pimg', 'employees.division')
-                        ->join('employees', 'employees.user_id', '=', 'users.id');
-                    }])
+        $areas = Area::select('id', 'name')
                 ->where('status', 1)
                 ->orderBy('name')
                 ->get();
         return successResponse(trans('api.success'), $areas);
+    }
+
+    /* public function getAreas() {
+      $areas = Area::select('id', 'name')
+      ->with(['users' => function ($query) {
+      $query->select('users.id', 'users.name', 'users.email', 'employees.image_url as pimg', 'employees.division')
+      ->join('employees', 'employees.user_id', '=', 'users.id');
+      }])
+      ->where('status', 1)
+      ->orderBy('name')
+      ->get();
+      return successResponse(trans('api.success'), $areas);
+      } */
+
+    public function getAreaManager($areaId, $division) {
+        $data['manager'] = EmployeeArea::select('users.id', 'users.name', 'employees.image_url')
+                ->join('users', 'users.id', 'employee_areas.user_id')
+                ->join('employees', 'employees.user_id', 'employee_areas.user_id')
+                ->where('employee_areas.id', $areaId)
+                ->where('employees.division', $division)
+                ->first();
+        if ($data['manager']) {
+            $data['manager']->image_url = !empty($data['manager']->image_url) ? asset('storage/' . $data['manager']->image_url) : null;
+        }
+        return successResponse(trans('api.success'), $data);
     }
 
     public function createCompany(Request $request) {

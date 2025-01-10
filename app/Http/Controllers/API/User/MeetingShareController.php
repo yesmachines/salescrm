@@ -17,28 +17,6 @@ use App\Models\MeetingSharedProduct;
 
 class MeetingShareController extends Controller {
 
-    public function employees() {
-        $roleNames = ['salesmanager', 'coordinators', 'satellite'];
-        $roles = Role::whereIn('name', $roleNames)
-                ->with(['users' => function ($query) {
-                        $query->where('id', '<>', auth('sanctum')->user()->id)
-                        ->orderBy('name');
-                    }, 'users.employee'])
-                ->get();
-        $groupedByRole = $roles->mapWithKeys(function ($role) {
-            return [
-        $role->name => $role->users->map(function ($user) {
-            return [
-        'id' => $user->id,
-        'name' => $user->name,
-        'image_url' => !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null
-            ];
-        })
-            ];
-        });
-        return successResponse(trans('api.meeting.created'), $groupedByRole);
-    }
-
     public function share(Request $request, $id) {
         $rules = [
             'type' => 'required|in:normal,shared',

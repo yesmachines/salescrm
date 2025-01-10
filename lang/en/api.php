@@ -57,10 +57,14 @@ return [
             'cron' => 'Upcoming Meetings',
             'area' => 'Meeting with :name',
             'area_enquiry' => 'New :type Enquiry',
+            'share_enquiry' => 'Shared Enquiry',
+            'assist_enquiry' => 'Need Assistance',
         ],
         'message' => [
             'cron' => 'You have :count upcoming meetings.',
-            'area_enquiry' => ':name created :type enquiry for :count products.',
+            'area_enquiry' => ':name created a new :type enquiry',
+            'share_enquiry' => ':name shared an :type Enquiry',
+            'assist_enquiry' => ':name seeks your assistance for an :type Enquiry',
         ]
     ],
 ];

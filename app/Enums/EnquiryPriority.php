@@ -12,10 +12,10 @@ enum EnquiryPriority: string {
     // Human-readable label
     public function label(): string {
         return match ($this) {
-            self::LOW => 'Low',
-            self::MEDIUM => 'Medium',
-            self::HIGH => 'High',
-            self::SOS => 'SOS',
+            self::LOW => 'Not urgent and not important',
+            self::MEDIUM => 'Not urgent and important',
+            self::HIGH => 'Urgent and not important',
+            self::SOS => 'Urgent and important',
         };
     }
 

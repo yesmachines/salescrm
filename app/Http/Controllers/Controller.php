@@ -59,20 +59,30 @@ class Controller extends BaseController {
         return 1;
     }
 
-    function notifyEnquiryAreaMnager($enquiry, $productCount) {
-        $userIds = \App\Models\EmployeeArea::where('area_id', $enquiry->area_id)
-                ->pluck('user_id')
-                ->toArray();
-
+    function notifyEnquiryShared($enquiry, $notifyTo, $type) {
         $body = [
-            'headings' => ['en' => trans('api.notification.title.area_enquiry', ['type' => $enquiry->lead_type_label])],
-            'contents' => ['en' => trans('api.notification.message.area_enquiry', ['name' => auth()->user()->name, 'type' => $enquiry->lead_type_label, 'count' => $productCount])],
             'data' => [
-                'module' => 'general',
-                'module_id' => null
+                'module' => 'enquiry',
+                'module_id' => $enquiry->id
             ]
         ];
-        $body ['include_external_user_ids'] = $userIds;
+
+        switch ($type) {
+            case 'share';
+                $body['headings'] = ['en' => trans('api.notification.title.share_enquiry')];
+                $body['contents'] = ['en' => trans('api.notification.message.share_enquiry', ['name' => auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
+                break;
+            case 'assist';
+                $body['headings'] = ['en' => trans('api.notification.title.assist_enquiry')];
+                $body['contents'] = ['en' => trans('api.notification.message.assist_enquiry', ['name' =>  auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
+                break;
+            case 'manager';
+                $body['headings'] = ['en' => trans('api.notification.title.area_enquiry', ['type' => $enquiry->lead_type_label])];
+                $body['contents'] = ['en' => trans('api.notification.message.area_enquiry', ['name' =>  auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
+                break;
+        }
+
+        $body ['include_external_user_ids'] = [$notifyTo];
         $body ['channel_for_external_user_ids'] = 'push';
         $this->sendONotification($body);
         return 1;

@@ -18,6 +18,8 @@ use App\Models\LeadHistory;
 use App\Models\Product;
 use App\Models\LeadStatus;
 use App\Models\LeadProduct;
+use App\Models\LeadShare;
+use App\Models\User;
 
 class EnquiryController extends Controller {
 
@@ -29,6 +31,10 @@ class EnquiryController extends Controller {
                 ->get();
         $data['priorities'] = EnquiryPriority::toKeyLabelArray();
         $data['coordinator'] = $this->getCoordinator();
+        $data['areas'] = Area::select('id', 'name')
+                ->where('status', 1)
+                ->orderBy('name')
+                ->get();
         return successResponse(trans('api.success'), $data);
     }
 
@@ -114,9 +120,11 @@ class EnquiryController extends Controller {
         $enquiryTypes = array_column(EnquirySource::cases(), 'value');
         $rules = [
             'type' => ['required', 'in:' . implode(',', $enquiryTypes)],
-            'enquiry_mode' => 'required_if:type,internal',
+            'enquiry_mode' => 'required_if:type,' . implode(',', array_diff($enquiryTypes, ['expo', 'democenter'])),
+            'interested' => 'required_if:type,expo,democenter',
             'expo_id' => 'required_if:type,expo',
             'enquiry_date' => 'required|date_format:Y-m-d',
+            "area_id" => 'required',
             "company_id" => 'required',
             "customer_id" => 'required',
             'products' => 'required|array',
@@ -124,7 +132,9 @@ class EnquiryController extends Controller {
             'products.*.product_id' => 'present|required_unless:products.*.brand_id,null',
             'products.*.status_id' => 'required',
             'products.*.priority' => 'required',
-            'products.*.notes' => 'present|required_if:products.*.product_id,null|nullable',
+            'products.*.manager_id' => 'present|nullable',
+            'products.*.assign_type' => ['required', 'in:self,assist,share'],
+            'products.*.assign_id' => 'present|required_if:products.*.assign_type,assist,share|nullable',
             'schedule_meeting' => 'required|boolean',
             'meeting_date' => 'required_if:schedule_meeting,1|date_format:Y-m-d',
             'meeting_time' => 'required_if:schedule_meeting,1|date_format:H:i',
@@ -140,9 +150,7 @@ class EnquiryController extends Controller {
         }
 
         $scheduled_notes = null;
-        $product_count = 0;
         foreach ($request->products as $product) {
-            $product_count++;
             $details = $product['notes'];
             $historyMessage = "New enquiry is created with status " . LeadStatus::find($product['status_id'])->name;
             if (!empty($product['brand_id']) && !empty($product['product_id'])) {
@@ -163,8 +171,9 @@ class EnquiryController extends Controller {
             $enquiry->customer_id = $request->customer_id;
             $enquiry->lead_type = $request->type;
             $enquiry->enquiry_date = $request->enquiry_date;
+            $enquiry->interested = $request->interested;
             $enquiry->details = $details;
-            $enquiry->assigned_to = $request->user()->id;
+            $enquiry->assigned_to = ($product['assign_type'] == "share") ? $product['assign_id'] : $request->user()->id;
             $enquiry->assigned_on = date('Y-m-d');
             $enquiry->status_id = $product['status_id'];
             if (!empty($request->enquiry_mode)) {
@@ -191,15 +200,31 @@ class EnquiryController extends Controller {
                         'lead_id' => $enquiry->id,
                         'supplier_id' => $product['brand_id'],
                         'product_id' => $product['product_id'],
-                        'notes' => $product['notes']
+                        'notes' => $product['notes'],
+                        'area_id' => $request->area_id,
+                        'manager_id' => $product['manager_id'],
+                        'assistant_id' => ($product['assign_type'] == "assist") ? $product['assign_id'] : null,
                     ]
             );
+            if ($product['assign_type'] == "share") {
+                LeadShare::create(
+                        [
+                            'lead_id' => $enquiry->id,
+                            'shared_by' => $request->user()->id,
+                            'shared_to' => $product['assign_id'],
+                        ]
+                );
+                //Send Notification to user
+                $this->notifyEnquiryShared($enquiry, $product['assign_id'], 'share');
+            } elseif ($product['assign_type'] == "assist") {
+                $this->notifyEnquiryShared($enquiry, $product['assign_id'], 'assist');
+            }
+            //if manager_id is not null then send notification to manager 
+            if (!empty($product['manager_id'])) {
+                $this->notifyEnquiryShared($enquiry, $product['manager_id'], 'manager');
+            }
         }
-        //if area id not null then send notification to manager using prodcut count;
-        if (!empty($request->area_id)) {
-            $enquiry->area_id = $request->area_id;
-            $this->notifyEnquiryAreaMnager($enquiry, $product_count);
-        }
+
         //if meeting schedule save with scheduled notes
         if ($request->schedule_meeting) {
             $this->createMeeting($request, $scheduled_notes);
@@ -224,10 +249,15 @@ class EnquiryController extends Controller {
     }
 
     public function show(Request $request, $id) {
-        $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'details', 'enquiry_date', 'lead_type', 'enquiry_mode', 'expo_id')
+        $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'details', 'assigned_to', 'enquiry_date', 'lead_type', 'enquiry_mode', 'expo_id', 'interested')
                 ->with(['company:id,country_id,region_id,company', 'company.country:id,name', 'company.region:id,state', 'customer:id,fullname,phone'])
                 ->where('id', $id)
                 ->first();
+        if ($enquiry->assigned_to == $request->user()->id) {
+            $enquiry->editable = true;
+        } else {
+            $enquiry->editable = false;
+        }
         if ($enquiry->lead_type == 'expo') {
             if (!empty($enquiry->expo_id)) {
                 $enquiry->lead_type = $enquiry->expo->name;
@@ -238,16 +268,26 @@ class EnquiryController extends Controller {
             $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
         }
 
-        $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes")
+        $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes,cm_lead_products.area_id,cm_lead_products.manager_id,cm_lead_products.assistant_id")
                 ->leftJoin('suppliers as s', 'lead_products.supplier_id', '=', 's.id')
                 ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
                 ->where('lead_products.lead_id', '=', $enquiry->id)
                 ->first();
 
+        if (!empty($enquiry->product)) {
+            $enquiry->area = \App\Models\Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
+            $enquiry->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                            ->join('employees', 'employees.user_id', 'users.id')
+                            ->where('users.id', $enquiry->product->manager_id)->first();
+            $enquiry->assistant = User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                            ->join('employees', 'employees.user_id', 'users.id')
+                            ->where('users.id', $enquiry->product->assistant_id)->first();
+        }
+
         //Get latest history;
         $lleadHistory = LeadHistory::where('lead_id', $enquiry->id)->orderBy('created_at', 'desc')->first();
         if ($lleadHistory) {
-            $enquiry->priority = $lleadHistory->priority;
+            $enquiry->priority = $lleadHistory->priority_label;
         } else {
             $enquiry->priority = 'low';
         }

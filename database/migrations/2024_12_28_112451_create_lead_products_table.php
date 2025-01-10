@@ -20,18 +20,16 @@ return new class extends Migration {
             $table->foreignId('supplier_id')->nullable()->constrained()->onDelete('cascade');
             $table->mediumText('notes')->nullable();
             $table->foreignId('area_id')->nullable()->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('manager_id');
+            $table->unsignedBigInteger('manager_id')->nullable();
             $table->foreign('manager_id')
                     ->references('id')
                     ->on('users')
-                    ->onDelete('cascade')
-                    ->nullable();
-            $table->unsignedBigInteger('assistant_id');
+                    ->onDelete('cascade');
+            $table->unsignedBigInteger('assistant_id')->nullable();
             $table->foreign('assistant_id')
                     ->references('id')
                     ->on('users')
-                    ->onDelete('cascade')
-                    ->nullable();
+                    ->onDelete('cascade');
 
             $table->timestamps();
         });
@@ -39,18 +37,16 @@ return new class extends Migration {
             $table->uuid('id');
             $table->primary('id');
             $table->foreignId('lead_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('shared_by');
-                    $table->foreign('shared_by')
+            $table->unsignedBigInteger('shared_by')->nullable();
+            $table->foreign('shared_by')
                     ->references('id')
                     ->on('users')
-                    ->onDelete('cascade')
-                    ->nullable();
-            $table->unsignedBigInteger('shared_to');
-                    $table->foreign('shared_to')
+                    ->onDelete('cascade');
+            $table->unsignedBigInteger('shared_to')->nullable();
+            $table->foreign('shared_to')
                     ->references('id')
                     ->on('users')
-                    ->onDelete('cascade')
-                    ->nullable();
+                    ->onDelete('cascade');
             $table->timestamps();
         });
     }

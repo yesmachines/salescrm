@@ -13,4 +13,9 @@ class LeadHistory extends Model {
         'priority',
         'userid',
     ];
+    
+     public function getPriorityLabelAttribute()
+    {
+        return \App\Enums\EnquiryPriority::from($this->priority)->label();
+    }
 }

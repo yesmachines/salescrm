@@ -8,6 +8,7 @@ enum EnquirySource: string {
     case EXTERNAL = "external";
     case DEMOCENTER = "democenter";
     case EXPO = "expo";
+    case RELATION = "relation";
 
     // Human-readable label
     public function label(): string {
@@ -16,6 +17,7 @@ enum EnquirySource: string {
             self::EXTERNAL => 'External/Outside',
             self::DEMOCENTER => 'Demo Center',
             self::EXPO => 'Expo Enquiry',
+            self::RELATION => 'Relation',
         };
     }
 
@@ -26,6 +28,7 @@ enum EnquirySource: string {
             'external' => self::EXTERNAL,
             'democenter' => self::DEMOCENTER,
             'expo' => self::EXPO,
+            'relation' => self::RELATION,
         ];
     }
 }
