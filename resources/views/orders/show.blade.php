@@ -63,9 +63,11 @@
                                     </a>
 
                                     <div class="d-flex mt-3">
+                                     @canany(['orders.edit'])
                                         <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-secondary btn-block ms-2 mt-0">
                                             <span><span class="icon"><span class="feather-icon"><i data-feather="edit"></i></span></span><span>Edit</span></span>
                                         </a>
+                                      @endcanany
                                         <button class="btn btn-sm btn-light btn-block ms-2 mt-0" onclick="history.back();">
                                             <span><span class="icon"><span class="feather-icon"><i data-feather="chevron-left"></i></span></span><span>Back To List</button>
                                     </div>
