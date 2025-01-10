@@ -21,7 +21,7 @@
       @endif
     </div>
   </div>
-  <div class="col-md-3">
+ <div class="col-md-3" style="display: none;">
     <label class="form-label">&nbsp;</label>
     <div class="form-group text-center">
 
