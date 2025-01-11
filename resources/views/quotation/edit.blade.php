@@ -1518,7 +1518,7 @@ function updateCustomMarginPrice() {
   }
 
   // Recalculate selling price after updating margin
-  updateCustomSellingPrice();
+  // updateCustomSellingPrice();
 }
 
 // Update Margin Percentage Calculation
@@ -1584,28 +1584,23 @@ function updateCustomBuyingPrice() {
   }
 }
 
-// Calculate the total of all dynamic custom fields (like packing, freight, etc.)
 function calculateTotalCustomFields() {
   let total = 0;
 
-  // Iterate over all dynamic fields (like packing, freight, etc.)
-  $('.dynamic-field').each(function () {
-    let value = parseFloat($(this).val().replace(/,/g, '')) || 0;
-    const fieldId = $(this).attr('id'); // Get the dynamic field ID
-
-    // Check if the value is different from the previous value
-    if (oldDynamicFieldValues[fieldId] !== value) {
-      // Subtract the old value and add the new value
-      total -= oldDynamicFieldValues[fieldId] || 0;
-      oldDynamicFieldValues[fieldId] = value; // Update the old value
-    }
-
-    // Add the updated value to the total
-    total += value;
+  // Iterate over all elements with the 'data-field-name' attribute
+  $('[data-field-name]').each(function () {
+    const value = parseFloat($(this).val().replace(/,/g, '')) || 0; // Parse the field value, remove commas if any
+    total += value; // Add the value to the total
+    console.log("Field Value:", value); // Log the value of each field for debugging
   });
 
+  console.log("Total Custom Fields Value:", total); // Log the final total value for debugging
   return total;
 }
+
+$(document).on('input', '[data-field-name]', function () {
+  updateCustomSellingPrice(); // Recalculate selling price when a dynamic field changes
+});
 
 // Update selling price by considering buying price, margin, and total custom field values
 function updateCustomSellingPrice() {
@@ -2143,7 +2138,7 @@ $(document).ready(function () {
 
 
       let buyingPrice = basePrice - discountAmount;
-      $('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
+      $('#buying_prices').val(buyingPrice.toFixed(2));
     } else {
 
       $('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');
@@ -2287,37 +2282,37 @@ document.addEventListener('DOMContentLoaded', function () {
   const customPaymentTermId = document.getElementById('customPaymentTermId');
   const quotationCustomFieldsContainer = document.getElementById('quotationCustomFieldsContainer');
   const marginPercentageInput = document.getElementById('marginPercentageCustom');
-  const marginPriceInput = document.getElementById('marginPriceCustom');
-  const sellingPriceInput = document.getElementById('sellingPriceCustom');
-  const buyingPriceInput = document.getElementById('buying_prices');
+  // const marginPriceInput = document.getElementById('marginPriceCustom');
+  // const sellingPriceInput = document.getElementById('sellingPriceCustom');
+  // const buyingPriceInput = document.getElementById('buying_prices');
   let customsArray = [];
 
   // Set initial hidden input values to match dropdown selections
   customPaymentTermId.value = customPriceBasis.value;
 
   // Function to update the selling price
-  function updateHistorySellingPrice() {
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (parseFloat(item.value) || 0);
-    }, 0);
-
-    const marginPrice = parseFloat(marginPriceInput.value) || 0;
-    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-    let calculatedSellingPrice;
-
-    if (marginPrice === 0) {
-      calculatedSellingPrice = totalCustomFieldsValue;
-    } else {
-      const basePrice = parseFloat(buyingPriceInput.value) || 0;
-      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-    }
-
-    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-  }
+  // function updateHistorySellingPrice() {
+  //   const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+  //     return sum + (parseFloat(item.value) || 0);
+  //   }, 0);
+  //
+  //   const marginPrice = parseFloat(marginPriceInput.value) || 0;
+  //   const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
+  //   let calculatedSellingPrice;
+  //
+  //   if (marginPrice === 0) {
+  //     calculatedSellingPrice = totalCustomFieldsValue;
+  //   } else {
+  //     const basePrice = parseFloat(buyingPriceInput.value) || 0;
+  //     calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
+  //   }
+  //
+  //   sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
+  // }
 
   // Attach event listeners to margin inputs
-  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
-  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
+  // marginPriceInput.addEventListener('input', updateHistorySellingPrice);
+  // marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
   function fetchAndDisplayCustomFields(priceBasis, paymentTermId, previousCustomFields = []) {
     if (priceBasis) {
       fetch('/get-custom-fields', {
@@ -2429,98 +2424,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
-  // Function to fetch and display custom fields
-  // function fetchAndDisplayCustomFields(priceBasis, paymentTermId) {
-  //   if (priceBasis) {
-  //     fetch('/get-custom-fields', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-  //       },
-  //       body: JSON.stringify({
-  //         price_basis: priceBasis,
-  //         payment_term_id: paymentTermId,
-  //       }),
-  //     })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       quotationCustomFieldsContainer.innerHTML = ''; // Clear any previous custom fields
-  //
-  //       if (data && data.length > 0) {
-  //         let rowContainer = document.createElement('div');
-  //         rowContainer.classList.add('row');
-  //
-  //         // Initialize customsArray with all fields and default values
-  //         data.forEach((field, index) => {
-  //           const fieldHTML = `
-  //           <div class="form-group col-md-6">
-  //           <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-  //           <input class="form-control dynamic-field" type="number" min="0" value="0"
-  //           name="${field.short_code}" data-field-name="${field.short_code}" />
-  //           </div>`;
-  //           rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
-  //
-  //           // Initialize customsArray with default value 0 for this field
-  //           const fieldIndex = customsArray.findIndex(
-  //             (item) => item.field_name === field.short_code
-  //           );
-  //           if (fieldIndex === -1) {
-  //             customsArray.push({ field_name: field.short_code, value: 0 });
-  //           }
-  //
-  //           if ((index + 1) % 2 === 0) {
-  //             quotationCustomFieldsContainer.appendChild(rowContainer);
-  //             rowContainer = document.createElement('div');
-  //             rowContainer.classList.add('row');
-  //           }
-  //         });
-  //
-  //         if (rowContainer.children.length > 0) {
-  //           quotationCustomFieldsContainer.appendChild(rowContainer);
-  //         }
-  //
-  //         // Add event listeners to dynamic fields for value updates
-  //         const dynamicFields = quotationCustomFieldsContainer.querySelectorAll('.dynamic-field');
-  //         dynamicFields.forEach((input) => {
-  //           input.addEventListener('input', function () {
-  //             const fieldName = this.getAttribute('data-field-name').trim();
-  //             const fieldValue = parseFloat(this.value) || 0;
-  //
-  //             const fieldIndex = customsArray.findIndex(
-  //               (item) => item.field_name === fieldName
-  //             );
-  //             if (fieldIndex !== -1) {
-  //               customsArray[fieldIndex].value = fieldValue;
-  //             } else {
-  //               customsArray.push({ field_name: fieldName, value: fieldValue });
-  //             }
-  //             const customPriceJSON = JSON.stringify(customsArray);
-  //             document.getElementById('customprice').value = customPriceJSON;
-  //             console.log('Custom Fields Array Updated:', customsArray);
-  //             updateHistorySellingPrice();
-  //           });
-  //         });
-  //
-  //         // Update the hidden field initially with the full customsArray
-  //         const customPriceJSON = JSON.stringify(customsArray);
-  //         document.getElementById('customprice').value = customPriceJSON;
-  //         console.log('Initial Custom Fields Array:', customsArray);
-  //
-  //       } else {
-  //         console.log('No custom fields found.');
-  //         quotationCustomFieldsContainer.innerHTML = 'No custom fields available.';
-  //       }
-  //
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching custom fields:', error);
-  //       quotationCustomFieldsContainer.innerHTML = 'Error loading custom fields.';
-  //     });
-  //   } else {
-  //     quotationCustomFieldsContainer.innerHTML = '';
-  //   }
-  // }
   const initialPriceBasis = customPriceBasis.value;
   const selectedOption = document.getElementById('customPriceBasis').options[document.getElementById('customPriceBasis').selectedIndex];
   const dataId = selectedOption.getAttribute('data-id');

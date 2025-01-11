@@ -985,8 +985,6 @@ $(document).ready(function() {
   document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
 
 
-
-
   const marginPriceInput = document.getElementById('marginPrice');
   const marginPercentageInput = document.getElementById('marginPercentage');
   const sellingPriceInput = document.getElementById('sellingPrice');
@@ -1504,7 +1502,7 @@ $(document).ready(function () {
 
 
       let buyingPrice = basePrice - discountAmount;
-      $('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
+      $('#buying_prices').val(buyingPrice.toFixed(2));
     } else {
 
       $('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');

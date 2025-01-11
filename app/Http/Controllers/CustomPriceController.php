@@ -255,23 +255,20 @@ class CustomPriceController extends Controller
         $quotationId = $request['quotation_id'];
         $productId = $request['product_id'];
 
-        $fields = [
-          'packing' => $request['packing'],
-          'road_transport_to_port' => $request['road_transport_to_port'],
-          'freight' => $request['freight'],
-          'insurance' => $request['insurance'],
-          'clearing' => $request['clearing'],
-          'boe' => $request['boe'],
-          'handling_and_local_transport' => $request['handling_and_local_transport'],
-          'customs' => $request['customs'],
-          'delivery_charge' => $request['delivery_charge'],
-          'mofaic' => $request['mofaic'],
-          'surcharges' => $request['surcharges'],
-        ];
+        // $fields = [
+        //   'packing' => $request['packing'],
+        //   'road_transport_to_port' => $request['road_transport_to_port'],
+        //   'freight' => $request['freight'],
+        //   'insurance' => $request['insurance'],
+        //   'clearing' => $request['clearing'],
+        //   'boe' => $request['boe'],
+        //   'handling_and_local_transport' => $request['handling_and_local_transport'],
+        //   'customs' => $request['customs'],
+        //   'delivery_charge' => $request['delivery_charge'],
+        //   'mofaic' => $request['mofaic'],
+        //   'surcharges' => $request['surcharges'],
+        // ];
 
-        // $nonZeroFields = array_filter($fields, function($value) {
-        //   return $value != 0;
-        // });
 
         $conditions = [
           'quotation_id' => $quotationId,
@@ -289,13 +286,21 @@ class CustomPriceController extends Controller
           'buying_price' => floatval(str_replace(',', '', $buyingPrices)),
           'buying_currency' => $buyingCurrency,
           'price_basis' => $priceBasis,
+          'packing' => $request['packing'],
+          'road_transport_to_port' => $request['road_transport_to_port'],
+          'freight' => $request['freight'],
+          'insurance' => $request['insurance'],
+          'clearing' => $request['clearing'],
+          'boe' => $request['boe'],
+          'handling_and_local_transport' => $request['handling_and_local_transport'],
+          'customs' => $request['customs'],
+          'delivery_charge' => $request['delivery_charge'],
+          'mofaic' => $request['mofaic'],
+          'surcharges' => $request['surcharges'],
         ];
 
-        // foreach ($nonZeroFields as $key => $value) {
-        //   $data[$key] = $value;
-        // }
-        $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $fields);
 
+        $quotationCustomPrice = QuotationCustomPrice::updateOrCreate($conditions, $data);
         $quotationCustomPrices = QuotationCustomPrice::where('quotation_id', $quotationId)->get();
         $quotation=Quotation::where('id', $quotationId)->first();
         $paymenterm=PaymentTerm::where('short_code',$quotation->price_basis)->first();
