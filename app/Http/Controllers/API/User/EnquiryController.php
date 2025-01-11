@@ -20,6 +20,7 @@ use App\Models\LeadStatus;
 use App\Models\LeadProduct;
 use App\Models\LeadShare;
 use App\Models\User;
+use App\Models\Area;
 
 class EnquiryController extends Controller {
 
@@ -253,17 +254,20 @@ class EnquiryController extends Controller {
                 ->with(['company:id,country_id,region_id,company', 'company.country:id,name', 'company.region:id,state', 'customer:id,fullname,phone'])
                 ->where('id', $id)
                 ->first();
+
         if ($enquiry->assigned_to == $request->user()->id) {
             $enquiry->editable = true;
         } else {
             $enquiry->editable = false;
         }
+
         if ($enquiry->lead_type == 'expo') {
             if (!empty($enquiry->expo_id)) {
                 $enquiry->lead_type = $enquiry->expo->name;
                 unset($enquiry->expo);
             }
         }
+
         if (!empty($enquiry->enquiry_mode)) {
             $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
         }
@@ -300,6 +304,53 @@ class EnquiryController extends Controller {
             $call->time = $meetingTimeInUserTimezone->format('h:i A');
         });
 
+        return successResponse(trans('api.success'), $enquiry);
+    }
+
+    public function edit(Request $request, $id) {
+        $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'lead_type', 'enquiry_mode', 'expo_id', 'details', 'enquiry_date', 'interested')
+                ->where('id', $id)
+                ->first();
+
+        if ($enquiry->lead_type == 'expo') {
+            if (!empty($enquiry->expo_id)) {
+                $enquiry->lead_type = $enquiry->expo->name;
+                unset($enquiry->expo);
+            }
+        }
+        if (!empty($enquiry->enquiry_mode)) {
+            $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
+        }
+
+        $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes,cm_lead_products.area_id,cm_lead_products.manager_id,cm_lead_products.assistant_id")
+                ->leftJoin('suppliers as s', 'lead_products.supplier_id', '=', 's.id')
+                ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
+                ->where('lead_products.lead_id', '=', $enquiry->id)
+                ->first();
+        
+        if ($enquiry->product) {
+            $enquiry->area = \App\Models\Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
+            $enquiry->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg', 'employees.division')
+                            ->join('employees', 'employees.user_id', 'users.id')
+                            ->where('users.id', $enquiry->product->manager_id)->first();
+            $enquiry->assistant = User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                            ->join('employees', 'employees.user_id', 'users.id')
+                            ->where('users.id', $enquiry->product->assistant_id)->first();
+        } else {
+            $enquiry->area = null;
+            $enquiry->manager = null;
+            $enquiry->assistant = null;
+        }
+
+        //Get latest history;
+        $lleadHistory = LeadHistory::where('lead_id', $enquiry->id)->orderBy('created_at', 'desc')->first();
+        if ($lleadHistory) {
+            $enquiry->priority = $lleadHistory->priority;
+        } else {
+            $enquiry->priority = 'low';
+        }
+        //can share?
+        $enquiry->can_share = (LeadShare::where('lead_id',$enquiry->id)->count() > 0) ? false : true;
         return successResponse(trans('api.success'), $enquiry);
     }
 
