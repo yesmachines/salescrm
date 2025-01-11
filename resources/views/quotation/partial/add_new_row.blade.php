@@ -6,7 +6,7 @@
       </select>
     </div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-3" style="display: none;">
     <label class="form-label">&nbsp;</label>
     <div class="form-group text-center">
       <a href="javascript:void(0);" id="add-new-product" class="mt-3 d-none" data-bs-toggle="modal" data-bs-target="#myModal"> <i class="fas fa-plus"></i> Create New Product</a>
