@@ -133,6 +133,7 @@ class EnquiryController extends Controller {
             'products.*.product_id' => 'present|required_unless:products.*.brand_id,null',
             'products.*.status_id' => 'required',
             'products.*.priority' => 'required',
+            'products.*.notes' => 'present|required_if:products.*.product_id,null|nullable',
             'products.*.manager_id' => 'present|nullable',
             'products.*.assign_type' => ['required', 'in:self,assist,share'],
             'products.*.assign_id' => 'present|required_if:products.*.assign_type,assist,share|nullable',
@@ -327,7 +328,7 @@ class EnquiryController extends Controller {
                 ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
                 ->where('lead_products.lead_id', '=', $enquiry->id)
                 ->first();
-        
+
         if ($enquiry->product) {
             $enquiry->area = \App\Models\Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
             $enquiry->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg', 'employees.division')
@@ -350,7 +351,7 @@ class EnquiryController extends Controller {
             $enquiry->priority = 'low';
         }
         //can share?
-        $enquiry->can_share = (LeadShare::where('lead_id',$enquiry->id)->count() > 0) ? false : true;
+        $enquiry->can_share = (LeadShare::where('lead_id', $enquiry->id)->count() > 0) ? false : true;
         return successResponse(trans('api.success'), $enquiry);
     }
 
@@ -359,6 +360,14 @@ class EnquiryController extends Controller {
         $rules = [
             'status_id' => 'required',
             'priority' => ['required', 'in:' . implode(',', $enquiryPs)],
+            'brand_id' => 'present|required_unless:product_id,null',
+            'product_id' => 'present|required_unless:brand_id,null',
+            'notes' => 'present|required_if:product_id,null|nullable',
+            'assign_type' => ['required', 'in:self,assist,share'],
+            'share_to' => 'required_if:assign_type,share',
+            'area_id' => 'present',
+            'manager_id' => 'present|required_unless:area_id,null',
+            'assistant_id' => 'required_if:assign_type,assist',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -367,13 +376,69 @@ class EnquiryController extends Controller {
             $errorMessage = $validator->messages();
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
+        
+        $enquiry = Lead::where('id', $id)->first();
+        if ($enquiry) {
+            $enquiry->status_id = $request->status_id;
+            $enquiry->details = $request->notes;
 
-        //set Comment
-        $historyMessage = "Enquiry is updated with status " . LeadStatus::find($request->status_id)->name;
-        LeadHistory::firstOrCreate(
-                ['lead_id' => $id, 'status_id' => $request->status_id, 'priority' => $request->priority],
-                ['comment' => $historyMessage, 'userid' => $request->user()->id]
-        );
+            if (!empty($request->brand_id) && !empty($request->product_id)) {
+                $pdetails = Product::select(
+                                \DB::raw("REPLACE(REPLACE(cm_products.title, '\\t', ''), '\\n', ' ') AS title"),
+                                's.brand'
+                        )
+                        ->leftJoin('suppliers as s', 'products.brand_id', '=', 's.id')
+                        ->where('products.id', '=', $request->product_id)
+                        ->first();
+                $enquiry->details .= ' | ' . $pdetails->title . ' | ' . $pdetails->brand;
+            }
+
+            $product = LeadProduct::where('lead_id', $id)->first();
+            if (empty($product)) {
+                $product = new LeadProduct();
+                $product->lead_id = $id;
+                $managerId = null;
+                $assistantId = null;
+            } else {
+                $managerId = $product->manager_id;
+                $assistantId = $product->assistant_id;
+            }
+            $product->product_id = $request->product_id;
+            $product->supplier_id = $request->brand_id;
+            $product->notes = $request->notes;
+            $product->area_id = $request->area_id;
+            $product->manager_id = $request->manager_id;
+            $product->assistant_id = $request->assistant_id;
+            $product->save();
+
+            //set Comment
+            $historyMessage = "Enquiry is updated with status " . LeadStatus::find($request->status_id)->name;
+            LeadHistory::firstOrCreate(
+                    ['lead_id' => $id, 'status_id' => $request->status_id, 'priority' => $request->priority],
+                    ['comment' => $historyMessage, 'userid' => $request->user()->id]
+            );
+
+            if ($request->assign_type == 'share') {
+                $enquiry->assigned_to = $request->share_to;
+                LeadShare::create(
+                        [
+                            'lead_id' => $enquiry->id,
+                            'shared_by' => $request->user()->id,
+                            'shared_to' => $request->share_to,
+                ]);
+                $this->notifyEnquiryShared($enquiry, $request->share_to, 'share');
+            }
+
+            $enquiry->save();
+
+            //if manager and assistant send notification
+            if (!empty($request->manager_id) && ($managerId != $request->manager_id)) {
+                $this->notifyEnquiryShared($enquiry, $request->manager_id, 'manager');
+            }
+            if (!empty($request->assistant_id) && ($assistantId != $request->assistant_id)) {
+                $this->notifyEnquiryShared($enquiry, $request->assistant_id, 'assist');
+            }
+        }
         return successResponse(trans('api.success'));
     }
 
