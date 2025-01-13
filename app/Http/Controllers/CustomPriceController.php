@@ -370,6 +370,7 @@ class CustomPriceController extends Controller
         ->where('item_id', $productId)
         ->first();
 
+
         if ($quotationItem) {
           $subTotal = $sellingPrice * $quotationItem->quantity;
           $discountAmount = $subTotal * ($quotationItem->discount / 100);
@@ -387,6 +388,16 @@ class CustomPriceController extends Controller
 
           $quotationItem->save();
         }
+
+        $quotationItems = QuotationItem::where('quotation_id', $quotationId)->get();
+        $totalAfterDiscountSum = $quotationItems->sum('total_after_discount');
+        $grossMarginSum = $quotationItems->sum('margin_price');
+
+        $quotation = Quotation::find($quotationId);
+        $quotation->total_amount = $totalAfterDiscountSum;
+        $quotation->gross_margin = $grossMarginSum;
+        $quotation->save();
+
 
         return response()->json(['success' => true]);
       }
