@@ -347,6 +347,7 @@ class CustomPriceController extends Controller
           }
 
           $quotationCharge = $quotationCharges->firstWhere('short_code', $chargeName);
+
           if ($quotationCharge) {
 
             $quotationCharge->amount = $chargeAmount;
@@ -389,15 +390,40 @@ class CustomPriceController extends Controller
           $quotationItem->save();
         }
 
+        $fieldShortCodeMap = [
+          'packing',
+          'road_transport_to_port',
+          'freight',
+          'insurance',
+          'clearing',
+          'boe',
+          'handling_and_local_transport',
+          'customs',
+          'delivery_charge',
+          'mofaic',
+          'surcharges',
+        ];
+        $unmatchedSum = 0;
+
+
+        foreach ($quotationChargesArray as $shortCode => $amount) {
+          if (!in_array($shortCode, $fieldShortCodeMap)) {
+            $unmatchedSum += $amount;
+          }
+        }
+
         $quotationItems = QuotationItem::where('quotation_id', $quotationId)->get();
         $totalAfterDiscountSum = $quotationItems->sum('total_after_discount');
         $grossMarginSum = $quotationItems->sum('margin_price');
-
+        if(  $unmatchedSum ){
+          $total=  $totalAfterDiscountSum+$unmatchedSum;
+        }else{
+          $total= $totalAfterDiscountSum;
+        }
         $quotation = Quotation::find($quotationId);
-        $quotation->total_amount = $totalAfterDiscountSum;
+        $quotation->total_amount = $total;
         $quotation->gross_margin = $grossMarginSum;
         $quotation->save();
-
 
         return response()->json(['success' => true]);
       }
