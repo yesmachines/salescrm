@@ -90,10 +90,22 @@ class EnquiryController extends Controller {
         return successResponse(trans('api.success'), $expo);
     }
 
+    public function dashboard(Request $request) {
+        $leadStatus = LeadStatus::where('status', 1)->get();
+        $leadToQualifyStatusIds = $leadStatus->where('is_qualify', 0)->pluck('id');
+        $leadQualifiedStatusIds = $leadStatus->where('is_qualify', 1)->pluck('id');
+
+        $data['to_qualify'] = Lead::where('assigned_to', $request->user()->id)->whereIn('status_id', $leadToQualifyStatusIds)->count();
+        $data['qualified'] = Lead::where('assigned_to', $request->user()->id)->whereIn('status_id', $leadQualifiedStatusIds)->count();
+        $data['sahred'] = LeadShare::where('shared_by', $request->user()->id)->count();
+        $data['sahred_to_me'] = LeadShare::where('shared_to', $request->user()->id)->count();
+        return successResponse(trans('api.success'), $data);
+    }
+
     public function index(Request $request) {
         $enquiryTypes = array_column(EnquirySource::cases(), 'value');
         $rules = [
-            'type' => ['required', 'in:' . implode(',', $enquiryTypes)],
+            'type' => ['required', 'in:to_qualify,qualified,sahred,sahred_to_me,' . implode(',', $enquiryTypes)],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -103,14 +115,41 @@ class EnquiryController extends Controller {
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
 
-        $enquirySql = Lead::select('id', 'company_id', 'status_id', 'details', 'enquiry_date')
+        $enquirySql = Lead::select('leads.id', 'leads.company_id', 'leads.status_id', 'leads.details', 'leads.enquiry_date')
                 ->with(['company:id,company', 'leadStatus:id,name'])
-                ->where('assigned_to', $request->user()->id)
-                ->where('lead_type', $request->type)
-                ->orderBy('enquiry_date', 'DESC');
+                ->orderBy('leads.enquiry_date', 'DESC');
 
-        if (!empty($request->expo_id)) {
-            $enquirySql->where('expo_id', $request->expo_id);
+        if (in_array($request->type, $enquiryTypes)) {
+            $enquirySql->where('leads.assigned_to', $request->user()->id)
+                    ->where('leads.lead_type', $request->type);
+            if (!empty($request->expo_id)) {
+                $enquirySql->where('leads.expo_id', $request->expo_id);
+            }
+        } else {
+            switch ($request->type) {
+                case 'to_qualify':
+                    $leadQualifiedStatus = LeadStatus::where('status', 1)
+                            ->where('is_qualify', 0)
+                            ->pluck('id');
+                    $enquirySql->where('leads.assigned_to', $request->user()->id)
+                            ->whereIn('leads.status_id', $leadQualifiedStatus);
+                    break;
+                case 'qualified':
+                    $leadQualifiedStatus = LeadStatus::where('status', 1)
+                            ->where('is_qualify', 1)
+                            ->pluck('id');
+                    $enquirySql->where('leads.assigned_to', $request->user()->id)
+                            ->whereIn('leads.status_id', $leadQualifiedStatus);
+                    break;
+                case 'sahred':
+                    $enquirySql->join('lead_shares', 'lead_shares.lead_id', 'leads.id')
+                            ->where('lead_shares.shared_by', $request->user()->id);
+                    break;
+                case 'sahred_to_me':
+                    $enquirySql->join('lead_shares', 'lead_shares.lead_id', 'leads.id')
+                            ->where('lead_shares.shared_to', $request->user()->id);
+                    break;
+            }
         }
 
         $enquiry = new PaginateResource($enquirySql->paginate($this->paginateNumber));
@@ -376,7 +415,7 @@ class EnquiryController extends Controller {
             $errorMessage = $validator->messages();
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
-        
+
         $enquiry = Lead::where('id', $id)->first();
         if ($enquiry) {
             $enquiry->status_id = $request->status_id;

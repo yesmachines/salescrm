@@ -77,6 +77,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('get-companies', 'EnquiryController@getCompanies');
     Route::get('get-customers/{company_id}', 'EnquiryController@getCustomers');
     Route::get('get-expo', 'EnquiryController@getExpo');
+    Route::get('enquiry-dashboard', 'EnquiryController@dashboard');
     Route::post('create-enquiry', 'EnquiryController@store');
     Route::get('enquiries', 'EnquiryController@index');
     Route::get('enquiries/{id}', 'EnquiryController@show');
