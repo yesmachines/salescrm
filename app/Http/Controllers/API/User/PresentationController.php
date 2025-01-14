@@ -188,8 +188,9 @@ class PresentationController extends Controller {
                     ->where('pc.pdf_type', 'brochure')
                     ->orderBy('pc.priority', 'asc')
                     ->get();
-            $data['product_manager'] = $db->table('teams')->select('name', 'designation', 'image_url')
-                            ->where('id', $data['product']->manager_id)->first();
+            $data['product_manager'] = $db->table('teams')->select('users.name', 'teams.designation', 'teams.image_url')
+                            ->join('users', 'users.id', 'teams.user_id')
+                            ->where('teams.id', $data['product']->manager_id)->first();
             $data['product_manager']->email = $pm_email;
             $data['product_manager']->mobile = $pm_mobile;
             return successResponse(trans('api.success'), $data);
