@@ -34,7 +34,8 @@ class Order extends Model
         'material_status',
         'material_details',
         'created_by',
-        'status'
+        'status',
+        'manager_approval'
     ];
 
     public function setOsDateAttribute($value)

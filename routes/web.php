@@ -90,7 +90,7 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::post('export-mtmg', [MeetingController::class, 'exportMtmg'])->name('meetings.export.mtmg');
     Route::get('pages/{slug}', [PageController::class, 'edit'])->name('pages.edit');
     Route::patch('pages/{id}', [PageController::class, 'update'])->name('pages.update');
-    
+
     Route::resource('purchaserequisition', PurchaseRequisitionController::class);
     Route::get('purchaserequisition/createnew/{id}', [PurchaseRequisitionController::class, 'createNewPR'])->name('purchaserequisition.createnew');
     Route::get('purchaserequisition/createstock/{id}', [PurchaseRequisitionController::class, 'stockPR'])->name('purchaserequisition.createstock');
@@ -213,6 +213,10 @@ Route::group(['middleware' => ['auth', 'permission']], function () {
     Route::get('quotations/custom/{id}', [CustomPriceController::class, 'downloadCustomPrice'])->name('quotation.customDownload');
     Route::get('/get-item-details/{itemId}/quotation/{quotationId}', [CustomPriceController::class, 'getItemDetails'])->name('custom-item-edit');
     Route::post('/quotation/delete-charge', [CustomPriceController::class, 'deleteQuotationCharge'])->name('delete-quotation-charge');
+
+    Route::post('/orders/{order}/manager-approval', [OrderController::class, 'managerApproval'])->name('orders.manager-approval');
+
+
 
 
 });

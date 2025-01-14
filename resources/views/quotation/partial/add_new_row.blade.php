@@ -944,17 +944,12 @@ function saveAdditionalFieldsHandler(isValid) {
 }
 
 function resetModalValues() {
-  $('#sellingPriceHistory').val('');
-  $('#marginPercentageHistory').val('');
-  $('#quoteCurrencyHistory').val('');
-  $('#marginPriceHistory').val('');
-  $('input[name="product_ids"]').val('');
-  $('#priceBasis').val('');
+  $('#additionalFieldsModal input[type="text"]').val('');
 }
 
 function updateMarginPrice() {
-  var sellingPriceStr = $('#sellingPrice').val(); // Get the value using jQuery
-  var marginPercentageStr = $('#marginPercentage').val(); // Get the value using jQuery
+  var sellingPriceStr = $('#sellingPrice').val();
+  var marginPercentageStr = $('#marginPercentage').val(); 
 
   var basePrice = parseFloat(sellingPriceStr.replace(/,/g, ''));
   var marginPercentage = parseFloat(marginPercentageStr.replace(/,/g, ''));
