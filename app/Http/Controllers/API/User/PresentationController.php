@@ -116,11 +116,11 @@ class PresentationController extends Controller {
             $brands->where('p.brand_id', $brand_id);
         }
         if (!empty($request->search_text)) {
-             $brands->where(function ($qry) use ($request) {
-                            $qry->where('p.modelno', 'like', '%' . $request->search_text . '%');
-                            $qry->orWhere('p.part_number', 'like', '%' . $request->search_text . '%');
-                            $qry->orWhere('p.title', 'like', '%' . $request->search_text . '%');
-                        });
+            $brands->where(function ($qry) use ($request) {
+                $qry->where('p.modelno', 'like', '%' . $request->search_text . '%');
+                $qry->orWhere('p.part_number', 'like', '%' . $request->search_text . '%');
+                $qry->orWhere('p.title', 'like', '%' . $request->search_text . '%');
+            });
             //$brands->where('p.name', 'like', '%' . $request->search_text . '%');
         }
         return successResponse(trans('api.success'), new PaginateResource($brands->paginate($this->paginateNumber)));
@@ -132,16 +132,22 @@ class PresentationController extends Controller {
                 $db = \DB::connection('yesclean');
                 $image_url = $this->yc_url;
                 $share_url = env('YC_SHARE_URL', 'https://www.yesclean.ae/');
+                $pm_email = "sales@yesclean.ae";
+                $pm_mobile = "+971 56 398 6757";
                 break;
             case 'ST-RF':
                 $db = \DB::connection('rhinofloor');
                 $image_url = $this->rf_url;
                 $share_url = env('RF_SHARE_URL', 'https://www.rhinofloor.ae/');
+                $pm_email = "sales@rhinofloor.ae";
+                $pm_mobile = "+971 65 26 43 82";
                 break;
             default:
                 $db = \DB::connection('yesmachine');
                 $image_url = $this->ym_url;
                 $share_url = env('YM_SHARE_URL', 'https://yeswebsite.bigleap.tech/');
+                $pm_email = "sales@yesmachinery.ae";
+                $pm_mobile = "+971 54 791 8858";
         }
         $data['product'] = $db->table('products as p')
                 ->leftJoin('categories as c', 'p.category_id', '=', 'c.id')
@@ -152,10 +158,11 @@ class PresentationController extends Controller {
                         'p.subtitle',
                         'p.slug',
                         'p.description',
+                        'p.manager_id',
                         's.brand',
                         'c.name as category',
                         'co.name as country',
-                        'co.flag_url as country_image'
+                        'co.flag_url as country_image',
                 )
                 ->where('p.id', '=', $id)
                 ->first();
@@ -181,6 +188,10 @@ class PresentationController extends Controller {
                     ->where('pc.pdf_type', 'brochure')
                     ->orderBy('pc.priority', 'asc')
                     ->get();
+            $data['product_manager'] = $db->table('teams')->select('name', 'designation', 'image_url')
+                            ->where('id', $data['product']->manager_id)->first();
+            $data['product_manager']->email = $pm_email;
+            $data['product_manager']->mobile = $pm_mobile;
             return successResponse(trans('api.success'), $data);
         }
         return errorResponse(trans('api.no_data'));

@@ -319,7 +319,7 @@ class EnquiryController extends Controller {
                 ->first();
 
         if (!empty($enquiry->product)) {
-            $enquiry->area = \App\Models\Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
+            $enquiry->area = Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
             $enquiry->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg')
                             ->join('employees', 'employees.user_id', 'users.id')
                             ->where('users.id', $enquiry->product->manager_id)->first();
@@ -369,7 +369,7 @@ class EnquiryController extends Controller {
                 ->first();
 
         if ($enquiry->product) {
-            $enquiry->area = \App\Models\Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
+            $enquiry->area = Area::select('id', 'name')->where('id', $enquiry->product->area_id)->first();
             $enquiry->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg', 'employees.division')
                             ->join('employees', 'employees.user_id', 'users.id')
                             ->where('users.id', $enquiry->product->manager_id)->first();
