@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->primary('id');
             $table->uuid('meeting_id')->nullable();
             $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
-            $table->sring('file_name')->nullable();
+            $table->string('file_name')->nullable();
             $table->char('file_type', 20)->default('image');
             $table->timestamps();
         });
