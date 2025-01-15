@@ -73,7 +73,7 @@ class QuotationItemService
             'title' => $charge,
             'amount' => $chargeAmount[$index],
             'short_code' => $shortcodeTitle,
-            'quote_visible' => $quoteVisible[$index],
+            'quote_visible' => 1,
           ]);
 
           $existingQuotationCharge = QuotationField::where('title', $charge)->first();
