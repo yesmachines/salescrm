@@ -29,8 +29,8 @@
 
 <div class="title title-xs title-wth-divider text-primary text-uppercase my-2" style="padding-top:21px;padding-bottom: 20px;"><span>Additional Charges</span></div>
 
-  <div id="quotationChargesContainer">
 
+  <div id="quotationChargesContainer">
     <div class="row" id="row-0">
       <input type="hidden" name="row_charge_ids[]">
       <div class="col-sm-1">
@@ -38,7 +38,6 @@
       </div>
       <div class="col-sm-3" style="text-align-last: right;">
 
-        Include in Quotation(✔)
       </div>
 
       <div class="col-sm-4">
@@ -57,6 +56,7 @@
         </button>
       </div>
     </div>
+
   </div>
   <div class="row">
     <div class="col-sm-6">

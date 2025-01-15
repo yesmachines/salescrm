@@ -80,7 +80,7 @@
 
 <div class="title title-xs title-wth-divider text-primary text-uppercase my-2" style="padding-top:21px;"><span>Additional Charges</span></div>
 <div class="text-primary" style="padding-top:21px;margin-bottom: 20px;">
-  If you check the checkbox, this charge will be shown in the quote.</div>
+</div>
   <div id="quotationChargesContainer">
     <div class="row">
       <div class="col-sm-11">
@@ -528,7 +528,7 @@
       $('#sellingPrice, #marginPrice').on('input', function() {
         updateMarginPercentage();
       });
-      
+
       // FOR ADD NEW PRICE OF CUSTOM PRODUCT
       document.getElementById('sellingPriceHistory').addEventListener('input', updateMarginPriceHistory);
       document.getElementById('marginPercentageHistory').addEventListener('input', updateMarginPriceHistory);

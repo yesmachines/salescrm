@@ -59,7 +59,8 @@ class QuotationItemService
     if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
       $chargeType = $userData['charge_name'];
       $chargeAmount = $userData['charge_amount'];
-      $quoteVisible = $userData['is_visible'];
+      $quoteVisible = $userData['is_visible'] ?? null;
+
     }
 
     if (isset($chargeType)) {

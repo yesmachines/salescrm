@@ -1354,8 +1354,9 @@ function updateQuotationCharges(customPriceArray) {
         // For manual charge case, change col-sm-3 to col-sm-4 (removes checkbox)
         if (!isCustomPrice) {
           rowContainer.innerHTML = `
-          <div class="col-sm-4">
-          </div>
+          <div class="col-sm-4" style="text-align: right;">
+         <p>Show in Quote (✔ )</p>
+         </div>
           ${checkboxHTML}
           <div class="col-sm-4">
             <div class="form-group">
@@ -1372,8 +1373,9 @@ function updateQuotationCharges(customPriceArray) {
         } else {
           // For custom price case, add the checkbox and keep the original layout
           rowContainer.innerHTML = `
-          <div class="col-sm-3">
-          </div>
+          <div class="col-sm-3" style="text-align: right;">
+         <p>Show in Quote (✔ )</p>
+         </div>
           ${checkboxHTML}
           <div class="col-sm-4">
             <div class="form-group">

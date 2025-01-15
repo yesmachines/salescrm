@@ -949,7 +949,7 @@ function resetModalValues() {
 
 function updateMarginPrice() {
   var sellingPriceStr = $('#sellingPrice').val();
-  var marginPercentageStr = $('#marginPercentage').val(); 
+  var marginPercentageStr = $('#marginPercentage').val();
 
   var basePrice = parseFloat(sellingPriceStr.replace(/,/g, ''));
   var marginPercentage = parseFloat(marginPercentageStr.replace(/,/g, ''));
@@ -1396,7 +1396,12 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     }
 
     rowContainer.innerHTML = `
-      <div class="col-sm-3"></div>
+
+
+     <div class="col-sm-3" style="text-align: right;">
+    <p>Show in Quote (✔ )</p>
+    </div>
+
       <div class="col-sm-1">
         <div class="form-check" style="display: flex; justify-content: flex-end;">
           <!-- Hidden input for unchecked state -->
