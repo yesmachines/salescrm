@@ -1092,8 +1092,25 @@ $(document).ready(function() {
 
   $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
     updateHistoryBuyingPrice();
+      updateHistorySellingPrice();
   });
 
+  function updateHistorySellingPrice() {
+
+    let marginPrice = $('#marginPriceHistory').val();
+    let buyingPriceInput = $('#buying_prices').val();
+
+    let marginPrices = parseFloat(marginPrice.replace(/,/g, '')) || 0;
+    let buyingPrice = parseFloat(buyingPriceInput.replace(/,/g, '')) || 0;
+
+    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
+
+    let calculatedSellingPrice = buyingPrice + totalCustomFieldsValue + marginPrices;
+
+    $('#sellingPriceHistory').val(calculatedSellingPrice.toFixed(2));
+  }
 
 
   function updateBuyingPriceWithAmount() {
@@ -1249,39 +1266,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const priceBasisElement = document.getElementById('historyPriceBasis');
   const paymentTermIdElement = document.getElementById('historyPaymentTermId');
   const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
-  const marginPercentageInput = document.getElementById('marginPercentageHistory');
-  const marginPriceInput = document.getElementById('marginPriceHistory');
-  const sellingPriceInput = document.getElementById('sellingPriceHistory');
-  const buyingPriceInput = document.getElementById('buying_prices');
-
-
-
-
-  function updateHistorySellingPrice() {
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (parseFloat(item.value) || 0);
-    }, 0);
-
-    const marginPrice = parseFloat(marginPriceInput.value) || 0;
-    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-    let calculatedSellingPrice;
-    if (marginPrice === 0) {
-      calculatedSellingPrice = totalCustomFieldsValue;
-
-    } else {
-      const basePrice = parseFloat(buyingPriceInput.value) || 0;
-      console.log(basePrice);
-      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-
-    }
-
-    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-
-  }
-
-  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
-
-  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
   priceBasisElement.addEventListener('change', function () {
 
@@ -1507,7 +1491,7 @@ $(document).ready(function () {
 
 
       let buyingPrice = basePrice - discountAmount;
-      $('#buying_prices').val(numberWithCommas(buyingPrice.toFixed(2)));
+      $('#buying_prices').val(buyingPrice.toFixed(2));
     } else {
 
       $('#buying_purchase_discount, #buying_purchase_discount_amount, #buying_prices').val('');

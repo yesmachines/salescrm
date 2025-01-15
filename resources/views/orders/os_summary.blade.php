@@ -23,9 +23,14 @@
 <table>
     <tbody>
         <tr>
-            <td align="center" colspan="2">
-                <h2>ORDER SUMMARY </h2>
-            </td>
+          <td align="center" colspan="2">
+            <h2>ORDER SUMMARY  </h2>
+            @if ($orderDetails->manager_approval == 1)
+            <h4 style="color: green;">(Approved)</h4>
+            @else
+            <h4 style="color: red;">(Not Approved)</h4>
+            @endif
+          </td>
         </tr>
         <tr>
             <td width="50%">

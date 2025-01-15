@@ -17,7 +17,7 @@ Project:	Jampack
 	++Border++
 	++Colors++
 	++Shadow++
-	++Font Size++	
+	++Font Size++
 	++Font Weight++
 	++Text Case++
 	++Letter Spacing++
@@ -70,7 +70,7 @@ Project:	Jampack
 	++Apex Chart++
 	++charts++
 	++Nestable++
-	++Treeview++	
+	++Treeview++
 	++Modals++
 	++Close++
 	++Sweet-alert++
@@ -78,7 +78,7 @@ Project:	Jampack
 	++Toast++
 	++Bootstrap Notify++
 	++Tooltop++
-	++Images++  
+	++Images++
 	++Icons++
     ++Carousel++
 	++Twitter slider++
@@ -119,7 +119,7 @@ Project:	Jampack
 	++Authantication Pages++
 	++Fixed Footer++
 
-++++ Componets Import ++++	
+++++ Componets Import ++++
 -------------------------------------------------------------------*/
 /****************************/
 /** Imports **/
@@ -97463,6 +97463,9 @@ div.hopscotch-bubble .hopscotch-bubble-container .hopscotch-actions .emailapp-wr
 
 .lightOrange {
   background-color: #ffc1079e;
+}
+.lightcyan {
+   background-color: #D5EEF3;
 }
 
 .pageLoader {

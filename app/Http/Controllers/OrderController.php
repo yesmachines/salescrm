@@ -20,6 +20,7 @@ use App\Models\OrderPayment;
 use App\Models\OrderCharge;
 use App\Models\OrderServiceRequest;
 use App\Models\Quotation;
+use App\Models\Order;
 use App\Models\QuotationCharge;
 use App\Models\QuotationOptionalItem;
 use App\Models\SalesCommission;
@@ -846,4 +847,17 @@ class OrderController extends Controller
     return redirect()->back()
       ->with('success', 'Order deleted successfully');
   }
+  public function managerApproval(Request $request, $orderId)
+{
+
+    $order = Order::findOrFail($orderId);
+
+    $order->manager_approval = $request->status;
+    $order->status = 'open';
+    $order->approved_by = auth()->id();
+    $order->save();
+
+    return response()->json(['message' => 'Order status updated successfully!']);
+}
+
 }

@@ -244,6 +244,7 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
     row.find('.margin-amount-row').val(quoteMargin);
 
     labelnewmargin.html(quoteMargin);
+      calculateOverallTotal();
   });
 
   $(document).on('input change', '.discount', function(e) {
@@ -1376,7 +1377,6 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
       </div>
     ` : '';
 
-    // Only show the delete button for manually entered rows (not custom)
     const deleteButtonHTML = !isCustomCharge ? `
       <div class="col-sm-1">
         <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
@@ -1385,13 +1385,14 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
       </div>
     ` : '';
 
-    // If it's a manual charge (not from customPriceArray), add it to the manualChargesTotal
     if (!isCustomCharge) {
       manualChargesTotal += parseFloat(value) || 0;
     }
 
     rowContainer.innerHTML = `
-      <div class="col-sm-3"></div>
+    <div class="col-sm-3" style="text-align: right;">
+   <p>Show in Quote (✔ )</p>
+   </div>
       <div class="col-sm-1">
         <div class="form-check" style="display: flex; justify-content: flex-end;">
           <!-- Hidden input for unchecked state -->

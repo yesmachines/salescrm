@@ -1017,21 +1017,21 @@
           <div class="row">
             <!-- Price Basis Section -->
             <div class="col-md-4">
-    <div class="form-group">
-      <label class="form-label">Price Basis<span class="text-danger">*</span></label>
-      <select class="form-control" name="payment_term" id="customPriceBasis" readonly>
-        <option value="" disabled selected>-- Select Price Basis --</option>
-        @foreach($paymentTerms as $paymentTerm)
-          <option value="{{ $paymentTerm->short_code }}"
-                  data-id="{{ $paymentTerm->id }}"
-                  {{ $paymentTerm->short_code == $quotation->price_basis ? 'selected' : '' }}>
-            {{ $paymentTerm->title }}
-          </option>
-        @endforeach
-      </select>
-      <input type="hidden" name="payment_term_id" id="customPaymentTermId" value="{{ $quotation->price_basis ? $paymentTerm->id : '' }}" />
-    </div>
-  </div>
+              <div class="form-group">
+                <label class="form-label">Price Basis<span class="text-danger">*</span></label>
+                <select class="form-control" name="payment_term" id="customPriceBasis" readonly>
+                  <option value="" disabled selected>-- Select Price Basis --</option>
+                  @foreach($paymentTerms as $paymentTerm)
+                  <option value="{{ $paymentTerm->short_code }}"
+                    data-id="{{ $paymentTerm->id }}"
+                    {{ $paymentTerm->short_code == $quotation->price_basis ? 'selected' : '' }}>
+                    {{ $paymentTerm->title }}
+                  </option>
+                  @endforeach
+                </select>
+                <input type="hidden" name="payment_term_id" id="customPaymentTermId" value="{{ $quotation->price_basis ? $paymentTerm->id : '' }}" />
+              </div>
+            </div>
 
           </div>
 
@@ -1740,9 +1740,26 @@ $('#gross_price, #purchase_discount').on('input', function() {
 
 $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
   updateHistoryBuyingPrice();
+  updateHistorySellingPrice();
 });
 
 
+function updateHistorySellingPrice() {
+
+  let marginPrice = $('#marginPriceHistory').val();
+  let buyingPriceInput = $('#buying_prices').val();
+
+  let marginPrices = parseFloat(marginPrice.replace(/,/g, '')) || 0;
+  let buyingPrice = parseFloat(buyingPriceInput.replace(/,/g, '')) || 0;
+
+  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+    return sum + (parseFloat(item.value) || 0);
+  }, 0);
+
+  let calculatedSellingPrice = buyingPrice + totalCustomFieldsValue + marginPrices;
+
+  $('#sellingPriceHistory').val(calculatedSellingPrice.toFixed(2));
+}
 
 function updateBuyingPriceWithAmount() {
   let gross_price = $('#gross_price').val();
@@ -1866,39 +1883,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const priceBasisElement = document.getElementById('historyPriceBasis');
   const paymentTermIdElement = document.getElementById('historyPaymentTermId');
   const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
-  const marginPercentageInput = document.getElementById('marginPercentageHistory');
-  const marginPriceInput = document.getElementById('marginPriceHistory');
-  const sellingPriceInput = document.getElementById('sellingPriceHistory');
-  const buyingPriceInput = document.getElementById('buying_prices');
 
-
-
-
-  function updateHistorySellingPrice() {
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (parseFloat(item.value) || 0);
-    }, 0);
-
-    const marginPrice = parseFloat(marginPriceInput.value) || 0;
-    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-    let calculatedSellingPrice;
-    if (marginPrice === 0) {
-      calculatedSellingPrice = totalCustomFieldsValue;
-
-    } else {
-      const basePrice = parseFloat(buyingPriceInput.value) || 0;
-      console.log(basePrice);
-      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-
-    }
-
-    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-
-  }
-
-  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
-
-  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
   priceBasisElement.addEventListener('change', function () {
     const priceBasis = this.value;
@@ -1960,8 +1945,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
               customsArray.push({ field_name: fieldName, value: fieldValue });
             }
-
-            console.log("Custom Fields Array Updated:", customsArray);
 
             updateHistorySellingPrice();
           });

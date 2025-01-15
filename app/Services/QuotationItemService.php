@@ -59,7 +59,8 @@ class QuotationItemService
     if (isset($userData['charge_name']) && isset($userData['charge_amount'])) {
       $chargeType = $userData['charge_name'];
       $chargeAmount = $userData['charge_amount'];
-      $quoteVisible = $userData['is_visible'];
+      $quoteVisible = $userData['is_visible'] ?? null;
+
     }
 
     if (isset($chargeType)) {
@@ -73,7 +74,7 @@ class QuotationItemService
             'title' => $charge,
             'amount' => $chargeAmount[$index],
             'short_code' => $shortcodeTitle,
-            'quote_visible' => $quoteVisible[$index],
+            'quote_visible' => 1,
           ]);
 
           $existingQuotationCharge = QuotationField::where('title', $charge)->first();
