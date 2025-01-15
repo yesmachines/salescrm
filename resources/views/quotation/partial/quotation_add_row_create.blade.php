@@ -637,7 +637,10 @@
     var totalAmount = parseFloat($('input[name="total_value"]').val()) || 0;
     var newTotalAmount = totalAmount - chargeAmount;
     $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
+
     $('#row-' + rowId).remove();
+      calculateOverallTotal();
+
   }
 
 

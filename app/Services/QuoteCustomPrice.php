@@ -173,17 +173,9 @@ class QuoteCustomPrice
       ];
 
 
-      // $buyingPriceLatest = BuyingPrice::where('product_id', $itemIds[$index])
-      // ->orderBy('created_at', 'desc')
-      // ->first();
-      //
-      // if ($buyingPriceLatest) {
-      //   $values['gross_price'] = $buyingPriceLatest->gross_price;
-      //   $values['discount'] = $buyingPriceLatest->discount;
-      //   $values['discount_amount'] = $buyingPriceLatest->discount_amount;
-      //   $values['buying_price'] = $buyingPriceLatest->buying_price;
-      //   $values['buying_currency'] = $buyingPriceLatest->buying_currency;
-      // }
+      $buyingPriceLatest = BuyingPrice::where('product_id', $itemIds[$index])
+      ->orderBy('created_at', 'desc')
+      ->first();
 
       QuotationCustomPrice::updateOrCreate($attributes, $values);
     }
@@ -196,7 +188,6 @@ class QuoteCustomPrice
 
 
       $productId = $row['product_id'];
-      // $buyingPriceLatest = BuyingPrice::where('product_id', $productId)->orderBy('created_at', 'desc')->first();
 
       foreach ($row as $key => $value) {
         if (in_array($key, ['id', 'product_id']) || is_null($value)) {
@@ -214,11 +205,20 @@ class QuoteCustomPrice
         ];
 
 
-        // if ($buyingPriceLatest) {
-        //   $values['gross_price'] = $row['gross_price'] ?? $buyingPriceLatest->gross_price;
-        //   $values['discount'] = $row['discount'] ?? $buyingPriceLatest->discount;
-        //   $values['discount_amount'] = $row['discount_amount'] ?? $buyingPriceLatest->discount_amount;
-        // }
+        $existingRecord = QuotationCustomPrice::where($attributes)->first();
+
+     if ($buyingPriceLatest && $existingRecord) {
+
+         $values['gross_price'] = is_null($existingRecord->gross_price)
+             ? ($row['gross_price'] ?? $buyingPriceLatest->gross_price)
+             : $existingRecord->gross_price;
+         $values['discount'] = is_null($existingRecord->discount)
+             ? ($row['discount'] ?? $buyingPriceLatest->discount)
+             : $existingRecord->discount;
+         $values['discount_amount'] = is_null($existingRecord->discount_amount)
+             ? ($row['discount_amount'] ?? $buyingPriceLatest->discount_amount)
+             : $existingRecord->discount_amount;
+     }
 
         QuotationCustomPrice::updateOrCreate($attributes, $values);
       }

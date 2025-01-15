@@ -1039,10 +1039,8 @@ $(document).ready(function() {
       marginPriceHistoryInput.value = marginPrice.toFixed(2);
       sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
     }
+    updateHistorySellingPrice();
   }
-
-
-
 
   function updateMarginPrice() {
     const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
@@ -1087,9 +1085,25 @@ $(document).ready(function() {
 
   $('#buying_gross_price, #buying_purchase_discount').on('input', function() {
     updateHistoryBuyingPrice();
+    updateHistorySellingPrice();
   });
 
+  function updateHistorySellingPrice() {
 
+    let marginPrice = $('#marginPriceHistory').val();
+    let buyingPriceInput = $('#buying_prices').val();
+
+    let marginPrices = parseFloat(marginPrice.replace(/,/g, '')) || 0;
+    let buyingPrice = parseFloat(buyingPriceInput.replace(/,/g, '')) || 0;
+
+    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
+      return sum + (parseFloat(item.value) || 0);
+    }, 0);
+
+    let calculatedSellingPrice = buyingPrice + totalCustomFieldsValue + marginPrices;
+
+    $('#sellingPriceHistory').val(calculatedSellingPrice.toFixed(2));
+  }
 
   function updateBuyingPriceWithAmount() {
     let gross_price = $('#gross_price').val();
@@ -1134,6 +1148,7 @@ $(document).ready(function() {
     }
   }
   function updateHistoryBuyingPrice() {
+
     let gross_price = $('#buying_gross_price').val(); // Get the value using jQuery
     let purchase_discount = $('#buying_purchase_discount').val(); // Get the value using jQuery
 
@@ -1150,10 +1165,12 @@ $(document).ready(function() {
       let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
 
       buyingPriceInput.val(formattedMarginPrice);
+        updateHistorySellingPrice();
     } else if (!isNaN(basePrice)) {
       let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
 
       buyingPriceInput.val(formattedMarginPrice);
+        updateHistorySellingPrice();
     }
   }
 
@@ -1176,10 +1193,12 @@ $(document).ready(function() {
       let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
 
       buyingPriceInput.val(formattedMarginPrice);
+
     } else if (!isNaN(basePrice)) {
       let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
 
       buyingPriceInput.val(formattedMarginPrice);
+
     }
   }
 
@@ -1244,39 +1263,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const priceBasisElement = document.getElementById('historyPriceBasis');
   const paymentTermIdElement = document.getElementById('historyPaymentTermId');
   const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
-  const marginPercentageInput = document.getElementById('marginPercentageHistory');
-  const marginPriceInput = document.getElementById('marginPriceHistory');
-  const sellingPriceInput = document.getElementById('sellingPriceHistory');
-  const buyingPriceInput = document.getElementById('buying_prices');
-
-
-
-
-  function updateHistorySellingPrice() {
-    const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-      return sum + (parseFloat(item.value) || 0);
-    }, 0);
-
-    const marginPrice = parseFloat(marginPriceInput.value) || 0;
-    const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-    let calculatedSellingPrice;
-    if (marginPrice === 0) {
-      calculatedSellingPrice = totalCustomFieldsValue;
-
-    } else {
-      const basePrice = parseFloat(buyingPriceInput.value) || 0;
-      console.log(basePrice);
-      calculatedSellingPrice = basePrice + totalCustomFieldsValue + marginPrice;
-
-    }
-
-    sellingPriceInput.value = calculatedSellingPrice.toFixed(2);
-
-  }
-
-  marginPriceInput.addEventListener('input', updateHistorySellingPrice);
-
-  marginPercentageInput.addEventListener('input', updateHistorySellingPrice);
 
   priceBasisElement.addEventListener('change', function () {
 

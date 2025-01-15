@@ -664,7 +664,7 @@ function refreshProductHistory(productid) {
         if (history.modelno) title += ' / ' + history.modelno + '';
         if (history.part_number) title += ' / ' + history.part_number + '';
 
-        productHistoryHtml += '<tr>' +
+        productHistoryHtml += '<tr' + (history.is_custom == 1 ? ' style="background-color: #f0f8ff; font-weight: bold;"' : '') + '>' +
         '<td>' +
         '<div class="form-check">' +
         '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount + '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '">' +
@@ -1304,7 +1304,8 @@ function updateQuotationCharges(customPriceArray) {
 
       charges.forEach(charge => {
         // Map database charge name with its visibility status
-        const chargeNameInDatabase = charge.charge_name.toLowerCase(); // Get the charge name from the database
+        const chargeNameInDatabase = charge.charge_name.toLowerCase().replace(/ /g, '_');
+
         quoteVisible[chargeNameInDatabase] = charge.quote_visible; // Use the raw charge name (with underscores)
       });
 
