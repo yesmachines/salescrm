@@ -70,6 +70,6 @@ class User extends Authenticatable
     
     public function getPimgAttribute($value)
     {
-        return ($value != NULL) ? asset('storage/'  .  $value) : NULL;
+        return ($value != NULL) ? cdn($value) : NULL;
     }
 }

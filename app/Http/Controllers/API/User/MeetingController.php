@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Validator;
-use Image;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PaginateResource;
 use App\Models\Meeting;
 use App\Models\MeetingProduct;
@@ -16,8 +14,11 @@ use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\EmailMeetingToClient;
+use \App\Traits\ImageTraits;
 
 class MeetingController extends Controller {
+
+    use ImageTraits;
 
     public function store(Request $request) {
         $rules = [
@@ -126,12 +127,11 @@ class MeetingController extends Controller {
             }
 
             if ($request->hasfile('business_card')) {
-                $file = $request->file('business_card');
-                $filename = rand(1, time()) . '.' . $file->getClientOriginalExtension();
-                $card = 'meetings/' . $filename;
-                $image = Image::make($file);
-                $image->save(storage_path('app/public/' . $card));
-                $meeting->business_card = $card;
+                if (!empty($meeting->business_card)) {
+                    deleteFile($meeting->business_card);
+                }
+                $path = 'meetings';
+                $meeting->business_card = $path . '/' . $this->singleImage($request->file('business_card'), $path);
                 $meeting->save();
             }
 
@@ -335,7 +335,7 @@ class MeetingController extends Controller {
             $meeting->type = $request->type;
             $meeting->date = $meetingTime->format('Y-m-d');
             $meeting->time = $meetingTime->format('h:i A');
-            $meeting->business_card = empty($meeting->business_card) ? null : asset('storage') . '/' . $meeting->business_card;
+            $meeting->business_card = cdn($meeting->business_card);
 
             $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->addMinutes(30);
 
@@ -412,15 +412,11 @@ class MeetingController extends Controller {
             }
 
             if ($request->hasfile('business_card')) {
-                $file = $request->file('business_card');
-                $filename = rand(1, time()) . '.' . $file->getClientOriginalExtension();
-                $card = 'meetings/' . $filename;
-                $image = Image::make($file);
-                $image->save(storage_path('app/public/' . $card));
                 if (!empty($meeting->business_card)) {
-                    Storage::delete('public/' . $meeting->business_card);
+                    deleteFile($meeting->business_card);
                 }
-                $meeting->business_card = $card;
+                $path = 'meetings';
+                $meeting->business_card = $path . '/' . $this->singleImage($request->file('business_card'), $path);
             }
 
             if (!empty($request->products)) {

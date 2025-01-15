@@ -84,7 +84,7 @@ class UserController extends Controller {
         $avatar = $employeeService->uploadAvatar($request);
         $user->employee()->update(['image_url' => $avatar]);
 
-        return successResponse(trans('api.success'), ['image_url' => asset('storage/' . $avatar)]);
+        return successResponse(trans('api.success'), ['image_url' => cdn($avatar)]);
     }
 
     public function logout(Request $request) {
@@ -111,7 +111,7 @@ class UserController extends Controller {
 
     public function userData(&$user) {
         $user->with('employee');
-        $user->employee->image_url = !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null;
+        $user->employee->image_url = !empty($user->employee->image_url) ? cdn($user->employee->image_url) : null;
         return $user;
     }
 

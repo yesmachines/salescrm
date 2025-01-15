@@ -1,12 +1,23 @@
 <?php
 
 function cdn($asset) {
-    //Check if we added cdn's to the config file
-    if (!env('CDN_ENABLED', false)) {
-        return Storage::disk('public')->url($asset);
-    } else {
-        return Storage::disk('s3')->url(env('CDN_FILE_DIR', 'dev/test/') . $asset);
+    if (!empty($asset)) {
+        if (env('CDN_ENABLED', false)) {
+            return Storage::disk('s3')->url(env('CDN_FILE_DIR', 'dev/yescrm/') . $asset);
+        } else {
+            return Storage::disk('public')->url($asset);
+        }
     }
+    return null;
+}
+
+function deleteFile($asset) {
+    if (env('CDN_ENABLED', false)) {
+        Storage::disk('s3')->delete(env('CDN_FILE_DIR', 'dev/yescrm/') . $asset);
+    } else {
+        Storage::disk('public')->delete($asset);
+    }
+    return 1;
 }
 
 function successResponse($status, $data = null) {

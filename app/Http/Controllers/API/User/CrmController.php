@@ -13,13 +13,14 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Area;
 use App\Models\EmployeeArea;
+use Illuminate\Support\Facades\Config;
 
 class CrmController extends Controller {
 
     private $imgUrl;
 
     public function __construct() {
-        $this->imgUrl = asset('storage') . '/';
+        $this->imgUrl = ((env('CDN_ENABLED', false)) ? Config::get('filesystems.disks.s3.url') : Config::get('filesystems.disks.public.url')) . '/';
     }
 
     public function employees() {
@@ -36,7 +37,7 @@ class CrmController extends Controller {
             return [
         'id' => $user->id,
         'name' => $user->name,
-        'image_url' => !empty($user->employee->image_url) ? asset('storage/' . $user->employee->image_url) : null
+        'image_url' => cdn($user->employee->image_url)
             ];
         })
             ];
@@ -122,9 +123,7 @@ class CrmController extends Controller {
                 ->where('products.id', '=', $id)
                 ->first();
         if ($data['product']) {
-            if (!empty($data['product']->image_url)) {
-                $data['product']->image_url = $this->imgUrl . $data['product']->image_url;
-            }
+            $data['product']->image_url = cdn($data['product']->image_url);
             return successResponse(trans('api.success'), $data);
         }
         return errorResponse(trans('api.no_data'));
@@ -166,7 +165,7 @@ class CrmController extends Controller {
                 ->where('employees.division', $division)
                 ->first();
         if ($data['manager']) {
-            $data['manager']->image_url = !empty($data['manager']->image_url) ? asset('storage/' . $data['manager']->image_url) : null;
+            $data['manager']->image_url = cdn($data['manager']->image_url);
         }
         return successResponse(trans('api.success'), $data);
     }

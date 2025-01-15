@@ -129,7 +129,7 @@ class MeetingShareController extends Controller {
     public function sendAsEmailToCoordinator($shareTo, $meeting, $shareMeeting) {
         $meetingDate = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone);
         $shareMeeting->date = $meetingDate->format('M d, Y g:i A') . ' - ' . $meeting->timezone;
-        $shareMeeting->business_card = empty($shareMeeting->business_card) ? null : asset('storage') . '/' . $shareMeeting->business_card;
+        $shareMeeting->business_card = cdn($shareMeeting->business_card);
 
         $shareMeeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
                 ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
