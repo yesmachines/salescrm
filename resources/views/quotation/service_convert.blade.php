@@ -1047,6 +1047,10 @@ $(document).ready(function() {
   }
 
 
+  $(document).on('input', '.dynamic-field', function() {
+    updateHistorySellingPrice();  
+  });
+
 
 
   function updateMarginPrice() {

@@ -1041,6 +1041,10 @@ $(document).ready(function() {
     }
     updateHistorySellingPrice();
   }
+  // Add event listener to detect changes in dynamic custom fields
+  $(document).on('input', '.dynamic-field', function() {
+    updateHistorySellingPrice();  // Recalculate when dynamic field changes
+  });
 
   function updateMarginPrice() {
     const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
@@ -1290,7 +1294,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         data.forEach((field, index) => {
-        const cleanedShortCode = field.short_code.replace(/_/g, ' '); 
+        const cleanedShortCode = field.short_code.replace(/_/g, ' ');
           const fieldHTML = `
           <div class="form-group col-md-6">
           <label class="form-label">${cleanedShortCode}<span class="text-danger">*</span></label>
