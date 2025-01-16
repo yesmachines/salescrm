@@ -1292,9 +1292,10 @@ document.addEventListener('DOMContentLoaded', function () {
         rowContainer.classList.add('row');
 
         data.forEach((field, index) => {
+            const cleanedShortCode = field.short_code.replace(/_/g, ' ');
           const fieldHTML = `
           <div class="form-group col-md-6">
-          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+          <label class="form-label">${cleanedShortCode}<span class="text-danger">*</span></label>
           <input class="form-control dynamic-field" type="text"
           name="${field.short_code}" data-field-name="${field.short_code}" />
           </div>`;
