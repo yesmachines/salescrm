@@ -34,4 +34,8 @@ class Meeting extends Model {
     public function area() {
         return $this->hasOne(Area::class, 'id', 'area_id');
     }
+    
+    public function docs() {
+        return $this->hasMany(MeetingDoc::class, 'meeting_id', 'id');
+    }
 }

@@ -21,6 +21,15 @@ return new class extends Migration {
             $table->char('file_type', 20)->default('image');
             $table->timestamps();
         });
+        Schema::create('meeting_shared_docs', function (Blueprint $table) {
+            $table->uuid('id');
+            $table->primary('id');
+            $table->uuid('meeting_shared_id')->nullable();
+            $table->foreign('meeting_shared_id')->references('id')->on('meeting_shares')->onDelete('cascade');
+            $table->uuid('meeting_doc_id')->nullable();
+            $table->foreign('meeting_doc_id')->references('id')->on('meeting_docs')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -29,6 +38,7 @@ return new class extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('meeting_images');
+        Schema::dropIfExists('meeting_docs');
+        Schema::dropIfExists('meeting_shared_docs');
     }
 };

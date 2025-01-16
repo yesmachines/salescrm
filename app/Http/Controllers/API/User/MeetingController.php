@@ -12,6 +12,8 @@ use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
 use App\Models\MeetingSharedProduct;
+use App\Models\MeetingDoc;
+use App\Models\MeetingSharedDoc;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\EmailMeetingToClient;
 use \App\Traits\ImageTraits;
@@ -136,6 +138,47 @@ class MeetingController extends Controller {
             }
 
             return successResponse(trans('api.meeting.business_card'), ['meeting_id' => $meeting->id]);
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function uploadDoc(Request $request) {
+        try {
+            $rules = [
+                'meeting_id' => 'required',
+                'doc_file' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                $errorMessage = $validator->messages();
+                return errorResponse(trans('api.required_fields'), $errorMessage);
+            }
+
+            if ($request->hasfile('doc_file')) {
+                $doc = new MeetingDoc();
+                $path = 'meetings';
+                $doc->meeting_id = $request->meeting_id;
+                $doc->file_name = $path . '/' . $this->singleImage($request->file('doc_file'), $path);
+                $doc->save();
+                return successResponse(trans('api.success'), ['doc' => $doc]);
+            }
+        } catch (\Exception $e) {
+            return errorResponse(trans('api.invalid_request'), $e->getMessage());
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function deleteDoc($id) {
+        try {
+            $doc = MeetingDoc::findOrFail($id);
+            if (deleteFile($doc->getRawOriginal('file_name'))) {
+                $doc->delete();
+                return successResponse(trans('api.meeting.doc_deleted'));
+            }
         } catch (ModelNotFoundException $e) {
             return errorResponse(trans('api.invalid_request'), $e->getMessage());
         }
@@ -315,6 +358,7 @@ class MeetingController extends Controller {
                             ->where('meeting_products.meeting_id', $id)
                             ->get();
                     $meeting->area;
+                    $meeting->docs;
                     $meeting->editable = ($meeting->status < 2) ? true : false;
                     $meeting->dt_editable = ($meeting->status == 0) ? true : false;
                     break;
@@ -326,6 +370,10 @@ class MeetingController extends Controller {
                             ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
                             ->join('products', 'products.id', 'meeting_shared_products.product_id')
                             ->where('meeting_shared_products.meetings_shared_id', $id)
+                            ->get();
+                    $meeting->docs = MeetingSharedDoc::select('meeting_docs.id', 'meeting_docs.file_name', 'meeting_docs.file_type')
+                            ->join('meeting_docs', 'meeting_docs.id', 'meeting_shared_docs.meeting_doc_id')
+                            ->where('meeting_shared_docs.meeting_shared_id', $id)
                             ->get();
                     $meeting->editable = false;
                     $meeting->dt_editable = false;

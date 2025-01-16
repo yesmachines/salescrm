@@ -48,6 +48,7 @@ return [
         'already_shared_to' => 'This meeting is already shared to :name',
         'not_confirmed' => 'This meeting is shared already and not confirmed .',
         'shared' => 'Meeting shared successfully.',
+        'doc_deleted' => 'Deleted successfully.',
     ],
     'notification' => [
         'title' => [

@@ -22,6 +22,7 @@ class MeetingShareController extends Controller {
             'type' => 'required|in:normal,shared',
             'meeting_notes' => 'required',
             'products' => 'nullable|array',
+            'docs' => 'nullable|array',
             'title' => 'required',
             'company_name' => 'required',
             'company_representative' => 'required',
@@ -100,6 +101,9 @@ class MeetingShareController extends Controller {
             //Save shared products
             if (!$products->isEmpty()) {
                 $this->insertSharedProducts($shareMeeting->id, $products);
+            }
+            if (!empty($request->docs)) {
+                $this->insertSharedDocs($shareMeeting->id, $request->docs);
             }
 
             if ($shareTo->hasRole('coordinators')) {

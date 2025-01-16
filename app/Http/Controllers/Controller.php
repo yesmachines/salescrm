@@ -38,6 +38,16 @@ class Controller extends BaseController {
         }
         return 1;
     }
+    
+    function insertSharedDocs($mid, $docs) {
+        foreach ($docs as $doc) {
+            $meetingDoc = new \App\Models\MeetingSharedDoc();
+            $meetingDoc->meeting_shared_id = $mid;
+            $meetingDoc->meeting_doc_id = $doc;
+            $meetingDoc->save();
+        }
+        return 1;
+    }
 
     function notifyAreaMnager($meeting) {
         $userIds = \App\Models\EmployeeArea::where('area_id', $meeting->area_id)
