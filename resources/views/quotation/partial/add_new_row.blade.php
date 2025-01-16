@@ -944,8 +944,11 @@ function saveAdditionalFieldsHandler(isValid) {
 }
 
 function resetModalValues() {
+
   $('#additionalFieldsModal input[type="text"]').val('');
+  $('#additionalFieldsModal select').prop('selectedIndex', 0);
 }
+
 
 function updateMarginPrice() {
   var sellingPriceStr = $('#sellingPrice').val();
