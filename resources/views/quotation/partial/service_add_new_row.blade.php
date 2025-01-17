@@ -1391,13 +1391,13 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
 
     rowContainer.innerHTML = `
     <div class="col-sm-3" style="text-align: right;">
-   <p>Show in Quote (✔ )</p>
+
    </div>
       <div class="col-sm-1">
         <div class="form-check" style="display: flex; justify-content: flex-end;">
           <!-- Hidden input for unchecked state -->
           <input type="hidden" name="is_visible[]" value="0">
-          <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
+          <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
         </div>
       </div>
       <div class="col-sm-4">
