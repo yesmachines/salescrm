@@ -113,7 +113,7 @@ class HomeController extends Controller
     })->filter(function ($employeeStat) {
       return $employeeStat['quotation_count'] > 0;
     })->values();
-dd($employeeQuotationStatus);
+
     return $returnJson ? response()->json($employeeQuotationStatus) : $employeeQuotationStatus;
   }
 
