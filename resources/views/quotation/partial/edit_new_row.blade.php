@@ -1355,7 +1355,6 @@ function updateQuotationCharges(customPriceArray) {
         if (!isCustomPrice) {
           rowContainer.innerHTML = `
           <div class="col-sm-4" style="text-align: right;">
-         <p>Show in Quote (✔ )</p>
          </div>
           ${checkboxHTML}
           <div class="col-sm-4">

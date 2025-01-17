@@ -23,7 +23,7 @@
       <h6>Buying Price (AED) From Supplier *</h6>
     </div>
     <div class="col-6">
-      <input type="text" class="form-control" id="buying_price_total" name="buying_price_total" step="any" value="{{ $order->buying_price ?? '' }}">
+      <input type="text" class="form-control" id="buying_price_total" name="buying_price_total" step="any" value="{{ $order->buying_price ?? '' }}" readonly>
     </div>
     <div class="col-2"></div>
   </div>
