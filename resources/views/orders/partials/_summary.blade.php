@@ -94,7 +94,7 @@
                 <h6>Selling Price (AED) To Client *</h6>
             </div>
             <div class="col-6">
-                <input type="text" data-val="{{$quotation->total_amount}}" class="form-control" id="selling_price" required name="selling_price" value="{{$selling_price}}">
+                <input type="text" data-val="{{$quotation->total_amount}}" class="form-control" id="selling_price" required name="selling_price" value="{{$selling_price}}" readonly>
                 <p class="small">Quoted Amount = {{$quotation->total_amount}} {{$quotation->preferred_currency? $quotation->preferred_currency: 'aed'}}</p>
             </div>
             <div class="col-2"></div>
