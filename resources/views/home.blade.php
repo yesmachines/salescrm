@@ -76,7 +76,7 @@
               <h6 class="mb-0">Quotation Status Overview</h6>
             </div>
             <div class="card-body">
-              <div class="chart-container" style="height: 500px;">
+              <div class="chart-container" style="height: 550px;">
                 <canvas id="quotationStatusChart"></canvas>
               </div>
             </div>
@@ -92,71 +92,80 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
   const employeeQuotationStatus = @json($employeeQuotationStatus);
   const labels = employeeQuotationStatus.map(stat => stat.employee_name);
   const quotationCounts = employeeQuotationStatus.map(stat => stat.quotation_count);
   const totalMargins = employeeQuotationStatus.map(stat => stat.total_margin);
   const images = employeeQuotationStatus.map(stat => stat.employee_image);
-  const customColors = [
-    'rgba(255, 99, 132, 1)',
-    'rgba(54, 162, 235, 1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(255, 182, 193, 1)' ,
-    'rgba(255, 206, 86, 1)',
-    'rgba(0, 0, 255, 1)',
-    'rgba(255, 255, 0, 1)',
-    'rgba(138, 43, 226, 1)'
-  ];
 
-  const colors = customColors.slice(0, employeeQuotationStatus.length);
+  const gradientColors = [
+    'rgba(75, 192, 192, 0.7)',  // Soft teal
+    'rgba(54, 162, 235, 0.7)',  // Calm blue
+    'rgba(153, 102, 255, 0.7)', // Muted purple
+    'rgba(255, 159, 64, 0.7)',  // Warm orange
+    'rgba(255, 99, 132, 0.7)',  // Soft pink
+    'rgba(99, 255, 218, 0.7)',  // Light mint
+    'rgba(0, 204, 255, 0.7)',  // Bright cyan
+    'rgba(255, 205, 86, 0.7)',  // Light amber
+    'rgba(204, 204, 255, 0.7)', // Light lavender
+    'rgba(127, 127, 255, 0.7)', // Cool blue
+  ];
 
   const ctx = document.getElementById('employeePieChart').getContext('2d');
 
   new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut',
     data: {
       labels: labels,
       datasets: [{
         label: 'Quotation Count',
         data: quotationCounts,
-        backgroundColor: colors,
+        backgroundColor: gradientColors,
+        hoverBackgroundColor: gradientColors.map(color => color.replace('0.7', '1')),
         borderColor: '#fff',
-        borderWidth: 1
+        borderWidth: 2,
+        hoverOffset: 15
       }]
     },
     options: {
       responsive: true,
+      cutout: '70%',
       plugins: {
         legend: {
           position: 'top',
           labels: {
             color: '#333',
             font: {
-              family: "'Inter', sans-serif"
-            }
-          }
+              family: "'Inter', sans-serif",
+              size: 14,
+              weight: 'bold'
+            },
+            boxWidth: 20,  // Adjusts the size of the color box next to the label
+          },
+          // This is to make the labels appear in a row
+          display: true,
+          align: 'start',
+          reverse: false,
+          fullWidth: true
         },
         tooltip: {
           enabled: false,
           external: function(context) {
-
             let tooltipEl = document.getElementById('chartjs-tooltip');
             if (!tooltipEl) {
               tooltipEl = document.createElement('div');
               tooltipEl.id = 'chartjs-tooltip';
-              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-              tooltipEl.style.borderRadius = '5px';
-              tooltipEl.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-              tooltipEl.style.padding = '10px';
+              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+              tooltipEl.style.borderRadius = '8px';
+              tooltipEl.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              tooltipEl.style.padding = '12px';
               tooltipEl.style.pointerEvents = 'none';
               tooltipEl.style.position = 'absolute';
-              tooltipEl.style.transition = 'all 0.1s ease';
+              tooltipEl.style.transition = 'opacity 0.2s ease';
+              tooltipEl.style.opacity = 0;
+              tooltipEl.style.transform = 'translate(-50%, -120%)';
               document.body.appendChild(tooltipEl);
             }
-
 
             const tooltipModel = context.tooltip;
             if (tooltipModel.opacity === 0) {
@@ -164,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function () {
               return;
             }
 
-            // Set tooltip content
             const index = tooltipModel.dataPoints[0].dataIndex;
             const employeeName = labels[index];
             const totalMargin = totalMargins[index];
@@ -173,24 +181,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tooltipEl.innerHTML = `
             <div style="text-align: center;">
-            <img src="${window.location.origin}/storage/${image}" alt="${employeeName}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px;">
-            <div><strong>${employeeName}</strong></div>
-            <div>Quotation Count: ${quotationCount}</div>
-            <div>Total Margin: ${totalMargin.toFixed(2)} AED</div>
+            <img src="${window.location.origin}/storage/${image}" alt="${employeeName}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px;">
+            <div style="font-weight: bold; color: #333; margin-bottom: 5px;">${employeeName}</div>
+            <div style="color: #666;">Quotation Count: <strong>${quotationCount}</strong></div>
+            <div style="color: #666;">Total Margin: <strong>${totalMargin.toFixed(2)} AED</strong></div>
             </div>
             `;
 
-            // Position the tooltip
             const position = context.chart.canvas.getBoundingClientRect();
             tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
             tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
             tooltipEl.style.opacity = 1;
           }
         }
+      },
+      layout: {
+        padding: {
+          top: 20,
+          bottom: 20
+        }
       }
     }
   });
+
 });
+
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -201,148 +216,181 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const ctx = document.getElementById('orderPieChart').getContext('2d');
 
+  const fixedColors = [
+    'rgba(255, 159, 64, 0.7)',  // Light Orange
+    'rgba(75, 192, 192, 0.7)',  // Light Teal
+    'rgba(153, 102, 255, 0.7)', // Light Purple
+    'rgba(54, 162, 235, 0.7)',  // Light Blue
+    'rgba(255, 99, 132, 0.7)',  // Light Red
+    'rgba(255, 206, 86, 0.7)',  // Light Yellow
+    'rgba(255, 182, 193, 0.7)', // Light Pink
+    'rgba(0, 204, 255, 0.7)',   // Light Sky Blue
+    'rgba(255, 99, 71, 0.7)',   // Light Tomato
+    'rgba(144, 238, 144, 0.7)', // Light Green
+  ];
 
   new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut',
     data: {
       labels: employeeNames,
-      datasets: [{
-        label: 'Order Margin',
-        data: totalValues,
-        backgroundColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 1)',
-        imageUrls: imageUrls
-      }]
+      datasets: [
+        {
+          label: 'Order Margin',
+          data: totalValues,
+          backgroundColor: fixedColors,
+          hoverBackgroundColor: fixedColors.map(color => color.replace('0.7', '1')),
+          borderWidth: 2,
+          borderColor: '#fff',
+        },
+      ],
     },
     options: {
       responsive: true,
+      cutout: '65%',
       plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#4A4A4A',
+            font: {
+              family: "'Inter', sans-serif",
+              size: 14,
+            },
+          },
+        },
         tooltip: {
-          enabled: false,
-          external: function(context) {
-
+          enabled: false, // Disable default tooltip
+          external: function (context) {
             let tooltipEl = document.getElementById('chart-tooltip');
-
             if (!tooltipEl) {
               tooltipEl = document.createElement('div');
               tooltipEl.id = 'chart-tooltip';
-              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-              tooltipEl.style.borderRadius = '5px';
-              tooltipEl.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-              tooltipEl.style.padding = '10px';
+              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+              tooltipEl.style.borderRadius = '8px';
+              tooltipEl.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              tooltipEl.style.padding = '12px';
               tooltipEl.style.pointerEvents = 'none';
               tooltipEl.style.position = 'absolute';
-              tooltipEl.style.transition = 'all 0.1s ease';
+              tooltipEl.style.transition = 'opacity 0.2s ease';
+              tooltipEl.style.opacity = 0;
+              tooltipEl.style.transform = 'translate(-50%, -120%)';
               document.body.appendChild(tooltipEl);
             }
 
-            // Hide tooltip if not visible
             const tooltipModel = context.tooltip;
             if (tooltipModel.opacity === 0) {
               tooltipEl.style.opacity = 0;
               return;
             }
 
-            // Set tooltip content
-            const index = tooltipModel.dataPoints[0].dataIndex;
+            // Get the hovered section index
+            const dataPoint = tooltipModel.dataPoints[0];
+            if (!dataPoint) return;
+
+            const index = dataPoint.dataIndex;
             const employeeName = employeeNames[index];
-            const totalValue = totalValues[index]; // Get the total margin
+            const totalValue = totalValues[index];
             const imageUrl = imageUrls[index];
+            const percentage = ((totalValue / totalValues.reduce((a, b) => a + b, 0)) * 100).toFixed(2);
 
             tooltipEl.innerHTML = `
-            <div style="text-align: center;">
-            <img src="${window.location.origin}/storage/${imageUrl}" alt="${employeeName}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px;">
-            <div><strong>${employeeName}</strong></div>
-            <div>Total Margin: ${totalValue}</div> <!-- Show total margin -->
+            <div style="text-align: center; padding: 8px; font-size: 12px;">
+            <img src="${window.location.origin}/storage/${imageUrl}" alt="${employeeName}" style="width: 40px; height: 40px; border-radius: 50%; margin-bottom: 6px;">
+            <div style="font-weight: bold; color: #333; margin-bottom: 4px; font-size: 14px;">${employeeName}</div>
+            <div style="color: #666; font-size: 12px;">Margin: <strong>${totalValue} AED</strong></div>
             </div>
             `;
 
-            // Position the tooltip
             const position = context.chart.canvas.getBoundingClientRect();
             tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
             tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
             tooltipEl.style.opacity = 1;
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+      layout: {
+        padding: {
+          top: 10,
+          bottom: 10,
+        },
+      },
+      animation: {
+        animateScale: true,
+        animateRotate: true,
+        easing: 'easeInOutQuart',
+      },
+      hover: {
+        mode: 'nearest',
+        animationDuration: 500,
+      },
+    },
   });
 });
 
-document.addEventListener('DOMContentLoaded', function () {
 
+
+document.addEventListener('DOMContentLoaded', function () {
   const employeeQuotationStatus = @json($employeeYearlyQuotationStatus);
   const labels = employeeQuotationStatus.map(stat => stat.employee_name);
   const quotationCounts = employeeQuotationStatus.map(stat => stat.quotation_count);
   const totalMargins = employeeQuotationStatus.map(stat => stat.total_margin);
   const images = employeeQuotationStatus.map(stat => stat.employee_image);
-  const customColors = [
-    'rgba(255, 99, 132, 1)',
-    'rgba(54, 162, 235, 1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(255, 182, 193, 1)' ,
-    'rgba(255, 206, 86, 1)',
-    'rgba(0, 0, 255, 1)',
-    'rgba(255, 255, 0, 1)',
-    'rgba(138, 43, 226, 1)'
-  ];
 
-  const colors = customColors.slice(0, employeeQuotationStatus.length);
-
+  // Gradient Colors
   const ctx = document.getElementById('employeeYearlyPieChart').getContext('2d');
+  const gradientColors = quotationCounts.map((_, index) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, `rgba(${index * 50}, 99, 132, 1)`);
+    gradient.addColorStop(1, `rgba(${index * 25}, 162, 235, 1)`);
+    return gradient;
+  });
 
   new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut', // Changed to doughnut for a modern look
     data: {
       labels: labels,
       datasets: [{
         label: 'Quotation Count',
         data: quotationCounts,
-        backgroundColor: colors,
+        backgroundColor: gradientColors,
         borderColor: '#fff',
-        borderWidth: 1
+        borderWidth: 2,
+        hoverOffset: 10, // Add hover effect
       }]
     },
     options: {
       responsive: true,
+      cutout: '60%', // Adjust the doughnut hole size
       plugins: {
         legend: {
           position: 'top',
           labels: {
             color: '#333',
             font: {
-              family: "'Inter', sans-serif"
-            }
+              family: "'Inter', sans-serif",
+              size: 14
+            },
+            padding: 20
           }
         },
         tooltip: {
           enabled: false,
-          external: function(context) {
-
+          external: function (context) {
             let tooltipEl = document.getElementById('chartjs-tooltip');
             if (!tooltipEl) {
               tooltipEl = document.createElement('div');
               tooltipEl.id = 'chartjs-tooltip';
-              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-              tooltipEl.style.borderRadius = '5px';
-              tooltipEl.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-              tooltipEl.style.padding = '10px';
+              tooltipEl.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+              tooltipEl.style.color = '#fff';
+              tooltipEl.style.borderRadius = '8px';
+              tooltipEl.style.padding = '12px';
               tooltipEl.style.pointerEvents = 'none';
               tooltipEl.style.position = 'absolute';
-              tooltipEl.style.transition = 'all 0.1s ease';
+              tooltipEl.style.transition = 'all 0.2s ease';
+              tooltipEl.style.fontFamily = "'Inter', sans-serif";
+              tooltipEl.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.25)';
               document.body.appendChild(tooltipEl);
             }
-
 
             const tooltipModel = context.tooltip;
             if (tooltipModel.opacity === 0) {
@@ -350,7 +398,6 @@ document.addEventListener('DOMContentLoaded', function () {
               return;
             }
 
-            // Set tooltip content
             const index = tooltipModel.dataPoints[0].dataIndex;
             const employeeName = labels[index];
             const totalMargin = totalMargins[index];
@@ -359,18 +406,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tooltipEl.innerHTML = `
             <div style="text-align: center;">
-            <img src="${window.location.origin}/storage/${image}" alt="${employeeName}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px;">
-            <div><strong>${employeeName}</strong></div>
-            <div>Quotation Count: ${quotationCount}</div>
-            <div>Total Margin: ${totalMargin.toFixed(2)} AED</div>
+            <img src="${window.location.origin}/storage/${image}" alt="${employeeName}"
+            style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #fff;">
+            <div style="font-size: 14px; font-weight: bold;">${employeeName}</div>
+            <div style="font-size: 12px;">Quotation Count: <strong>${quotationCount}</strong></div>
+            <div style="font-size: 12px;">Total Margin: <strong>${totalMargin.toFixed(2)} AED</strong></div>
             </div>
             `;
 
-            // Position the tooltip
             const position = context.chart.canvas.getBoundingClientRect();
             tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
             tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
             tooltipEl.style.opacity = 1;
+          }
+        }
+      },
+      hover: {
+        onHover: function (e, activeElements) {
+          if (activeElements.length) {
+            e.native.target.style.cursor = 'pointer';
+          } else {
+            e.native.target.style.cursor = 'default';
           }
         }
       }
@@ -387,170 +443,227 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const ctx = document.getElementById('orderYearlyPieChart').getContext('2d');
 
-
-  new Chart(ctx, {
-    type: 'pie',
+  const chart = new Chart(ctx, {
+    type: 'doughnut', // Change to 'doughnut' for a center hole
     data: {
       labels: employeeNames,
       datasets: [{
         label: 'Order Margin',
         data: totalValues,
         backgroundColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(153, 102, 255, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(231, 76, 60, 0.7)'
         ],
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: 'rgba(255, 255, 255, 1)',
         imageUrls: imageUrls
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,  // Allow resizing based on the container size
+      aspectRatio: 1,  // Adjust aspect ratio to make it square (can change as needed)
+      cutoutPercentage: 70, // Creates the center hole effect (70% hole)
+      animation: {
+        animateRotate: true,
+        animateScale: true
+      },
       plugins: {
         tooltip: {
           enabled: false,
           external: function(context) {
-
             let tooltipEl = document.getElementById('chart-tooltip');
 
             if (!tooltipEl) {
               tooltipEl = document.createElement('div');
               tooltipEl.id = 'chart-tooltip';
-              tooltipEl.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-              tooltipEl.style.borderRadius = '5px';
-              tooltipEl.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-              tooltipEl.style.padding = '10px';
+              tooltipEl.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+              tooltipEl.style.borderRadius = '8px';
+              tooltipEl.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+              tooltipEl.style.padding = '12px';
               tooltipEl.style.pointerEvents = 'none';
               tooltipEl.style.position = 'absolute';
-              tooltipEl.style.transition = 'all 0.1s ease';
+              tooltipEl.style.transition = 'all 0.15s ease-in-out';
+              tooltipEl.style.color = '#fff';
+              tooltipEl.style.fontFamily = 'Arial, sans-serif';
+              tooltipEl.style.fontSize = '14px';
               document.body.appendChild(tooltipEl);
             }
 
-            // Hide tooltip if not visible
             const tooltipModel = context.tooltip;
             if (tooltipModel.opacity === 0) {
               tooltipEl.style.opacity = 0;
               return;
             }
 
-            // Set tooltip content
             const index = tooltipModel.dataPoints[0].dataIndex;
             const employeeName = employeeNames[index];
-            const totalValue = totalValues[index]; // Get the total margin
+            const totalValue = totalValues[index];
             const imageUrl = imageUrls[index];
 
             tooltipEl.innerHTML = `
-            <div style="text-align: center;">
-            <img src="${window.location.origin}/storage/${imageUrl}" alt="${employeeName}" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px;">
-            <div><strong>${employeeName}</strong></div>
-            <div>Total Margin: ${totalValue}</div> <!-- Show total margin -->
+            <div style="text-align: center; padding: 4px; font-size: 12px; line-height: 1.2;">
+            <img src="${window.location.origin}/storage/${imageUrl}"
+            alt="${employeeName}"
+            style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 4px;">
+            <div style="font-weight: bold;">${employeeName}</div>
+            <div>Total Margin: ${totalValue}</div>
             </div>
             `;
 
-            // Position the tooltip
             const position = context.chart.canvas.getBoundingClientRect();
             tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
             tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
             tooltipEl.style.opacity = 1;
           }
         }
-      }
-    }
-  });
-});
+      },
+      onClick: function(e, elements) {
+        if (elements.length > 0) {
+          const elementIndex = elements[0]._index;
+          const datasetIndex = elements[0]._datasetIndex;
 
+          // Get the segment that was clicked
+          const clickedSegment = chart.getDatasetMeta(datasetIndex).data[elementIndex];
 
-// Fetch data from Laravel
-const quotationStats = @json($quotationStatus);
-
-// Prepare data for Chart.js
-const statuses = Object.keys(quotationStats); // X-axis labels: Quotation statuses
-const employees = new Set(); // Collect all employees
-const datasets = [];
-
-// Collect all unique employees across statuses
-statuses.forEach(status => {
-  quotationStats[status].forEach(entry => {
-    employees.add(entry.employee_name);
-  });
-});
-
-const employeeList = Array.from(employees); // Convert to an array
-
-// Build datasets for each employee
-employeeList.forEach((employeeName, index) => {
-  const data = statuses.map(status => {
-    const entry = quotationStats[status].find(e => e.employee_name === employeeName);
-    return entry
-    ? {
-      total_margin: entry.total_margin, // Total margin value
-      count: entry.quotation_count // Quotation count
-    }
-    : { total_margin: 0, count: 0 }; // Default if no data
-  });
-
-  datasets.push({
-    label: employeeName, // Employee name as dataset label
-    data: data.map(d => d.total_margin), // Total margin for Chart.js
-    backgroundColor: `hsl(${(index * 360) / employeeList.length}, 70%, 50%)`, // Unique color
-    borderColor: `hsl(${(index * 360) / employeeList.length}, 70%, 40%)`,
-    borderWidth: 1,
-    countData: data.map(d => d.count) // Keep track of counts for tooltips
-  });
-});
-
-// Create the stacked bar chart
-const ctx = document.getElementById('quotationStatusChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: statuses, // X-axis: Quotation statuses
-    datasets: datasets // Employee-based datasets
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const value = context.raw;
-            const employeeName = context.dataset.label;
-            const count = context.dataset.countData[context.dataIndex];
-            return [
-              `${employeeName}`, // Employee name
-              `Quote Count: ${count}`, // Quotation count
-              `Margin: $${value}`, // Total margin
-            ];
-          }
+          // Animate the clicked segment to scale up
+          chart.update({
+            duration: 400,
+            easing: 'easeOutBounce',
+            onComplete: function() {
+              clickedSegment.custom = {
+                borderWidth: 6,
+                backgroundColor: 'rgba(255, 99, 132, 0.9)'  // Change color on click (example)
+              };
+              chart.update();
+            }
+          });
         }
       },
       legend: {
         position: 'top',
-      },
-    },
-    scales: {
-      x: {
-        stacked: true, // Enable stacking on the X-axis
-        title: {
-          display: true,
-          text: 'Quotation Status'
+        labels: {
+          fontSize: 14,
+          fontStyle: 'bold',
+          fontColor: '#333'
         }
-      },
-      y: {
-        stacked: true, // Enable stacking on the Y-axis
-        title: {
-          display: true,
-          text: 'Total Margin'
-        },
-        beginAtZero: true,
       }
     }
-  }
+  });
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const quotationStats = @json($quotationStatus);
+  console.log(quotationStats);
+
+  if (!quotationStats) return;
+
+  const statuses = Object.keys(quotationStats);
+  const employees = new Set();
+  const datasets = [];
+
+  statuses.forEach(status => {
+    quotationStats[status].forEach(entry => {
+      employees.add(entry.employee_name);
+    });
+  });
+
+  const employeeList = Array.from(employees);
+
+
+  const createGradient = (ctx, index, totalEmployees) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    const hue = (index * 360) / totalEmployees;
+    const startColor = `hsl(${hue}, 40%, 85%)`;
+    const endColor = `hsl(${hue}, 45%, 75%)`;
+
+    gradient.addColorStop(0, startColor);
+    gradient.addColorStop(1, endColor);
+    return gradient;
+  };
+
+
+  statuses.forEach((status, statusIndex) => {
+    const data = employeeList.map(employeeName => {
+      const entry = quotationStats[status].find(e => e.employee_name === employeeName);
+      return entry ? entry.quotation_count : 0;
+    });
+
+
+    const marginData = employeeList.map(employeeName => {
+      const entry = quotationStats[status].find(e => e.employee_name === employeeName);
+      return entry ? entry.total_margin : 0;
+    });
+
+    datasets.push({
+      label: status,
+      data: data,
+      backgroundColor: createGradient(document.getElementById('quotationStatusChart').getContext('2d'), statusIndex, statuses.length),
+      borderColor: `hsl(${(statusIndex * 360) / statuses.length}, 40%, 60%)`,
+      borderWidth: 1,
+      stack: 'stack1',
+      barThickness: 44,
+      marginData: marginData,
+    });
+  });
+
+  // Create the stacked bar chart
+  const ctx = document.getElementById('quotationStatusChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: employeeList,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const count = context.raw;
+              const status = context.dataset.label;
+              const employeeName = context.label;
+              const margin = context.dataset.marginData[context.dataIndex];
+
+              return [
+                `${employeeName}`,
+                `${status}: ${count}`,
+                `Margin: $${margin}`,
+              ];
+            }
+          }
+        },
+        legend: {
+          position: 'top',
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Employee'
+          },
+          stacked: true,
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Quotation Count'
+          },
+          stacked: true,
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+});
+
 </script>
 
 @endsection
