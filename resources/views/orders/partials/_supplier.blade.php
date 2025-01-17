@@ -225,7 +225,7 @@
             @if(!auth()->user()->hasRole('coordinators'))
             <button type="submit" id="save_os_create_pr m-2" class="btn btn-primary" value="create-pr">Save & Create PR</button>
             @else
-            <button type="submit" id="save_os_create_pr m-2" class="btn btn-primary" value="create-pr">Draft & Create PR</button>
+            <button type="submit" id="draft_os_create_pr m-2" class="btn btn-primary" value="draft-step4-create-pr">Draft & Create PR</button>
             @endif
         </div>
         <div class="col-3"></div>

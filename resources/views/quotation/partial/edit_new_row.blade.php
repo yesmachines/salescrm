@@ -1346,7 +1346,7 @@ function updateQuotationCharges(customPriceArray) {
           <div class="col-sm-1">
             <div class="form-check" style="display: flex; justify-content: flex-end;">
               <input type="hidden" name="is_visible[]" value="${hiddenInputValue}">
-              <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
+              <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
             </div>
           </div>`;
         }
