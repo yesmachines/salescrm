@@ -103,7 +103,7 @@ class HomeController extends Controller
       $query->whereIn('name', ['salesmanager', 'divisionmanager']);
     })
     ->get();
-    $employeeQuotationStats = $employees->map(function ($employee) {
+    $employeeQuotationStatus = $employees->map(function ($employee) {
       return [
         'employee_name' => $employee->user ? $employee->user->name : 'No User Assigned',
         'employee_image' => $employee->image_url,
@@ -114,12 +114,12 @@ class HomeController extends Controller
       return $employeeStat['quotation_count'] > 0;
     })->values();
 
-    return $returnJson ? response()->json($employeeQuotationStats) : $employeeQuotationStats;
+    return $returnJson ? response()->json($employeeQuotationStatus) : $employeeQuotationStatus;
   }
 
   public function getEmployeeMonthlyOrderStatus($returnJson = true)
   {
-    $employeeOrderStats = DB::table('orders')
+    $employeeOrderStatus = DB::table('orders')
     ->join('employees', 'employees.id', '=', 'orders.created_by')
     ->leftJoin('users', 'users.id', '=', 'employees.user_id')
     ->leftJoin('model_has_roles', 'model_has_roles.model_id', '=', 'users.id')
@@ -137,7 +137,7 @@ class HomeController extends Controller
       ->groupBy('employees.id', 'employees.image_url', 'users.name')
       ->get();
 
-      return $returnJson ? response()->json($employeeOrderStats) : $employeeOrderStats;
+      return $returnJson ? response()->json($employeeOrderStatus) : $employeeOrderStatus;
     }
 
     public function getEmployeeYearlyQuotationStatus($returnJson = true)
@@ -156,7 +156,7 @@ class HomeController extends Controller
       })
       ->get();
 
-      $employeeQuotationStats = $employees->map(function ($employee) {
+      $employeeQuotationStatus = $employees->map(function ($employee) {
         return [
           'employee_name' => $employee->user ? $employee->user->name : 'No User Assigned',
           'employee_image' => $employee->image_url,
@@ -167,7 +167,7 @@ class HomeController extends Controller
         return $employeeStat['quotation_count'] > 0;
       })->values();
 
-      return $returnJson ? response()->json($employeeQuotationStats) : $employeeQuotationStats;
+      return $returnJson ? response()->json($employeeQuotationStatus) : $employeeQuotationStatus;
     }
 
     public function getEmployeeYearlyOrderStatus($returnJson = true)
@@ -175,7 +175,7 @@ class HomeController extends Controller
       $currentYear = now()->year;
 
 
-      $employeeOrderStats = DB::table('orders')
+      $employeeOrderStatus = DB::table('orders')
       ->join('employees', 'employees.id', '=', 'orders.created_by')
       ->leftJoin('users', 'users.id', '=', 'employees.user_id')
       ->leftJoin('model_has_roles', 'model_has_roles.model_id', '=', 'users.id')
@@ -194,13 +194,13 @@ class HomeController extends Controller
         ->groupBy('employees.id', 'employees.image_url', 'users.name')
         ->get();
 
-        return $returnJson ? response()->json($employeeOrderStats) : $employeeOrderStats;
+        return $returnJson ? response()->json($employeeOrderStatus) : $employeeOrderStatus;
       }
 
 
       public function getQuotationStatus($returnJson = true)
       {
-        $quotationStats = DB::table('quotations')
+        $quotationStatus = DB::table('quotations')
         ->join('employees', 'quotations.assigned_to', '=', 'employees.id')
         ->join('users', 'employees.user_id', '=', 'users.id')
         ->join('quotation_statuses', 'quotations.status_id', '=', 'quotation_statuses.id')
@@ -231,7 +231,7 @@ class HomeController extends Controller
             'quotation_count' => $data->quotation_count,
           ]));
 
-          return $returnJson ? response()->json($quotationStats) : $quotationStats;
+          return $returnJson ? response()->json($quotationStatus) : $quotationStatus;
         }
 
 
