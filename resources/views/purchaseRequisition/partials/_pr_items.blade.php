@@ -92,6 +92,8 @@
 
 @if(count($order->orderCharge) >0)
 <h6 class="mt-4"><b>Additional Charges</b></h6>
+<a href="javascript:void(0);" class="addAC btn btn-primary btn-sm" style="float: right;">
+    <i data-feather="plus"></i> Add Row</a>
 <table class="table form-table" id="chargespaymentFields">
     <thead>
         <tr>
