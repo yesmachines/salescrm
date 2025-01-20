@@ -111,17 +111,7 @@
               <a class="dropdown-item" href="{{ route('orders.show', $order->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>View</span></a>
               @if($order->status == 'draft')
               <a class="dropdown-item" href="{{route('orders.edit',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
-              <a
-              class="dropdown-item btn btn-primary text-black"
-              href="#"
-              data-bs-toggle="modal"
-              data-bs-target="#statusModal"
-              data-order-id="{{ $order->id }}"
-              data-current-status="{{ $order->status }}"
-              >
-              <i class="fa fa-check-circle"></i>
-              <span>Approve</span>
-            </a>
+        
               @endif
 
               @if($order->status != 'draft')
