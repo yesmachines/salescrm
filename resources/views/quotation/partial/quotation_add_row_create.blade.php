@@ -120,11 +120,26 @@
     </div>:
     <div class="col-sm-3 text-align-left">
       <input type="text" id="totalValue" name="total_value" class="form-control" readonly>
-      <input type="hidden" id="totalMarginValue" name="total_margin_value" class="form-control">
+      <!-- <input type="hidden" id="totalMarginValue" name="total_margin_value" class="form-control"> -->
       <!-- <input type="hidden" name="total_amount" class="form-control" />
       <input type="hidden" name="gross_margin" class="form-control" /> -->
     </div>
   </div>
+  <div class="row" style="margin-top: 21px">
+    <div class="col-sm-6">
+    </div>
+    <div class="col-sm-3 text-align-left" style="width: 20%;">
+      <label class="currency-label" class="form-check-label">
+        Total Margin (AED)</label>
+      </div>:
+      <div class="col-sm-3 text-align-left">
+        <input type="text" id="totalMarginValue" name="total_margin_value" class="form-control" readonly>
+        <!-- <input type="hidden" name="total_amount" class="form-control" />
+        <input type="hidden" name="gross_margin" class="form-control" /> -->
+      </div>
+    </div>
+
+
   <div class="row" style="padding-top:12px;">
     <div class="col-sm-5">
     </div>
@@ -395,7 +410,7 @@
       if (selectedValueId == 'is_stock') {
         var deliveryText = 'On stock subject to prior sale. Delivery available within ' + weeksValue + ' ' + selectedPeriod;
       } else {
-        var deliveryText = 'Out of stock.Production time ' + weeksValue + ' ' + selectedPeriod + ' from the date of PO along with advance payment (if any)';
+        var deliveryText = 'Out of stock.Production time ' + weeksValue + ' ' + selectedPeriod + ' from the date of PO along with advance payment (if any)(holidays excluded)';
       }
 
       $('#quotation_terms_delivery').text(deliveryText);

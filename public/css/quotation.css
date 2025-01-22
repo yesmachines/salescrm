@@ -155,4 +155,9 @@ input:checked+.slider:before {
     .same-width {
         max-width: 400px; /* Optional: Cap the width on larger screens */
     }
+    input:disabled {
+      color: black !important; /* Ensure the font color is black, overriding any default styles */
+  }
+
+
 }

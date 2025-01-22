@@ -110,6 +110,22 @@
 @push('scripts')
 <script type="text/javascript">
     $(function(e) {
+      var iter4 = $("#chargespaymentFields").find("tbody >tr").length;
+
+      $(".addAC").click(function() {
+
+          ++iter4;
+
+          let sCurrency = $('#supplier_currency').val();
+
+          $("#chargespaymentFields").append(`<tr valign="top">
+          <td><input type="text" class="form-control" name="charges[${iter4}][title]" placeholder="Customs Clearance Charge" /></td>
+          <td><input type="text" class="form-control" name="charges[${iter4}][considered]" placeholder="Considered Cost" /></td>
+          <td><input type="hidden" name="charges[${iter4}][currency]" value="${sCurrency}" />
+          <input type="checkbox" id="charge_id_${iter4}" class="form-check-input charge_select" name="charges[${iter4}][charge_id]" checked>
+          <label class="form-check-label" for="charge_id_${iter4}">SELECT</label>
+          </td></tr>`);
+      });
         // $('.quantity').on('keyup', function(e) {
         //     let unitprice = $(this).val();
         //     let irow = $(this).data('irow');

@@ -1346,7 +1346,7 @@ function updateQuotationCharges(customPriceArray) {
           <div class="col-sm-1">
             <div class="form-check" style="display: flex; justify-content: flex-end;">
               <input type="hidden" name="is_visible[]" value="${hiddenInputValue}">
-              <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
+              <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
             </div>
           </div>`;
         }
@@ -1355,7 +1355,6 @@ function updateQuotationCharges(customPriceArray) {
         if (!isCustomPrice) {
           rowContainer.innerHTML = `
           <div class="col-sm-4" style="text-align: right;">
-         <p>Show in Quote (✔ )</p>
          </div>
           ${checkboxHTML}
           <div class="col-sm-4">
@@ -1374,7 +1373,7 @@ function updateQuotationCharges(customPriceArray) {
           // For custom price case, add the checkbox and keep the original layout
           rowContainer.innerHTML = `
           <div class="col-sm-3" style="text-align: right;">
-         <p>Show in Quote (✔ )</p>
+      
          </div>
           ${checkboxHTML}
           <div class="col-sm-4">

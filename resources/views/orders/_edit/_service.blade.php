@@ -52,7 +52,7 @@
         <h6>Site Readiness Requirements </h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="site_readiness" row="3">{{$serviceRequest->site_readiness}}</textarea>
+        <textarea class="form-control" name="site_readiness" row="3">   {{ $serviceRequest ? $serviceRequest->site_readiness : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -61,7 +61,7 @@
         <h6>Training Required For YM Engineers </h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="training_requirement" row="3">{{$serviceRequest->training_requirement}}</textarea>
+        <textarea class="form-control" name="training_requirement" row="3"> {{ $serviceRequest ? $serviceRequest->training_requirement : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -71,7 +71,7 @@
         <h6>List Of Consumables</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="consumables" row="3">{{$serviceRequest->consumables}}</textarea>
+        <textarea class="form-control" name="consumables" row="3">  {{ $serviceRequest ? $serviceRequest->consumables : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -81,7 +81,7 @@
         <h6>Offered Warranty Period</h6>
     </div>
     <div class="col-6">
-        <input type="text" id="warranty_period" name="warranty_period" class="form-control" value="{{$serviceRequest->warranty_period}}" />
+        <input type="text" id="warranty_period" name="warranty_period" class="form-control" value="{{ $serviceRequest ? $serviceRequest->warranty_period : '' }}" />
     </div>
     <div class="col-2"></div>
 </div>
@@ -91,7 +91,7 @@
         <h6>Any Special Offers To Clients</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="special_offers" row="3">{{$serviceRequest->special_offers}}</textarea>
+        <textarea class="form-control" name="special_offers" row="3"> {{ $serviceRequest ? $serviceRequest->special_offers : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -101,7 +101,7 @@
         <h6>Any Special Documentations Required</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="documents_required" row="3">{{$serviceRequest->documents_required}}</textarea>
+        <textarea class="form-control" name="documents_required" row="3"> {{ $serviceRequest ? $serviceRequest->documents_required : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -111,7 +111,7 @@
         <h6>Objective Of The Machine</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="machine_objective" row="3">{{$serviceRequest->machine_objective}}</textarea>
+        <textarea class="form-control" name="machine_objective" row="3">{{ $serviceRequest ? $serviceRequest->machine_objective : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -122,8 +122,9 @@
         <h6>FAT Test</h6>
     </div>
     <div class="col-6">
-        <label><input type="radio" name="fat_test" value="1" {{($serviceRequest->fat_test == 1)? "checked": ""}}> YES</label>&nbsp; &nbsp;
-        <label><input type="radio" name="fat_test" value="0" {{($serviceRequest->fat_test == 0)? "checked": "checked"}}> NO</label>
+      <label><input type="radio" name="fat_test" value="1" {{ ($serviceRequest && $serviceRequest->fat_test == 1) ? "checked" : "" }}> YES</label>&nbsp; &nbsp;
+     <label><input type="radio" name="fat_test" value="0" {{ ($serviceRequest && $serviceRequest->fat_test == 0) ? "checked" : "checked" }}> NO</label>
+
     </div>
     <div class="col-2"></div>
 </div>
@@ -133,7 +134,7 @@
         <h6>FAT Expectations</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="fat_expectation" row="3">{{$serviceRequest->fat_expectation}}</textarea>
+        <textarea class="form-control" name="fat_expectation" row="3">  {{ $serviceRequest ? $serviceRequest->fat_expectation : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>
@@ -143,7 +144,7 @@
         <h6>SAT Objectives</h6>
     </div>
     <div class="col-6">
-        <textarea class="form-control" name="sat_objective" row="3">{{$serviceRequest->sat_objective}}</textarea>
+        <textarea class="form-control" name="sat_objective" row="3"> {{ $serviceRequest ? $serviceRequest->sat_objective : '' }}</textarea>
     </div>
     <div class="col-2"></div>
 </div>

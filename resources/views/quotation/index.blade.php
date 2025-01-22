@@ -173,7 +173,7 @@
             }
         });
 
-        $('#update-status').on('click', function(e) {
+        $(document).on('click', '#update-status', function(e) {
             e.preventDefault();
 
             let qid = $(this).data('id');

@@ -671,6 +671,13 @@
         if (submitter == 'save-step4-draft') {
             formdata.append('status', 'draft');
         }
+        if (submitter == 'draft-step4-create-pr') {
+            formdata.append('status', 'draft');
+        }
+        if (submitter == 'save') {
+            formdata.append('manager_approval', '1');
+            formdata.append('status', 'open');
+        }
         let order_id = $("#order_id_step4").val().trim();
         if (order_id == '') {
             alert("Please complete and save step3 details");
@@ -832,7 +839,7 @@
                         let input = '<input type="hidden" class="form-control" name="item[' + indx + '][buying_currency]" value="' + newPurchaseData.buying_currency + '" />';
                         input += '<input type="text" class="form-control" name="item[' + indx + '][buying_price]" value="' + line_buying_price + '" readonly />';
 
-                        row.find('.purchase').append(input); // add currency and buying price as input 
+                        row.find('.purchase').append(input); // add currency and buying price as input
 
                         row.find('.buying_currency').html(' (' + newPurchaseData.buying_currency + ')'); // display b currency
                         //  row.find('.b-price-add').addClass('d-none'); // hide add button

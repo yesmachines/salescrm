@@ -97,6 +97,7 @@ class OrderService
 
     public function updateOrder(array $userData, $id): Object
     {
+
         $order = Order::find($id);
 
         $update = [];
@@ -147,6 +148,9 @@ class OrderService
         }
         if (isset($userData['status']) && !is_null($userData['status'])) {
             $update['status'] = $userData['status'];
+        }
+        if (isset($userData['manager_approval']) && !is_null($userData['manager_approval'])) {
+            $update['manager_approval'] = $userData['manager_approval'];
         }
 
         $order->update($update);

@@ -61,7 +61,7 @@
             @endif
             <textarea class="form-control" name="item_description[]" rows="2">{{$item->description}}</textarea>
           </td>
-          <td><input type="text" class="form-control unit-price" name="unit_price[]" value="{{$item->unit_price}}" readonly />
+          <td><input type="text" class="form-control unit-price" name="unit_price[]" value="{{$item->unit_price}}" />
             <p class="text-danger">MOSP: <span class="mosp-label">{{$item->product->margin_percent}}</span>%</p>
           </td>
           <td><input type="number" class="form-control quantity" name="quantity[]" step="any" min="1" value="{{$item->quantity}}" /></td>
@@ -232,7 +232,7 @@ $(document).ready(function() {
     }
   });
 
-  $(document).on('input change', '.quantity', function(e) {
+$(document).on('input change', '.quantity, .unit-price', function (e) {
 
     let row = $(this).closest('tr');
 
@@ -261,6 +261,7 @@ $(document).ready(function() {
     row.find('.margin-amount-row').val(quoteMargin);
 
     labelnewmargin.html(quoteMargin);
+      calculateOverallTotal();
   });
 
   $(document).on('input change', '.discount', function(e) {
@@ -1327,7 +1328,7 @@ function updateQuotationCharges(customPriceArray) {
           <div class="col-sm-1">
             <div class="form-check" style="display: flex; justify-content: flex-end;">
               <input type="hidden" name="is_visible[]" value="${hiddenInputValue}">
-              <input type="checkbox" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
+              <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
             </div>
           </div>`;
         }

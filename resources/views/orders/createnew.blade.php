@@ -320,6 +320,7 @@
     $('#add_delivery_item').on('submit', function(event) {
 
         event.preventDefault();
+         $(this).find("input[name*='[supplier_id]']").remove();
 
         var url = "{{route('orders.savestep2')}}";
 
@@ -531,6 +532,13 @@
         if (submitter == 'save-step4-draft') {
             formdata.append('status', 'draft');
         }
+        if (submitter == 'draft-step4-create-pr') {
+            formdata.append('status', 'draft');
+        }
+        if (submitter == 'save-os') {
+            formdata.append('manager_approval', '1');
+            formdata.append('status', 'open');
+        }
         var url = "{{route('orders.savestep4')}}";
 
         let order_id = $("#order_id_step4").val().trim();
@@ -568,7 +576,7 @@
                                 icon: "success"
                             });
                             setTimeout(() => {
-                                if (submitter == 'create-pr') {
+                                if (submitter == 'create-pr' || submitter == 'draft-step4-create-pr') {
                                     let pr_url = "{{ route('purchaserequisition.createnew', ':id') }}";
                                     window.location.href = pr_url.replace(":id", order.id);
                                 } else {
@@ -696,7 +704,7 @@
                             let input = `<input type="hidden" class="form-control" name="item[${indx}][buying_currency]" value="${newPurchaseData.buying_currency}" />
                         <input type="hidden" class="form-control" name="item[${indx}][buying_unit_price]" value="${newPurchaseData.buying_price}" />
                         <input type="text" class="form-control" name="item[${indx}][buying_price]" value="${line_buying_price}" readonly />`;
-                            row.find('.purchase').append(input); // add currency and buying price as input 
+                            row.find('.purchase').append(input); // add currency and buying price as input
                         } else {
 
                             bCurrencyField.val(newPurchaseData.buying_currency);

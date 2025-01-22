@@ -83,7 +83,7 @@
                 <h6>Selling Price (AED) To Client *</h6>
             </div>
             <div class="col-6">
-                <input type="text" class="form-control" id="selling_price" step="any" required name="selling_price" value="{{$order->selling_price}}">
+                <input type="text" class="form-control" id="selling_price" step="any" required name="selling_price" value="{{$order->selling_price}}" readonly>
             </div>
             <div class="col-2"></div>
         </div>

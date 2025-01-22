@@ -103,7 +103,7 @@ class CustomPriceController extends Controller
 
         $customPriceQuotes = $customPriceQuotes->map(function ($quote) {
           foreach ($quote->toArray() as $key => $value) {
-            if ($value === 0.0 || $value === null) {
+            if ($value === null) {
               unset($quote[$key]);
             }
           }
@@ -111,20 +111,13 @@ class CustomPriceController extends Controller
           $quote->source = 'custom_price';
           return $quote;
         });
-
-
         $customPrices = [];
         $unmatchedCharges = [];
-
-
         foreach ($customPriceQuotes as $quote) {
           $customPrices[] = $quote;
         }
 
-
         $quotationCharges = QuotationCharge::where('quotation_id', $id)->get();
-
-
         foreach ($quotationCharges as $charge) {
           $isMatched = false;
           foreach ($customPrices as $customPrice) {
@@ -139,11 +132,7 @@ class CustomPriceController extends Controller
             ];
           }
         }
-
-
         $customPrices = array_merge($customPrices, $unmatchedCharges);
-
-
         return response()->json($customPrices);
       }
 

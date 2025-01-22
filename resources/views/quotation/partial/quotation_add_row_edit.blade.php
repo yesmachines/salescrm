@@ -103,7 +103,7 @@
           <!-- Hidden input for unchecked state -->
 
           <input type="hidden" name="is_visible[]" value="0">
-          <input type="checkbox" id="exampleCheckbox" name="is_visible[]" value="1" onchange="updateCheckboxValue(this)">
+          <input type="hidden" id="exampleCheckbox" name="is_visible[]" value="1" onchange="updateCheckboxValue(this)">
         </div>
       </div>
 
@@ -188,13 +188,32 @@
     <div class="col-sm-3" style="text-align: left;">
 
       <input type="text" id="totalValue" name="total_value" value="{{$quotation->total_amount}}" class="form-control" readonly>
-      <input type="hidden" id="totalMarginValue" name="total_margin_value" value="{{$quotation->gross_margin}}" class="form-control">
+
 
       <!-- <input class="form-control" type="hidden" name="total_amount" value="{{$quotation->total_amount}}" />
       <input class="form-control" type="hidden" name="gross_margin" value="{{$quotation->gross_margin}}" /> -->
     </div>
 
   </div>
+
+  <div class="row" style="margin-top: 21px;margin-left:89px;">
+    <div class="col-sm-5">
+    </div>
+    <div class="col-sm-3" style="text-align: left">
+      <label class="form-check-label currency-label">
+        Total Margin ({{$quotation->preferred_currency}})
+      </label>
+    </div>:
+
+    <div class="col-sm-3" style="text-align: left;">
+      <input type="text" id="totalMarginValue" name="total_margin_value" value="{{$quotation->gross_margin}}" class="form-control" readonly>
+
+      <!-- <input class="form-control" type="hidden" name="total_amount" value="{{$quotation->total_amount}}" />
+      <input class="form-control" type="hidden" name="gross_margin" value="{{$quotation->gross_margin}}" /> -->
+    </div>
+
+  </div>
+
   <div class="row" style="padding-top:12px;">
     <div class="col-sm-5">
     </div>

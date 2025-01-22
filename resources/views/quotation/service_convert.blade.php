@@ -1047,6 +1047,10 @@ $(document).ready(function() {
   }
 
 
+  $(document).on('input', '.dynamic-field', function() {
+    updateHistorySellingPrice();
+  });
+
 
 
   function updateMarginPrice() {
@@ -1268,10 +1272,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
 
   priceBasisElement.addEventListener('change', function () {
-
     const priceBasis = this.value;
     const paymentTermId = paymentTermIdElement.value;
+
     historyCustomFieldsContainer.innerHTML = '';
+
     if (priceBasis) {
       fetch('/get-custom-fields', {
         method: 'POST',
@@ -1284,58 +1289,62 @@ document.addEventListener('DOMContentLoaded', function () {
           payment_term_id: paymentTermId,
         }),
       })
-      .then((response) => response.json())
-      .then((data) => {
-        historyCustomFieldsContainer.innerHTML = '';
+        .then((response) => response.json())
+        .then((data) => {
+          historyCustomFieldsContainer.innerHTML = '';
 
-        let rowContainer = document.createElement('div');
-        rowContainer.classList.add('row');
+          let rowContainer = document.createElement('div');
+          rowContainer.classList.add('row');
 
-        data.forEach((field, index) => {
-            const cleanedShortCode = field.short_code.replace(/_/g, ' ');
-          const fieldHTML = `
-          <div class="form-group col-md-6">
-          <label class="form-label">${cleanedShortCode}<span class="text-danger">*</span></label>
-          <input class="form-control dynamic-field" type="text"
-          name="${field.short_code}" data-field-name="${field.short_code}" />
-          </div>`;
-          rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+          data.forEach((field, index) => {
+            const fieldHTML = `
+            <div class="form-group col-md-6">
+              <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+              <input class="form-control dynamic-field" type="text"
+              name="${field.short_code}" data-field-name="${field.short_code}" value="0"/>
+            </div>`;
+            rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
-          if ((index + 1) % 2 === 0) {
-            historyCustomFieldsContainer.appendChild(rowContainer);
-            rowContainer = document.createElement('div');
-            rowContainer.classList.add('row');
-          }
-        });
-
-        if (rowContainer.children.length > 0) {
-          customFieldsContainer.appendChild(rowContainer);
-        }
-
-        const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
-        dynamicFields.forEach((input) => {
-          input.addEventListener('input', function () {
-            const fieldName = this.getAttribute('data-field-name').trim();
-            const fieldValue = parseFloat(this.value) || 0;
-
-            const fieldIndex = customsArray.findIndex(
-              (item) => item.field_name === fieldName
-            );
-            if (fieldIndex !== -1) {
-              customsArray[fieldIndex].value = fieldValue;
-            } else {
-              customsArray.push({ field_name: fieldName, value: fieldValue });
+            if ((index + 1) % 2 === 0) {
+              historyCustomFieldsContainer.appendChild(rowContainer);
+              rowContainer = document.createElement('div');
+              rowContainer.classList.add('row');
             }
-
-
-
-            updateHistorySellingPrice();
           });
-        });
-      })
-      .catch((error) => console.error('Error fetching custom fields:', error));
+
+          if (rowContainer.children.length > 0) {
+            historyCustomFieldsContainer.appendChild(rowContainer);
+          }
+
+          const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
+          dynamicFields.forEach((input) => {
+            input.addEventListener('input', function () {
+              const fieldName = this.getAttribute('data-field-name').trim();
+              const fieldValue = this.value.trim() === '' ? 0 : parseFloat(this.value); // Handle empty input as 0
+
+              const fieldIndex = customsArray.findIndex(
+                (item) => item.field_name === fieldName
+              );
+
+              if (fieldIndex !== -1) {
+                customsArray[fieldIndex].value = fieldValue;
+              } else {
+                customsArray.push({ field_name: fieldName, value: fieldValue });
+              }
+
+              updateHistorySellingPrice();
+            });
+
+            // Push the initial value (0) to customsArray for all fields
+            const fieldName = input.getAttribute('data-field-name').trim();
+            if (!customsArray.some((item) => item.field_name === fieldName)) {
+              customsArray.push({ field_name: fieldName, value: 0 });
+            }
+          });
+        })
+        .catch((error) => console.error('Error fetching custom fields:', error));
     } else {
-      customFieldsContainer.innerHTML = '';
+      historyCustomFieldsContainer.innerHTML = '';
     }
   });
 });
@@ -1560,6 +1569,13 @@ function updateQuotationPriceBasis() {
     document.getElementById("paymentTermError").style.display = "none";
   }
 }
+$(document).on('input', '.dynamic-field', function() {
+    let fieldValue = $(this).val();
+    if (fieldValue.trim() === '') {
+        $(this).val(0);
+    }
+});
+
 </script>
 
 @endsection
