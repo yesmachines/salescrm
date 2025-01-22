@@ -1231,7 +1231,7 @@
   $(document).ready(function() {
     $('input[type="number"]').on('input', function() {
        if ($(this).val() === '') {
-           $(this).val(0); 
+           $(this).val(0);
        }
    });
     $.ajaxSetup({
@@ -2660,6 +2660,12 @@ function updateQuotationPriceBasis() {
     document.getElementById("paymentTermError").style.display = "none";
   }
 }
+$(document).on('input', '.dynamic-field', function() {
+    let fieldValue = $(this).val();
+    if (fieldValue.trim() === '') {
+        $(this).val(0);
+    }
+});
 
 </script>
 @endsection

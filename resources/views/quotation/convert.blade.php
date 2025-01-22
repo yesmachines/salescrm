@@ -1567,6 +1567,14 @@ function updateQuotationPriceBasis() {
     document.getElementById("paymentTermError").style.display = "none";
   }
 }
+$(document).on('input', '.dynamic-field', function() {
+    let fieldValue = $(this).val();
+    // If the field is cleared (empty), set it to 0
+    if (fieldValue.trim() === '') {
+        $(this).val(0);
+    }
+});
+
 </script>
 
 @endsection
