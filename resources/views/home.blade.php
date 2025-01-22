@@ -1,6 +1,7 @@
 @extends('layouts.default')
 
 @section('content')
+@if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin'))
 <div class="container-xxl py-5">
   <div class="card-header text-white d-flex align-items-center justify-content-between" style="background-color: #33A4B1;">
     <h5 class="mb-0">Statistics for {{ now()->format('F Y') }}</h5>
@@ -86,6 +87,25 @@
     </div>
   </div>
 </div>
+@else
+<div class="container-xxl">
+    <!-- Page Header -->
+    <div class="hk-pg-header pg-header-wth-tab pt-7">
+        <div class="d-flex">
+            <div class="d-flex flex-wrap justify-content-between flex-1">
+                <div class="mb-lg-0 mb-2 me-8">
+                    <h1 class="pg-title">Welcome back</h1>
+                    <p>Dashboard will be available soon with new updates !!</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- /Page Header -->
+
+</div>
+@endif
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
