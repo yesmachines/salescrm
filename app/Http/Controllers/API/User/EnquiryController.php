@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Resources\PaginateResource;
 use Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LeadStatusToCoordinator;
 use App\Enums\EnquirySource;
 use App\Enums\EnquiryMode;
 use App\Enums\EnquiryPriority;
@@ -95,8 +97,8 @@ class EnquiryController extends Controller {
         $leadToQualifyStatusIds = $leadStatus->where('is_qualify', 0)->pluck('id');
         $leadQualifiedStatusIds = $leadStatus->where('is_qualify', 1)->pluck('id');
 
-        $data['to_qualify'] = Lead::where('assigned_to', $request->user()->id)->whereIn('status_id', $leadToQualifyStatusIds)->count();
-        $data['qualified'] = Lead::where('assigned_to', $request->user()->id)->whereIn('status_id', $leadQualifiedStatusIds)->count();
+        $data['to_qualify'] = Lead::where('assigned_to', $request->user()->employee->id)->whereIn('status_id', $leadToQualifyStatusIds)->count();
+        $data['qualified'] = Lead::where('assigned_to', $request->user()->employee->id)->whereIn('status_id', $leadQualifiedStatusIds)->count();
         $data['sahred'] = LeadShare::where('shared_by', $request->user()->id)->count();
         $data['sahred_to_me'] = LeadShare::where('shared_to', $request->user()->id)->count();
         return successResponse(trans('api.success'), $data);
@@ -120,7 +122,7 @@ class EnquiryController extends Controller {
                 ->orderBy('leads.enquiry_date', 'DESC');
 
         if (in_array($request->type, $enquiryTypes)) {
-            $enquirySql->where('leads.assigned_to', $request->user()->id)
+            $enquirySql->where('leads.assigned_to', $request->user()->employee->id)
                     ->where('leads.lead_type', $request->type);
             if (!empty($request->expo_id)) {
                 $enquirySql->where('leads.expo_id', $request->expo_id);
@@ -131,14 +133,14 @@ class EnquiryController extends Controller {
                     $leadQualifiedStatus = LeadStatus::where('status', 1)
                             ->where('is_qualify', 0)
                             ->pluck('id');
-                    $enquirySql->where('leads.assigned_to', $request->user()->id)
+                    $enquirySql->where('leads.assigned_to', $request->user()->employee->id)
                             ->whereIn('leads.status_id', $leadQualifiedStatus);
                     break;
                 case 'qualified':
                     $leadQualifiedStatus = LeadStatus::where('status', 1)
                             ->where('is_qualify', 1)
                             ->pluck('id');
-                    $enquirySql->where('leads.assigned_to', $request->user()->id)
+                    $enquirySql->where('leads.assigned_to', $request->user()->employee->id)
                             ->whereIn('leads.status_id', $leadQualifiedStatus);
                     break;
                 case 'sahred':
@@ -214,7 +216,13 @@ class EnquiryController extends Controller {
             $enquiry->enquiry_date = $request->enquiry_date;
             $enquiry->interested = $request->interested;
             $enquiry->details = $details;
-            $enquiry->assigned_to = ($product['assign_type'] == "share") ? $product['assign_id'] : $request->user()->id;
+
+            if ($product['assign_type'] == "share") {
+                $enquiry->assigned_to = \App\Models\Employee::where('user_id', $product['assign_id'])->first()->id;
+            } else {
+                $enquiry->assigned_to = $request->user()->employee->id;
+            }
+
             $enquiry->assigned_on = date('Y-m-d');
             $enquiry->status_id = $product['status_id'];
             if (!empty($request->enquiry_mode)) {
@@ -232,7 +240,7 @@ class EnquiryController extends Controller {
                         'status_id' => $enquiry->status_id,
                         'comment' => $historyMessage,
                         'priority' => $product['priority'],
-                        'userid' => $enquiry->created_by,
+                        'userid' => $request->user()->id,
                     ]
             );
             //Save to lead prodcuts
@@ -267,9 +275,9 @@ class EnquiryController extends Controller {
         }
 
         //if meeting schedule save with scheduled notes
-        if ($request->schedule_meeting) {
-            $this->createMeeting($request, $scheduled_notes);
-        }
+        /* if ($request->schedule_meeting) {
+          $this->createMeeting($request, $scheduled_notes);
+          } */
         return successResponse(trans('api.enquiry.created'));
     }
 
@@ -295,7 +303,7 @@ class EnquiryController extends Controller {
                 ->where('id', $id)
                 ->first();
 
-        if ($enquiry->assigned_to == $request->user()->id) {
+        if ($enquiry->assigned_to == $request->user()->employee->id) {
             $enquiry->editable = true;
         } else {
             $enquiry->editable = false;
@@ -418,6 +426,7 @@ class EnquiryController extends Controller {
 
         $enquiry = Lead::where('id', $id)->first();
         if ($enquiry) {
+            $currentStatus = $enquiry->status_id;
             $enquiry->status_id = $request->status_id;
             $enquiry->details = $request->notes;
 
@@ -458,7 +467,8 @@ class EnquiryController extends Controller {
             );
 
             if ($request->assign_type == 'share') {
-                $enquiry->assigned_to = $request->share_to;
+                $enquiry->assigned_to = \App\Models\Employee::where('user_id', $request->share_to)->first()->id;
+
                 LeadShare::create(
                         [
                             'lead_id' => $enquiry->id,
@@ -478,7 +488,20 @@ class EnquiryController extends Controller {
                 $this->notifyEnquiryShared($enquiry, $request->assistant_id, 'assist');
             }
         }
+        if ($currentStatus != $request->status_id && $request->assign_type != 'share') {
+            $this->emailCoordinator($enquiry);
+        }
         return successResponse(trans('api.success'));
+    }
+
+    public function emailCoordinator($enquiry) {
+        $coordinator = $this->getCoordinator($enquiry->assigned_to);
+        //if need more emails then can send as array of enails;
+        if (!empty($coordinator)) {
+            //$coordinator->email = "shainu.giraf@gmail.com";
+            Mail::to($coordinator->email)->send(new LeadStatusToCoordinator($enquiry, $coordinator));
+        }
+        return 1;
     }
 
     public function callLogs(Request $request) {

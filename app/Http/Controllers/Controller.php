@@ -38,7 +38,7 @@ class Controller extends BaseController {
         }
         return 1;
     }
-    
+
     function insertSharedDocs($mid, $docs) {
         foreach ($docs as $doc) {
             $meetingDoc = new \App\Models\MeetingSharedDoc();
@@ -50,9 +50,6 @@ class Controller extends BaseController {
     }
 
     function notifyAreaMnager($meeting) {
-        $userIds = \App\Models\EmployeeArea::where('area_id', $meeting->area_id)
-                ->pluck('user_id')
-                ->toArray();
         $requestedTimezone = \App\Models\Area::where('id', $meeting->area_id)->first()->timezone;
         $meetingTimeInUserTimezone = \Carbon\Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
         $body = [
@@ -63,7 +60,7 @@ class Controller extends BaseController {
                 'module_id' => $meeting->id
             ]
         ];
-        $body ['include_external_user_ids'] = $userIds;
+        $body ['include_external_user_ids'] = [$meeting->manager_id];
         $body ['channel_for_external_user_ids'] = 'push';
         $this->sendONotification($body);
         return 1;
@@ -84,11 +81,11 @@ class Controller extends BaseController {
                 break;
             case 'assist';
                 $body['headings'] = ['en' => trans('api.notification.title.assist_enquiry')];
-                $body['contents'] = ['en' => trans('api.notification.message.assist_enquiry', ['name' =>  auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
+                $body['contents'] = ['en' => trans('api.notification.message.assist_enquiry', ['name' => auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
                 break;
             case 'manager';
                 $body['headings'] = ['en' => trans('api.notification.title.area_enquiry', ['type' => $enquiry->lead_type_label])];
-                $body['contents'] = ['en' => trans('api.notification.message.area_enquiry', ['name' =>  auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
+                $body['contents'] = ['en' => trans('api.notification.message.area_enquiry', ['name' => auth('sanctum')->user()->name, 'type' => $enquiry->lead_type_label])];
                 break;
         }
 
@@ -98,11 +95,15 @@ class Controller extends BaseController {
         return 1;
     }
 
-    function getCoordinator() {
-        return $coordinator = \App\Models\User::select('users.id', 'users.name', 'users.email', 'ep.image_url as pimg')
+    function getCoordinator($managerId = null) {
+        $coordinator = \App\Models\User::select('users.id', 'users.name', 'users.email', 'ep.image_url as pimg')
                 ->join('employees as ep', 'ep.user_id', 'users.id')
-                ->join('employee_managers as em', 'em.employee_id', 'ep.id')
-                ->where('em.manager_id', auth()->user()->employee->id)
-                ->first();
+                ->join('employee_managers as em', 'em.employee_id', 'ep.id');
+        If (empty($managerId)) {
+            $coordinator->where('em.manager_id', auth()->user()->employee->id);
+        } else {
+            $coordinator->where('em.manager_id', $managerId);
+        }
+        return $coordinator->first();
     }
 }

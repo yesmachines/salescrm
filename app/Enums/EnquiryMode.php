@@ -7,6 +7,7 @@ enum EnquiryMode: string {
     case EMAIL = "email";
     case WHATSAPP = "whatsapp";
     case PHONE = "phone";
+    case FACETOFACE = "facetoface";
 
     // Human-readable label
     public function label(): string {
@@ -14,6 +15,7 @@ enum EnquiryMode: string {
             self::EMAIL => 'Email',
             self::WHATSAPP => 'WhatsApp',
             self::PHONE => 'Phone Call',
+            self::FACETOFACE => 'Face To Face',
         };
     }
 
@@ -23,6 +25,7 @@ enum EnquiryMode: string {
             'email' => self::EMAIL,
             'whatsapp' => self::WHATSAPP,
             'phone' => self::PHONE,
+            'facetoface' => self::FACETOFACE,
         ];
     }
 

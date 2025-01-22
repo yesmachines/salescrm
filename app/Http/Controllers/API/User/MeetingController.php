@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Validator;
 use App\Http\Resources\PaginateResource;
+use App\Models\User;
 use App\Models\Meeting;
 use App\Models\MeetingProduct;
 use App\Models\MeetingShare;
@@ -58,7 +59,10 @@ class MeetingController extends Controller {
         $meeting->timezone = $request->timezone;
         if (!empty($request->area_id)) {
             $meeting->area_id = $request->area_id;
-            $sendPushToAreaManager = true;
+            if (!empty($request->manager_id)) {
+                $meeting->manager_id = $request->manager_id;
+                $sendPushToAreaManager = true;
+            }
         }
         $meeting->scheduled_notes = $request->scheduled_notes;
         $meeting->save();
@@ -94,9 +98,9 @@ class MeetingController extends Controller {
                 if (!empty($request->products)) {
                     $this->insertProducts($meeting->id, $request->products);
                 }
-                //Send Email To client
+                //Send Email To client - get email template and enable
                 if (!empty($meeting->email)) {
-                    $this->sendEmailToClient($meeting);
+                    //$this->sendEmailToClient($meeting);
                 }
 
                 return successResponse(trans('api.meeting.notes_created'), ['meeting_id' => $meeting->id]);
@@ -109,7 +113,7 @@ class MeetingController extends Controller {
 
     public function sendEmailToClient($meeting) {
         $meeting->scheduled_at = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone)->format('M d, Y h:i A');
-        $meeting->email = 'shainu.giraf@gmail.com';
+        //$meeting->email = 'shainu.giraf@gmail.com';
         Notification::send($meeting, new EmailMeetingToClient($meeting));
     }
 
@@ -358,13 +362,16 @@ class MeetingController extends Controller {
                             ->where('meeting_products.meeting_id', $id)
                             ->get();
                     $meeting->area;
+                    $meeting->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                                    ->join('employees', 'employees.user_id', 'users.id')
+                                    ->where('users.id', $meeting->manager_id)->first();
                     $meeting->docs;
                     $meeting->editable = ($meeting->status < 2) ? true : false;
                     $meeting->dt_editable = ($meeting->status == 0) ? true : false;
                     break;
                 case 'shared':
                     $meeting = MeetingShare::findOrFail($id);
-                    $parentMeeting = Meeting::select('area_id', 'scheduled_at')->where('id', $meeting->meeting_id)->first();
+                    $parentMeeting = Meeting::select('area_id', 'scheduled_at', 'manager_id')->where('id', $meeting->meeting_id)->first();
                     $meetingTime = Carbon::parse($parentMeeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
                     $meeting->products = MeetingSharedProduct::select('meeting_shared_products.id', 'suppliers.brand', 'products.title')
                             ->join('suppliers', 'suppliers.id', 'meeting_shared_products.supplier_id')
@@ -378,6 +385,9 @@ class MeetingController extends Controller {
                     $meeting->editable = false;
                     $meeting->dt_editable = false;
                     $meeting->area = $parentMeeting->area;
+                    $meeting->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                                    ->join('employees', 'employees.user_id', 'users.id')
+                                    ->where('users.id', $parentMeeting->manager_id)->first();
                     break;
             }
             $meeting->type = $request->type;
