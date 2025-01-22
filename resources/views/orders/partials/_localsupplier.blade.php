@@ -111,10 +111,10 @@
                     <input type="hidden" class="form-control supplier-local" value="${supplier.id}" name="supplier[${cntSRow}][supplier_id]" />
                 </td>
                 <td width="20%">
-                    <input type="text" class="form-control" name="supplier[${cntSRow}][price_basis]" value="aed" readonly/>                    
+                    <input type="text" class="form-control" name="supplier[${cntSRow}][price_basis]" value="aed" readonly/>
                 </td>
                 <td width="20%">
-                    <input type="text" class="form-control"  name="supplier[${cntSRow}][delivery_term]" value="Exworks" readonly/>   
+                    <input type="text" class="form-control"  name="supplier[${cntSRow}][delivery_term]" value="Exworks" readonly/>
                 </td>
                 <td width="30%">
                     <textarea rows="2" name="supplier[${cntSRow}][remarks]" placeholder="Supplier Remarks" class="form-control"></textarea>
@@ -169,10 +169,10 @@
         });
 
         $("#itemcustomFields").on('click', '.remIT', function() {
-
             let row = $(this).closest('tr');
             let irow = row.data('index');
-            let linetotal = row.find("input[name='item[" + irow + "][total_amount]']").val() || 0;
+            let selProductId = row.find("input[name='item[" + irow + "][product_id]']").val(); // Get the product ID
+            let supplierId = row.find("input[name='item[" + irow + "][supplier_id]']").val(); // Get the supplier ID
 
             Swal.fire({
                 title: "Are you sure?",
@@ -184,10 +184,16 @@
                 confirmButtonText: "Yes, delete it!"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // recalculateMarginAmount(linetotal);
+                    row.remove(); // Remove the item row
 
-                    $(this).parents('tr').remove();
-
+                    // Remove the associated supplier row
+                    $("#supplierFields").find('tr').each(function() {
+                        let supplierRow = $(this);
+                        let supplierIdInRow = supplierRow.find("input[name^='supplier['][name$='[supplier_id]']").val();
+                        if (supplierIdInRow === supplierId) {
+                            supplierRow.remove(); // Remove the supplier row if it matches
+                        }
+                    });
                 }
             });
         });
@@ -297,7 +303,8 @@
                         if (buyingPrice > 0) {
                             bpHtml += `<input type="hidden" class="form-control" name="item[${rowCnt}][buying_currency]" value="aed" />
                                 <input type="hidden" class="form-control" name="item[${rowCnt}][buying_unit_price]" value="${buying_unit_price}" />
-                                <input type="text" class="form-control" name="item[${rowCnt}][buying_price]" value="${buyingPrice}" readonly />`;
+                                <input type="text" class="form-control" name="item[${rowCnt}][buying_price]" value="${buyingPrice}" readonly />
+                                     <input type="hidden" name="item[${rowCnt}][supplier_id]" value="${productData[selProductId].supplier.id}" />`;
 
                         }
                         newRow += `<tr valign="top" id="row-p${selProductId}" data-index="${rowCnt}">
@@ -319,7 +326,7 @@
                         <td width="12%">
                             <label class="text-primary small">Selling Price (AED)</label>
                             <input type="text" class="form-control" name="item[${rowCnt}][total_amount]" value="${total}" placeholder="Total Amount" readonly/>
-                            <div class="purchase mt-3">                                
+                            <div class="purchase mt-3">
                                 <label class="text-primary small">Buying Price (AED)</label>
                                 ${bpHtml}
                                 <a href="javascript:void(0);" class="b-price-add btn btn-primary btn-sm mt-1" data-pid="${selProductId}" data-bs-toggle="modal" data-bs-target="#addpurchase"> <i class="fas fa-plus"></i> ADD</a>
@@ -344,7 +351,7 @@
                         /*  */
                         $("#itemcustomFields").find('tbody').append(newRow);
 
-                        // add local supplier 
+                        // add local supplier
                         addLocalSupplier(supplierData);
 
                         // calculateMarginAmount(total); // Projected Margin price calculate

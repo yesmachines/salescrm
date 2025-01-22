@@ -320,6 +320,7 @@
     $('#add_delivery_item').on('submit', function(event) {
 
         event.preventDefault();
+         $(this).find("input[name*='[supplier_id]']").remove();
 
         var url = "{{route('orders.savestep2')}}";
 
@@ -533,6 +534,10 @@
         }
         if (submitter == 'draft-step4-create-pr') {
             formdata.append('status', 'draft');
+        }
+        if (submitter == 'save-os') {
+            formdata.append('manager_approval', '1');
+            formdata.append('status', 'open');
         }
         var url = "{{route('orders.savestep4')}}";
 

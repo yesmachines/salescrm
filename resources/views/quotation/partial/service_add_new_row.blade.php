@@ -944,12 +944,9 @@ function saveAdditionalFieldsHandler(isValid) {
 }
 
 function resetModalValues() {
-  $('#sellingPriceHistory').val('');
-  $('#marginPercentageHistory').val('');
-  $('#quoteCurrencyHistory').val('');
-  $('#marginPriceHistory').val('');
-  $('input[name="product_ids"]').val('');
-  $('#priceBasis').val('');
+
+  $('#additionalFieldsModal input[type="text"]').val('');
+  $('#additionalFieldsModal select').prop('selectedIndex', 0);
 }
 
 function updateMarginPrice() {

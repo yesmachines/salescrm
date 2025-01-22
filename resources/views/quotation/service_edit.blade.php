@@ -1098,77 +1098,77 @@
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="packing">Packing</label>
-                <input class="form-control" type="number" min="0" id="packing" name="packing" value="0" data-field-name="packing" />
+                <input class="form-control" type="number" min="0" id="packing" name="packing"  data-field-name="packing" required/>
                 <div class="invalid-feedback">Please enter a valid Packing.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="road_transport_to_port">Road Transport To Port</label>
-                <input class="form-control" type="number" min="0" id="road_transport_to_port" name="road_transport_to_port" value="100" data-field-name="road_transport_to_port" />
+                <input class="form-control" type="number" min="0" id="road_transport_to_port" name="road_transport_to_port" value="100" data-field-name="road_transport_to_port" required/>
                 <div class="invalid-feedback">Please enter a valid Road Transport To Port.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="freight">Freight</label>
-                <input class="form-control" type="number" min="0" id="freight" name="freight" value="0" data-field-name="freight" />
+                <input class="form-control" type="number" min="0" id="freight" name="freight"  data-field-name="freight" required/>
                 <div class="invalid-feedback">Please enter a valid Freight.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="insurance">Insurance</label>
-                <input class="form-control" type="number" min="0" id="insurance" name="insurance" value="0" data-field-name="insurance" />
+                <input class="form-control" type="number" min="0" id="insurance" name="insurance"  data-field-name="insurance" required/>
                 <div class="invalid-feedback">Please enter a valid Insurance.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="clearing">Clearing</label>
-                <input class="form-control" type="number" min="0" id="clearing" name="clearing" value="0" data-field-name="clearing" />
+                <input class="form-control" type="number" min="0" id="clearing" name="clearing"  data-field-name="clearing" required/>
                 <div class="invalid-feedback">Please enter a valid Clearing.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="boe">BOE</label>
-                <input class="form-control" type="number" min="0" id="boe" name="boe" value="0" data-field-name="boe" />
+                <input class="form-control" type="number" min="0" id="boe" name="boe"  data-field-name="boe" required/>
                 <div class="invalid-feedback">Please enter a valid BOE.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="handling_and_local_transport">Handling and Local Transport</label>
-                <input class="form-control" type="number" min="0" id="handling_and_local_transport" name="handling_and_local_transport" value="0" data-field-name="handling_and_local_transport" />
+                <input class="form-control" type="number" min="0" id="handling_and_local_transport" name="handling_and_local_transport"  data-field-name="handling_and_local_transport" required/>
                 <div class="invalid-feedback">Please enter a valid Handling and Local Transport.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="customs">Customs</label>
-                <input class="form-control" type="number" min="0" id="customs" name="customs" value="0" data-field-name="customs" />
+                <input class="form-control" type="number" min="0" id="customs" name="customs"  data-field-name="customs" required/>
                 <div class="invalid-feedback">Please enter a valid Customs.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="delivery_charge">Delivery Charge</label>
-                <input class="form-control" type="number" min="0" id="delivery_charge" name="delivery_charge" value="0" data-field-name="delivery_charge" />
+                <input class="form-control" type="number" min="0" id="delivery_charge" name="delivery_charge"  data-field-name="delivery_charge" required/>
                 <div class="invalid-feedback">Please enter a valid Delivery Charge.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="mofaic">MOFAIC</label>
-                <input class="form-control" type="number" min="0" id="mofaic" name="mofaic" value="0" data-field-name="mofaic" />
+                <input class="form-control" type="number" min="0" id="mofaic" name="mofaic"  data-field-name="mofaic" required/>
                 <div class="invalid-feedback">Please enter a valid MOFAIC.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="surcharges">Surcharges</label>
-                <input class="form-control" type="number" min="0" id="surcharges" name="surcharges" value="0" data-field-name="surcharges" />
+                <input class="form-control" type="number" min="0" id="surcharges" name="surcharges"  data-field-name="surcharges" required/>
                 <div class="invalid-feedback">Please enter a valid Surcharges.</div>
               </div>
             </div>
@@ -1229,6 +1229,11 @@
 
   <script type="text/javascript">
   $(document).ready(function() {
+    $('input[type="number"]').on('input', function() {
+       if ($(this).val() === '') {
+           $(this).val(0); 
+       }
+   });
     $.ajaxSetup({
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1865,7 +1870,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceBasis = this.value;
     const paymentTermId = paymentTermIdElement.value;
 
-
     historyCustomFieldsContainer.innerHTML = '';
 
     if (priceBasis) {
@@ -1880,57 +1884,62 @@ document.addEventListener('DOMContentLoaded', function () {
           payment_term_id: paymentTermId,
         }),
       })
-      .then((response) => response.json())
-      .then((data) => {
-        historyCustomFieldsContainer.innerHTML = '';
+        .then((response) => response.json())
+        .then((data) => {
+          historyCustomFieldsContainer.innerHTML = '';
 
-        let rowContainer = document.createElement('div');
-        rowContainer.classList.add('row');
+          let rowContainer = document.createElement('div');
+          rowContainer.classList.add('row');
 
-        data.forEach((field, index) => {
-          const fieldHTML = `
-          <div class="form-group col-md-6">
-          <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
-          <input class="form-control dynamic-field" type="text"
-          name="${field.short_code}" data-field-name="${field.short_code}" />
-          </div>`;
-          rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
+          data.forEach((field, index) => {
+            const fieldHTML = `
+            <div class="form-group col-md-6">
+              <label class="form-label">${field.field_name}<span class="text-danger">*</span></label>
+              <input class="form-control dynamic-field" type="text"
+              name="${field.short_code}" data-field-name="${field.short_code}" value="0"/>
+            </div>`;
+            rowContainer.insertAdjacentHTML('beforeend', fieldHTML);
 
-          if ((index + 1) % 2 === 0) {
-            historyCustomFieldsContainer.appendChild(rowContainer);
-            rowContainer = document.createElement('div');
-            rowContainer.classList.add('row');
-          }
-        });
-
-        if (rowContainer.children.length > 0) {
-          customFieldsContainer.appendChild(rowContainer);
-        }
-
-        const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
-        dynamicFields.forEach((input) => {
-          input.addEventListener('input', function () {
-            const fieldName = this.getAttribute('data-field-name').trim();
-            const fieldValue = parseFloat(this.value) || 0;
-
-            const fieldIndex = customsArray.findIndex(
-              (item) => item.field_name === fieldName
-            );
-            if (fieldIndex !== -1) {
-              customsArray[fieldIndex].value = fieldValue;
-            } else {
-              customsArray.push({ field_name: fieldName, value: fieldValue });
+            if ((index + 1) % 2 === 0) {
+              historyCustomFieldsContainer.appendChild(rowContainer);
+              rowContainer = document.createElement('div');
+              rowContainer.classList.add('row');
             }
-
-            console.log("Custom Fields Array Updated:", customsArray);
-
-            updateHistorySellingPrice();
           });
-        });
-      })
-      .catch((error) => console.error('Error fetching custom fields:', error));
+
+          if (rowContainer.children.length > 0) {
+            historyCustomFieldsContainer.appendChild(rowContainer);
+          }
+
+          const dynamicFields = historyCustomFieldsContainer.querySelectorAll('.dynamic-field');
+          dynamicFields.forEach((input) => {
+            input.addEventListener('input', function () {
+              const fieldName = this.getAttribute('data-field-name').trim();
+              const fieldValue = this.value.trim() === '' ? 0 : parseFloat(this.value); // Handle empty input as 0
+
+              const fieldIndex = customsArray.findIndex(
+                (item) => item.field_name === fieldName
+              );
+
+              if (fieldIndex !== -1) {
+                customsArray[fieldIndex].value = fieldValue;
+              } else {
+                customsArray.push({ field_name: fieldName, value: fieldValue });
+              }
+
+              updateHistorySellingPrice();
+            });
+
+            // Push the initial value (0) to customsArray for all fields
+            const fieldName = input.getAttribute('data-field-name').trim();
+            if (!customsArray.some((item) => item.field_name === fieldName)) {
+              customsArray.push({ field_name: fieldName, value: 0 });
+            }
+          });
+        })
+        .catch((error) => console.error('Error fetching custom fields:', error));
     } else {
-      customFieldsContainer.innerHTML = '';
+      historyCustomFieldsContainer.innerHTML = '';
     }
   });
 });
@@ -2527,6 +2536,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let mofaic = $('#mofaic').val();
     let surcharges = $('#surcharges').val();
 
+
     let customFields = [];
     $('.custom-field').each(function() {
       customFields.push({
@@ -2650,5 +2660,6 @@ function updateQuotationPriceBasis() {
     document.getElementById("paymentTermError").style.display = "none";
   }
 }
+
 </script>
 @endsection

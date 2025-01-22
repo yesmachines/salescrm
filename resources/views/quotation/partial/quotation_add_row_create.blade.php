@@ -410,7 +410,7 @@
       if (selectedValueId == 'is_stock') {
         var deliveryText = 'On stock subject to prior sale. Delivery available within ' + weeksValue + ' ' + selectedPeriod;
       } else {
-        var deliveryText = 'Out of stock.Production time ' + weeksValue + ' ' + selectedPeriod + ' from the date of PO along with advance payment (if any)';
+        var deliveryText = 'Out of stock.Production time ' + weeksValue + ' ' + selectedPeriod + ' from the date of PO along with advance payment (if any)(holidays excluded)';
       }
 
       $('#quotation_terms_delivery').text(deliveryText);

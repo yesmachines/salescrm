@@ -674,6 +674,10 @@
         if (submitter == 'draft-step4-create-pr') {
             formdata.append('status', 'draft');
         }
+        if (submitter == 'save') {
+            formdata.append('manager_approval', '1');
+            formdata.append('status', 'open');
+        }
         let order_id = $("#order_id_step4").val().trim();
         if (order_id == '') {
             alert("Please complete and save step3 details");

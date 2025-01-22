@@ -192,11 +192,13 @@
     <div class="col-8">
       <button type="button" class="btn btn-default prev-step m-2"><i class="fa fa-chevron-left"></i> Back</button>
       <button type="submit" id="order_delivery_draft m-2" class="btn btn-secondary" value="save-step4-draft">Save as Draft</button>
-      <button type="submit" id="order_delivery_details_button m-2" class="btn btn-success" value="save">Save & Finish</button>
-      @if(!auth()->user()->hasRole('coordinators'))
-      <button type="submit" id="save_os_create_pr m-2" class="btn btn-primary" value="create-pr">Save & Create PR</button>
+      @if(auth()->user()->hasRole('coordinators'))
+        <button type="submit" id="draft_os_create_pr m-2" class="btn btn-primary" value="draft-step4-create-pr">Draft & Create PR</button>
       @else
-      <button type="submit" id="draft_os_create_pr m-2" class="btn btn-primary" value="draft-step4-create-pr">Draft & Create PR</button>
+       @if($order->manager_approval == 0)
+      <button type="submit" id="order_delivery_details_button m-2" class="btn btn-success" value="save">Approve & Save</button>
+      @endif
+       <button type="submit" id="save_os_create_pr m-2" class="btn btn-primary" value="create-pr">Save & Create PR</button>
       @endif
     </div>
     <div class="col-2"></div>

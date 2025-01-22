@@ -59,20 +59,6 @@
 
                     </div>
                   </div>
-                  <div class="col-sm-4 col-lg-4" style="margin-top:15px;">
-                    @if($order->status == 'draft')
-                    <a
-                    class="dropdown-item btn btn-light text-dark"
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#statusModal"
-                    data-order-id="{{ $order->id }}"
-                    data-current-status="{{ $order->status }}"
-                    >
-                    <span>Manager Approval</span>
-                  </a>
-                  @endif
-                </div>
 
               </div>
               <div class="col-xxl-4 col-lg-5 mt-lg-0 mt-3">

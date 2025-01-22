@@ -265,7 +265,9 @@ class OrderController extends Controller
       // Recalculate buying price total
 
       $buyingPrice = [];
+
       foreach ($input['item'] as $item) {
+
 
         // calculate buying price - OS
         if (!empty($item['buying_price']) && isset($item['buying_price'])) {
@@ -372,9 +374,13 @@ class OrderController extends Controller
       'order_id'         => $input['order_id'],
       'buying_price'     => $input['buying_price_total'],
       'projected_margin' => $input['projected_margin']
+
     ];
     if (isset($input['status'])) {
       $oupdate['status'] = $input['status'];
+    }
+    if (isset($input['manager_approval'])) {
+      $oupdate['manager_approval'] = $input['manager_approval'];
     }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 
@@ -695,9 +701,14 @@ class OrderController extends Controller
       'order_id'         => $input['order_id'],
       'buying_price'     => $input['buying_price_total'],
       'projected_margin' => $input['projected_margin']
+
     ];
     if (isset($input['status'])) {
       $oupdate['status'] = $input['status'];
+
+    }
+    if (isset($input['manager_approval'])) {
+      $oupdate['manager_approval'] = $input['manager_approval'];
     }
     $order = $orderService->updateOrder($oupdate, $input['order_id']);
 

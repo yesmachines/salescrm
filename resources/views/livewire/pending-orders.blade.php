@@ -111,12 +111,9 @@
               <a class="dropdown-item" href="{{ route('orders.show', $order->id) }}"><span class="feather-icon dropdown-icon"><i data-feather="eye"></i></span><span>View</span></a>
               @if($order->status == 'draft')
               <a class="dropdown-item" href="{{route('orders.edit',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="edit"></i></span><span>Edit</span></a>
-        
-              @endif
 
-              @if($order->status != 'draft')
-              <a class="dropdown-item" href="{{route('purchaserequisition.createnew',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="plus-circle"></i></span><span>Create PR</span></a>
               @endif
+              <a class="dropdown-item" href="{{route('purchaserequisition.createnew',$order->id)}}"><span class="feather-icon dropdown-icon"><i data-feather="plus-circle"></i></span><span>Create PR</span></a>
               <a class="dropdown-item del-button d-none" href="#" onclick="deleteOrder({{$order->id}});"><span class="feather-icon dropdown-icon"><i data-feather="trash"></i></span><span>Delete</span></a>
               {!! Form::open(['method' => 'DELETE','route' => ['orders.destroy', $order->id],'style'=>'display:none',
               'id' => 'delete-form-'.$order->id]) !!}
