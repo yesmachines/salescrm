@@ -1529,6 +1529,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+$('#additionalFieldsModal').on('hidden.bs.modal', function () {
+    $('#historyPriceBasis').val('').trigger('change');
+    $('#historyPaymentTermId').val('');
+});
+
 function updateQuotationPriceBasis() {
   const selectedPaymentTerm = document.getElementById("productPriceBasis").value;
   const selectedHistoryPaymentTerm = document.getElementById("historyPriceBasis").value;
