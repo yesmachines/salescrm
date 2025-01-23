@@ -18,7 +18,7 @@
             </div>
 
             <div class="card-body">
-              <div class="chart-container" style="height: 550px;">
+              <div class="chart-container" style="height: 480px;">
                 <canvas id="employeePieChart"></canvas>
               </div>
             </div>
@@ -30,7 +30,7 @@
               <h6 class="mb-0">Order Performance</h6>
             </div>
             <div class="card-body">
-              <div class="chart-container" style="height: 550px;">
+              <div class="chart-container" style="height: 480px;">
                 <canvas id="orderPieChart"></canvas>
               </div>
             </div>
@@ -47,7 +47,7 @@
               <h6 class="mb-0">Yearly Quotation Statistics</h6>
             </div>
             <div class="card-body">
-              <div class="chart-container" style="height: 550px;">
+              <div class="chart-container" style="height: 500px;">
                 <canvas id="employeeYearlyPieChart"></canvas>
               </div>
             </div>
@@ -61,7 +61,7 @@
               <h6 class="mb-0">Yearly Order Performance</h6>
             </div>
             <div class="card-body">
-              <div class="chart-container" style="height: 450px;">
+              <div class="chart-container" style="height: 400px;">
                 <canvas id="orderYearlyPieChart"></canvas>
               </div>
             </div>
