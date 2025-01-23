@@ -411,7 +411,7 @@ $(document).ready(function() {
 
           if (response && response.customPrices) {
             // Check if the ID already exists in customPriceArray
-            const exists = customPriceArray.some(item => item.id === response.customPrices.id);
+            const exists = customPriceArray.some(item => item.product_id === response.customPrices.product_id);
 
             if (!exists) {
 
@@ -419,7 +419,6 @@ $(document).ready(function() {
               const customPriceJSON = JSON.stringify(customPriceArray);
 
               document.getElementById('customprice').value = customPriceJSON;
-              console.log(customPriceArray);
               updateQuotationCharges(customPriceArray);
 
             } else {

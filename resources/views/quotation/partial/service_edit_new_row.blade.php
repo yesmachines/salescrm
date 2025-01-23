@@ -485,7 +485,7 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
           if (response && response.customPrices) {
 
 
-            const exists = customPriceArray.some(item => item.id === response.customPrices.id);
+            const exists = customPriceArray.some(item => item.product_id === response.customPrices.product_id);
 
             if (!exists) {
               customPriceArray.push(response.customPrices);
