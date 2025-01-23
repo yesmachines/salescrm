@@ -484,7 +484,7 @@ $(document).ready(function() {
           if (response && response.customPrices) {
 
 
-            const exists = customPriceArray.some(item => item.id === response.customPrices.id);
+            const exists = customPriceArray.some(item => item.product_id === response.customPrices.product_id);
 
             if (!exists) {
               customPriceArray.push(response.customPrices);
@@ -1373,7 +1373,7 @@ function updateQuotationCharges(customPriceArray) {
           // For custom price case, add the checkbox and keep the original layout
           rowContainer.innerHTML = `
           <div class="col-sm-3" style="text-align: right;">
-      
+
          </div>
           ${checkboxHTML}
           <div class="col-sm-4">
