@@ -78,6 +78,9 @@ class LoginController extends Controller
         }
     }
     public function testEmail() {
+        $coordinator = new \stdClass();
+        $coordinator->name = 'Shainu';
+         return view('emails.lead_update_status_to_cord', compact('coordinator'));
         $meeting = \App\Models\Meeting::findOrFail('9d7087a2-b577-4488-9973-49c23529b7af');
         $mailData = \App\Models\MeetingShare::find('9d7a1c2f-89c6-40bd-88b1-390a71f35672');
          $meetingDate = \Carbon\Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($meeting->timezone);
