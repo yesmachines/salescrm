@@ -329,35 +329,22 @@ $(document).ready(function() {
       if (result.isConfirmed) {
         let row = $(this).parents('tr');
         let productId = row.find('input[name="item_id[]"]').val();
-        let quotationId = document.getElementById('quotation_id').value;
-
 
         customPriceArray = customPriceArray.filter(function(item) {
           return item.product_id !== parseInt(productId);
         });
 
+        removeQuotationRow(row);
+        row.remove();
 
-        $.ajax({
-          url: `/delete-item/${productId}`,
-          type: "DELETE",
-          data: {
-            quotation_id: quotationId,
-            _token: $('meta[name="csrf-token"]').attr("content"),
-          },
-          success: function(response) {
-            removeQuotationRow(row);
-            row.remove();
-            updateQuotationCharges(customPriceArray);
-            calculateOverallTotal();
-          },
-          error: function() {
-            Swal.fire("Error", "An error occurred while deleting the product.", "error");
-          }
-        });
+
+        updateQuotationCharges(customPriceArray);
+
+        calculateOverallTotal();
+
       }
     });
   });
-
 
   function deleteCustomPriceQuote(quoteId, productId) {
 

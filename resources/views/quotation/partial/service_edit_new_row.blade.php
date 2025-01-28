@@ -329,41 +329,24 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        let row = $(this).parents('tr');  // Find the closest row
-        let productId = row.find('input[name="item_id[]"]').val();  // Get the product ID from the row
-        let quotationId = document.getElementById('quotation_id').value;  // Get the quotation ID
+        let row = $(this).parents('tr');
+        let productId = row.find('input[name="item_id[]"]').val();
 
-        // Remove the product from customPriceArray
         customPriceArray = customPriceArray.filter(function(item) {
-          return item.product_id !== parseInt(productId);  // Filter out the product from the array
+          return item.product_id !== parseInt(productId);
         });
 
-        // AJAX call to remove the item from the database (if it exists)
-        $.ajax({
-          url: `/delete-item/${productId}`, // Pass productId in the URL
-          type: "DELETE", // Use DELETE method
-          data: {
-            quotation_id: quotationId, // Send quotation_id as part of the data payload
-            _token: $('meta[name="csrf-token"]').attr("content"), // Include CSRF token
-          },
-          success: function(response) {
-            // Remove the row from the UI
-            removeQuotationRow(row);
-            row.remove();
+        removeQuotationRow(row);
+        row.remove();
 
-            // Update customPriceArray and other UI elements as needed
-            updateQuotationCharges(customPriceArray);
-            calculateOverallTotal();
-          },
-          error: function() {
-            // Handle any AJAX errors gracefully
-            Swal.fire("Error", "An error occurred while deleting the product.", "error");
-          }
-        });
+
+        updateQuotationCharges(customPriceArray);
+
+        calculateOverallTotal();
+
       }
     });
   });
-
 
   function deleteCustomPriceQuote(quoteId, productId) {
 
