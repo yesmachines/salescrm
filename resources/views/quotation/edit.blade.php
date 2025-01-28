@@ -855,7 +855,7 @@
                 <label class="form-label">Price Basis<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
-                <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="quotationPriceBasisAlert()">
+                <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="quotationPriceBasisAlert()" disabled>
                   <option value="" disabled selected>-- Select Price Basis --</option>
                   @foreach($paymentTerms as $paymentTerm)
                   <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
@@ -1889,18 +1889,33 @@ document.getElementById('productPriceBasis').addEventListener('change', function
 </script>
 
 <script>
-let customsArray = [];
-
 document.addEventListener('DOMContentLoaded', function () {
-  const priceBasisElement = document.getElementById('historyPriceBasis');
-  const paymentTermIdElement = document.getElementById('historyPaymentTermId');
   const historyCustomFieldsContainer = document.getElementById('customFieldsContainer');
+  const additionalText = document.getElementById('additionalText');
+  const paymentTermElement = document.getElementById('paymentTerm');
+  const historyPriceBasis = document.getElementById('historyPriceBasis');
+  const paymentTermIdElement = document.getElementById('historyPaymentTermId');
 
-  priceBasisElement.addEventListener('change', function () {
-    const priceBasis = this.value;
+  additionalText.addEventListener('click', function () {
+    const selectedValue = paymentTermElement.value;
+
+    historyPriceBasis.value = "";
+
+    for (let i = 0; i < historyPriceBasis.options.length; i++) {
+      if (historyPriceBasis.options[i].value === selectedValue) {
+        historyPriceBasis.value = selectedValue;
+
+        const paymentTermId = historyPriceBasis.options[i].getAttribute('data-id');
+        paymentTermIdElement.value = paymentTermId;
+        break;
+      }
+    }
+
+    const priceBasis = historyPriceBasis.value;
     const paymentTermId = paymentTermIdElement.value;
 
     historyCustomFieldsContainer.innerHTML = '';
+    customsArray = [];
 
     if (priceBasis) {
       fetch('/get-custom-fields', {
@@ -1973,8 +1988,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
-
-
 </script>
 
 <script>

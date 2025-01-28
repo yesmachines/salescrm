@@ -1384,13 +1384,14 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     ` : '';
 
     // Only show the delete button for manually entered rows (not custom)
-    const deleteButtonHTML = !isCustomCharge ? `
-      <div class="col-sm-1">
-        <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    ` : '';
+    const showDeleteButton = Object.keys(groupedCharges).length > 1 && !isCustomCharge;
+   const deleteButtonHTML = showDeleteButton ? `
+     <div class="col-sm-1">
+       <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+         <i class="fas fa-trash"></i>
+       </button>
+     </div>
+   ` : '';
 
     // If it's a manual charge (not from customPriceArray), add it to the manualChargesTotal
     if (!isCustomCharge) {
@@ -1428,6 +1429,10 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     quotationChargesContainer.appendChild(rowContainer);
     index++;
   });
+  if (Object.keys(groupedCharges).length === 1) {
+  const deleteButtons = document.querySelectorAll('.remove-button');
+  deleteButtons.forEach(button => button.style.display = 'none');
+}
 
   return manualChargesTotal;
 }

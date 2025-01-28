@@ -181,7 +181,8 @@ class QuotationController extends Controller
         'suppliers',
         'paymentCycles',
         'paymentTermList',
-        'quotationType'
+        'quotationType',
+        
       ));
 
     }else{
@@ -1032,17 +1033,24 @@ class QuotationController extends Controller
     return response()->json($results);
   }
 
-  public function deleteItem($itemId)
-  {
-    $item = QuotationItem::find($itemId);
+  public function deleteItem(Request $request, $productId)
+{
+    $quotationId = $request->input('quotation_id');
+
+    // Find the item in the database
+    $item = QuotationItem::where('item_id', $productId)
+                         ->where('quotation_id', $quotationId)
+                         ->first();
 
     if ($item) {
-      $item->delete();
-      return response()->json(['message' => 'Item deleted successfully']);
+        // If the item exists, delete it
+        $item->delete();
     }
 
-    return response()->json(['message' => 'Item not found'], 404);
-  }
+    // Return a success response, regardless of whether the item was found or not
+    return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
+}
+
 
   public function deleteCharge($chargeId)
   {

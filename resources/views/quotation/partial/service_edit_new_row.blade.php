@@ -319,7 +319,6 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
 
   var iter = $("#product_item_tbl").find("tbody >tr").length;
   $(document).on('click', '.del-item', function(e) {
-
     Swal.fire({
       title: "Are you sure?",
       text: "You are sure to delete the product!",
@@ -330,25 +329,42 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        var row = $(this).closest('tr');
-        let productId = row.find('input[name="item_id[]"]').val();
+        let row = $(this).parents('tr');  // Find the closest row
+        let productId = row.find('input[name="item_id[]"]').val();  // Get the product ID from the row
+        let quotationId = document.getElementById('quotation_id').value;  // Get the quotation ID
 
+        // Remove the product from customPriceArray
         customPriceArray = customPriceArray.filter(function(item) {
-          return item.product_id !== parseInt(productId);
+          return item.product_id !== parseInt(productId);  // Filter out the product from the array
         });
-        let quotationId = document.getElementById('quotation_id').value;
 
-        removeQuotationRow(row);
-        row.remove();
-        const customPriceJSON = JSON.stringify(customPriceArray);
-        document.getElementById('customprices').value = customPriceJSON;
+        // AJAX call to remove the item from the database (if it exists)
+        $.ajax({
+          url: `/delete-item/${productId}`, // Pass productId in the URL
+          type: "DELETE", // Use DELETE method
+          data: {
+            quotation_id: quotationId, // Send quotation_id as part of the data payload
+            _token: $('meta[name="csrf-token"]').attr("content"), // Include CSRF token
+          },
+          success: function(response) {
+            // Remove the row from the UI
+            removeQuotationRow(row);
+            row.remove();
 
-        deleteCustomPriceQuote(quotationId,productId);
-        updateQuotationCharges(customPriceArray);
-        calculateOverallTotal();
+            // Update customPriceArray and other UI elements as needed
+            updateQuotationCharges(customPriceArray);
+            calculateOverallTotal();
+          },
+          error: function() {
+            // Handle any AJAX errors gracefully
+            Swal.fire("Error", "An error occurred while deleting the product.", "error");
+          }
+        });
       }
     });
   });
+
+
   function deleteCustomPriceQuote(quoteId, productId) {
 
     $.ajax({
@@ -665,7 +681,7 @@ function refreshProductHistory(productid) {
         if (history.modelno) title += ' / ' + history.modelno + '';
         if (history.part_number) title += ' / ' + history.part_number + '';
 
-        productHistoryHtml += '<tr>' +
+        productHistoryHtml += '<tr' + (history.is_custom == 1 ? ' style="background-color: #f0f8ff; font-weight: bold;"' : '') + '>' +
         '<td>' +
         '<div class="form-check">' +
         '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount + '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '">' +
@@ -1165,6 +1181,7 @@ function createNewProduct(isValid) {
   }
 }
 
+
 function calculateOverallTotal() {
   var overallTotal = 0;
   var vatRate = 0.05; // VAT rate of 5%
@@ -1174,16 +1191,19 @@ function calculateOverallTotal() {
   var vatAmount = 0;
   var quotationCharges = 0;
 
+  // Sum all row values for 'total_after_discount'
   $('input[name="total_after_discount[]"]').each(function () {
     var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
     sumAfterDiscount += rowTotalAfterDiscount;
   });
 
+  // Sum all row values for 'margin_amount_row'
   $('input[name="margin_amount_row[]"]').each(function () {
     var rowTotalMargin = parseFloat($(this).val()) || 0;
     totalMargin += rowTotalMargin;
   });
 
+  // Sum all row values for 'charge_amount' excluding disabled inputs
   $('input[name="charge_amount[]"]').each(function () {
     if (!$(this).is(':disabled')) {
       var chargeAmount = parseFloat($(this).val()) || 0;
@@ -1193,17 +1213,19 @@ function calculateOverallTotal() {
 
   sumAfterDiscount += quotationCharges;
 
+  // Check VAT option
   if (vatIncluded == 1) {
     // VAT is included
     $('#vatSection').show(); // Show VAT-related fields
-    var customVatAmount = parseFloat($('input[name="vat_amount"]').val()) || 0;
 
-    if (customVatAmount) {
-      vatAmount = customVatAmount; // Use custom VAT if entered
-      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+    // Check if the user has entered a value in the vatAmount field
+    var enteredVatAmount = parseFloat($('#vatAmountLabel').val()) || 0;
+
+    if (enteredVatAmount > 0) {
+      vatAmount = enteredVatAmount; // If a value is entered, use that value
     } else {
-      vatAmount = sumAfterDiscount * vatRate; // Calculate VAT dynamically
-      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+      vatAmount = sumAfterDiscount * vatRate; // Calculate VAT dynamically if no input
+      $('#vatAmountLabel').val(vatAmount.toFixed(2)); // Update VAT value in the input field
     }
 
     sumAfterDiscount += vatAmount; // Add VAT to total
@@ -1216,9 +1238,12 @@ function calculateOverallTotal() {
   // Update totals in the form
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
   $('#totalMarginValue').val(totalMargin.toFixed(2));
-  $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
-}
 
+  // Update VAT amount in the form only if it's not manually entered
+  if ($('#vatAmountLabel').val() == '') {
+    $('input[name="vat_amount"]').val(vatAmount.toFixed(2)); // Update the VAT amount in the form
+  }
+}
 function updateCheckboxValue(checkbox) {
   // Find the corresponding hidden input element
   const hiddenInput = checkbox.previousElementSibling;

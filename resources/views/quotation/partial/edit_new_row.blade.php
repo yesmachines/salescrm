@@ -317,7 +317,6 @@ $(document).ready(function() {
 
   var iter = $("#product_item_tbl").find("tbody >tr").length;
   $(document).on('click', '.del-item', function(e) {
-
     Swal.fire({
       title: "Are you sure?",
       text: "You are sure to delete the product!",
@@ -328,26 +327,38 @@ $(document).ready(function() {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        var row = $(this).closest('tr');
+        let row = $(this).parents('tr');
         let productId = row.find('input[name="item_id[]"]').val();
+        let quotationId = document.getElementById('quotation_id').value;
 
 
         customPriceArray = customPriceArray.filter(function(item) {
           return item.product_id !== parseInt(productId);
         });
-        let quotationId = document.getElementById('quotation_id').value;
 
-        removeQuotationRow(row);
-        row.remove();
-        const customPriceJSON = JSON.stringify(customPriceArray);
-        document.getElementById('customprices').value = customPriceJSON;
-       calculateOverallTotal();
-        deleteCustomPriceQuote(quotationId,productId);
-        updateQuotationCharges(customPriceArray);
 
+        $.ajax({
+          url: `/delete-item/${productId}`,
+          type: "DELETE",
+          data: {
+            quotation_id: quotationId,
+            _token: $('meta[name="csrf-token"]').attr("content"),
+          },
+          success: function(response) {
+            removeQuotationRow(row);
+            row.remove();
+            updateQuotationCharges(customPriceArray);
+            calculateOverallTotal();
+          },
+          error: function() {
+            Swal.fire("Error", "An error occurred while deleting the product.", "error");
+          }
+        });
       }
     });
   });
+
+
   function deleteCustomPriceQuote(quoteId, productId) {
 
     $.ajax({
