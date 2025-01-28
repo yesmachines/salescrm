@@ -1234,11 +1234,10 @@ function createNewProduct(isValid) {
   }
 }
 
-
 function calculateOverallTotal() {
   var overallTotal = 0;
   var vatRate = 0.05; // VAT rate of 5%
-  var vatIncluded = $('input[name="vat_option"]:checked').val(); 
+  var vatIncluded = $('input[name="vat_option"]:checked').val(); // Check VAT option
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
@@ -1265,41 +1264,31 @@ function calculateOverallTotal() {
 
   if (vatIncluded == 1) {
 
-    $('#vatSection').show();
-    var enteredVatAmount = parseFloat($('#vatAmountLabel').val()) || 0;
+    $('#vatSection').show(); // Show VAT-related fields
 
-    if (enteredVatAmount > 0) {
-      vatAmount = enteredVatAmount;
-    } else {
-      vatAmount = sumAfterDiscount * vatRate;
-      $('#vatAmountLabel').val(vatAmount.toFixed(2));
-    }
-
+    vatAmount = sumAfterDiscount * vatRate;
+    $('#vatAmountLabel').val(vatAmount.toFixed(2));
     sumAfterDiscount += vatAmount;
   } else {
-    // VAT is not included
+
     vatAmount = 0;
-    $('#vatSection').hide(); // Hide VAT-related fields
+    $('#vatSection').hide();
   }
 
-  // Update totals in the form
+
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
   $('#totalMarginValue').val(totalMargin.toFixed(2));
 
-  // Update VAT amount in the form only if it's not manually entered
   if ($('#vatAmountLabel').val() == '') {
-    $('input[name="vat_amount"]').val(vatAmount.toFixed(2)); // Update the VAT amount in the form
+    $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
   }
 }
-
 function updateQuotationCharges(customPriceArray, sellingPrice) {
   const quotationChargesContainer = document.getElementById('quotationChargesContainer');
-  let manualChargesTotal = 0; // Track the total of manually entered charges
+  let manualChargesTotal = 0;
 
-  // Persist custom charge status
-  const customChargesSet = new Set(); // Store custom charge names to track them reliably
+  const customChargesSet = new Set();
 
-  // Populate customChargesSet with charges from customPriceArray
   customPriceArray.forEach(item => {
     Object.keys(item).forEach(key => {
       if (key !== 'product_id' && key !== 'id' && item[key] !== null && item[key] !== undefined) {
@@ -1308,7 +1297,6 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     });
   });
 
-  // Fetch existing charges that were rendered on the page
   const existingCharges = [];
   document.querySelectorAll('.row[data-charge-id]').forEach(row => {
     const chargeId = row.getAttribute('data-charge-id');
@@ -1319,10 +1307,8 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     existingCharges.push({ id: chargeId, charge_name: chargeName, charge_amount: chargeAmount, is_visible: isVisible });
   });
 
-  // Clear the container to re-render
   quotationChargesContainer.innerHTML = '';
 
-  // Combine existing charges with the new ones (if any)
   const groupedCharges = {};
   customPriceArray.forEach(item => {
     Object.keys(item).forEach(key => {
@@ -1336,7 +1322,6 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     });
   });
 
-  // Add existing charges to grouped charges
   existingCharges.forEach(existingCharge => {
     const key = existingCharge.charge_name;
     groupedCharges[key] = existingCharge.charge_amount;

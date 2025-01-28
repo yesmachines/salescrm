@@ -1168,7 +1168,7 @@ function createNewProduct(isValid) {
 function calculateOverallTotal() {
   var overallTotal = 0;
   var vatRate = 0.05; // VAT rate of 5%
-  var vatIncluded = $('input[name="vat_option"]:checked').val(); // Check VAT option
+  var vatIncluded = $('input[name="vat_option"]:checked').val();
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
@@ -1196,27 +1196,20 @@ function calculateOverallTotal() {
 
   sumAfterDiscount += quotationCharges;
 
-  // Check VAT option
   if (vatIncluded == 1) {
     // VAT is included
     $('#vatSection').show(); // Show VAT-related fields
 
-    // Check if the user has entered a value in the vatAmount field
-    var enteredVatAmount = parseFloat($('#vatAmountLabel').val()) || 0;
-
-    if (enteredVatAmount > 0) {
-      vatAmount = enteredVatAmount; // If a value is entered, use that value
-    } else {
-      vatAmount = sumAfterDiscount * vatRate; // Calculate VAT dynamically if no input
-      $('#vatAmountLabel').val(vatAmount.toFixed(2)); // Update VAT value in the input field
-    }
-
+    // Always calculate VAT dynamically based on the sumAfterDiscount
+    vatAmount = sumAfterDiscount * vatRate;
+    $('#vatAmountLabel').val(vatAmount.toFixed(2)); // Update VAT value in the input field dynamically
     sumAfterDiscount += vatAmount; // Add VAT to total
   } else {
     // VAT is not included
     vatAmount = 0;
     $('#vatSection').hide(); // Hide VAT-related fields
   }
+
 
   // Update totals in the form
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
