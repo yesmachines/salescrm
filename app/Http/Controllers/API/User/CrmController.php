@@ -71,6 +71,9 @@ class CrmController extends Controller {
                 $brands = new PaginateResource($brands->paginate($this->paginateNumber));
                 break;
             case 'meeting':
+                if (!empty($request->search_text)) {
+                    $brands->where('brand', 'LIKE', "%{$request->search_text}%");
+                }
                 $brands = $brands->select('id', 'brand')
                         ->get();
                 break;
