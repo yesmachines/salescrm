@@ -320,6 +320,8 @@ class EnquiryController extends Controller {
             $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
         }
 
+        $enquiry->status_id = ($enquiry->status_id != 0) ? LeadStatus::where('id', $enquiry->status_id)->first()->name : null;
+
         $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes,cm_lead_products.area_id,cm_lead_products.manager_id,cm_lead_products.assistant_id")
                 ->leftJoin('suppliers as s', 'lead_products.supplier_id', '=', 's.id')
                 ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
