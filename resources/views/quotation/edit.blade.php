@@ -1229,6 +1229,14 @@
 
   <script type="text/javascript">
   $(document).ready(function() {
+    $('#additionalFieldsModal').on('hidden.bs.modal', function () {
+        $('#additionalFieldsModal').find('input[type="text"]').val('');
+        $('#additionalFieldsModal').find('select').prop('selectedIndex', 0).trigger('change');
+        $('#additionalFieldsModal').find('input[type="checkbox"]').prop('checked', false);
+        $('#historyPaymentTermId').val('');
+        $('#buying_prices').val('');
+        $('#sellingPriceHistory').val('');
+    });
     $('input[type="number"]').on('input', function() {
        if ($(this).val() === '') {
            $(this).val(0);
@@ -2549,10 +2557,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (paymentTerm) {
     paymentTerm.addEventListener("change", updateQuotationPriceBasis);
   }
-});
-$('#additionalFieldsModal').on('hidden.bs.modal', function () {
-    $('#historyPriceBasis').val('').trigger('change');
-    $('#historyPaymentTermId').val('');
 });
 
 function updateQuotationPriceBasis() {
