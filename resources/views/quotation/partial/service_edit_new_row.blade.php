@@ -1166,27 +1166,23 @@ function createNewProduct(isValid) {
 
 
 function calculateOverallTotal() {
-  var overallTotal = 0;
-  var vatRate = 0.05; // VAT rate of 5%
+  var vatRate = 0.05;
   var vatIncluded = $('input[name="vat_option"]:checked').val();
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
   var quotationCharges = 0;
 
-  // Sum all row values for 'total_after_discount'
   $('input[name="total_after_discount[]"]').each(function () {
     var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
     sumAfterDiscount += rowTotalAfterDiscount;
   });
 
-  // Sum all row values for 'margin_amount_row'
   $('input[name="margin_amount_row[]"]').each(function () {
     var rowTotalMargin = parseFloat($(this).val()) || 0;
     totalMargin += rowTotalMargin;
   });
 
-  // Sum all row values for 'charge_amount' excluding disabled inputs
   $('input[name="charge_amount[]"]').each(function () {
     if (!$(this).is(':disabled')) {
       var chargeAmount = parseFloat($(this).val()) || 0;
@@ -1197,29 +1193,45 @@ function calculateOverallTotal() {
   sumAfterDiscount += quotationCharges;
 
   if (vatIncluded == 1) {
-    // VAT is included
-    $('#vatSection').show(); // Show VAT-related fields
+    $('#vatSection').show();
 
-    // Always calculate VAT dynamically based on the sumAfterDiscount
-    vatAmount = sumAfterDiscount * vatRate;
-    $('#vatAmountLabel').val(vatAmount.toFixed(2)); // Update VAT value in the input field dynamically
-    sumAfterDiscount += vatAmount; // Add VAT to total
+    var manualVatAmount = parseFloat($('#vatAmountLabel').val());
+
+    if (!isNaN(manualVatAmount) && manualVatAmount >= 0) {
+      vatAmount = manualVatAmount;
+    } else {
+      vatAmount = sumAfterDiscount * vatRate;
+      $('#vatAmountLabel').val(vatAmount.toFixed(2));
+    }
+
+    sumAfterDiscount += vatAmount;
   } else {
-    // VAT is not included
+    $('#vatSection').hide();
     vatAmount = 0;
-    $('#vatSection').hide(); // Hide VAT-related fields
+    $('#vatAmountLabel').val('');
   }
 
-
-  // Update totals in the form
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
   $('#totalMarginValue').val(totalMargin.toFixed(2));
-
-  // Update VAT amount in the form only if it's not manually entered
-  if ($('#vatAmountLabel').val() == '') {
-    $('input[name="vat_amount"]').val(vatAmount.toFixed(2)); // Update the VAT amount in the form
-  }
+  $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
 }
+
+$(document).on('input', 'input[name="charge_amount[]"]', function () {
+  $('#vatAmountLabel').val('');
+  calculateOverallTotal();
+});
+
+$(document).on('change', 'input[name="vat_option"]', function () {
+  $('#vatAmountLabel').val('');
+  calculateOverallTotal();
+});
+
+
+$('#vatAmountLabel').on('input', function () {
+  if ($(this).val() === '') {
+    calculateOverallTotal();
+  }
+});
 function updateCheckboxValue(checkbox) {
   // Find the corresponding hidden input element
   const hiddenInput = checkbox.previousElementSibling;

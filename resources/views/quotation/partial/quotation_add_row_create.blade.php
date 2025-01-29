@@ -93,7 +93,7 @@
               type="text"
               class="form-control"
               id="vatAmountLabel"
-              name="vat_amount" oninput="calculateOverallTotal()"
+              name="vat_amount" oninput="calculateOverallTotal()" readonly
             >
       </div>
   @else
@@ -416,6 +416,7 @@
     initializeAutocomplete(0);
 
     $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"], input[name="margin[]"]', function() {
+      $('#vatAmountLabel').val('');
       calculateOverallTotal();
     });
   });
@@ -651,6 +652,7 @@
     $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
 
     $('#row-' + rowId).remove();
+      $('#vatAmountLabel').val('');
       calculateOverallTotal();
 
   }

@@ -513,9 +513,10 @@
     $(document).ready(function() {
 
       $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"],input[name="vat_amount"], input[name="margin[]"]', function() {
+       $('#vatAmountLabel').val('');
         calculateOverallTotal();
       });
-    
+
       document.getElementById('durationSelect').addEventListener('change', function() {
         var selectedValue = this.value;
         setPriceValidity(selectedValue);
@@ -925,8 +926,9 @@
       $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
 
       if (!chargeName || chargeAmount === 0) {
+          $('#vatAmountLabel').val('');
         calculateOverallTotal();
-        console.log('Row removed without triggering an AJAX request (empty or zero value).');
+
         return;
       }
 

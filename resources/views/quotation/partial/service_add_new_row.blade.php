@@ -319,13 +319,11 @@ $(document).ready(function() {
         customPriceArray = customPriceArray.filter(function(item) {
           return item.product_id !== parseInt(productId);
         });
-
         removeQuotationRow(row);
         row.remove();
 
-
         updateQuotationCharges(customPriceArray);
-
+       $('#vatAmountLabel').val('');
         calculateOverallTotal();
 
       }
@@ -434,7 +432,7 @@ $(document).ready(function() {
           console.error('Error fetching custom prices:', error);
         }
       });
-
+     $('#vatAmountLabel').val('');
       calculateOverallTotal();
 
       $('#customModal').modal('hide');
@@ -1233,11 +1231,10 @@ function createNewProduct(isValid) {
     });
   }
 }
-
 function calculateOverallTotal() {
-  var overallTotal = 0;
-  var vatRate = 0.05; // VAT rate of 5%
-  var vatIncluded = $('input[name="vat_option"]:checked').val(); // Check VAT option
+
+  var vatRate = 0.05;
+  var vatIncluded = $('input[name="vat_option"]:checked').val();
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
@@ -1263,26 +1260,31 @@ function calculateOverallTotal() {
   sumAfterDiscount += quotationCharges;
 
   if (vatIncluded == 1) {
+    $('#vatSection').show();
 
-    $('#vatSection').show(); // Show VAT-related fields
+    var manualVatAmount = parseFloat($('#vatAmountLabel').val());
 
-    vatAmount = sumAfterDiscount * vatRate;
-    $('#vatAmountLabel').val(vatAmount.toFixed(2));
+    if (!isNaN(manualVatAmount) && manualVatAmount >= 0) {
+      vatAmount = manualVatAmount;
+    } else {
+      vatAmount = sumAfterDiscount * vatRate;
+      $('#vatAmountLabel').val(vatAmount.toFixed(2));
+    }
+
     sumAfterDiscount += vatAmount;
   } else {
-
-    vatAmount = 0;
     $('#vatSection').hide();
+    vatAmount = 0;
+    $('#vatAmountLabel').val('');
   }
-
 
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
   $('#totalMarginValue').val(totalMargin.toFixed(2));
-
-  if ($('#vatAmountLabel').val() == '') {
-    $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
-  }
+  $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
 }
+
+
+
 function updateQuotationCharges(customPriceArray, sellingPrice) {
   const quotationChargesContainer = document.getElementById('quotationChargesContainer');
   let manualChargesTotal = 0;
@@ -1327,9 +1329,8 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     groupedCharges[key] = existingCharge.charge_amount;
   });
 
-  // If no charges exist, create a default empty row
   if (Object.keys(groupedCharges).length === 0) {
-    groupedCharges[''] = ''; // Adding an empty charge for at least one row
+    groupedCharges[''] = '';
   }
 
   let index = 0;
@@ -1338,11 +1339,7 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     const rowContainer = document.createElement('div');
     rowContainer.classList.add('row');
     rowContainer.id = 'row-' + index;
-
-    // Determine if the charge is a custom charge
     const isCustomCharge = customChargesSet.has(key);
-
-    // Add the "plus" button only for the first row
     const plusButtonHTML = index === 0 ? `
     <div class="col-sm-1">
     <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
@@ -1370,7 +1367,6 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     </div>
     <div class="col-sm-1">
     <div class="form-check" style="display: flex; justify-content: flex-end;">
-    <!-- Hidden input for unchecked state -->
     <input type="hidden" name="is_visible[]" value="0">
     <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
     </div>
