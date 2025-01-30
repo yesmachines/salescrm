@@ -53,7 +53,6 @@ use Carbon\Carbon;
 use App\Models\QuotationCustomPrice;
 
 
-
 class QuotationController extends Controller
 {
   //
@@ -182,7 +181,7 @@ class QuotationController extends Controller
         'paymentCycles',
         'paymentTermList',
         'quotationType',
-        
+
       ));
 
     }else{
@@ -242,7 +241,6 @@ class QuotationController extends Controller
     ]);
 
     $data = $request->all();
-
 
     if (isset($data['lead_id']) && !empty($data['lead_id'])) {
 
@@ -576,7 +574,6 @@ class QuotationController extends Controller
     ]);
 
     $data = $request->all();
-
 
     if ($request->has('company_id')) {
       if ($request->filled('company_id')) {
@@ -1034,22 +1031,23 @@ class QuotationController extends Controller
   }
 
   public function deleteItem(Request $request, $productId)
-{
-    $quotationId = $request->input('quotation_id');
+  {
+      $quotationId = $request->input('quotation_id');
 
-    // Find the item in the database
-    $item = QuotationItem::where('item_id', $productId)
-                         ->where('quotation_id', $quotationId)
-                         ->first();
+      // Find the item in the quotation_custom_prices table
+      $item = QuotationCustomPrice::where('product_id', $productId)
+                                  ->where('quotation_id', $quotationId)
+                                  ->first();
 
-    if ($item) {
-        // If the item exists, delete it
-        $item->delete();
-    }
+      if ($item) {
+          // If the item exists, delete it
+          $item->delete();
+      }
 
-    // Return a success response, regardless of whether the item was found or not
-    return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
-}
+      // Return a success response, regardless of whether the item was found or not
+      return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
+  }
+
 
 
   public function deleteCharge($chargeId)
@@ -1211,10 +1209,8 @@ class QuotationController extends Controller
       try {
 
         $data = $request->all();
-
         $product = Product::find($data['productId']);
         $customFieldsData = [];
-
         $today = date('Y-m-d');
         $todate = date('Y-m-d', strtotime('+1 month', strtotime($today)));
 
@@ -1222,7 +1218,7 @@ class QuotationController extends Controller
           'product_id' => $data['productId'],
           'selling_price' => $data['selling_price'],
           'margin_price' => $data['margin_price'],
-          'margin_percent' => $data['margin_percentage'],
+          'margin_percent' => $data['mos_percentage'],
           'price_valid_from' => $today,
           'price_valid_to'  =>  $todate,
           'currency' => $data['quote_currency'],
@@ -1235,7 +1231,7 @@ class QuotationController extends Controller
           $pUpdate = [
             'selling_price' => $data['selling_price'],
             'margin_price' => $data['margin_price'],
-            'margin_percent' => $data['margin_percentage'],
+            'margin_percent' => $data['mos_percentage'],
             'currency' => $data['quote_currency'],
             'price_basis' => $data['price_basis'],
             'price_valid_from' => $today,
@@ -1253,7 +1249,7 @@ class QuotationController extends Controller
           'gross_price' => $data['buying_gross_price'],
           'discount' => $data['buying_purchase_discount'],
           'discount_amount' => $data['buying_purchase_discount_amount'],
-          'buying_price' => $data['buying_prices'],
+          'buying_price' => $data['buying_net_price'],
           'buying_currency' => $data['buying_currency'],
           'price_valid_from' =>  $today->toDateString(),
           'price_valid_to'  => $todate->toDateString(),
@@ -1266,7 +1262,7 @@ class QuotationController extends Controller
         if( $data['default_buying_price']==1){
           $bUpdate = [
             'purchase_currency'=>$data['buying_currency'],
-            'purchase_price' => $data['buying_prices'],
+            'purchase_price' => $data['buying_net_price'],
           ];
           $product->update($bUpdate);
         }
@@ -1275,14 +1271,17 @@ class QuotationController extends Controller
 
         if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
           foreach ($data['custom_fields'] as $field) {
-            if (isset($field['field_name']) && isset($field['value'])) {
-              $customFieldsData[$field['field_name']] = $field['value'];
+            if (isset($field['name']) && isset($field['value'])) {
+              $customFieldsData[$field['name']] = $field['value'];
 
             }
           }
 
           $customFieldsData['product_id'] = $product->id;
           $customFieldsData['product_history_id'] = $priceHistoryData->id;
+          $customFieldsData['final_buying_price'] = (float) str_replace(',', '', $data['buying_price']);
+          $customFieldsData['margin_amount_bp'] = $data['margin_amount'];
+          $customFieldsData['mobp'] = $data['margin_percentage'];
           CustomPrice::create($customFieldsData);
 
         }

@@ -315,36 +315,51 @@ $(document).ready(function() {
     labelnewmargin.html(quoteMargin);
   });
 
-  var iter = $("#product_item_tbl").find("tbody >tr").length;
+  var iter = $("#product_item_tbl").find("tbody > tr").length;
+
   $(document).on('click', '.del-item', function(e) {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You are sure to delete the product!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let row = $(this).parents('tr');
-        let productId = row.find('input[name="item_id[]"]').val();
+      Swal.fire({
+          title: "Are you sure?",
+          text: "You are sure to delete the product!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+          if (result.isConfirmed) {
+              let row = $(this).parents('tr');
+              let productId = row.find('input[name="item_id[]"]').val();
+              let quotationId = $('input[name="quotation_id"]').val();
+              $.ajax({
+                  url: `/delete-item/${productId}`,  // Route URL
+                  method: 'DELETE',
+                  headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')  // CSRF protection
+                  },
+                  data: { quotation_id: quotationId }, // Send quotation_id
+                  success: function(response) {
+                      if (response.success) {
+                          // Remove row from UI
+                          removeQuotationRow(row);
+                          row.remove();
 
-        customPriceArray = customPriceArray.filter(function(item) {
-          return item.product_id !== parseInt(productId);
-        });
+                          fetchCustomPriceArray(quotationId);
 
-        removeQuotationRow(row);
-        row.remove();
-
-
-        updateQuotationCharges(customPriceArray);
-
-        calculateOverallTotal();
-
-      }
-    });
+                          Swal.fire("Deleted!", response.message, "success");
+                      } else {
+                          Swal.fire("Error!", "Failed to delete item.", "error");
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      console.error('Error deleting item:', error);
+                      Swal.fire("Error!", "Something went wrong.", "error");
+                  }
+              });
+          }
+      });
   });
+
 
   function deleteCustomPriceQuote(quoteId, productId) {
 
@@ -530,10 +545,15 @@ $(document).ready(function() {
     var requiredFields = [
       '#sellingPriceHistory',
       '#marginPercentageHistory',
-      '#quoteCurrencyHistory',
       '#marginPriceHistory',
       'input[name="product_ids"]',
-      '#historyPriceBasis'
+      '#historyPriceBasis',
+      '#buying_gross_price',
+      '#buying_purchase_discount',
+      '#buying_purchase_discount_amount',
+      '#mobpPriceHistory',
+      '#buyingCurrencyHistory',
+      '#mobpHistory',
     ];
 
     // Validate each field based on its value
@@ -749,27 +769,63 @@ function saveAdditionalFieldsHandler(isValid) {
   if (isValid) {
 
     $(this).prop('disabled', true);
-    let sellingPrice = $('#sellingPriceHistory').val();
-    let marginPercentage = $('#marginPercentageHistory').val();
+
     let quoteCurrency = $('#quoteCurrencyHistory').val();
-    let marginPrice = $('#marginPriceHistory').val();
-    let productId = $('input[name="product_ids"]').val();
+    let productId = $('input[name="product_ids"]').val();  // Assuming product IDs are used
     let priceBasis = $('#historyPriceBasis').val();
-    let isDefault = $('#defaultSellingPrice').val();
+    let isDefaultSellingPrice = $('#defaultSellingPrice').prop('checked') ? 1 : 0; // Checkbox for default selling price
+    let defaultBuyingPrice = $('#defaultBuyingPrice').prop('checked') ? 1 : 0; // Checkbox for default buying price
+
+    // Buying Price Details
     let buyingGrossPrice = $('#buying_gross_price').val();
     let buyingPurchaseDiscount = $('#buying_purchase_discount').val();
     let buyingPurchaseDiscountAmount = $('#buying_purchase_discount_amount').val();
-    let buyingPrices = $('#buying_prices').val();
-    let defaultBuyingPrice = $('#defaultBuyingPrice').val();
-    let buyingCurrencyHistory = $('#buyingCurrencyHistory').val();
+    let buyingNetPrice = $('#net_prices').val();
+    let buyingCurrency = $('#buyingCurrencyHistory').val();
+
+    // Selling Price Details
+    let buyingPrice = $('#buyingPriceHistory').val();
+    let marginAmount = $('#mobpPriceHistory').val();
+    let marginPercentage = $('#mobpHistory').val();
+    let sellingPriceCalculated = $('#sellingPriceHistory').val();
+    let mosPercentage = $('#marginPercentageHistory').val();
+    let marginAmountCalculated = $('#marginPriceHistory').val();
+
+
 
     let customFields = [];
-    $('.custom-field').each(function() {
+    $('.dynamic-field').each(function() {
+      let fieldName = $(this).data('field-name');  // Access the correct data attribute
+      let fieldValue = $(this).val();
+
       customFields.push({
-        name: $(this).data('name'),
-        value: $(this).val()
+        name: fieldName,
+        value: fieldValue
       });
     });
+
+    let data = {
+      productId: productId,
+      price_basis: priceBasis,
+      default_selling_price: isDefaultSellingPrice,
+      default_buying_price: defaultBuyingPrice,
+      buying_gross_price: buyingGrossPrice,
+      buying_purchase_discount: buyingPurchaseDiscount,
+      buying_purchase_discount_amount: buyingPurchaseDiscountAmount,
+      buying_net_price: buyingNetPrice,
+      buying_currency: buyingCurrency,
+      buying_price: buyingPrice,
+      margin_percentage: marginPercentage,
+      margin_amount: marginAmount,
+      selling_price: sellingPriceCalculated,
+      mos_percentage: mosPercentage,
+      margin_price: marginAmountCalculated,
+      quote_currency: quoteCurrency,
+      custom_fields: customFields,
+    };
+
+    // Log the data object to the console to inspect it
+    console.log('Data to be sent:', data);
 
     $.ajax({
       url: '{{ route("productHistorySave") }}',
@@ -777,28 +833,11 @@ function saveAdditionalFieldsHandler(isValid) {
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
-      data: {
-        selling_price: sellingPrice,
-        margin_percentage: marginPercentage,
-        quote_currency: quoteCurrency,
-        margin_price: marginPrice,
-        productId: productId,
-        price_basis: priceBasis,
-        custom_fields: customsArray,
-        default_selling_price:isDefault,
+      data: data,
 
-        buying_gross_price:buyingGrossPrice,
-        buying_purchase_discount:buyingPurchaseDiscount,
-        buying_purchase_discount_amount :buyingPurchaseDiscountAmount,
-        buying_prices:buyingPrices,
-        default_buying_price:defaultBuyingPrice,
-        buying_currency:buyingCurrencyHistory,
-
-      },
       success: function(response) {
-
+        console.log('Response:', response);
         if (response.success) {
-
           $('#additionalFieldsModal').modal('hide');
           $('#customModal').modal('show');
           refreshProductHistory(productId);
@@ -816,6 +855,7 @@ function saveAdditionalFieldsHandler(isValid) {
     });
   }
 }
+
 
 function resetModalValues() {
   $('#sellingPriceHistory').val('');

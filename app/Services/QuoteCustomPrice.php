@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\QuotationCustomPrice;
 use App\Models\QuotationCharge;
 use App\Models\BuyingPrice;
-
+use App\Models\CustomPrice;
 class QuoteCustomPrice
 {
   /**
@@ -66,15 +66,19 @@ class QuoteCustomPrice
         if (in_array($key, ['id', 'product_id']) || is_null($value)) {
           continue;
         }
-
+        $customData = CustomPrice::where('id', $row['id'])->first();
         $attributes = [
           'quotation_id' => $quotationId,
           'product_id' => $productId,
+
         ];
 
         $values = [
           $key => $value,
           'updated_by' => auth()->id(),
+          'final_buying_price'=> $customData['final_buying_price'],
+          'mobp'=> $customData['mobp'],
+          'margin_amount_bp'=> $customData['margin_amount_bp'],
         ];
 
 

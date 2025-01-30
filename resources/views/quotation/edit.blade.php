@@ -855,7 +855,7 @@
                 <label class="form-label">Price Basis<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
-                <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="quotationPriceBasisAlert()" disabled>
+                <select class="form-control" name="payment_term" id="historyPriceBasis" onchange="updateQuotationPriceBasis()" disabled>
                   <option value="" disabled selected>-- Select Price Basis --</option>
                   @foreach($paymentTerms as $paymentTerm)
                   <option value="{{ $paymentTerm->short_code }}" data-id="{{ $paymentTerm->id }}">{{ $paymentTerm->title }}</option>
@@ -877,7 +877,7 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="gross_price" id="buying_gross_price" required />
-                <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
+                <div class="invalid-feedback" style="display: none;">Please enter a gross price.</div>
               </div>
             </div>
 
@@ -887,7 +887,7 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="discount" id="buying_purchase_discount">
-                <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
+                <div class="invalid-feedback" style="display: none;">Please enter a purchase discount .</div>
               </div>
             </div>
             <div class="col-md-6" id="purchase_discount_price">
@@ -896,16 +896,16 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="discount_amount" id="buying_purchase_discount_amount" required />
-                <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
+                <div class="invalid-feedback" style="display: none;">Please enter a purchase discount price.</div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+                <label class="form-label">Net Price<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="text" name="buying_price" id="buying_prices" readonly />
-                <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
+                <input class="form-control" type="text" name="buying_price" id="net_prices" readonly />
+                <div class="invalid-feedback" style="display: none;">Please enter a Net price.</div>
               </div>
             </div>
 
@@ -942,11 +942,42 @@
 
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Margin Price</label>
+                <label class="form-label">Buying Price</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
+                <input class="form-control" type="text" name="buying_price" id="buyingPriceHistory" readonly/>
                 <div class="invalid-feedback">Please enter margin price.</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Margin Percentage</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="mobp" id="mobpHistory" />
+                <div class="invalid-feedback">Please enter margin price.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Margin Amount</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="margin_amount_bp" id="mobpPriceHistory" />
+                <div class="invalid-feedback">Please enter margin price.</div>
+              </div>
+            </div>
+
+
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" readonly/>
+                <div class="invalid-feedback">Please enter a selling price.</div>
               </div>
             </div>
 
@@ -959,14 +990,13 @@
                 <div class="invalid-feedback">Please enter a MOSP.</div>
               </div>
             </div>
-
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Selling Price<span class="text-danger">*</span></label>
+                <label class="form-label">Margin Price</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="text" name="selling_price" id="sellingPriceHistory" readonly/>
-                <div class="invalid-feedback">Please enter a selling price.</div>
+                <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
+                <div class="invalid-feedback">Please enter margin price.</div>
               </div>
             </div>
 
@@ -975,7 +1005,7 @@
                 <label class="form-label">Currency<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
-                <select class="form-control" name="quote_curr" id="quoteCurrencyHistory">
+                <select class="form-control" name="quote_curr" id="quoteCurrencyHistory" disabled>
                   <option value="">-Select Currency-</option>
                   @foreach($currencies as $currency)
                   <option value="{{ $currency->code }}">{{ $currency->name }}</option>
@@ -1048,28 +1078,24 @@
               <div class="form-group">
                 <label class="form-label">Gross Price<span class="text-danger">*</span></label>
                 <input class="form-control" type="text" name="custom_gross_price" id="custom_gross_price" required />
-                <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Purchase Discount(%)</label>
                 <input class="form-control" type="text" name="custom_discount" id="custom_purchase_discount">
-                <div class="invalid-data" style="display: none;">Please enter a purchase discount.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Purchase Discount Amount<span class="text-danger">*</span></label>
                 <input class="form-control" type="text" name="custom_discount_amount" id="custom_purchase_discount_amount" required />
-                <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label class="form-label">Buying Price<span class="text-danger">*</span></label>
+                <label class="form-label">Net Price<span class="text-danger">*</span></label>
                 <input class="form-control" type="text" name="custom_buying_price" id="custom_buying_prices" readonly />
-                <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
               </div>
             </div>
             <div class="col-md-4">
@@ -1099,113 +1125,121 @@
               <div class="form-group">
                 <label class="form-label" for="packing">Packing</label>
                 <input class="form-control" type="number" min="0" id="packing" name="packing"  data-field-name="packing" required/>
-                <div class="invalid-feedback">Please enter a valid Packing.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="road_transport_to_port">Road Transport To Port</label>
                 <input class="form-control" type="number" min="0" id="road_transport_to_port" name="road_transport_to_port" value="100" data-field-name="road_transport_to_port" required/>
-                <div class="invalid-feedback">Please enter a valid Road Transport To Port.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="freight">Freight</label>
                 <input class="form-control" type="number" min="0" id="freight" name="freight"  data-field-name="freight" required/>
-                <div class="invalid-feedback">Please enter a valid Freight.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="insurance">Insurance</label>
                 <input class="form-control" type="number" min="0" id="insurance" name="insurance"  data-field-name="insurance" required/>
-                <div class="invalid-feedback">Please enter a valid Insurance.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="clearing">Clearing</label>
                 <input class="form-control" type="number" min="0" id="clearing" name="clearing"  data-field-name="clearing" required/>
-                <div class="invalid-feedback">Please enter a valid Clearing.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="boe">BOE</label>
                 <input class="form-control" type="number" min="0" id="boe" name="boe"  data-field-name="boe" required/>
-                <div class="invalid-feedback">Please enter a valid BOE.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="handling_and_local_transport">Handling and Local Transport</label>
                 <input class="form-control" type="number" min="0" id="handling_and_local_transport" name="handling_and_local_transport"  data-field-name="handling_and_local_transport" required/>
-                <div class="invalid-feedback">Please enter a valid Handling and Local Transport.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="customs">Customs</label>
                 <input class="form-control" type="number" min="0" id="customs" name="customs"  data-field-name="customs" required/>
-                <div class="invalid-feedback">Please enter a valid Customs.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="delivery_charge">Delivery Charge</label>
                 <input class="form-control" type="number" min="0" id="delivery_charge" name="delivery_charge"  data-field-name="delivery_charge" required/>
-                <div class="invalid-feedback">Please enter a valid Delivery Charge.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="mofaic">MOFAIC</label>
                 <input class="form-control" type="number" min="0" id="mofaic" name="mofaic"  data-field-name="mofaic" required/>
-                <div class="invalid-feedback">Please enter a valid MOFAIC.</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="surcharges">Surcharges</label>
                 <input class="form-control" type="number" min="0" id="surcharges" name="surcharges"  data-field-name="surcharges" required/>
-                <div class="invalid-feedback">Please enter a valid Surcharges.</div>
               </div>
             </div>
           </div>
 
           <div class="row">
+
             <div class="col-md-4">
               <div class="form-group">
-                <label class="form-label">Margin Price</label>
-                <input class="form-control" type="text" name="custom_margin_price" id="marginPriceCustom" />
-                <div class="invalid-feedback">Please enter margin price.</div>
+                <label class="form-label">Buying Price</label>
+                <input class="form-control" type="text" name="final_buying_price" id="finalBuyingPrice" readonly/>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label class="form-label">MOSP<span class="text-danger">*</span></label>
-                <input class="form-control" type="text" name="custom_margin_percentage" id="marginPercentageCustom" />
-                <div class="invalid-feedback">Please enter a MOSP.</div>
+                <label class="form-label">Margin Percentage</label>
+                <input class="form-control" type="text" name="mobp" id="marginPercentBp" />
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Margin Amount</label>
+                <input class="form-control" type="text" name="margin_amount_bp" id="marginAmountBp" />
+              </div>
+            </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Selling Price<span class="text-danger">*</span></label>
                 <input class="form-control" type="text" name="custom_selling_price" id="sellingPriceCustom" readonly />
-                <div class="invalid-feedback">Please enter a selling price.</div>
               </div>
             </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">MOSP<span class="text-danger">*</span></label>
+                <input class="form-control" type="text" name="custom_margin_percentage" id="marginPercentageCustom" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Margin Price</label>
+                <input class="form-control" type="text" name="custom_margin_price" id="marginPriceCustom" />
+              </div>
+            </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Currency<span class="text-danger">*</span></label>
-                <select class="form-control" name="quote_curr" id="quoteCurrencyCustom">
+                <select class="form-control" name="quote_curr" id="quoteCurrencyCustom" disabled>
                   <option value="">-Select Currency-</option>
                   @foreach($currencies as $currency)
                   <option value="{{ $currency->code }}">{{ $currency->name }}</option>
                   @endforeach
                 </select>
-                <div class="invalid-feedback">Please select currency.</div>
               </div>
             </div>
           </div>
@@ -1229,6 +1263,17 @@
 
   <script type="text/javascript">
   $(document).ready(function() {
+    $('#buyingCurrencyCustom').on('change', function() {
+    var selectedCurrency = $(this).val();
+
+    $('#quoteCurrencyCustom').val(selectedCurrency);
+   });
+   $('#buyingCurrencyHistory').on('change', function() {
+   var selectedCurrency = $(this).val();
+
+   $('#quoteCurrencyHistory').val(selectedCurrency);
+  });
+
     $('#additionalFieldsModal').on('hidden.bs.modal', function () {
         $('#additionalFieldsModal').find('input[type="text"]').val('');
         $('#additionalFieldsModal').find('select').prop('selectedIndex', 0).trigger('change');
@@ -1430,7 +1475,7 @@
 
     function createDropDown(i) {
       let ddlCustomers = `<select class="form-select" name="manager_id[]" id="managerid_${i}"><option value="">--</option>`;
-      //Add the Options to the DropDownList.
+
       let json = JSON.parse(employees);
       for (let x in json) {
         ddlCustomers += `<option value="${json[x].id}">${json[x].username}</option>`;
@@ -1459,7 +1504,6 @@
     }
 
   });
-
 
   function setPurchaseDateRange(selectedValue) {
     let currentDate = new Date();
@@ -1492,37 +1536,66 @@
   }
 </script>
 <script>
-// Select DOM elements
+document.addEventListener('DOMContentLoaded', function () {
+    const buyingPriceElement = document.getElementById('finalBuyingPrice');
+    const marginPercentBpElement = document.getElementById('marginPercentBp');
+    const marginAmountBpElement = document.getElementById('marginAmountBp');
+
+    const sellingPriceElement = document.getElementById('sellingPriceCustom');
+
+    marginAmountBpElement.addEventListener('input', function() {
+        const marginAmount = parseFloat(marginAmountBpElement.value);
+        const buyingPrice = parseFloat(buyingPriceElement.value);
+
+        if (!isNaN(marginAmount) && !isNaN(buyingPrice) && buyingPrice !== 0) {
+            const marginPercent = (marginAmount * 100) / buyingPrice;
+            marginPercentBpElement.value = marginPercent.toFixed(2);
+            updateSellingPrice(buyingPrice, marginPercent);
+        }
+    });
+
+    marginPercentBpElement.addEventListener('input', function() {
+        const marginPercent = parseFloat(marginPercentBpElement.value);
+        const buyingPrice = parseFloat(buyingPriceElement.value);
+
+        if (!isNaN(marginPercent) && !isNaN(buyingPrice) && buyingPrice !== 0) {
+            const marginAmount = (buyingPrice * marginPercent) / 100;
+            marginAmountBpElement.value = marginAmount.toFixed(2);
+            updateSellingPrice(buyingPrice, marginPercent);
+        }
+    });
+
+    function updateSellingPrice(buyingPrice, marginPercent) {
+        const sellingPrice = buyingPrice + ((buyingPrice * marginPercent) / 100);
+        sellingPriceElement.value = sellingPrice.toFixed(2);
+    }
+});
+
 const marginPriceCustomInput = document.getElementById('marginPriceCustom');
 const marginPercentageCustomInput = document.getElementById('marginPercentageCustom');
-const sellingPriceCustomInput = document.getElementById('sellingPriceCustom');
+const finalBuyingPriceCustomInput = document.getElementById('finalBuyingPrice');
 const buyingPriceCustomInput = document.getElementById('custom_buying_prices');
 
-// Store the old values of dynamic fields to avoid multiple additions
 let oldDynamicFieldValues = {};
 
-// Add event listeners for custom fields
 document.getElementById('custom_gross_price').addEventListener('input', updateCustomBuyingPrice);
 document.getElementById('custom_purchase_discount').addEventListener('input', updateCustomBuyingPrice);
 document.getElementById('custom_purchase_discount_amount').addEventListener('input', updateCustomBuyingPriceWithAmount);
 marginPriceCustomInput.addEventListener('input', updateCustomMarginPrice);
 marginPercentageCustomInput.addEventListener('input', updateCustomMarginPercentage);
 
-// Add event listener to detect changes in dynamic custom fields
 $(document).on('input', '.dynamic-field', function() {
-  updateCustomSellingPrice();  // Recalculate when dynamic field changes
+  updateCustomFinalBuyingPrice();
 });
 
-// Update Margin Price Calculation
 function updateCustomMarginPrice() {
   const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
   const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
 
-  // Calculate total custom field values (like packing, freight, etc.)
   const totalCustomFieldsValue = calculateTotalCustomFields();
 
   if (buyingPrice > 0) {
-    // Calculate margin percentage and selling price
+
     const marginPercentage = (marginPrice / buyingPrice) * 100;
     const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
 
@@ -1530,20 +1603,16 @@ function updateCustomMarginPrice() {
     sellingPriceCustomInput.value = sellingPrice.toFixed(2);
   }
 
-  // Recalculate selling price after updating margin
-  // updateCustomSellingPrice();
 }
 
-// Update Margin Percentage Calculation
 function updateCustomMarginPercentage() {
   const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
   const marginPercentage = parseFloat(marginPercentageCustomInput.value.replace(/,/g, '')) || 0;
 
-  // Calculate total custom field values (like packing, freight, etc.)
   const totalCustomFieldsValue = calculateTotalCustomFields();
 
   if (buyingPrice > 0) {
-    // Calculate margin price and selling price
+
     const marginPrice = (marginPercentage / 100) * buyingPrice;
     const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
 
@@ -1551,11 +1620,9 @@ function updateCustomMarginPercentage() {
     sellingPriceCustomInput.value = sellingPrice.toFixed(2);
   }
 
-  // Recalculate selling price after updating margin percentage
-  updateCustomSellingPrice();
+  updateCustomFinalBuyingPrice();
 }
 
-// Update Buying Price Based on Discount Amount
 function updateCustomBuyingPriceWithAmount() {
   let gross_price = $('#custom_gross_price').val();
   let purchase_discount = $('#custom_purchase_discount_amount').val();
@@ -1570,12 +1637,11 @@ function updateCustomBuyingPriceWithAmount() {
     $('#custom_purchase_discount').val(dpercent);
 
     let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-    updateCustomSellingPrice(); // Recalculate selling price
+    $('#custom_buying_prices').val(formattedMarginPrice);
+    updateCustomFinalBuyingPrice();
   }
 }
 
-// Update Buying Price Based on Discount Percentage
 function updateCustomBuyingPrice() {
   let gross_price = $('#custom_gross_price').val();
   let purchase_discount = $('#custom_purchase_discount').val();
@@ -1588,51 +1654,44 @@ function updateCustomBuyingPrice() {
     $('#custom_purchase_discount_amount').val(calculatedDPrice);
     calculatedDPrice = basePrice - calculatedDPrice;
     let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-    updateCustomSellingPrice(); // Recalculate selling price
+    $('#custom_buying_prices').val(formattedMarginPrice);
+    updateCustomSellingPrice();
   } else if (!isNaN(basePrice)) {
     let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-    $('#custom_buying_prices').val(formattedMarginPrice); // Updates buying price automatically
-    updateCustomSellingPrice(); // Recalculate selling price
+    $('#custom_buying_prices').val(formattedMarginPrice);
+    updateCustomFinalBuyingPrice();
   }
 }
 
 function calculateTotalCustomFields() {
   let total = 0;
 
-  // Iterate over all elements with the 'data-field-name' attribute
   $('[data-field-name]').each(function () {
-    const value = parseFloat($(this).val().replace(/,/g, '')) || 0; // Parse the field value, remove commas if any
-    total += value; // Add the value to the total
-    console.log("Field Value:", value); // Log the value of each field for debugging
+    const value = parseFloat($(this).val().replace(/,/g, '')) || 0;
+    total += value;
+    console.log("Field Value:", value);
   });
 
-  console.log("Total Custom Fields Value:", total); // Log the final total value for debugging
   return total;
 }
 
 $(document).on('input', '[data-field-name]', function () {
-  updateCustomSellingPrice(); // Recalculate selling price when a dynamic field changes
+  updateCustomFinalBuyingPrice();
 });
 
-// Update selling price by considering buying price, margin, and total custom field values
-function updateCustomSellingPrice() {
+function updateCustomFinalBuyingPrice() {
   const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
   const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
 
-  // Calculate total custom fields value (packing, freight, etc.)
   const totalCustomFieldsValue = calculateTotalCustomFields();
 
-  // Calculate the selling price
   const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
 
-  // Update the selling price input
-  sellingPriceCustomInput.value = sellingPrice.toFixed(2);
+  finalBuyingPriceCustomInput.value = sellingPrice.toFixed(2);
   const event = new Event('input', { bubbles: true });
-  sellingPriceCustomInput.dispatchEvent(event); // Trigger input event if necessary
+  finalBuyingPriceCustomInput.dispatchEvent(event); // Trigger input event if necessary
 }
 
-// Utility function to format numbers with commas
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -1642,229 +1701,140 @@ function numberWithCommas(x) {
 
 
 <script>
-document.getElementById('gross_price').addEventListener('input', updateBuyingPrice);
-document.getElementById('purchase_discount').addEventListener('input', updateBuyingPrice);
-document.getElementById('purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+function parseNumber(value) {
+    let num = parseFloat(value.replace(/,/g, ''));
+    return isNaN(num) ? 0 : num;  // If invalid, return 0
+}
 
-document.getElementById('buying_gross_price').addEventListener('input', updateBuyingPrice);
-document.getElementById('buying_purchase_discount').addEventListener('input', updateBuyingPrice);
-document.getElementById('buying_purchase_discount_amount').addEventListener('input', updateBuyingPriceWithAmount);
+function formatNumber(value, isPercentage = false) {
+    return isPercentage
+        ? value.toFixed(2)  // Keep two decimal places for percentages
+        : Math.round(value).toLocaleString('en-US');  // Round amount fields (no decimals)
+}
 
+function updateDiscountAmount() {
+    let grossPrice = parseNumber($('#buying_gross_price').val());
+    let discountPercentage = parseNumber($('#buying_purchase_discount').val());
 
+    if (grossPrice === 0 || discountPercentage === 0) {
+        $('#buying_purchase_discount_amount').val(formatNumber(0, false));  // No decimals
+    } else {
+        let discountAmount = (grossPrice * discountPercentage) / 100;
+        $('#buying_purchase_discount_amount').val(formatNumber(discountAmount, false));  // No decimals
+    }
 
-
-const marginPriceInput = document.getElementById('marginPriceProduct');
-const marginPercentageInput = document.getElementById('marginPercentage');
-const sellingPriceInput = document.getElementById('sellingPrice');
-const buyingPriceInput = document.getElementById('buying_price');
-
-const marginPriceHistoryInput = document.getElementById('marginPriceHistory');
-const marginPercentageHistoryInput = document.getElementById('marginPercentageHistory');
-const sellingPriceHistoryInput = document.getElementById('sellingPriceHistory');
-const buyingPriceHistoryInput = document.getElementById('buying_prices');
-
-
-
-
-marginPriceInput.addEventListener('input', updateMarginPrice);
-marginPercentageInput.addEventListener('input', updateMarginPercentage);
-
-marginPriceHistoryInput.addEventListener('input', updateHistoryMarginPrice);
-marginPercentageHistoryInput.addEventListener('input', updateHistoryMarginPercentage);
+    updateNetPrice();
+}
 
 
+ function updateDiscountPercentage() {
+     let grossPrice = parseNumber($('#buying_gross_price').val());
+     let discountAmount = parseNumber($('#buying_purchase_discount_amount').val());
 
-function updateHistoryMarginPrice() {
-  const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
-  const marginPrice = parseFloat(marginPriceHistoryInput.value) || 0;
+     if (grossPrice === 0 || discountAmount === 0) {
+         $('#buying_purchase_discount').val(formatNumber(0));
+     } else {
+         let discountPercentage = (discountAmount / grossPrice) * 100;
+         $('#buying_purchase_discount').val(formatNumber(discountPercentage));
+     }
 
-  // Sum the custom fields values
-  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-    return sum + (item.value || 0);
-  }, 0);
+     updateNetPrice();
+ }
 
-  if (buyingPrice > 0) {
-    const marginPercentage = (marginPrice / buyingPrice) * 100;
-    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
+ function updateNetPrice() {
+     let grossPrice = parseNumber($('#buying_gross_price').val());
+     let discountAmount = parseNumber($('#buying_purchase_discount_amount').val());
+     let netPrice = grossPrice - discountAmount;
 
-    marginPercentageHistoryInput.value = marginPercentage.toFixed(2);
-    sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
+     $('#net_prices').val(formatNumber(netPrice));
+     updateBuyingPrice();
+ }
+
+ function updateBuyingPrice() {
+     let netPrice = parseNumber($('#net_prices').val());
+
+     let customFieldsValue = 0;
+     $('.dynamic-field').each(function () {
+         customFieldsValue += parseNumber($(this).val());
+     });
+
+     let buyingPrice = netPrice + customFieldsValue;
+     $('#buyingPriceHistory').val(formatNumber(buyingPrice));
+
+     updateSellingPrice();
+ }
+
+ function updateMarginAmount() {
+     let buyingPrice = parseNumber($('#buyingPriceHistory').val());
+     let mobp = parseNumber($('#mobpHistory').val());
+
+     if (buyingPrice === 0 || mobp === 0) {
+         $('#mobpPriceHistory').val(formatNumber(0));
+     } else {
+         let marginAmount = (buyingPrice * mobp) / 100;
+         $('#mobpPriceHistory').val(formatNumber(marginAmount));
+     }
+
+     updateSellingPrice();
+ }
+
+ function updateMOBP() {
+     let buyingPrice = parseNumber($('#buyingPriceHistory').val());
+     let marginAmount = parseNumber($('#mobpPriceHistory').val());
+
+     if (buyingPrice === 0 || marginAmount === 0) {
+         $('#mobpHistory').val(formatNumber(0));
+     } else {
+         let mobp = (marginAmount / buyingPrice) * 100;
+         $('#mobpHistory').val(formatNumber(mobp));
+     }
+
+     updateSellingPrice();
+ }
+
+ function updateSellingPrice() {
+     let buyingPrice = parseNumber($('#buyingPriceHistory').val());
+     let marginAmount = parseNumber($('#mobpPriceHistory').val());
+     let sellingPrice = buyingPrice + marginAmount;
+
+     $('#sellingPriceHistory').val(formatNumber(sellingPrice));
+     updateMarginPrice();
+ }
+
+ function updateMarginPrice() {
+      let sellingPrice = parseNumber($('#sellingPriceHistory').val());
+      let marginPercentage = parseNumber($('#marginPercentageHistory').val());
+
+      if (sellingPrice > 0 && marginPercentage > 0) {
+          let marginPrice = (sellingPrice * marginPercentage) / 100;
+          $('#marginPriceHistory').val(formatNumber(marginPrice));  // Update margin price
+      }
+
+      updateMOSP();  // Recalculate MOSP whenever margin price changes
   }
-}
 
-function updateHistoryMarginPercentage() {
-  const buyingPrice = parseFloat(buyingPriceHistoryInput.value) || 0;
-  const marginPercentage = parseFloat(marginPercentageHistoryInput.value) || 0;
+  function updateMOSP() {
+     let sellingPrice = parseNumber($('#sellingPriceHistory').val());
+     let marginPrice = parseNumber($('#marginPriceHistory').val());
 
-  // Sum the custom fields values
-  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-    return sum + (item.value || 0);
-  }, 0);
-
-  if (buyingPrice > 0) {
-    const marginPrice = (marginPercentage / 100) * buyingPrice;
-    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-    marginPriceHistoryInput.value = marginPrice.toFixed(2);
-    sellingPriceHistoryInput.value = sellingPrice.toFixed(2);
-  }
-}
-
-function updateMarginPrice() {
-  const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
-  const marginPrice = parseFloat(marginPriceInput.value) || 0;
-
-  // Sum the custom fields values
-  const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-    return sum + (item.value || 0);
-  }, 0);
-
-  if (buyingPrice > 0) {
-    const marginPercentage = (marginPrice / buyingPrice) * 100;
-    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-    marginPercentageInput.value = marginPercentage.toFixed(2);
-    sellingPriceInput.value = sellingPrice.toFixed(2);
-  }
-}
-
-function updateMarginPercentage() {
-  const buyingPrice = parseFloat(buyingPriceInput.value) || 0;
-  const marginPercentage = parseFloat(marginPercentageInput.value) || 0;
-
-  // Sum the custom fields values
-  const totalCustomFieldsValue = productCustomFieldsArray.reduce((sum, item) => {
-    return sum + (item.value || 0);
-  }, 0);
-
-  if (buyingPrice > 0) {
-    const marginPrice = (marginPercentage / 100) * buyingPrice;
-    const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-    marginPriceInput.value = marginPrice.toFixed(2);
-    sellingPriceInput.value = sellingPrice.toFixed(2);
-  }
-}
-
-
-$('#gross_price, #purchase_discount').on('input', function() {
-  updateBuyingPrice();
-});
-
-$('#buying_gross_price, #buying_purchase_discount').on('input', function() {
-  updateHistoryBuyingPrice();
-  updateHistorySellingPrice();
-});
-
-
-function updateHistorySellingPrice() {
-
-  let marginPrice = $('#marginPriceHistory').val();
-  let buyingPriceInput = $('#buying_prices').val();
-
-  let marginPrices = parseFloat(marginPrice.replace(/,/g, '')) || 0;
-  let buyingPrice = parseFloat(buyingPriceInput.replace(/,/g, '')) || 0;
-
-  const totalCustomFieldsValue = customsArray.reduce((sum, item) => {
-    return sum + (parseFloat(item.value) || 0);
-  }, 0);
-
-  let calculatedSellingPrice = buyingPrice + totalCustomFieldsValue + marginPrices;
-
-  $('#sellingPriceHistory').val(calculatedSellingPrice.toFixed(2));
-}
-
-function updateBuyingPriceWithAmount() {
-  let gross_price = $('#gross_price').val();
-  let purchase_discount = $('#purchase_discount_amount').val();
-
-  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-  let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
-
-  let buyingPriceInput = $('#buying_price');
-
-  if (!isNaN(basePrice) && !isNaN(dAmount)) {
-
-    let calculatedDPrice = basePrice - dAmount;
-    let dpercent = (dAmount / basePrice) * 100;
-    dpercent = parseFloat(dpercent).toFixed(2);
-    $('#purchase_discount').val(dpercent);
-
-    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  }
-}
-function updateHistoryBuyingPriceWithAmount() {
-  let gross_price = $('#buying_gross_price').val();
-  let purchase_discount = $('#buying_purchase_discount_amount').val();
-
-  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-  let dAmount = parseFloat(purchase_discount.replace(/,/g, ''));
-
-  let buyingPriceInput = $('#buying_prices');
-
-  if (!isNaN(basePrice) && !isNaN(dAmount)) {
-
-    let calculatedDPrice = basePrice - dAmount;
-    let dpercent = (dAmount / basePrice) * 100;
-    dpercent = parseFloat(dpercent).toFixed(2);
-    $('#buying_purchase_discount').val(dpercent);
-
-    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  }
-}
-function updateHistoryBuyingPrice() {
-  let gross_price = $('#buying_gross_price').val(); // Get the value using jQuery
-  let purchase_discount = $('#buying_purchase_discount').val(); // Get the value using jQuery
-
-  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-  let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
-
-  let buyingPriceInput = $('#buying_prices');
-
-  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-
-    let calculatedDPrice = basePrice * (dPercentage / 100);
-    $('#buying_purchase_discount_amount').val(calculatedDPrice);
-    calculatedDPrice = basePrice - calculatedDPrice;
-    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  } else if (!isNaN(basePrice)) {
-    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  }
-}
-
-
-
-function updateBuyingPrice() {
-  let gross_price = $('#gross_price').val(); // Get the value using jQuery
-  let purchase_discount = $('#purchase_discount').val(); // Get the value using jQuery
-
-  let basePrice = parseFloat(gross_price.replace(/,/g, ''));
-  let dPercentage = parseFloat(purchase_discount.replace(/,/g, ''));
-
-  let buyingPriceInput = $('#buying_price');
-
-  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-
-    let calculatedDPrice = basePrice * (dPercentage / 100);
-    $('#purchase_discount_amount').val(calculatedDPrice);
-    calculatedDPrice = basePrice - calculatedDPrice;
-    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  } else if (!isNaN(basePrice)) {
-    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-
-    buyingPriceInput.val(formattedMarginPrice);
-  }
-}
+     if (sellingPrice === 0 || marginPrice === 0) {
+         $('#marginPercentageHistory').val(formatNumber(0, false));  // Ensure MOSP doesn't show incorrect values
+     } else {
+         let mosp = (marginPrice / sellingPrice) * 100;
+         $('#marginPercentageHistory').val(formatNumber(mosp, false));  // Show MOSP with 2 decimals
+     }
+ }
+ // Event Listeners
+ $('#buying_gross_price').on('input', updateNetPrice);
+ $('#buying_purchase_discount').on('input', updateDiscountAmount);
+ $('#buying_purchase_discount_amount').on('input', updateDiscountPercentage);
+ $('#net_prices').on('input', updateBuyingPrice);
+ $('#mobpHistory').on('input', updateMarginAmount);
+ $('#mobpPriceHistory').on('input', updateMOBP);
+ $('#sellingPriceHistory').on('input', updateMarginPrice);
+ $('#marginPercentageHistory').on('input', updateMarginPrice);
+ $('#marginPriceHistory').on('input', updateMOSP);
+ $(document).on('input', '.dynamic-field', updateBuyingPrice);
 
 
 
@@ -1896,15 +1866,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const historyPriceBasis = document.getElementById('historyPriceBasis');
   const paymentTermIdElement = document.getElementById('historyPaymentTermId');
 
-  additionalText.addEventListener('click', function () {
+  // Define a function to fetch and display custom fields
+  function loadCustomFields() {
     const selectedValue = paymentTermElement.value;
-
     historyPriceBasis.value = "";
 
     for (let i = 0; i < historyPriceBasis.options.length; i++) {
       if (historyPriceBasis.options[i].value === selectedValue) {
         historyPriceBasis.value = selectedValue;
-
         const paymentTermId = historyPriceBasis.options[i].getAttribute('data-id');
         paymentTermIdElement.value = paymentTermId;
         break;
@@ -1960,7 +1929,7 @@ document.addEventListener('DOMContentLoaded', function () {
           dynamicFields.forEach((input) => {
             input.addEventListener('input', function () {
               const fieldName = this.getAttribute('data-field-name').trim();
-              const fieldValue = this.value.trim() === '' ? 0 : parseFloat(this.value); // Handle empty input as 0
+              const fieldValue = this.value.trim() === '' ? 0 : parseFloat(this.value);
 
               const fieldIndex = customsArray.findIndex(
                 (item) => item.field_name === fieldName
@@ -1986,8 +1955,16 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       historyCustomFieldsContainer.innerHTML = '';
     }
+  }
+
+
+  additionalText.addEventListener('click', loadCustomFields);
+  $('#additionalFieldsModal').on('shown.bs.modal', function () {
+    loadCustomFields();
   });
+
 });
+
 </script>
 
 <script>
@@ -2108,6 +2085,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let customPriceArray = [];
 $(document).ready(function () {
+  console.log("testing",customPriceArray);
 
 
   const quoteId = $('#quotation_id').val();
@@ -2261,7 +2239,10 @@ $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
           { id: '#delivery_charge', value: response.delivery_charge },
           { id: '#mofaic', value: response.mofaic },
           { id: '#surcharges', value: response.surcharges },
-          { id: '#buyingCurrencyCustom', value: response.buying_currency }
+          { id: '#buyingCurrencyCustom', value: response.buying_currency },
+          { id: '#finalBuyingPrice', value: response.final_buying_price },
+          { id: '#marginPercentBp', value: response.mobp },
+          { id: '#marginAmountBp', value: response.margin_amount_bp }
         ];
 
         // Loop through each field and set the values
@@ -2487,6 +2468,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let deliveryCharge = $('#delivery_charge').val();
     let mofaic = $('#mofaic').val();
     let surcharges = $('#surcharges').val();
+    let finalBuyingPrice = $('#finalBuyingPrice').val();
+    let marginPercentageBp = $('#marginPercentBp').val();
+    let marginAmountBp = $('#marginAmountBp').val();
 
     let customFields = [];
     $('.custom-field').each(function() {
@@ -2496,7 +2480,66 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
+    // Clear previous error messages
+  $('.error-message').remove();
 
+  // Client-side validation: Check if required fields are empty or invalid
+  let isValid = true;
+
+  if (!marginPercentageBp) {
+      isValid = false;
+      $('#marginPercentBp').after('<div class="error-message" style="color:red;">MOBP is required</div>');
+  }
+  if (!marginAmountBp) {
+      isValid = false;
+      $('#marginAmountBp').after('<div class="error-message" style="color:red;">Margin Amount is required</div>');
+  }
+
+  if (!marginPercentage) {
+      isValid = false;
+      $('#marginPercentageCustom').after('<div class="error-message" style="color:red;">Margin Percentage is required</div>');
+  }
+
+  if (!buyingCurrencyCustom) {
+      isValid = false;
+      $('#buyingCurrencyCustom').after('<div class="error-message" style="color:red;">Buying Currency is required</div>');
+  }
+
+  if (!buyingGrossPrice) {
+      isValid = false;
+      $('#custom_gross_price').after('<div class="error-message" style="color:red;">Buying Gross Price is required</div>');
+  }
+
+  if (!buyingPrices) {
+      isValid = false;
+      $('#custom_buying_prices').after('<div class="error-message" style="color:red;">Buying Prices is required</div>');
+  }
+
+  // Optional: Validate if numeric fields are valid numbers
+  if (isNaN(sellingPrice)) {
+      isValid = false;
+      $('#sellingPriceCustom').after('<div class="error-message" style="color:red;">Please enter a valid number for Selling Price</div>');
+  }
+
+  if (isNaN(marginPercentage)) {
+      isValid = false;
+      $('#marginPercentageCustom').after('<div class="error-message" style="color:red;">Please enter a valid number for Margin Percentage</div>');
+  }
+  if (isNaN(marginPercentage)) {
+      isValid = false;
+      $('#marginPercentageCustom').after('<div class="error-message" style="color:red;">Please enter a valid number for Margin Percentage</div>');
+  }
+
+  if (isNaN(buyingGrossPrice)) {
+      isValid = false;
+      $('#custom_gross_price').after('<div class="error-message" style="color:red;">Please enter a valid number for Buying Gross Price</div>');
+  }
+
+  // If validation fails, re-enable the button and prevent submission
+  if (!isValid) {
+      $(this).prop('disabled', false);
+      return;
+  }
     $.ajax({
       url: '{{ route("quotation.custom_price_edit") }}',
       method: 'POST',
@@ -2528,7 +2571,10 @@ document.addEventListener('DOMContentLoaded', function() {
         customs: customs,
         delivery_charge: deliveryCharge,
         mofaic: mofaic,
-        surcharges: surcharges
+        surcharges: surcharges,
+        final_buying_price: finalBuyingPrice,
+        mobp: marginPercentageBp,
+        margin_amount_bp: marginAmountBp
       },
       success: function(response) {
 
