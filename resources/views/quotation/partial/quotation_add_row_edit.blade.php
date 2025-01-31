@@ -154,14 +154,15 @@
     <div class="currency-label col-sm-3" style="text-align: left">
       <label class="form-check-label currency-label">Vat Amount ({{$quotation->preferred_currency}})</label>
     </div>:
+
     <div class="col-sm-3">
-      @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
+      @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae' && $quotation->quote_for != 'service')
       <input
       type="text"
       class="form-control"
       id="vatAmountLabel"
       name="vat_amount"
-      value="{{ $quotation->vat_amount }}"
+      value="{{ $quotation->vat_amount }}" readonly
       >
       @else
       <input
@@ -511,10 +512,8 @@
     <script>
     $(document).ready(function() {
 
-      $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"], input[name="margin[]"]', function() {
-        calculateOverallTotal();
-      });
-      $('#vatAmountLabel').on('input', function() {
+      $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"],input[name="vat_amount"], input[name="margin[]"]', function() {
+       $('#vatAmountLabel').val('');
         calculateOverallTotal();
       });
 
@@ -927,8 +926,9 @@
       $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
 
       if (!chargeName || chargeAmount === 0) {
+          $('#vatAmountLabel').val('');
         calculateOverallTotal();
-        console.log('Row removed without triggering an AJAX request (empty or zero value).');
+
         return;
       }
 

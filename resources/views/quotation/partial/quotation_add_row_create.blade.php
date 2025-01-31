@@ -86,13 +86,14 @@
       </label>
 
     </div>:
-    @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae')
+
+    @if (Auth::check() && Auth::user()->email != 'service@yesmachinery.ae' && $quotationType !='service')
       <div class="col-sm-3 text-align-left">
           <input
               type="text"
               class="form-control"
               id="vatAmountLabel"
-              name="vat_amount"
+              name="vat_amount" oninput="calculateOverallTotal()" readonly
             >
       </div>
   @else
@@ -390,10 +391,6 @@
       addItemRow();
       updateTextarea();
     });
-    $('#vatService').on('input', function() {
-         calculateOverallTotal();
-     });
-
 
     document.getElementById('durationSelect').addEventListener('change', function() {
       var selectedValue = this.value;
@@ -419,6 +416,7 @@
     initializeAutocomplete(0);
 
     $(document).on('change keyup', 'input[name="total_after_discount[]"], input[name="charge_amount[]"], input[name="quantity[]"], input[name="subtotal[]"], input[name="discount[]"], input[name="vat_option"], input[name="margin[]"]', function() {
+      $('#vatAmountLabel').val('');
       calculateOverallTotal();
     });
   });
@@ -654,6 +652,7 @@
     $('input[name="total_value"]').val(newTotalAmount.toFixed(2));
 
     $('#row-' + rowId).remove();
+      $('#vatAmountLabel').val('');
       calculateOverallTotal();
 
   }

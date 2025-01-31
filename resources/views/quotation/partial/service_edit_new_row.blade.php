@@ -319,7 +319,6 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
 
   var iter = $("#product_item_tbl").find("tbody >tr").length;
   $(document).on('click', '.del-item', function(e) {
-
     Swal.fire({
       title: "Are you sure?",
       text: "You are sure to delete the product!",
@@ -330,25 +329,25 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        var row = $(this).closest('tr');
+        let row = $(this).parents('tr');
         let productId = row.find('input[name="item_id[]"]').val();
 
         customPriceArray = customPriceArray.filter(function(item) {
           return item.product_id !== parseInt(productId);
         });
-        let quotationId = document.getElementById('quotation_id').value;
 
         removeQuotationRow(row);
         row.remove();
-        const customPriceJSON = JSON.stringify(customPriceArray);
-        document.getElementById('customprices').value = customPriceJSON;
 
-        deleteCustomPriceQuote(quotationId,productId);
+
         updateQuotationCharges(customPriceArray);
+
         calculateOverallTotal();
+
       }
     });
   });
+
   function deleteCustomPriceQuote(quoteId, productId) {
 
     $.ajax({
@@ -665,7 +664,7 @@ function refreshProductHistory(productid) {
         if (history.modelno) title += ' / ' + history.modelno + '';
         if (history.part_number) title += ' / ' + history.part_number + '';
 
-        productHistoryHtml += '<tr>' +
+        productHistoryHtml += '<tr' + (history.is_custom == 1 ? ' style="background-color: #f0f8ff; font-weight: bold;"' : '') + '>' +
         '<td>' +
         '<div class="form-check">' +
         '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount + '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '">' +
@@ -1165,10 +1164,10 @@ function createNewProduct(isValid) {
   }
 }
 
+
 function calculateOverallTotal() {
-  var overallTotal = 0;
-  var vatRate = 0.05; // VAT rate of 5%
-  var vatIncluded = $('input[name="vat_option"]:checked').val(); // Check VAT option
+  var vatRate = 0.05;
+  var vatIncluded = $('input[name="vat_option"]:checked').val();
   var sumAfterDiscount = 0;
   var totalMargin = 0;
   var vatAmount = 0;
@@ -1194,31 +1193,45 @@ function calculateOverallTotal() {
   sumAfterDiscount += quotationCharges;
 
   if (vatIncluded == 1) {
-    // VAT is included
-    $('#vatSection').show(); // Show VAT-related fields
-    var customVatAmount = parseFloat($('input[name="vat_amount"]').val()) || 0;
+    $('#vatSection').show();
 
-    if (customVatAmount) {
-      vatAmount = customVatAmount; // Use custom VAT if entered
-      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+    var manualVatAmount = parseFloat($('#vatAmountLabel').val());
+
+    if (!isNaN(manualVatAmount) && manualVatAmount >= 0) {
+      vatAmount = manualVatAmount;
     } else {
-      vatAmount = sumAfterDiscount * vatRate; // Calculate VAT dynamically
-      $('#vatAmountLabel').text(vatAmount.toFixed(2));
+      vatAmount = sumAfterDiscount * vatRate;
+      $('#vatAmountLabel').val(vatAmount.toFixed(2));
     }
 
-    sumAfterDiscount += vatAmount; // Add VAT to total
+    sumAfterDiscount += vatAmount;
   } else {
-    // VAT is not included
+    $('#vatSection').hide();
     vatAmount = 0;
-    $('#vatSection').hide(); // Hide VAT-related fields
+    $('#vatAmountLabel').val('');
   }
 
-  // Update totals in the form
   $('#totalValue').val(sumAfterDiscount.toFixed(2));
   $('#totalMarginValue').val(totalMargin.toFixed(2));
   $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
 }
 
+$(document).on('input', 'input[name="charge_amount[]"]', function () {
+  $('#vatAmountLabel').val('');
+  calculateOverallTotal();
+});
+
+$(document).on('change', 'input[name="vat_option"]', function () {
+  $('#vatAmountLabel').val('');
+  calculateOverallTotal();
+});
+
+
+$('#vatAmountLabel').on('input', function () {
+  if ($(this).val() === '') {
+    calculateOverallTotal();
+  }
+});
 function updateCheckboxValue(checkbox) {
   // Find the corresponding hidden input element
   const hiddenInput = checkbox.previousElementSibling;

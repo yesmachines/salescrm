@@ -103,6 +103,9 @@ class PurchaseRequisitionController extends Controller
 
 
         foreach ($input['supplier'] as $skey => $supdata) {
+          if (!isset($supdata['supplier_selected']) || $supdata['supplier_selected'] != '1') {
+              continue;
+          }
             $total_price = 0;
 
             $insertPR = [

@@ -158,6 +158,9 @@ input:checked+.slider:before {
     input:disabled {
       color: black !important; /* Ensure the font color is black, overriding any default styles */
   }
+  select[disabled] {
+   color: black !important;
+ }
 
 
 }

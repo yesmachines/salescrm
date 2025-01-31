@@ -286,6 +286,9 @@ class CustomPriceController extends Controller
           'delivery_charge' => $request['delivery_charge'],
           'mofaic' => $request['mofaic'],
           'surcharges' => $request['surcharges'],
+          'final_buying_price' => $request['final_buying_price'],
+          'mobp' => $request['mobp'],
+          'margin_amount_bp' => $request['margin_amount_bp'],
         ];
 
 
@@ -466,6 +469,9 @@ class CustomPriceController extends Controller
             'mosp' => $customPrice->margin_percent,
             'unit_price' => $customPrice->selling_price,
             'selling_currency' => $customPrice->selling_currency,
+            'final_buying_price' => $customPrice->final_buying_price,
+            'mobp' => $customPrice->mobp,
+            'margin_amount_bp' => $customPrice->margin_amount_bp,
             // 'packing' => $customPrice->packing,
             // 'road_transport_to_port' => $customPrice->road_transport_to_port,
             // 'freight' => $customPrice->freight,

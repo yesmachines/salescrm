@@ -18,9 +18,22 @@
             </td>
             <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_email]" placeholder="Supplier Email" required /></td>
             <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_contact]" placeholder="Supplier Name" required /></td>
+
         </tr>
+        <tr>  <td width="10%">
+              <input class="form-check-input supplier-checkbox" type="checkbox" name="supplier[{{$y}}][supplier_selected]" value="1" id="supplier_pr_{{$y}}" checked>
+              <label class="form-check-label" for="supplier_pr_{{$y}}">
+                  Create PR for this supplier
+              </label>
+          </td>
+        </tr>
+
+
     </tbody>
+
 </table>
+
+
 <div class="row ">
     <div class="col-12">
         <p>&nbsp;</p>

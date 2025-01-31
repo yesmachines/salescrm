@@ -215,7 +215,7 @@ $(document).ready(function() {
     }
   });
 
-$(document).on('input change', '.quantity, .unit-price', function (e) {
+  $(document).on('input change', '.quantity, .unit-price', function (e) {
 
     let row = $(this).closest('tr');
 
@@ -244,7 +244,7 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
     row.find('.margin-amount-row').val(quoteMargin);
 
     labelnewmargin.html(quoteMargin);
-      calculateOverallTotal();
+    calculateOverallTotal();
   });
 
   $(document).on('input change', '.discount', function(e) {
@@ -319,13 +319,11 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
         customPriceArray = customPriceArray.filter(function(item) {
           return item.product_id !== parseInt(productId);
         });
-
         removeQuotationRow(row);
         row.remove();
 
-
         updateQuotationCharges(customPriceArray);
-
+       $('#vatAmountLabel').val('');
         calculateOverallTotal();
 
       }
@@ -434,7 +432,7 @@ $(document).on('input change', '.quantity, .unit-price', function (e) {
           console.error('Error fetching custom prices:', error);
         }
       });
-
+     $('#vatAmountLabel').val('');
       calculateOverallTotal();
 
       $('#customModal').modal('hide');
@@ -775,7 +773,7 @@ function refreshProductHistory(productid) {
         '<td>' +
         '<div class="form-check">' +
         '<input class="form-check-input" id="priceBasisRadio_' + counter + '" type="radio" name="priceBasisRadio" value="' + history.id + '" data-row-index="' + counter + '" data-history-id="' + history.id + '" data-product-title="' + title + '" data-brand-id="' + history.brand_id + '"  data-selling-price="' + history.selling_price + '" data-margin-price="' + history.margin_price + '"data-margin-percent="' + history.margin_percent + '"data-allowed-discount="' + history.product_discount +
-         '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '"data-price-basis="' + history.price_basis + '">'
+        '"data-currency="' + history.currency + '"data-productid="' + history.product_id + '"data-price-basis="' + history.price_basis + '">'
         +'</div>' +
         '</td>' +
         '<td> <label class="form-check-label" for="priceBasisRadio_' + counter + '">' + title + '</label></td>' +
@@ -821,9 +819,9 @@ function attachEventListeners() {
     if ($(this).prop('checked')) {
       let selectedCurrency = $('select[name="quote_currency"]').val();
 
-       let selectedDeliveryTerm = $('#paymentTerm').val();
+      let selectedDeliveryTerm = $('#paymentTerm').val();
 
-       if (priceBasis !== selectedDeliveryTerm) {
+      if (priceBasis !== selectedDeliveryTerm) {
         Swal.fire({
           title: "Mismatch Detected",
           text: "The selected Price Basis does not match the Delivery Term.",
@@ -1233,81 +1231,66 @@ function createNewProduct(isValid) {
     });
   }
 }
-
 function calculateOverallTotal() {
 
-    var overallTotal = 0;
-    var overallMargin = 0;
-    var vatRate = 0.05; // VAT rate of 5%
-    var vatIncluded = $('input[name="vat_option"]:checked').val(); // Get VAT option (if checked)
-    var sumAfterDiscount = 0;
-    var totalMargin = 0;
-    var vatAmount = 0;
-    var quotationCharges = 0;
-    var manualChargesTotal = 0;
+  var vatRate = 0.05;
+  var vatIncluded = $('input[name="vat_option"]:checked').val();
+  var sumAfterDiscount = 0;
+  var totalMargin = 0;
+  var vatAmount = 0;
+  var quotationCharges = 0;
 
-    // Get the custom VAT amount entered by the user
-    var customVatAmount = parseFloat($('#vatAmountLabel').val()) || 0;
+  $('input[name="total_after_discount[]"]').each(function () {
+    var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
+    sumAfterDiscount += rowTotalAfterDiscount;
+  });
 
-    // Initialize sum after discount
-    $('input[name="total_after_discount[]"]').each(function () {
-        var rowTotalAfterDiscount = parseFloat($(this).val()) || 0;
-        sumAfterDiscount += rowTotalAfterDiscount;
-    });
+  $('input[name="margin_amount_row[]"]').each(function () {
+    var rowTotalMargin = parseFloat($(this).val()) || 0;
+    totalMargin += rowTotalMargin;
+  });
 
-    // Initialize total margin
-    $('input[name="margin_amount_row[]"]').each(function () {
-        var rowTotalMargin = parseFloat($(this).val()) || 0;
-        totalMargin += rowTotalMargin;
-    });
+  $('input[name="charge_amount[]"]').each(function () {
+    if (!$(this).is(':disabled')) {
+      var chargeAmount = parseFloat($(this).val()) || 0;
+      quotationCharges += chargeAmount;
+    }
+  });
 
-    // Initialize quotation charges
-    $('input[name="charge_amount[]"]').each(function () {
-        var chargeAmount = parseFloat($(this).val()) || 0;
-        if (!$(this).prop('disabled')) {
-            quotationCharges += chargeAmount;
-        }
-    });
+  sumAfterDiscount += quotationCharges;
 
-    // Add manual charges to the sum after discount
-    $('input[name="charge_name[]"]').each(function (index) {
-        var chargeAmount = parseFloat($('input[name="charge_amount[]"]').eq(index).val()) || 0;
-        if (!$(this).prop('disabled')) {
-            manualChargesTotal += chargeAmount;
-        }
-    });
+  if (vatIncluded == 1) {
+    $('#vatSection').show();
 
-    // Add manual and regular charges to the sum after discount
-    sumAfterDiscount += manualChargesTotal + quotationCharges;
+    var manualVatAmount = parseFloat($('#vatAmountLabel').val());
 
-    // If VAT is included, calculate VAT
-    if (vatIncluded == 1) {
-        vatAmount = customVatAmount || sumAfterDiscount * vatRate;
-        sumAfterDiscount += vatAmount;
+    if (!isNaN(manualVatAmount) && manualVatAmount >= 0) {
+      vatAmount = manualVatAmount;
+    } else {
+      vatAmount = sumAfterDiscount * vatRate;
+      $('#vatAmountLabel').val(vatAmount.toFixed(2));
     }
 
-    // Update total and VAT fields
-    $('#totalValue').val(sumAfterDiscount.toFixed(2));
-    $('#totalMarginValue').val(totalMargin.toFixed(2));
-    $('#vatAmountLabel').text(vatAmount.toFixed(2));
-    $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
+    sumAfterDiscount += vatAmount;
+  } else {
+    $('#vatSection').hide();
+    vatAmount = 0;
+    $('#vatAmountLabel').val('');
+  }
 
-    // If VAT is not included, reset VAT fields
-    if (!vatIncluded) {
-        $('#vatAmountLabel').text('0.00');
-    }
+  $('#totalValue').val(sumAfterDiscount.toFixed(2));
+  $('#totalMarginValue').val(totalMargin.toFixed(2));
+  $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
 }
 
 
 
 function updateQuotationCharges(customPriceArray, sellingPrice) {
   const quotationChargesContainer = document.getElementById('quotationChargesContainer');
-  let manualChargesTotal = 0; // Track the total of manually entered charges
+  let manualChargesTotal = 0;
 
-  // Persist custom charge status
-  const customChargesSet = new Set(); // Store custom charge names to track them reliably
+  const customChargesSet = new Set();
 
-  // Populate customChargesSet with charges from customPriceArray
   customPriceArray.forEach(item => {
     Object.keys(item).forEach(key => {
       if (key !== 'product_id' && key !== 'id' && item[key] !== null && item[key] !== undefined) {
@@ -1316,7 +1299,6 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     });
   });
 
-  // Fetch existing charges that were rendered on the page
   const existingCharges = [];
   document.querySelectorAll('.row[data-charge-id]').forEach(row => {
     const chargeId = row.getAttribute('data-charge-id');
@@ -1327,10 +1309,8 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     existingCharges.push({ id: chargeId, charge_name: chargeName, charge_amount: chargeAmount, is_visible: isVisible });
   });
 
-  // Clear the container to re-render
   quotationChargesContainer.innerHTML = '';
 
-  // Combine existing charges with the new ones (if any)
   const groupedCharges = {};
   customPriceArray.forEach(item => {
     Object.keys(item).forEach(key => {
@@ -1344,15 +1324,13 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     });
   });
 
-  // Add existing charges to grouped charges
   existingCharges.forEach(existingCharge => {
     const key = existingCharge.charge_name;
     groupedCharges[key] = existingCharge.charge_amount;
   });
 
-  // If no charges exist, create a default empty row
   if (Object.keys(groupedCharges).length === 0) {
-    groupedCharges[''] = ''; // Adding an empty charge for at least one row
+    groupedCharges[''] = '';
   }
 
   let index = 0;
@@ -1361,25 +1339,22 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     const rowContainer = document.createElement('div');
     rowContainer.classList.add('row');
     rowContainer.id = 'row-' + index;
-
-    // Determine if the charge is a custom charge
     const isCustomCharge = customChargesSet.has(key);
-
-    // Add the "plus" button only for the first row
     const plusButtonHTML = index === 0 ? `
-      <div class="col-sm-1">
-        <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+    <div class="col-sm-1">
+    <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
+    <i class="fas fa-plus"></i>
+    </button>
+    </div>
     ` : '';
 
-    const deleteButtonHTML = !isCustomCharge ? `
-      <div class="col-sm-1">
-        <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
+    const showDeleteButton = Object.keys(groupedCharges).length > 1 && !isCustomCharge;
+    const deleteButtonHTML = showDeleteButton ? `
+    <div class="col-sm-1">
+    <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+    <i class="fas fa-trash"></i>
+    </button>
+    </div>
     ` : '';
 
     if (!isCustomCharge) {
@@ -1389,31 +1364,34 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     rowContainer.innerHTML = `
     <div class="col-sm-3" style="text-align: right;">
 
-   </div>
-      <div class="col-sm-1">
-        <div class="form-check" style="display: flex; justify-content: flex-end;">
-          <!-- Hidden input for unchecked state -->
-          <input type="hidden" name="is_visible[]" value="0">
-          <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="form-group">
-          <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key.replace(/_/g, ' ')}" ${isCustomCharge ? 'disabled' : ''}/>
-        </div>
-      </div>
-      <div class="col-sm-3">
-        <div class="form-group">
-          <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomCharge ? 'disabled' : ''}/>
-        </div>
-      </div>
-      ${plusButtonHTML}
-      ${deleteButtonHTML}
+    </div>
+    <div class="col-sm-1">
+    <div class="form-check" style="display: flex; justify-content: flex-end;">
+    <input type="hidden" name="is_visible[]" value="0">
+    <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)"/>
+    </div>
+    </div>
+    <div class="col-sm-4">
+    <div class="form-group">
+    <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key.replace(/_/g, ' ')}" ${isCustomCharge ? 'disabled' : ''}/>
+    </div>
+    </div>
+    <div class="col-sm-3">
+    <div class="form-group">
+    <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomCharge ? 'disabled' : ''}/>
+    </div>
+    </div>
+    ${plusButtonHTML}
+    ${deleteButtonHTML}
     `;
 
     quotationChargesContainer.appendChild(rowContainer);
     index++;
   });
+  if (Object.keys(groupedCharges).length === 1) {
+    const deleteButtons = document.querySelectorAll('.remove-button');
+    deleteButtons.forEach(button => button.style.display = 'none');
+  }
 
   return manualChargesTotal;
 }

@@ -458,10 +458,15 @@ $(document).ready(function() {
     var requiredFields = [
       '#sellingPriceHistory',
       '#marginPercentageHistory',
-      '#quoteCurrencyHistory',
       '#marginPriceHistory',
       'input[name="product_ids"]',
-      '#historyPriceBasis'
+      '#historyPriceBasis',
+      '#buying_gross_price',
+      '#buying_purchase_discount',
+      '#buying_purchase_discount_amount',
+      '#mobpPriceHistory',
+      '#buyingCurrencyHistory',
+      '#mobpHistory',
     ];
 
     // Validate each field based on its value
@@ -482,19 +487,6 @@ $(document).ready(function() {
     }
   });
 
-  // FOR ADD NEW CUSTOM PRODUCT
-  document.getElementById('sellingPrice').addEventListener('input', updateMarginPrice);
-  document.getElementById('marginPercentage').addEventListener('input', updateMarginPrice);
-  $('#sellingPrice, #marginPrice').on('input', function() {
-    updateMarginPercentage();
-  });
-
-  // FOR ADD NEW PRICE OF CUSTOM PRODUCT
-  document.getElementById('sellingPriceHistory').addEventListener('input', updateMarginPriceHistory);
-  document.getElementById('marginPercentageHistory').addEventListener('input', updateMarginPriceHistory);
-  $('#sellingPriceHistory, #marginPriceHistory').on('input', function() {
-    updateMarginPercentageHistory();
-  });
 
   $('#saveProduct').on('click', function(e) {
     e.preventDefault();
@@ -874,27 +866,61 @@ function saveAdditionalFieldsHandler(isValid) {
   if (isValid) {
 
     $(this).prop('disabled', true);
-    let sellingPrice = $('#sellingPriceHistory').val();
-    let marginPercentage = $('#marginPercentageHistory').val();
+
     let quoteCurrency = $('#quoteCurrencyHistory').val();
-    let marginPrice = $('#marginPriceHistory').val();
-    let productId = $('input[name="product_ids"]').val();
+    let productId = $('input[name="product_ids"]').val();  // Assuming product IDs are used
     let priceBasis = $('#historyPriceBasis').val();
-    let isDefault = $('#defaultSellingPrice').val();
+    let isDefaultSellingPrice = $('#defaultSellingPrice').prop('checked') ? 1 : 0; // Checkbox for default selling price
+    let defaultBuyingPrice = $('#defaultBuyingPrice').prop('checked') ? 1 : 0; // Checkbox for default buying price
+
+    // Buying Price Details
     let buyingGrossPrice = $('#buying_gross_price').val();
     let buyingPurchaseDiscount = $('#buying_purchase_discount').val();
     let buyingPurchaseDiscountAmount = $('#buying_purchase_discount_amount').val();
-    let buyingPrices = $('#buying_prices').val();
-    let defaultBuyingPrice = $('#defaultBuyingPrice').val();
-    let buyingCurrencyHistory = $('#buyingCurrencyHistory').val();
+    let buyingNetPrice = $('#net_prices').val();
+    let buyingCurrency = $('#buyingCurrencyHistory').val();
+
+    // Selling Price Details
+    let buyingPrice = $('#buyingPriceHistory').val();
+    let marginAmount = $('#mobpPriceHistory').val();
+    let marginPercentage = $('#mobpHistory').val();
+    let sellingPriceCalculated = $('#sellingPriceHistory').val();
+    let mosPercentage = $('#marginPercentageHistory').val();
+    let marginAmountCalculated = $('#marginPriceHistory').val();
 
     let customFields = [];
-    $('.custom-field').each(function() {
+    $('.dynamic-field').each(function() {
+      let fieldName = $(this).data('field-name');  // Access the correct data attribute
+      let fieldValue = $(this).val();
+
       customFields.push({
-        name: $(this).data('name'),
-        value: $(this).val()
+        name: fieldName,
+        value: fieldValue
       });
     });
+
+    let data = {
+      productId: productId,
+      price_basis: priceBasis,
+      default_selling_price: isDefaultSellingPrice,
+      default_buying_price: defaultBuyingPrice,
+      buying_gross_price: buyingGrossPrice,
+      buying_purchase_discount: buyingPurchaseDiscount,
+      buying_purchase_discount_amount: buyingPurchaseDiscountAmount,
+      buying_net_price: buyingNetPrice,
+      buying_currency: buyingCurrency,
+      buying_price: buyingPrice,
+      margin_percentage: marginPercentage,
+      margin_amount: marginAmount,
+      selling_price: sellingPriceCalculated,
+      mos_percentage: mosPercentage,
+      margin_price: marginAmountCalculated,
+      quote_currency: quoteCurrency,
+      custom_fields: customFields,
+    };
+
+    // Log the data object to the console to inspect it
+    console.log('Data to be sent:', data);
 
     $.ajax({
       url: '{{ route("productHistorySave") }}',
@@ -902,28 +928,11 @@ function saveAdditionalFieldsHandler(isValid) {
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
-      data: {
-        selling_price: sellingPrice,
-        margin_percentage: marginPercentage,
-        quote_currency: quoteCurrency,
-        margin_price: marginPrice,
-        productId: productId,
-        price_basis: priceBasis,
-        custom_fields: customsArray,
-        default_selling_price:isDefault,
+      data: data,
 
-        buying_gross_price:buyingGrossPrice,
-        buying_purchase_discount:buyingPurchaseDiscount,
-        buying_purchase_discount_amount :buyingPurchaseDiscountAmount,
-        buying_prices:buyingPrices,
-        default_buying_price:defaultBuyingPrice,
-        buying_currency:buyingCurrencyHistory,
-
-      },
       success: function(response) {
-
+        console.log('Response:', response);
         if (response.success) {
-
           $('#additionalFieldsModal').modal('hide');
           $('#customModal').modal('show');
           refreshProductHistory(productId);
@@ -1384,13 +1393,14 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     ` : '';
 
     // Only show the delete button for manually entered rows (not custom)
-    const deleteButtonHTML = !isCustomCharge ? `
-      <div class="col-sm-1">
-        <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    ` : '';
+    const showDeleteButton = Object.keys(groupedCharges).length > 1 && !isCustomCharge;
+   const deleteButtonHTML = showDeleteButton ? `
+     <div class="col-sm-1">
+       <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+         <i class="fas fa-trash"></i>
+       </button>
+     </div>
+   ` : '';
 
     // If it's a manual charge (not from customPriceArray), add it to the manualChargesTotal
     if (!isCustomCharge) {
@@ -1428,6 +1438,10 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
     quotationChargesContainer.appendChild(rowContainer);
     index++;
   });
+  if (Object.keys(groupedCharges).length === 1) {
+  const deleteButtons = document.querySelectorAll('.remove-button');
+  deleteButtons.forEach(button => button.style.display = 'none');
+}
 
   return manualChargesTotal;
 }
