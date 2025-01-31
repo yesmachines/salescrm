@@ -1643,25 +1643,32 @@ function updateCustomBuyingPriceWithAmount() {
 }
 
 function updateCustomBuyingPrice() {
-  let gross_price = $('#custom_gross_price').val();
-  let purchase_discount = $('#custom_purchase_discount').val();
+    let grossPrice = $('#custom_gross_price').val();
+    let purchaseDiscount = $('#custom_purchase_discount').val();
 
-  let basePrice = parseFloat(gross_price.replace(/,/g, '')) || 0;
-  let dPercentage = parseFloat(purchase_discount.replace(/,/g, '')) || 0;
+    let basePrice = parseFloat(grossPrice.replace(/,/g, '')) || 0;
+    let discountPercentage = parseFloat(purchaseDiscount.replace(/,/g, '')) || 0;
 
-  if (!isNaN(basePrice) && !isNaN(dPercentage)) {
-    let calculatedDPrice = basePrice * (dPercentage / 100);
-    $('#custom_purchase_discount_amount').val(calculatedDPrice);
-    calculatedDPrice = basePrice - calculatedDPrice;
-    let formattedMarginPrice = numberWithCommas(calculatedDPrice.toFixed(2));
-    $('#custom_buying_prices').val(formattedMarginPrice);
-    updateCustomSellingPrice();
-  } else if (!isNaN(basePrice)) {
-    let formattedMarginPrice = numberWithCommas(basePrice.toFixed(2));
-    $('#custom_buying_prices').val(formattedMarginPrice);
-    updateCustomFinalBuyingPrice();
-  }
+    if (!isNaN(basePrice) && !isNaN(discountPercentage)) {
+        let discountAmount = basePrice * (discountPercentage / 100);
+        $('#custom_purchase_discount_amount').val(discountAmount.toFixed(2));
+
+        let finalBuyingPrice = basePrice - discountAmount;
+        let formattedPrice = numberWithCommas(finalBuyingPrice.toFixed(2));
+        $('#custom_buying_prices').val(formattedPrice);
+
+        updateCustomFinalBuyingPrice(); // Ensure final price updates
+    } else if (!isNaN(basePrice)) {
+        let formattedPrice = numberWithCommas(basePrice.toFixed(2));
+        $('#custom_buying_prices').val(formattedPrice);
+
+        updateCustomFinalBuyingPrice();
+    }
 }
+document.getElementById('custom_gross_price').addEventListener('input', function () {
+    updateCustomBuyingPrice();
+});
+
 
 function calculateTotalCustomFields() {
   let total = 0;
@@ -1675,26 +1682,26 @@ function calculateTotalCustomFields() {
   return total;
 }
 
+
 $(document).on('input', '[data-field-name]', function () {
   updateCustomFinalBuyingPrice();
 });
 
 function updateCustomFinalBuyingPrice() {
-  const buyingPrice = parseFloat(buyingPriceCustomInput.value.replace(/,/g, '')) || 0;
-  const marginPrice = parseFloat(marginPriceCustomInput.value.replace(/,/g, '')) || 0;
-
-  const totalCustomFieldsValue = calculateTotalCustomFields();
-
-  const sellingPrice = buyingPrice + marginPrice + totalCustomFieldsValue;
-
-  finalBuyingPriceCustomInput.value = sellingPrice.toFixed(2);
-  const event = new Event('input', { bubbles: true });
-  finalBuyingPriceCustomInput.dispatchEvent(event); // Trigger input event if necessary
+    const customBuyingPrice = parseFloat($('#custom_buying_prices').val().replace(/,/g, '')) || 0;
+    const totalCustomFieldsValue = calculateTotalCustomFields();
+    const finalBuyingPrice = customBuyingPrice + totalCustomFieldsValue;
+    $('#finalBuyingPrice').val(finalBuyingPrice.toFixed(2));
 }
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+document.getElementById('custom_gross_price').addEventListener('input', function () {
+  console.log("wwww");
+    updateCustomBuyingPrice();
+    updateCustomFinalBuyingPrice(); 
+});
 
 </script>
 
@@ -1707,10 +1714,11 @@ function parseNumber(value) {
 }
 
 function formatNumber(value, isPercentage = false) {
-    return isPercentage
-        ? value.toFixed(2)  // Keep two decimal places for percentages
-        : Math.round(value).toLocaleString('en-US');  // Round amount fields (no decimals)
+  return isPercentage
+    ? value.toFixed(2)  // Keep two decimal places for percentages
+    : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
 
 function updateDiscountAmount() {
     let grossPrice = parseNumber($('#buying_gross_price').val());

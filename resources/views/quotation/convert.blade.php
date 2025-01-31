@@ -1026,8 +1026,8 @@ $(document).ready(function() {
 
   function formatNumber(value, isPercentage = false) {
     return isPercentage
-    ? value.toFixed(2)  // Keep two decimal places for percentages
-    : Math.round(value).toLocaleString('en-US');  // Round amount fields (no decimals)
+      ? value.toFixed(2)  // Keep two decimal places for percentages
+      : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function updateDiscountAmount() {

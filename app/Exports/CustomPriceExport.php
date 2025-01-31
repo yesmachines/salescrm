@@ -51,9 +51,12 @@ class CustomPriceExport implements FromCollection, WithHeadings, WithMapping
     }
 
     $remainingHeadings = [
+      'BP',
+      'MOBP',
+      'Margin Amount',
       'Selling Price',
-      '% Margin',
-      'Margin',
+      'MOSP',
+      'Margin Price',
     ];
 
     return array_merge($fixedHeadings, $remainingHeadings);
@@ -74,16 +77,20 @@ class CustomPriceExport implements FromCollection, WithHeadings, WithMapping
     $unitPrice = $customPriceQuote ? $customPriceQuote->selling_price : 0;
     $marginPrice = $customPriceQuote ? $customPriceQuote->margin_price : 0;
     $marginPercent = $customPriceQuote ? $customPriceQuote->margin_percent : 0;
+    $finalBp = $customPriceQuote ? $customPriceQuote->final_buying_price : 0;
+    $mobp = $customPriceQuote ? $customPriceQuote->mobp : 0;
+    $marginAmount = $customPriceQuote ? $customPriceQuote->margin_amount_bp : 0;
 
     $mappedData = [
       $product->title,
       $product->part_number ?? $product->modelno ?? 'N/A',
       $product->description ?? 'N/A',
-      number_format($grossPrice, 2),
-      number_format($discountPercentage, 2),
-      number_format($discountAmount, 2),
-      number_format($row->quantity ?? 0, 2),
-      number_format($buyingPrice),
+      $mappedData[] = number_format((float)$grossPrice, 2, '.', ''),
+      $mappedData[] = number_format((float)$discountPercentage, 2, '.', ''),
+      $mappedData[] = number_format((float)$discountAmount, 2, '.', ''),
+      $mappedData[] = number_format((float)($row->quantity ?? 0), 2, '.', ''),
+      $mappedData[] = number_format((float)$buyingPrice, 2, '.', ''),
+
     ];
 
     $customFieldValues = [];
@@ -126,13 +133,18 @@ class CustomPriceExport implements FromCollection, WithHeadings, WithMapping
 
     foreach ($this->customHeadings as $customField) {
       $fieldName = $customField->field_name;
-      $mappedData[] = $customFieldValues[$fieldName] ?? 0;
-  }
+      $value = $customFieldValues[$fieldName] ?? 0;
+      $mappedData[] = number_format((float)$value, 2, '.', '');
+    }
 
 
-    $mappedData[] = number_format($unitPrice );
-    $mappedData[] = number_format($marginPercent, 2);
-    $mappedData[] = number_format($marginPrice, 2);
+    $mappedData[] = number_format((float)$finalBp, 2, '.', '');
+    $mappedData[] = number_format((float)$mobp, 2, '.', '');
+    $mappedData[] = number_format((float)$marginAmount, 2, '.', '');
+    $mappedData[] = number_format((float)$unitPrice, 2, '.', '');
+    $mappedData[] = number_format((float)$marginPercent, 2, '.', '');
+    $mappedData[] = number_format((float)$marginPrice, 2, '.', '');
+
 
     return $mappedData;
   }

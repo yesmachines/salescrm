@@ -439,12 +439,7 @@ class CustomPriceController extends Controller
       }
       public function getItemDetails($itemId, $quotationId)
       {
-        $item = QuotationItem::where('item_id', $itemId)
-        ->where('quotation_id', $quotationId)
-        ->first();
-        $buyingPrice = BuyingPrice::where('product_id', $itemId)
-        ->latest()
-        ->first();
+
         $customPrice = QuotationCustomPrice::where('product_id', $itemId)
         ->where('quotation_id', $quotationId)
         ->first();
