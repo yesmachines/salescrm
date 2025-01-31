@@ -359,6 +359,7 @@ class EnquiryController extends Controller {
 
     public function edit(Request $request, $id) {
         $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'lead_type', 'enquiry_mode', 'expo_id', 'details', 'enquiry_date', 'interested')
+                 ->with(['company:id,company',  'customer:id,fullname,phone'])
                 ->where('id', $id)
                 ->first();
 
