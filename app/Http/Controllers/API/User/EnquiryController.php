@@ -117,8 +117,8 @@ class EnquiryController extends Controller {
             return errorResponse(trans('api.required_fields'), $errorMessage);
         }
 
-        $enquirySql = Lead::select('leads.id', 'leads.company_id', 'leads.status_id', 'leads.details', 'leads.enquiry_date')
-                ->with(['company:id,company', 'leadStatus:id,name'])
+        $enquirySql = Lead::select('leads.id', 'leads.expo_id', 'leads.company_id', 'leads.status_id', 'leads.details', 'leads.enquiry_date', 'leads.lead_type')
+                ->with(['company:id,company', 'leadStatus:id,name', 'expo:id,name'])
                 ->orderBy('leads.enquiry_date', 'DESC');
 
         if (in_array($request->type, $enquiryTypes)) {
