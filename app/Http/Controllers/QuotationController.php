@@ -1280,7 +1280,7 @@ class QuotationController extends Controller
           $customFieldsData['product_id'] = $product->id;
           $customFieldsData['product_history_id'] = $priceHistoryData->id;
           $customFieldsData['final_buying_price'] = (float) str_replace(',', '', $data['buying_price']);
-          $customFieldsData['margin_amount_bp'] = $data['margin_amount'];
+          $customFieldsData['margin_amount_bp'] =(float) str_replace(',', '', $data['margin_amount']);
           $customFieldsData['mobp'] = $data['margin_percentage'];
           CustomPrice::create($customFieldsData);
 

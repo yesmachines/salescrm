@@ -21,7 +21,7 @@
       @endif
     </div>
   </div>
- <div class="col-md-3" style="display: none;">
+  <div class="col-md-3" style="display: none;">
     <label class="form-label">&nbsp;</label>
     <div class="form-group text-center">
 
@@ -62,7 +62,19 @@
             <textarea class="form-control" name="item_description[]" rows="2">{{$item->description}}</textarea>
           </td>
           <td><input type="text" class="form-control unit-price" name="unit_price[]" value="{{$item->unit_price}}" readonly />
-            <p class="text-danger">MOSP: <span class="mosp-label">{{$item->product->margin_percent}}</span>%</p>
+            <p class="text-danger">MOSP:
+              <span class="mosp-label">
+                @php
+                $quoteCustomPrice = $item->quoteCustomPrice($item->quotation_id)->first();
+                @endphp
+                @if($quoteCustomPrice )
+                {{ $quoteCustomPrice->margin_percent  }}%
+                @else
+                {{ $item->product->margin_percent }}%
+                @endif
+              </span>
+            </p>
+
           </td>
           <td><input type="number" class="form-control quantity" name="quantity[]" step="any" min="1" value="{{$item->quantity}}" /></td>
           <td><input type="text" class="form-control subtotal" name="subtotal[]" value="{{$item->subtotal}}" readonly /></td>
@@ -76,7 +88,12 @@
           <td><input type="hidden" name="item_id[]" value="{{$item->item_id}}" />
             <input type="hidden" name="brand_id[]" value="{{$item->brand_id}}" />
             <input type="hidden" name="product_selling_price[]" value="{{$item->product->selling_price}}" />
-            <input type="hidden" class="margin-percent" name="margin_percent[]" value="{{$item->product->margin_percent}}" />
+            <input type="hidden" class="margin-percent" name="margin_percent[]"
+            value="@php
+            $quoteCustomPrice = $item->quoteCustomPrice($item->quotation_id)->first();
+            echo $quoteCustomPrice ? $quoteCustomPrice->margin_percent : $item->product->margin_percent;
+            @endphp" />
+            
             <input type="hidden" class="allowed-discount" name="allowed_discount[]" value="{{$item->product->allowed_discount}}" />
             <input type="hidden" name="product_margin[]" value="{{$item->product->margin_price}}" />
             <input type="hidden" name="product_currency[]" value="{{$item->product->currency}}" />
@@ -318,46 +335,46 @@ $(document).ready(function() {
   var iter = $("#product_item_tbl").find("tbody > tr").length;
 
   $(document).on('click', '.del-item', function(e) {
-      Swal.fire({
-          title: "Are you sure?",
-          text: "You are sure to delete the product!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, delete it!"
-      }).then((result) => {
-          if (result.isConfirmed) {
-              let row = $(this).parents('tr');
-              let productId = row.find('input[name="item_id[]"]').val();
-              let quotationId = $('input[name="quotation_id"]').val();
-              $.ajax({
-                  url: `/delete-item/${productId}`,  // Route URL
-                  method: 'DELETE',
-                  headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')  // CSRF protection
-                  },
-                  data: { quotation_id: quotationId }, // Send quotation_id
-                  success: function(response) {
-                      if (response.success) {
-                          // Remove row from UI
-                          removeQuotationRow(row);
-                          row.remove();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are sure to delete the product!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let row = $(this).parents('tr');
+        let productId = row.find('input[name="item_id[]"]').val();
+        let quotationId = $('input[name="quotation_id"]').val();
+        $.ajax({
+          url: `/delete-item/${productId}`,  // Route URL
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')  // CSRF protection
+          },
+          data: { quotation_id: quotationId }, // Send quotation_id
+          success: function(response) {
+            if (response.success) {
+              // Remove row from UI
+              removeQuotationRow(row);
+              row.remove();
 
-                          fetchCustomPriceArray(quotationId);
+              fetchCustomPriceArray(quotationId);
 
-                          Swal.fire("Deleted!", response.message, "success");
-                      } else {
-                          Swal.fire("Error!", "Failed to delete item.", "error");
-                      }
-                  },
-                  error: function(xhr, status, error) {
-                      console.error('Error deleting item:', error);
-                      Swal.fire("Error!", "Something went wrong.", "error");
-                  }
-              });
+              Swal.fire("Deleted!", response.message, "success");
+            } else {
+              Swal.fire("Error!", "Failed to delete item.", "error");
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('Error deleting item:', error);
+            Swal.fire("Error!", "Something went wrong.", "error");
           }
-      });
+        });
+      }
+    });
   });
 
 
@@ -1231,10 +1248,10 @@ function calculateOverallTotal() {
   // });
   $('input[name="charge_amount[]"]').each(function() {
     if (!$(this).is(':disabled')) { // Check if the input is not disabled
-        var chargeAmount = parseFloat($(this).val()) || 0;
-        quotationCharges += chargeAmount;
+      var chargeAmount = parseFloat($(this).val()) || 0;
+      quotationCharges += chargeAmount;
     }
-});
+  });
 
   // add charges + total
   sumAfterDiscount += quotationCharges;
@@ -1365,16 +1382,16 @@ function updateQuotationCharges(customPriceArray) {
 
         const plusButtonHTML = index === 0 ? `
         <div class="col-sm-1">
-          <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
-            <i class="fas fa-plus"></i>
-          </button>
+        <button type="button" class="btn btn-success" onclick="addQuotationCharge()" style="background-color: #007D88;">
+        <i class="fas fa-plus"></i>
+        </button>
         </div>` : '';
 
         const deleteButtonHTML = !isCustomPrice && index > 0 ? `
         <div class="col-sm-1">
-          <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
-            <i class="fas fa-trash"></i>
-          </button>
+        <button type="button" class="remove-button" onclick="removeQuotationCharge(${index})">
+        <i class="fas fa-trash"></i>
+        </button>
         </div>` : '';
 
         let checkboxHTML = '';
@@ -1382,10 +1399,10 @@ function updateQuotationCharges(customPriceArray) {
         if (isCustomPrice) {
           checkboxHTML = `
           <div class="col-sm-1">
-            <div class="form-check" style="display: flex; justify-content: flex-end;">
-              <input type="hidden" name="is_visible[]" value="${hiddenInputValue}">
-              <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
-            </div>
+          <div class="form-check" style="display: flex; justify-content: flex-end;">
+          <input type="hidden" name="is_visible[]" value="${hiddenInputValue}">
+          <input type="hidden" class="form-check-input" name="is_visibles[]" value="1" onchange="updateChargeCheckboxValue(this)" ${isChecked === 'checked' ? 'checked' : ''} />
+          </div>
           </div>`;
         }
 
@@ -1393,17 +1410,17 @@ function updateQuotationCharges(customPriceArray) {
         if (!isCustomPrice) {
           rowContainer.innerHTML = `
           <div class="col-sm-4" style="text-align: right;">
-         </div>
+          </div>
           ${checkboxHTML}
           <div class="col-sm-4">
-            <div class="form-group">
-              <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key}" ${isCustomPrice ? 'disabled' : ''} />
-            </div>
+          <div class="form-group">
+          <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key}" ${isCustomPrice ? 'disabled' : ''} />
+          </div>
           </div>
           <div class="col-sm-3">
-            <div class="form-group">
-              <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomPrice ? 'disabled' : ''} />
-            </div>
+          <div class="form-group">
+          <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomPrice ? 'disabled' : ''} />
+          </div>
           </div>
           ${plusButtonHTML}
           ${deleteButtonHTML}`;
@@ -1412,17 +1429,17 @@ function updateQuotationCharges(customPriceArray) {
           rowContainer.innerHTML = `
           <div class="col-sm-3" style="text-align: right;">
 
-         </div>
+          </div>
           ${checkboxHTML}
           <div class="col-sm-4">
-            <div class="form-group">
-              <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key}" ${isCustomPrice ? 'disabled' : ''} />
-            </div>
+          <div class="form-group">
+          <input class="form-control charge-name-input title-input" name="charge_name[]" value="${key}" ${isCustomPrice ? 'disabled' : ''} />
+          </div>
           </div>
           <div class="col-sm-3">
-            <div class="form-group">
-              <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${value}" ${isCustomPrice ? 'disabled' : ''} />
-            </div>
+          <div class="form-group">
+          <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${parseFloat(value).toFixed(2)}" ${isCustomPrice ? 'disabled' : ''} />
+          </div>
           </div>
           ${plusButtonHTML}
           ${deleteButtonHTML}`;

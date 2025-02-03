@@ -62,8 +62,12 @@ class QuotationItem extends Model
      // In QuotationItem.php model
    public function quotationCustomPrice()
    {
-       return $this->belongsTo(QuotationCustomPrice::class, 'item_id', 'product_id');  
+       return $this->belongsTo(QuotationCustomPrice::class, 'item_id', 'product_id');
    }
-
+  public function quoteCustomPrice($quotationId)
+   {
+       return $this->hasOne(QuotationCustomPrice::class, 'product_id', 'item_id')
+                   ->where('quotation_id', $quotationId);
+   }
 
 }
