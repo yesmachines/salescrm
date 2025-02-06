@@ -374,7 +374,7 @@ class EnquiryController extends Controller {
             $enquiry->enquiry_mode = $enquiry->enquiry_mode_label;
         }
 
-        $enquiry->product = LeadProduct::selectRaw("REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes,cm_lead_products.area_id,cm_lead_products.manager_id,cm_lead_products.assistant_id")
+        $enquiry->product = LeadProduct::selectRaw("product_id, supplier_id as brand_id, REPLACE(REPLACE(cm_p.title, '\\t', ''), '\\n', ' ') AS title,cm_s.brand,cm_lead_products.notes,cm_lead_products.area_id,cm_lead_products.manager_id,cm_lead_products.assistant_id")
                 ->leftJoin('suppliers as s', 'lead_products.supplier_id', '=', 's.id')
                 ->leftJoin('products as p', 'lead_products.product_id', '=', 'p.id')
                 ->where('lead_products.lead_id', '=', $enquiry->id)
@@ -417,7 +417,8 @@ class EnquiryController extends Controller {
             'assign_type' => ['required', 'in:self,assist,share'],
             'share_to' => 'required_if:assign_type,share',
             'area_id' => 'present',
-            'manager_id' => 'present|required_unless:area_id,null',
+           // 'manager_id' => 'present|required_unless:area_id,null',
+            'manager_id' => 'present|nullable',
             'assistant_id' => 'required_if:assign_type,assist',
         ];
 
