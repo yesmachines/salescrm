@@ -38,6 +38,7 @@ class EnquiryController extends Controller {
                 ->where('status', 1)
                 ->orderBy('name')
                 ->get();
+        $data['expos'] = \App\Models\Expo::select('id', 'name')->where('status', 1)->get();
         return successResponse(trans('api.success'), $data);
     }
 
@@ -88,7 +89,7 @@ class EnquiryController extends Controller {
     }
 
     public function getExpo() {
-        $expo = \App\Models\Expo::pluck('name', 'id');
+        $expo = \App\Models\Expo::select('id', 'name')->where('status', 1)->get();
         return successResponse(trans('api.success'), $expo);
     }
 
@@ -359,7 +360,7 @@ class EnquiryController extends Controller {
 
     public function edit(Request $request, $id) {
         $enquiry = Lead::select('id', 'company_id', 'customer_id', 'status_id', 'lead_type', 'enquiry_mode', 'expo_id', 'details', 'enquiry_date', 'interested')
-                 ->with(['company:id,company',  'customer:id,fullname,phone'])
+                ->with(['company:id,company', 'customer:id,fullname,phone'])
                 ->where('id', $id)
                 ->first();
 
