@@ -762,7 +762,7 @@
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="gross_price" id="buying_gross_price" required />
-              <div class="invalid-data" style="display: none;">Please enter a gross price.</div>
+              <div class="invalid-feedback" style="display: none;">Please enter a gross price.</div>
             </div>
           </div>
 
@@ -772,7 +772,7 @@
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="discount" id="buying_purchase_discount">
-              <div class="invalid-data" style="display: none;">Please enter a purchase discount .</div>
+              <div class="invalid-feedback" style="display: none;">Please enter a purchase discount .</div>
             </div>
           </div>
           <div class="col-md-6" id="purchase_discount_price">
@@ -781,7 +781,7 @@
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="discount_amount" id="buying_purchase_discount_amount" required />
-              <div class="invalid-data" style="display: none;">Please enter a purchase discount price.</div>
+              <div class="invalid-feedback" style="display: none;">Please enter a purchase discount price.</div>
             </div>
           </div>
           <div class="col-md-6">
@@ -790,7 +790,7 @@
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="buying_price" id="net_prices" readonly />
-              <div class="invalid-data" style="display: none;">Please enter a buying price.</div>
+              <div class="invalid-feedback" style="display: none;">Please enter a buying price.</div>
             </div>
           </div>
 
@@ -831,22 +831,22 @@
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="buying_price" id="buyingPriceHistory" readonly/>
-              <div class="invalid-feedback">Please enter margin price.</div>
+              <div class="invalid-feedback">Please enter buying price.</div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Margin Percentage</label>
+              <label class="form-label">Margin %</label>
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="mobp" id="mobpHistory" />
-              <div class="invalid-feedback">Please enter margin price.</div>
+              <div class="invalid-feedback">Please enter margin percentage.</div>
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Margin Amount</label>
+              <label class="form-label">Margin %</label>
             </div>
             <div class="form-group">
               <input class="form-control" type="text" name="margin_amount_bp" id="mobpPriceHistory" />
@@ -875,16 +875,6 @@
               <div class="invalid-feedback">Please enter a MOSP.</div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Margin Price</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
-              <div class="invalid-feedback">Please enter margin price.</div>
-            </div>
-          </div>
-
           <div class="col-md-4">
             <div class="form-group">
               <label class="form-label">Currency<span class="text-danger">*</span></label>
@@ -897,6 +887,15 @@
                 @endforeach
               </select>
               <div class="invalid-feedback">Please select currency.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Currency Conversion Rate</label>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="currency_conversion_rate" id="currencyConversion" />
+              <div class="invalid-feedback">Please enter currency rate.</div>
             </div>
           </div>
 
@@ -926,11 +925,7 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-  $('#buyingCurrencyHistory').on('change', function() {
-    var selectedCurrency = $(this).val();
 
-    $('#quoteCurrencyHistory').val(selectedCurrency);
-  });
   $('#additionalFieldsModal').on('hidden.bs.modal', function () {
     $('#additionalFieldsModal').find('input[type="text"]').val('');
     $('#additionalFieldsModal').find('select').prop('selectedIndex', 0).trigger('change');
@@ -1305,6 +1300,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   additionalText.addEventListener('click', loadCustomFields);
   $('#additionalFieldsModal').on('shown.bs.modal', function () {
+    var selectedCurrency = $('#currencyDropdown').val();
+
+       if (selectedCurrency) {
+           $('#quoteCurrencyHistory').val(selectedCurrency);
+       } else {
+           $('#quoteCurrencyHistory').val("");
+       }
     loadCustomFields();
   });
 
@@ -1536,6 +1538,42 @@ $(document).on('input', '.dynamic-field', function() {
   if (fieldValue.trim() === '') {
     $(this).val(0);
   }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const currencyConversionInput = document.getElementById("currencyConversion");
+    const marginAmountInput = document.getElementById("mobpPriceHistory");
+    const sellingPriceInput = document.getElementById("sellingPriceHistory");
+
+    currencyConversionInput.addEventListener("input", function () {
+        let conversionRate = cleanNumber(this.value);
+        let marginAmount = cleanNumber(marginAmountInput.value);
+        let sellingPrice = cleanNumber(sellingPriceInput.value);
+
+        if (!isNaN(conversionRate) && conversionRate > 0) {
+            let convertedMarginAmount = marginAmount * conversionRate;
+            let convertedSellingPrice = sellingPrice * conversionRate;
+            updateConvertedValue("convertedMarginAmount", marginAmountInput, convertedMarginAmount);
+            updateConvertedValue("convertedSellingPrice", sellingPriceInput, convertedSellingPrice);
+        }
+    });
+
+    function cleanNumber(value) {
+        return parseFloat(value.replace(/,/g, '')) || 0;
+    }
+
+    function updateConvertedValue(id, field, value) {
+        let convertedField = document.getElementById(id);
+
+        if (!convertedField) {
+            convertedField = document.createElement("small");
+            convertedField.id = id;
+           convertedField.classList.add("form-text", "text-danger", "fw-bold");
+            field.parentNode.appendChild(convertedField);
+        }
+
+        convertedField.textContent = `Converted value: ${value.toFixed(2)}`;
+    }
 });
 
 </script>
