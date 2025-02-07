@@ -1233,19 +1233,25 @@ class QuotationController extends Controller
         }
 
         $priceHistoryData=ProductPriceHistory::create($historyInsert);
-        if( $data['default_selling_price']==1){
-          $pUpdate = [
-            'selling_price' => $data['selling_price'],
-            'margin_price' => $data['margin_amount'],
-            'margin_percent' => $data['mos_percentage'],
-            'currency' => $data['quote_currency'],
-            'price_basis' => $data['price_basis'],
-            'price_valid_from' => $today,
-            'price_valid_to'  =>  $todate,
-            'edited_by' => Auth::id(),
-          ];
+        if ($data['default_selling_price'] == 1) {
+            $pUpdate = [
+                'selling_price' => !empty($data['currencyConversionRate'])
+                    ? $data['selling_price'] * $data['currencyConversionRate']
+                    : $data['selling_price'],
 
-          $product->update($pUpdate);
+                'margin_price' => !empty($data['currencyConversionRate'])
+                    ? $data['margin_amount'] * $data['currencyConversionRate']
+                    : $data['margin_amount'],
+
+                'margin_percent' => $data['mos_percentage'],
+                'currency' => $data['quote_currency'],
+                'price_basis' => $data['price_basis'],
+                'price_valid_from' => $today,
+                'price_valid_to' => $todate,
+                'edited_by' => Auth::id(),
+            ];
+
+            $product->update($pUpdate);
         }
 
         $today = Carbon::now();
