@@ -367,11 +367,11 @@ class CustomPriceController extends Controller
           $subTotal = $sellingPrice * $quotationItem->quantity;
           $discountAmount = $subTotal * ($quotationItem->discount / 100);
           $totalAfterDiscount = $subTotal - $discountAmount;
-          $marginPrice = (($subTotal - $totalAfterDiscount) / $subTotal) * 100;
-
+          $marginPrice = ($totalAfterDiscount * ($marginPercentage / 100));
 
           $quotationItem->unit_price = $sellingPrice;
           $quotationItem->subtotal = $subTotal;
+          $quotationItem->discount = $buyingPurchaseDiscount;
           $quotationItem->total_after_discount = $totalAfterDiscount;
           $quotationItem->margin_price = $marginPrice;
           $quotationItem->currency = $quoteCurrency;
