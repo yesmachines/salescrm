@@ -372,7 +372,6 @@ class CustomPriceController extends Controller
 
           $quotationItem->unit_price = $sellingPrice;
           $quotationItem->subtotal = $subTotal;
-          $quotationItem->discount = $buyingPurchaseDiscount;
           $quotationItem->total_after_discount = $totalAfterDiscount;
           $quotationItem->margin_price = $marginPrice;
           $quotationItem->currency = $quoteCurrency;
