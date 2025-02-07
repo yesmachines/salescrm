@@ -79,7 +79,7 @@ class QuoteCustomPrice
           'updated_by' => auth()->id(),
           'final_buying_price'=> $customData['final_buying_price'],
           'mobp'=> $customData['mobp'],
-          'margin_amount_bp'=> $customData['margin_amount_bp'],
+
         ];
 
 
@@ -209,7 +209,7 @@ class QuoteCustomPrice
           $values = [
             'final_buying_price' => $customData['final_buying_price'],
             'mobp' => $customData['mobp'],
-            'margin_amount_bp' => $customData['margin_amount_bp'],
+          
           ];
 
           // Update the existing QuotationCustomPrice record with the new values
