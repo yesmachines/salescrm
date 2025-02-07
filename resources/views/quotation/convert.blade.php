@@ -846,16 +846,13 @@
 
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Margin %</label>
+              <label class="form-label">Margin Price</label>
             </div>
             <div class="form-group">
-              <input class="form-control" type="text" name="margin_amount_bp" id="mobpPriceHistory" />
+              <input class="form-control" type="text" name="margin_amount" id="mobpPriceHistory" />
               <div class="invalid-feedback">Please enter margin price.</div>
             </div>
           </div>
-
-
-
           <div class="col-md-6">
             <div class="form-group">
               <label class="form-label">Selling Price<span class="text-danger">*</span></label>
@@ -1021,8 +1018,8 @@ $(document).ready(function() {
 
   function formatNumber(value, isPercentage = false) {
     return isPercentage
-      ? value.toFixed(2)  // Keep two decimal places for percentages
-      : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    ? value.toFixed(2)  // Keep two decimal places for percentages
+    : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function updateDiscountAmount() {
@@ -1087,8 +1084,8 @@ $(document).ready(function() {
       let marginAmount = (buyingPrice * mobp) / 100;
       $('#mobpPriceHistory').val(formatNumber(marginAmount));
     }
-
     updateSellingPrice();
+
   }
 
   function updateMOBP() {
@@ -1103,6 +1100,7 @@ $(document).ready(function() {
     }
 
     updateSellingPrice();
+    updateMOSP();
   }
 
   function updateSellingPrice() {
@@ -1120,33 +1118,39 @@ $(document).ready(function() {
 
     if (sellingPrice > 0 && marginPercentage > 0) {
       let marginPrice = (sellingPrice * marginPercentage) / 100;
-      $('#marginPriceHistory').val(formatNumber(marginPrice));  // Update margin price
+      $('#marginPriceHistory').val(formatNumber(marginPrice));
     }
 
-    updateMOSP();  // Recalculate MOSP whenever margin price changes
+    updateMOSP();
   }
 
   function updateMOSP() {
     let sellingPrice = parseNumber($('#sellingPriceHistory').val());
-    let marginPrice = parseNumber($('#marginPriceHistory').val());
+    let marginPrice = parseNumber($('#mobpPriceHistory').val());
 
-    if (sellingPrice === 0 || marginPrice === 0) {
-      $('#marginPercentageHistory').val(formatNumber(0, false));  // Ensure MOSP doesn't show incorrect values
-    } else {
-      let mosp = (marginPrice / sellingPrice) * 100;
-      $('#marginPercentageHistory').val(formatNumber(mosp, false));  // Show MOSP with 2 decimals
+    if (!$('#marginPercentageHistory').is(':focus')) {
+      if (sellingPrice === 0 || marginPrice === 0) {
+        $('#marginPercentageHistory').val(formatNumber(0, false));
+      } else {
+        let mosp = (marginPrice / sellingPrice) * 100;
+        $('#marginPercentageHistory').val(formatNumber(mosp, false));
+      }
     }
   }
-  // Event Listeners
+
+
   $('#buying_gross_price').on('input', updateNetPrice);
   $('#buying_purchase_discount').on('input', updateDiscountAmount);
   $('#buying_purchase_discount_amount').on('input', updateDiscountPercentage);
   $('#net_prices').on('input', updateBuyingPrice);
-  $('#mobpHistory').on('input', updateMarginAmount);
+
   $('#mobpPriceHistory').on('input', updateMOBP);
   $('#sellingPriceHistory').on('input', updateMarginPrice);
   $('#marginPercentageHistory').on('input', updateMarginPrice);
   $('#marginPriceHistory').on('input', updateMOSP);
+  $('#mobpHistory').on('input', updateMarginAmount);
+  $('#mobpPriceHistory').on('input', updateMOBP);
+
   $(document).on('input', '.dynamic-field', updateBuyingPrice);
 
 
@@ -1302,11 +1306,11 @@ document.addEventListener('DOMContentLoaded', function () {
   $('#additionalFieldsModal').on('shown.bs.modal', function () {
     var selectedCurrency = $('#currencyDropdown').val();
 
-       if (selectedCurrency) {
-           $('#quoteCurrencyHistory').val(selectedCurrency);
-       } else {
-           $('#quoteCurrencyHistory').val("");
-       }
+    if (selectedCurrency) {
+      $('#quoteCurrencyHistory').val(selectedCurrency);
+    } else {
+      $('#quoteCurrencyHistory').val("");
+    }
     loadCustomFields();
   });
 
@@ -1541,41 +1545,102 @@ $(document).on('input', '.dynamic-field', function() {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    const currencyConversionInput = document.getElementById("currencyConversion");
-    const marginAmountInput = document.getElementById("mobpPriceHistory");
-    const sellingPriceInput = document.getElementById("sellingPriceHistory");
+  const buyingCurrency = document.getElementById("buyingCurrencyHistory");
+  const quoteCurrency = document.getElementById("quoteCurrencyHistory");
+  const conversionField = document.getElementById("currencyConversion").closest(".col-md-6");
+  const conversionLabel = conversionField.querySelector(".form-label");
+  const currencyConversionInput = document.getElementById("currencyConversion");
+  const marginAmountInput = document.getElementById("mobpPriceHistory");
+  const sellingPriceInput = document.getElementById("sellingPriceHistory");
 
-    currencyConversionInput.addEventListener("input", function () {
-        let conversionRate = cleanNumber(this.value);
-        let marginAmount = cleanNumber(marginAmountInput.value);
-        let sellingPrice = cleanNumber(sellingPriceInput.value);
+  function toggleConversionRate() {
+    const buyValue = buyingCurrency.value;
+    const quoteValue = quoteCurrency.value;
 
-        if (!isNaN(conversionRate) && conversionRate > 0) {
-            let convertedMarginAmount = marginAmount * conversionRate;
-            let convertedSellingPrice = sellingPrice * conversionRate;
-            updateConvertedValue("convertedMarginAmount", marginAmountInput, convertedMarginAmount);
-            updateConvertedValue("convertedSellingPrice", sellingPriceInput, convertedSellingPrice);
-        }
-    });
+    if (buyValue && quoteValue && buyValue !== quoteValue) {
+      conversionField.style.display = "block";
+      conversionLabel.style.display = "block";
+    } else {
+      conversionField.style.display = "none";
+      conversionLabel.style.display = "none";
+      removeConvertedValues(); // Remove converted values when currencies are the same
+    }
+  }
 
-    function cleanNumber(value) {
-        return parseFloat(value.replace(/,/g, '')) || 0;
+  function removeConvertedValues() {
+    document.getElementById("convertedMarginAmount")?.remove();
+    document.getElementById("convertedSellingPrice")?.remove();
+  }
+
+  currencyConversionInput.addEventListener("input", function () {
+    let buyValue = buyingCurrency.value;
+    let quoteValue = quoteCurrency.value;
+
+    if (buyValue === quoteValue) {
+      removeConvertedValues(); // Don't show converted values if currencies are the same
+      return;
     }
 
-    function updateConvertedValue(id, field, value) {
-        let convertedField = document.getElementById(id);
+    let conversionRate = cleanNumber(this.value);
+    let marginAmount = cleanNumber(marginAmountInput.value);
+    let sellingPrice = cleanNumber(sellingPriceInput.value);
 
-        if (!convertedField) {
-            convertedField = document.createElement("small");
-            convertedField.id = id;
-           convertedField.classList.add("form-text", "text-danger", "fw-bold");
-            field.parentNode.appendChild(convertedField);
-        }
-
-        convertedField.textContent = `Converted value: ${value.toFixed(2)}`;
+    if (!isNaN(conversionRate) && conversionRate > 0) {
+      let convertedMarginAmount = marginAmount * conversionRate;
+      let convertedSellingPrice = sellingPrice * conversionRate;
+      updateConvertedValue("convertedMarginAmount", marginAmountInput, convertedMarginAmount);
+      updateConvertedValue("convertedSellingPrice", sellingPriceInput, convertedSellingPrice);
     }
+  });
+
+  function cleanNumber(value) {
+    return parseFloat(value.replace(/,/g, '')) || 0;
+  }
+
+  function updateConvertedValue(id, field, value) {
+    let convertedField = document.getElementById(id);
+
+    if (!convertedField) {
+      convertedField = document.createElement("small");
+      convertedField.id = id;
+      convertedField.classList.add("form-text", "text-danger", "fw-bold");
+      field.parentNode.appendChild(convertedField);
+    }
+
+    convertedField.textContent = `Converted value: ${value.toFixed(2)}`;
+  }
+
+  buyingCurrency.addEventListener("change", toggleConversionRate);
+  quoteCurrency.addEventListener("change", toggleConversionRate);
+
+  // Initialize on page load
+  toggleConversionRate();
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  const buyingCurrency = document.getElementById("buyingCurrencyHistory");
+  const quoteCurrency = document.getElementById("quoteCurrencyHistory");
+  const conversionInput = document.getElementById("currencyConversion");
+  const conversionField = conversionInput.closest(".col-md-6");
+
+  function toggleConversionRate() {
+    const buyValue = buyingCurrency.value;
+    const quoteValue = quoteCurrency.value;
+
+    if (buyValue && quoteValue && buyValue !== quoteValue) {
+      conversionField.style.display = "block";
+    } else {
+      conversionField.style.display = "none";
+      conversionInput.value = ""; // Clear the input value when hiding
+    }
+  }
+
+  buyingCurrency.addEventListener("change", toggleConversionRate);
+  quoteCurrency.addEventListener("change", toggleConversionRate);
+
+  // Initialize on page load
+  toggleConversionRate();
+});
 </script>
 
 @endsection

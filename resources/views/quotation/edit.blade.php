@@ -905,7 +905,7 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="buying_price" id="net_prices" readonly />
-                <div class="invalid-feedback" style="display: none;">Please enter a Net price.</div>
+                <div class="invalid-feedback" style="display: none;">Please enter a buying price.</div>
               </div>
             </div>
 
@@ -946,31 +946,28 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="buying_price" id="buyingPriceHistory" readonly/>
-                <div class="invalid-feedback">Please enter margin price.</div>
+                <div class="invalid-feedback">Please enter buying price.</div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Margin Percentage</label>
+                <label class="form-label">Margin %</label>
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="mobp" id="mobpHistory" />
-                <div class="invalid-feedback">Please enter margin price.</div>
+                <div class="invalid-feedback">Please enter margin percentage.</div>
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Margin Amount</label>
+                <label class="form-label">Margin Price</label>
               </div>
               <div class="form-group">
-                <input class="form-control" type="text" name="margin_amount_bp" id="mobpPriceHistory" />
+                <input class="form-control" type="text" name="margin_amount" id="mobpPriceHistory" />
                 <div class="invalid-feedback">Please enter margin price.</div>
               </div>
             </div>
-
-
-
             <div class="col-md-6">
               <div class="form-group">
                 <label class="form-label">Selling Price<span class="text-danger">*</span></label>
@@ -990,16 +987,6 @@
                 <div class="invalid-feedback">Please enter a MOSP.</div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label">Margin Price</label>
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="margin_price" id="marginPriceHistory" />
-                <div class="invalid-feedback">Please enter margin price.</div>
-              </div>
-            </div>
-
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label">Currency<span class="text-danger">*</span></label>
@@ -1012,6 +999,15 @@
                   @endforeach
                 </select>
                 <div class="invalid-feedback">Please select currency.</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Currency Conversion Rate</label>
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="currency_conversion_rate" id="currencyConversion" />
+                <div class="invalid-feedback">Please enter currency rate.</div>
               </div>
             </div>
 
@@ -1205,8 +1201,8 @@
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label class="form-label">Margin Amount</label>
-                <input class="form-control" type="text" name="margin_amount_bp" id="marginAmountBp" />
+                <label class="form-label">Margin Price</label>
+                <input class="form-control" type="text" name="custom_margin_price" id="marginPriceCustom" />
               </div>
             </div>
 
@@ -1224,12 +1220,6 @@
               </div>
             </div>
 
-            <div class="col-md-4">
-              <div class="form-group">
-                <label class="form-label">Margin Price</label>
-                <input class="form-control" type="text" name="custom_margin_price" id="marginPriceCustom" />
-              </div>
-            </div>
 
             <div class="col-md-4">
               <div class="form-group">
@@ -1268,11 +1258,6 @@
 
     $('#quoteCurrencyCustom').val(selectedCurrency);
    });
-   $('#buyingCurrencyHistory').on('change', function() {
-   var selectedCurrency = $(this).val();
-
-   $('#quoteCurrencyHistory').val(selectedCurrency);
-  });
 
     $('#additionalFieldsModal').on('hidden.bs.modal', function () {
         $('#additionalFieldsModal').find('input[type="text"]').val('');
@@ -1539,35 +1524,44 @@
 document.addEventListener('DOMContentLoaded', function () {
     const buyingPriceElement = document.getElementById('finalBuyingPrice');
     const marginPercentBpElement = document.getElementById('marginPercentBp');
-    const marginAmountBpElement = document.getElementById('marginAmountBp');
-
+    const marginAmountBpElement = document.getElementById('marginPriceCustom');
     const sellingPriceElement = document.getElementById('sellingPriceCustom');
+    const marginPercentageCustomElement = document.getElementById('marginPercentageCustom');
 
-    marginAmountBpElement.addEventListener('input', function() {
-        const marginAmount = parseFloat(marginAmountBpElement.value);
-        const buyingPrice = parseFloat(buyingPriceElement.value);
-
-        if (!isNaN(marginAmount) && !isNaN(buyingPrice) && buyingPrice !== 0) {
-            const marginPercent = (marginAmount * 100) / buyingPrice;
-            marginPercentBpElement.value = marginPercent.toFixed(2);
-            updateSellingPrice(buyingPrice, marginPercent);
-        }
-    });
-
+    // Function to update margin amount and selling price when margin percentage changes
     marginPercentBpElement.addEventListener('input', function() {
-        const marginPercent = parseFloat(marginPercentBpElement.value);
-        const buyingPrice = parseFloat(buyingPriceElement.value);
+        const marginPercent = parseFloat(marginPercentBpElement.value) || 0;
+        const buyingPrice = parseFloat(buyingPriceElement.value) || 0;
 
-        if (!isNaN(marginPercent) && !isNaN(buyingPrice) && buyingPrice !== 0) {
+        if (buyingPrice > 0) {
             const marginAmount = (buyingPrice * marginPercent) / 100;
             marginAmountBpElement.value = marginAmount.toFixed(2);
-            updateSellingPrice(buyingPrice, marginPercent);
+
+            updateSellingPrice(buyingPrice, marginAmount);
         }
     });
 
-    function updateSellingPrice(buyingPrice, marginPercent) {
-        const sellingPrice = buyingPrice + ((buyingPrice * marginPercent) / 100);
+    // Function to update margin percentage when margin amount changes
+    marginAmountBpElement.addEventListener('input', function() {
+        const marginAmount = parseFloat(marginAmountBpElement.value) || 0;
+        const buyingPrice = parseFloat(buyingPriceElement.value) || 0;
+
+        if (buyingPrice > 0) {
+            const marginPercent = (marginAmount * 100) / buyingPrice;
+            marginPercentBpElement.value = marginPercent.toFixed(2);
+
+            updateSellingPrice(buyingPrice, marginAmount);
+        }
+    });
+
+    // Function to update selling price and margin percentage
+    function updateSellingPrice(buyingPrice, marginAmount) {
+        const sellingPrice = buyingPrice + marginAmount;
         sellingPriceElement.value = sellingPrice.toFixed(2);
+
+        // Update custom margin percentage
+        const marginPercentageCustom = (marginAmount / sellingPrice) * 100;
+        marginPercentageCustomElement.value = marginPercentageCustom.toFixed(2);
     }
 });
 
@@ -1700,7 +1694,7 @@ function numberWithCommas(x) {
 document.getElementById('custom_gross_price').addEventListener('input', function () {
   console.log("wwww");
     updateCustomBuyingPrice();
-    updateCustomFinalBuyingPrice(); 
+    updateCustomFinalBuyingPrice();
 });
 
 </script>
@@ -1822,16 +1816,19 @@ function updateDiscountAmount() {
   }
 
   function updateMOSP() {
-     let sellingPrice = parseNumber($('#sellingPriceHistory').val());
-     let marginPrice = parseNumber($('#marginPriceHistory').val());
+    let sellingPrice = parseNumber($('#sellingPriceHistory').val());
+    let marginPrice = parseNumber($('#mobpPriceHistory').val());
 
-     if (sellingPrice === 0 || marginPrice === 0) {
-         $('#marginPercentageHistory').val(formatNumber(0, false));  // Ensure MOSP doesn't show incorrect values
-     } else {
-         let mosp = (marginPrice / sellingPrice) * 100;
-         $('#marginPercentageHistory').val(formatNumber(mosp, false));  // Show MOSP with 2 decimals
-     }
- }
+    if (!$('#marginPercentageHistory').is(':focus')) {
+      if (sellingPrice === 0 || marginPrice === 0) {
+        $('#marginPercentageHistory').val(formatNumber(0, false));
+      } else {
+        let mosp = (marginPrice / sellingPrice) * 100;
+        $('#marginPercentageHistory').val(formatNumber(mosp, false));
+      }
+    }
+  }
+
  // Event Listeners
  $('#buying_gross_price').on('input', updateNetPrice);
  $('#buying_purchase_discount').on('input', updateDiscountAmount);
@@ -1842,6 +1839,8 @@ function updateDiscountAmount() {
  $('#sellingPriceHistory').on('input', updateMarginPrice);
  $('#marginPercentageHistory').on('input', updateMarginPrice);
  $('#marginPriceHistory').on('input', updateMOSP);
+ $('#mobpHistory').on('input', updateMarginAmount);
+ $('#mobpPriceHistory').on('input', updateMOBP);
  $(document).on('input', '.dynamic-field', updateBuyingPrice);
 
 
@@ -1968,9 +1967,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   additionalText.addEventListener('click', loadCustomFields);
   $('#additionalFieldsModal').on('shown.bs.modal', function () {
+    var selectedCurrency = $('#currencyDropdown').val();
+
+    if (selectedCurrency) {
+      $('#quoteCurrencyHistory').val(selectedCurrency);
+    } else {
+      $('#quoteCurrencyHistory').val("");
+    }
     loadCustomFields();
   });
-
 });
 
 </script>
@@ -2478,7 +2483,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let surcharges = $('#surcharges').val();
     let finalBuyingPrice = $('#finalBuyingPrice').val();
     let marginPercentageBp = $('#marginPercentBp').val();
-    let marginAmountBp = $('#marginAmountBp').val();
+
 
     let customFields = [];
     $('.custom-field').each(function() {
@@ -2498,10 +2503,7 @@ document.addEventListener('DOMContentLoaded', function() {
       isValid = false;
       $('#marginPercentBp').after('<div class="error-message" style="color:red;">MOBP is required</div>');
   }
-  if (!marginAmountBp) {
-      isValid = false;
-      $('#marginAmountBp').after('<div class="error-message" style="color:red;">Margin Amount is required</div>');
-  }
+
 
   if (!marginPercentage) {
       isValid = false;
@@ -2582,7 +2584,7 @@ document.addEventListener('DOMContentLoaded', function() {
         surcharges: surcharges,
         final_buying_price: finalBuyingPrice,
         mobp: marginPercentageBp,
-        margin_amount_bp: marginAmountBp
+      
       },
       success: function(response) {
 
@@ -2671,6 +2673,101 @@ $(document).on('input', '.dynamic-field', function() {
         $(this).val(0);
     }
 });
+document.addEventListener("DOMContentLoaded", function () {
+  const buyingCurrency = document.getElementById("buyingCurrencyHistory");
+  const quoteCurrency = document.getElementById("quoteCurrencyHistory");
+  const conversionField = document.getElementById("currencyConversion").closest(".col-md-6");
+  const conversionLabel = conversionField.querySelector(".form-label");
+  const currencyConversionInput = document.getElementById("currencyConversion");
+  const marginAmountInput = document.getElementById("mobpPriceHistory");
+  const sellingPriceInput = document.getElementById("sellingPriceHistory");
 
+  function toggleConversionRate() {
+    const buyValue = buyingCurrency.value;
+    const quoteValue = quoteCurrency.value;
+
+    if (buyValue && quoteValue && buyValue !== quoteValue) {
+      conversionField.style.display = "block";
+      conversionLabel.style.display = "block";
+    } else {
+      conversionField.style.display = "none";
+      conversionLabel.style.display = "none";
+      removeConvertedValues(); // Remove converted values when currencies are the same
+    }
+  }
+
+  function removeConvertedValues() {
+    document.getElementById("convertedMarginAmount")?.remove();
+    document.getElementById("convertedSellingPrice")?.remove();
+  }
+
+  currencyConversionInput.addEventListener("input", function () {
+    let buyValue = buyingCurrency.value;
+    let quoteValue = quoteCurrency.value;
+
+    if (buyValue === quoteValue) {
+      removeConvertedValues(); // Don't show converted values if currencies are the same
+      return;
+    }
+
+    let conversionRate = cleanNumber(this.value);
+    let marginAmount = cleanNumber(marginAmountInput.value);
+    let sellingPrice = cleanNumber(sellingPriceInput.value);
+
+    if (!isNaN(conversionRate) && conversionRate > 0) {
+      let convertedMarginAmount = marginAmount * conversionRate;
+      let convertedSellingPrice = sellingPrice * conversionRate;
+      updateConvertedValue("convertedMarginAmount", marginAmountInput, convertedMarginAmount);
+      updateConvertedValue("convertedSellingPrice", sellingPriceInput, convertedSellingPrice);
+    }
+  });
+
+  function cleanNumber(value) {
+    return parseFloat(value.replace(/,/g, '')) || 0;
+  }
+
+  function updateConvertedValue(id, field, value) {
+    let convertedField = document.getElementById(id);
+
+    if (!convertedField) {
+      convertedField = document.createElement("small");
+      convertedField.id = id;
+      convertedField.classList.add("form-text", "text-danger", "fw-bold");
+      field.parentNode.appendChild(convertedField);
+    }
+
+    convertedField.textContent = `Converted value: ${value.toFixed(2)}`;
+  }
+
+  buyingCurrency.addEventListener("change", toggleConversionRate);
+  quoteCurrency.addEventListener("change", toggleConversionRate);
+
+  // Initialize on page load
+  toggleConversionRate();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const buyingCurrency = document.getElementById("buyingCurrencyHistory");
+  const quoteCurrency = document.getElementById("quoteCurrencyHistory");
+  const conversionInput = document.getElementById("currencyConversion");
+  const conversionField = conversionInput.closest(".col-md-6");
+
+  function toggleConversionRate() {
+    const buyValue = buyingCurrency.value;
+    const quoteValue = quoteCurrency.value;
+
+    if (buyValue && quoteValue && buyValue !== quoteValue) {
+      conversionField.style.display = "block";
+    } else {
+      conversionField.style.display = "none";
+      conversionInput.value = ""; // Clear the input value when hiding
+    }
+  }
+
+  buyingCurrency.addEventListener("change", toggleConversionRate);
+  quoteCurrency.addEventListener("change", toggleConversionRate);
+
+  toggleConversionRate();
+});
 </script>
 @endsection
