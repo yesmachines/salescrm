@@ -951,7 +951,7 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Margin %</label>
+                <label class="form-label">Margin(%)<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="mobp" id="mobpHistory" />
@@ -961,7 +961,7 @@
 
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Margin Price</label>
+                <label class="form-label">Margin Price<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="margin_amount" id="mobpPriceHistory" />
@@ -2584,7 +2584,7 @@ document.addEventListener('DOMContentLoaded', function() {
         surcharges: surcharges,
         final_buying_price: finalBuyingPrice,
         mobp: marginPercentageBp,
-      
+
       },
       success: function(response) {
 
