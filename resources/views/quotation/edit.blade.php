@@ -2779,5 +2779,6 @@ document.addEventListener("DOMContentLoaded", function () {
   toggleConversionRate();
 });
 
+
 </script>
 @endsection
