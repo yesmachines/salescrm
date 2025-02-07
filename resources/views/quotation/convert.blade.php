@@ -1628,6 +1628,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const conversionInput = document.getElementById("currencyConversion");
   const conversionField = conversionInput.closest(".col-md-6");
   const conversionText = document.getElementById("conversionRateText");
+  const modal = document.getElementById("additionalFieldsModal");
 
   function toggleConversionRate() {
     const buyValue = buyingCurrency.value;
@@ -1650,7 +1651,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize on page load
   toggleConversionRate();
+
+  // Hide conversion section when modal closes
+  $('#additionalFieldsModal').on('hidden.bs.modal', function () {
+    conversionField.classList.add("d-none");
+    conversionText.classList.add("d-none");
+    conversionInput.value = ""; // Clear input field
+    buyingCurrency.value = "";  // Reset select fields
+    quoteCurrency.value = "";
+  });
 });
+
 
 
 </script>
