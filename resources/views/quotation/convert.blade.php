@@ -1621,7 +1621,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize on page load
   toggleConversionRate();
+
+  // Reset conversion inputs and remove converted values when the modal closes
+  $('#additionalFieldsModal').on('hidden.bs.modal', function () {
+    document.getElementById("currencyConversion").value = ""; // Clear input field
+    removeConvertedValues(); // Remove converted values
+  });
 });
+
+
 document.addEventListener("DOMContentLoaded", function () {
   const buyingCurrency = document.getElementById("buyingCurrencyHistory");
   const quoteCurrency = document.getElementById("quoteCurrencyHistory");
