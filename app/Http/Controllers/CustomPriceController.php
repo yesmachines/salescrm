@@ -288,7 +288,6 @@ class CustomPriceController extends Controller
           'surcharges' => $request['surcharges'],
           'final_buying_price' => $request['final_buying_price'],
           'mobp' => $request['mobp'],
-          'margin_amount_bp' => $request['margin_amount_bp'],
         ];
 
 
