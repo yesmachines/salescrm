@@ -987,9 +987,10 @@
                 <div class="invalid-feedback">Please enter a MOSP.</div>
               </div>
             </div>
+            <div class="col-md-6"></div>
             <div class="col-md-4">
               <div class="form-group">
-                <label class="form-label">Currency<span class="text-danger">*</span></label>
+                <label class="form-label">Preferred Currency<span class="text-danger">*</span></label>
               </div>
               <div class="form-group">
                 <select class="form-control" name="quote_curr" id="quoteCurrencyHistory" disabled>
@@ -1001,6 +1002,10 @@
                 <div class="invalid-feedback">Please select currency.</div>
               </div>
             </div>
+            <span id="conversionRateText" class="d-none text-danger">
+           Enter the conversion rate from <span id="selectedBuyingCurrency">buyingCurrencyHistory</span>
+           to <span id="selectedQuoteCurrency">quoteCurrencyHistory</span>
+          </span>
             <div class="col-md-6">
               <div class="form-group">
                 <label class="form-label">Currency Conversion Rate</label>
@@ -2751,23 +2756,30 @@ document.addEventListener("DOMContentLoaded", function () {
   const quoteCurrency = document.getElementById("quoteCurrencyHistory");
   const conversionInput = document.getElementById("currencyConversion");
   const conversionField = conversionInput.closest(".col-md-6");
+  const conversionText = document.getElementById("conversionRateText");
 
   function toggleConversionRate() {
     const buyValue = buyingCurrency.value;
     const quoteValue = quoteCurrency.value;
+    const shouldShow = buyValue && quoteValue && buyValue !== quoteValue;
 
-    if (buyValue && quoteValue && buyValue !== quoteValue) {
-      conversionField.style.display = "block";
+    conversionField.classList.toggle("d-none", !shouldShow);
+    conversionText.classList.toggle("d-none", !shouldShow);
+
+    if (!shouldShow) {
+      conversionInput.value = ""; // Clear input when hiding
     } else {
-      conversionField.style.display = "none";
-      conversionInput.value = ""; // Clear the input value when hiding
+      document.getElementById("selectedBuyingCurrency").textContent = buyValue;
+      document.getElementById("selectedQuoteCurrency").textContent = quoteValue;
     }
   }
 
   buyingCurrency.addEventListener("change", toggleConversionRate);
   quoteCurrency.addEventListener("change", toggleConversionRate);
 
+  // Initialize on page load
   toggleConversionRate();
 });
+
 </script>
 @endsection
