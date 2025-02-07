@@ -874,33 +874,33 @@
           </div>
           <div class="col-md-6"></div>
 
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Preferred Currency<span class="text-danger">*</span></label>
+          <div class="d-flex align-items-center gap-2">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Preferred Currency<span class="text-danger">*</span></label>
+                <select class="form-control" name="quote_curr" id="quoteCurrencyHistory" disabled>
+                  <option value="">-Select Currency-</option>
+                  @foreach($currencies as $currency)
+                  <option value="{{ $currency->code }}">{{ $currency->name }}</option>
+                  @endforeach
+                </select>
+                <div class="invalid-feedback">Please select currency.</div>
+              </div>
             </div>
-            <div class="form-group">
-              <select class="form-control" name="quote_curr" id="quoteCurrencyHistory" disabled>
-                <option value="">-Select Currency-</option>
-                @foreach($currencies as $currency)
-                <option value="{{ $currency->code }}">{{ $currency->name }}</option>
-                @endforeach
-              </select>
-              <div class="invalid-feedback">Please select currency.</div>
+
+            <div class="col-md-6">
+              <span id="conversionRateText" class="text-danger d-none">
+                Enter the conversion rate from <span id="selectedBuyingCurrency">buyingCurrencyHistory</span>
+                to <span id="selectedQuoteCurrency">quoteCurrencyHistory</span>
+              </span>
+              <div class="form-group">
+                <label class="form-label">Currency Conversion Rate</label>
+                <input class="form-control" type="text" name="currency_conversion_rate" id="currencyConversion" />
+                <div class="invalid-feedback">Please enter currency rate.</div>
+              </div>
             </div>
           </div>
-          <span id="conversionRateText" class="d-none text-danger">
-         Enter the conversion rate from <span id="selectedBuyingCurrency">buyingCurrencyHistory</span>
-         to <span id="selectedQuoteCurrency">quoteCurrencyHistory</span>
-        </span>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Currency Conversion Rate</label>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" name="currency_conversion_rate" id="currencyConversion" />
-              <div class="invalid-feedback">Please enter currency rate.</div>
-            </div>
-          </div>
+
 
           <div class="row">
             <div class="col-md-12">
