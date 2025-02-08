@@ -448,44 +448,55 @@ $(document).ready(function() {
   });
 
   $('#saveAdditionalFields').on('click', function() {
-    var isValid = true;
+      var isValid = true;
 
-    // Remove the is-invalid class and hide the invalid feedback for all elements
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').hide();
+      // Remove previous validation errors
+      $('.is-invalid').removeClass('is-invalid');
+      $('.invalid-feedback').hide();
 
-    // Define the required fields by their IDs
-    var requiredFields = [
-      '#sellingPriceHistory',
-      '#marginPercentageHistory',
-      '#marginPriceHistory',
-      'input[name="product_ids"]',
-      '#historyPriceBasis',
-      '#buying_gross_price',
-      '#buying_purchase_discount',
-      '#buying_purchase_discount_amount',
-      '#mobpPriceHistory',
-      '#buyingCurrencyHistory',
-      '#mobpHistory',
-    ];
+      // Define required fields
+      var requiredFields = [
+          '#sellingPriceHistory',
+          '#marginPercentageHistory',
+          '#mobpPriceHistory',
+          '#historyPriceBasis',
+          '#buying_gross_price',
+          '#buying_purchase_discount',
+          '#buying_purchase_discount_amount',
+          '#mobpHistory',
+          '#buyingCurrencyHistory',
 
-    // Validate each field based on its value
-    requiredFields.forEach(function(field) {
-      var value = $(field).val().trim();
+      ];
 
-      // Check if the field value is empty
-      if (value === '') {
-        $(field).addClass('is-invalid').next('.invalid-feedback').show();
-        isValid = false;
+      // Validate each field
+      requiredFields.forEach(function(field) {
+          var $input = $(field);
+          var value = $input.val() ? $input.val().trim() : '';
+
+          if (value === '') {
+              $input.addClass('is-invalid');
+              $input.parent().find('.invalid-feedback').show();
+              isValid = false;
+          }
+      });
+
+      // Special handling for select fields (if disabled)
+      if ($('#historyPriceBasis').prop('disabled')) {
+          $('#historyPriceBasis').prop('disabled', false); // Enable temporarily
+          if ($('#historyPriceBasis').val() === '') {
+              $('#historyPriceBasis').addClass('is-invalid');
+              $('#historyPriceBasis').parent().find('.invalid-feedback').show();
+              isValid = false;
+          }
+          $('#historyPriceBasis').prop('disabled', true); // Re-disable after checking
       }
-    });
 
-    // If all fields pass validation, submit the form
-    if (isValid) {
-
-      saveAdditionalFieldsHandler(isValid);
-    }
+      // If all fields pass validation, proceed
+      if (isValid) {
+            saveAdditionalFieldsHandler(isValid);
+      }
   });
+
 
 
   $('#saveProduct').on('click', function(e) {
@@ -863,6 +874,7 @@ function attachEventListeners() {
 }
 
 function saveAdditionalFieldsHandler(isValid) {
+  console.log(isValid);
   if (isValid) {
 
     $(this).prop('disabled', true);
@@ -887,10 +899,12 @@ function saveAdditionalFieldsHandler(isValid) {
     let sellingPriceCalculated = $('#sellingPriceHistory').val();
     let mosPercentage = $('#marginPercentageHistory').val();
     let marginAmountCalculated = $('#marginPriceHistory').val();
+    let currencyConversion = $('#currencyConversion').val();
+
 
     let customFields = [];
     $('.dynamic-field').each(function() {
-      let fieldName = $(this).data('field-name');  // Access the correct data attribute
+      let fieldName = $(this).data('field-name');
       let fieldValue = $(this).val();
 
       customFields.push({
@@ -917,6 +931,7 @@ function saveAdditionalFieldsHandler(isValid) {
       margin_price: marginAmountCalculated,
       quote_currency: quoteCurrency,
       custom_fields: customFields,
+      currencyConversionRate: currencyConversion,
     };
 
     // Log the data object to the console to inspect it

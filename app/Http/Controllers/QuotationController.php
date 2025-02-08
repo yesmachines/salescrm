@@ -1032,20 +1032,20 @@ class QuotationController extends Controller
 
   public function deleteItem(Request $request, $productId)
   {
-      $quotationId = $request->input('quotation_id');
+    $quotationId = $request->input('quotation_id');
 
-      // Find the item in the quotation_custom_prices table
-      $item = QuotationCustomPrice::where('product_id', $productId)
-                                  ->where('quotation_id', $quotationId)
-                                  ->first();
+    // Find the item in the quotation_custom_prices table
+    $item = QuotationCustomPrice::where('product_id', $productId)
+    ->where('quotation_id', $quotationId)
+    ->first();
 
-      if ($item) {
-          // If the item exists, delete it
-          $item->delete();
-      }
+    if ($item) {
+      // If the item exists, delete it
+      $item->delete();
+    }
 
-      // Return a success response, regardless of whether the item was found or not
-      return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
+    // Return a success response, regardless of whether the item was found or not
+    return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
   }
 
 
@@ -1209,6 +1209,7 @@ class QuotationController extends Controller
       try {
 
         $data = $request->all();
+
         $product = Product::find($data['productId']);
         $customFieldsData = [];
         $today = date('Y-m-d');
@@ -1217,7 +1218,7 @@ class QuotationController extends Controller
         $historyInsert = [
           'product_id' => $data['productId'],
           'selling_price' => $data['selling_price'],
-          'margin_price' => $data['margin_price'],
+          'margin_price' => $data['margin_amount'],
           'margin_percent' => $data['mos_percentage'],
           'price_valid_from' => $today,
           'price_valid_to'  =>  $todate,
@@ -1226,20 +1227,31 @@ class QuotationController extends Controller
           'edited_by' => Auth::id(),
         ];
 
-        $priceHistoryData=ProductPriceHistory::create($historyInsert);
-        if( $data['default_selling_price']==1){
-          $pUpdate = [
-            'selling_price' => $data['selling_price'],
-            'margin_price' => $data['margin_price'],
-            'margin_percent' => $data['mos_percentage'],
-            'currency' => $data['quote_currency'],
-            'price_basis' => $data['price_basis'],
-            'price_valid_from' => $today,
-            'price_valid_to'  =>  $todate,
-            'edited_by' => Auth::id(),
-          ];
+        if (!empty($data['currencyConversionRate'])) {
+          $historyInsert['selling_price'] = $data['selling_price'] * $data['currencyConversionRate'];
+          $historyInsert['margin_price'] = $data['margin_amount'] * $data['currencyConversionRate'];
+        }
 
-          $product->update($pUpdate);
+        $priceHistoryData=ProductPriceHistory::create($historyInsert);
+        if ($data['default_selling_price'] == 1) {
+            $pUpdate = [
+                'selling_price' => !empty($data['currencyConversionRate'])
+                    ? $data['selling_price'] * $data['currencyConversionRate']
+                    : $data['selling_price'],
+
+                'margin_price' => !empty($data['currencyConversionRate'])
+                    ? $data['margin_amount'] * $data['currencyConversionRate']
+                    : $data['margin_amount'],
+
+                'margin_percent' => $data['mos_percentage'],
+                'currency' => $data['quote_currency'],
+                'price_basis' => $data['price_basis'],
+                'price_valid_from' => $today,
+                'price_valid_to' => $todate,
+                'edited_by' => Auth::id(),
+            ];
+
+            $product->update($pUpdate);
         }
 
         $today = Carbon::now();
@@ -1258,7 +1270,6 @@ class QuotationController extends Controller
 
         BuyingPrice::create($buyingHistoryData);
 
-
         if( $data['default_buying_price']==1){
           $bUpdate = [
             'purchase_currency'=>$data['buying_currency'],
@@ -1270,17 +1281,41 @@ class QuotationController extends Controller
         $historyId= $priceHistoryData->id;
 
         if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+          // foreach ($data['custom_fields'] as $field) {
+          //   if (isset($field['name']) && isset($field['value'])) {
+          //     $customFieldsData[$field['name']] = $field['value'];
+          //
+          //   }
+          // }
+          $customFieldsData = [];
+
           foreach ($data['custom_fields'] as $field) {
             if (isset($field['name']) && isset($field['value'])) {
-              $customFieldsData[$field['name']] = $field['value'];
+              $value = $field['value'];
 
+              // If currency conversion rate exists, multiply the value
+              if (!empty($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate']) && is_numeric($value)) {
+                $value *= $data['currencyConversionRate'];
+              }
+
+              $customFieldsData[$field['name']] = $value;
             }
           }
 
+
           $customFieldsData['product_id'] = $product->id;
           $customFieldsData['product_history_id'] = $priceHistoryData->id;
-          $customFieldsData['final_buying_price'] = (float) str_replace(',', '', $data['buying_price']);
-          $customFieldsData['margin_amount_bp'] =(float) str_replace(',', '', $data['margin_amount']);
+          if (!empty($data['buying_price']) && is_numeric(str_replace(',', '', $data['buying_price']))) {
+            $buyingPrice = (float) str_replace(',', '', $data['buying_price']);
+
+            // Apply conversion rate if available and valid
+            if (!empty($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate'])) {
+              $buyingPrice *= (float) $data['currencyConversionRate'];
+            }
+
+            $customFieldsData['final_buying_price'] = $buyingPrice;
+          }
+
           $customFieldsData['mobp'] = $data['margin_percentage'];
           CustomPrice::create($customFieldsData);
 
