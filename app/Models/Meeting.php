@@ -38,4 +38,9 @@ class Meeting extends Model {
     public function docs() {
         return $this->hasMany(MeetingDoc::class, 'meeting_id', 'id');
     }
+    
+    public function invites()
+    {
+        return $this->hasMany(MeetingInvite::class);
+    }
 }

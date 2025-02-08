@@ -70,6 +70,25 @@ class MeetingController extends Controller {
         if ($sendPushToAreaManager) {
             $this->notifyAreaMnager($meeting);
         }
+
+        if (!empty($request->invited_id)) {
+            $meeting->invites()->create([
+                'user_id' => $request->invited_id,
+            ]);
+
+            $body = [
+                'headings' => ['en' => 'Meeting Invites'],
+                'contents' => [$request->user()->name . ' has invited you to attend a meeting.'],
+                'data' => [
+                    'module' => 'meeting',
+                    'module_id' => $meeting->id
+                ]
+            ];
+            $body ['include_external_user_ids'] = [$request->invited_id];
+            $body ['channel_for_external_user_ids'] = 'push';
+            $this->sendONotification($body);
+        }
+
         return successResponse(trans('api.meeting.created'), ['meeting_id' => $meeting->id]);
     }
 
@@ -198,7 +217,11 @@ class MeetingController extends Controller {
                         'meetings.title',
                         'meetings.scheduled_at'
                 )
-                ->where('meetings.user_id', $request->user()->id);
+                ->leftJoin('meeting_invites', 'meetings.id', '=', 'meeting_invites.meeting_id')
+                ->where(function ($query) use ($request) {
+            $query->where('meetings.user_id', $request->user()->id)
+            ->orWhere('meeting_invites.user_id', $request->user()->id);
+        });
 
         switch ($type) {
             case 'available' :
@@ -277,24 +300,45 @@ class MeetingController extends Controller {
         $userTimezoe = $request->header('timezone', config('app.timezone'));
 
         $groupedByDate = [];
+        $conflictedMeetings = [];
 
-        Meeting::select('id', 'title', 'scheduled_at')
-                ->where('user_id', $request->user()->id)
-                ->whereYear('scheduled_at', $request->year)
-                ->whereMonth('scheduled_at', $request->month)
-                ->orderBy('scheduled_at', 'asc')
-                ->chunk(200, function ($meetings) use (&$groupedByDate, $userTimezoe) {
+        Meeting::select('meetings.id', 'meetings.title', 'meetings.scheduled_at')
+                ->leftJoin('meeting_invites', 'meetings.id', '=', 'meeting_invites.meeting_id')
+                ->where(function ($query) use ($request) {
+                    $query->where('meetings.user_id', $request->user()->id)
+                    ->orWhere('meeting_invites.user_id', $request->user()->id);
+                })
+                ->whereYear('meetings.scheduled_at', $request->year)
+                ->whereMonth('meetings.scheduled_at', $request->month)
+                ->orderBy('meetings.scheduled_at', 'asc')
+                ->chunk(200, function ($meetings) use (&$groupedByDate, &$userTimezoe, &$conflictedMeetings) {
+
+                    $meetingTimes = [];
+
                     foreach ($meetings as $meeting) {
                         $meetingTime = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($userTimezoe);
-
                         $formattedTime = $meetingTime->format('h:i A');
                         $meetingDate = $meetingTime->format('Y-m-d');
+
+                        if (isset($meetingTimes[$meetingDate][$formattedTime])) {
+                            $conflictedMeetings[$meeting->id] = true;
+                            $conflictedMeetings[$meetingTimes[$meetingDate][$formattedTime]] = true;
+                        }
+
+                        $meetingTimes[$meetingDate][$formattedTime] = $meeting->id;
 
                         $groupedByDate[$meetingDate][] = [
                             'id' => $meeting->id,
                             'title' => $meeting->title,
-                            'time' => $formattedTime
+                            'time' => $formattedTime,
+                            'conflicted' => false,
                         ];
+                    }
+
+                    foreach ($groupedByDate as $date => &$items) {
+                        foreach ($items as &$item) {
+                            $item['conflicted'] = isset($conflictedMeetings[$item['id']]);
+                        }
                     }
                 });
 
@@ -355,6 +399,12 @@ class MeetingController extends Controller {
             switch ($request->type) {
                 case 'normal':
                     $meeting = Meeting::findOrFail($id);
+                    $meetingConflicted = Meeting::where('id', '<>', $meeting->id)
+                            ->where('scheduled_at', $meeting->scheduled_at)
+                            ->where('user_id', $request->user()->id)
+                            ->where('status', 0)
+                            ->first();
+                    $meeting->conflicted = $meetingConflicted ? true : false;
                     $meetingTime = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
                     $meeting->products = MeetingProduct::select('meeting_products.id', 'suppliers.brand', 'products.title')
                             ->join('suppliers', 'suppliers.id', 'meeting_products.supplier_id')
@@ -366,8 +416,19 @@ class MeetingController extends Controller {
                                     ->join('employees', 'employees.user_id', 'users.id')
                                     ->where('users.id', $meeting->manager_id)->first();
                     $meeting->docs;
-                    $meeting->editable = ($meeting->status < 2) ? true : false;
-                    $meeting->dt_editable = ($meeting->status == 0) ? true : false;
+                    if ($meeting->user_id != $request->user()->id) {
+                        $meeting->editable = false;
+                        $meeting->dt_editable = false;
+                        $meeting->can_share = false;
+                        $meeting->can_feedback = false;
+                        $meeting->can_cancel = false;
+                    } else {
+                        $meeting->editable = ($meeting->status < 2) ? true : false;
+                        $meeting->dt_editable = ($meeting->status == 0) ? true : false;
+                        $meeting->can_share = true;
+                        $meeting->can_feedback = (($meeting->mqs == null) && ($meeting->status >= 1)) ? true : false;
+                        $meeting->can_cancel = ($meeting->status == 0) ? true : false;
+                    }
                     break;
                 case 'shared':
                     $meeting = MeetingShare::findOrFail($id);
@@ -384,6 +445,13 @@ class MeetingController extends Controller {
                             ->get();
                     $meeting->editable = false;
                     $meeting->dt_editable = false;
+                    $meeting->can_cancel = false;
+                    $meeting->can_feedback = false;
+                    if ($meeting->shared_to != $request->user()->id) {
+                        $meeting->can_share = false;
+                    } else {
+                        $meeting->can_share = true;
+                    }
                     $meeting->area = $parentMeeting->area;
                     $meeting->manager = User::select('users.id', 'users.name', 'employees.image_url as pimg')
                                     ->join('employees', 'employees.user_id', 'users.id')
@@ -398,7 +466,11 @@ class MeetingController extends Controller {
             $currentTimeInUserTimezone = Carbon::now($requestedTimezone)->addMinutes(30);
 
             if ($currentTimeInUserTimezone >= $meetingTime && $request->type == 'normal') {
-                $meeting->can_start = true;
+                if ($meeting->user_id != $request->user()->id) {
+                    $meeting->can_start = false;
+                } else {
+                    $meeting->can_start = true;
+                }
             } else {
                 $meeting->can_start = false;
             }

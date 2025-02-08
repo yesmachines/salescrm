@@ -56,7 +56,7 @@ class Controller extends BaseController {
             'headings' => ['en' => trans('api.notification.title.area', ['name' => $meeting->company_name])],
             'contents' => ['en' => "Location: " . $meeting->location . ", At: " . $meetingTimeInUserTimezone->format('Y-m-d') . " " . $meetingTimeInUserTimezone->format('h:i A')],
             'data' => [
-                'module' => 'general',
+                'module' => 'meeting',
                 'module_id' => $meeting->id
             ]
         ];
