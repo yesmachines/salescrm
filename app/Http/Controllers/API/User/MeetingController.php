@@ -416,6 +416,11 @@ class MeetingController extends Controller {
                                     ->join('employees', 'employees.user_id', 'users.id')
                                     ->where('users.id', $meeting->manager_id)->first();
                     $meeting->docs;
+                    $meeting->invites= User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                                    ->join('employees', 'employees.user_id', 'users.id')
+                                    ->join('meeting_invites', 'meeting_invites.user_id', 'users.id')
+                                    ->where('meeting_invites.meeting_id', $meeting->id)->get();
+                    
                     if ($meeting->user_id != $request->user()->id) {
                         $meeting->editable = false;
                         $meeting->dt_editable = false;
