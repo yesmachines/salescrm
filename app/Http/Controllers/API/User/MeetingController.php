@@ -312,7 +312,7 @@ class MeetingController extends Controller {
                 ->whereYear('meetings.scheduled_at', $request->year)
                 ->whereMonth('meetings.scheduled_at', $request->month)
                 ->orderBy('meetings.scheduled_at', 'asc')
-                ->where('status', '<>', 3)
+                ->where('meetings.status', '<>', 3)
                 ->chunk(200, function ($meetings) use (&$groupedByDate, &$userTimezoe, &$conflictedMeetings) {
 
                     $meetingTimes = [];
