@@ -78,7 +78,7 @@ class MeetingController extends Controller {
 
             $body = [
                 'headings' => ['en' => 'Meeting Invites'],
-                'contents' => [$request->user()->name . ' has invited you to attend a meeting.'],
+                'contents' => ['en' => $request->user()->name . ' has invited you to attend a meeting.'],
                 'data' => [
                     'module' => 'meeting',
                     'module_id' => $meeting->id
@@ -252,17 +252,18 @@ class MeetingController extends Controller {
                 $currentTimeInUTC = Carbon::now($requestedTimezone)->setTimezone('UTC')->startOfMinute();
 
                 if ($currentTimeInUTC->toDateString() == $toDate->toDateString()) {
-                    $meetingsQuery->where('scheduled_at', '>=', $fromDate)
+                    $meetingsQuery->where('meetings.scheduled_at', '>=', $fromDate)
                             ->where(function ($qry) use ($toDate, $currentTimeInUTC) {
-                                $qry->where('scheduled_at', '<=', $currentTimeInUTC)
+                                $qry->where('meetings.scheduled_at', '<=', $currentTimeInUTC)
                                 ->orWhere(function ($qry) use ($toDate, $currentTimeInUTC) {
-                                    $qry->where('scheduled_at', '<=', $toDate)
-                                    ->where('status', '<>', 0);
+                                    $qry->where('meetings.scheduled_at', '<=', $toDate)
+                                    ->whereNotIn('meetings.status', [0, 3]);
                                 });
                             });
                 } else {
                     $meetingsQuery
-                            ->whereBetween('scheduled_at', [$fromDate, $toDate]);
+                            ->where('meetings.status', '<>', 3)
+                            ->whereBetween('meetings.scheduled_at', [$fromDate, $toDate]);
                 }
 
                 $meetingsQuery->orderByRaw("CONVERT_TZ(cm_meetings.scheduled_at, '+00:00', '$requestedTimezone') DESC");
@@ -311,6 +312,7 @@ class MeetingController extends Controller {
                 ->whereYear('meetings.scheduled_at', $request->year)
                 ->whereMonth('meetings.scheduled_at', $request->month)
                 ->orderBy('meetings.scheduled_at', 'asc')
+                ->where('status', '<>', 3)
                 ->chunk(200, function ($meetings) use (&$groupedByDate, &$userTimezoe, &$conflictedMeetings) {
 
                     $meetingTimes = [];
@@ -416,11 +418,11 @@ class MeetingController extends Controller {
                                     ->join('employees', 'employees.user_id', 'users.id')
                                     ->where('users.id', $meeting->manager_id)->first();
                     $meeting->docs;
-                    $meeting->invites= User::select('users.id', 'users.name', 'employees.image_url as pimg')
+                    $meeting->invites = User::select('users.id', 'users.name', 'employees.image_url as pimg')
                                     ->join('employees', 'employees.user_id', 'users.id')
                                     ->join('meeting_invites', 'meeting_invites.user_id', 'users.id')
                                     ->where('meeting_invites.meeting_id', $meeting->id)->get();
-                    
+
                     if ($meeting->user_id != $request->user()->id) {
                         $meeting->editable = false;
                         $meeting->dt_editable = false;
@@ -514,10 +516,16 @@ class MeetingController extends Controller {
                 }
 
                 if (!empty($request->meeting_date)) {
+                    $oldSDate = $meeting->scheduled_at;
                     $meetingTime = Carbon::createFromFormat('Y-m-d H:i', $request->meeting_date . ' ' . $request->meeting_time, $request->timezone);
                     $meetingTimeInUTC = $meetingTime->setTimezone('UTC');
                     $meeting->scheduled_at = $meetingTimeInUTC;
                     $meeting->timezone = $request->timezone;
+
+                    //Send notification to invited users and manager
+                    if ($oldSDate != $meetingTimeInUTC) {
+                        $this->notifyMeetingUpdates($meeting, 'reschuled');
+                    }
                 }
             }
 
@@ -604,5 +612,52 @@ class MeetingController extends Controller {
                 })
         );
         return successResponse(trans('api.success'), $meetings);
+    }
+
+    public function cancel(Request $request, $id) {
+        $meeting = Meeting::where('id', $id)->where('user_id', $request->user()->id)
+                ->first();
+        if ($meeting) {
+            if ($meeting->status == 0) {
+                $meeting->status = 3;
+                $meeting->save();
+                //Send notification to invited users and manager
+                $this->notifyMeetingUpdates($meeting, 'cancelled');
+                return successResponse(trans('api.meeting.meeting_deleted'));
+            }
+        }
+        return errorResponse(trans('api.invalid_request'));
+    }
+
+    public function notifyMeetingUpdates($meeting, $type) {
+        $userIds = $meeting->invites->pluck('user_id')->toArray();
+        if (!empty($meeting->manager_id)) {
+            array_push($userIds, $meeting->manager_id);
+        }
+        if (!empty($userIds)) {
+            switch ($type) {
+                case 'cancelled':
+                    $title = 'Meeting Cancelled';
+                    $content = 'Meeting with ' . $meeting->company_name . ' has been cancelled.';
+                    break;
+                case 'reschuled':
+                    $title = 'Meeting Rescheduled';
+                    $content = 'Meeting with ' . $meeting->company_name . ' has been rescheduled.';
+                    break;
+            }
+
+            $body = [
+                'headings' => ['en' => $title],
+                'contents' => ['en' => $content],
+                'data' => [
+                    'module' => 'meeting',
+                    'module_id' => $meeting->id
+                ]
+            ];
+            $body ['include_external_user_ids'] = $userIds;
+            $body ['channel_for_external_user_ids'] = 'push';
+            $this->sendONotification($body);
+        }
+        return 1;
     }
 }

@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'namespace' => 'App\Http\Control
     Route::get('seek-assists', 'CrmController@seekAssists');
     /* Meting APIs */
     Route::post('meeting-create', 'MeetingController@store');
+    Route::post('meeting-cancel/{id}', 'MeetingController@cancel');
     Route::post('meeting-notes-create/{id}', 'MeetingController@notesStore');
     Route::get('meeting-list/{type}', 'MeetingController@list');
     Route::get('meeting-calender-list', 'MeetingController@calendarList');

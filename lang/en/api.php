@@ -49,6 +49,7 @@ return [
         'not_confirmed' => 'This meeting is shared already and not confirmed .',
         'shared' => 'Meeting shared successfully.',
         'doc_deleted' => 'Deleted successfully.',
+        'meeting_deleted' => 'Meeting Deleted successfully.',
     ],
     'notification' => [
         'title' => [
