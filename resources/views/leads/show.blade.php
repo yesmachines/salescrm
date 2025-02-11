@@ -96,9 +96,9 @@
                       </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#tabit_3">
-                            <span class="nav-link-text">Call Logs</span>
-                        </a>
+                      <a class="nav-link" data-bs-toggle="pill" href="#tabit_3">
+                        <span class="nav-link-text">Call Logs</span>
+                      </a>
                     </li>
 
                   </ul>
@@ -197,11 +197,11 @@
                                     </select>
                                     <select name="priority" id="priority" class="form-control me-2" required>
                                       <option value="">--Priority--</option>
-                                      <option value="low">Low</option>
-                                      <option value="medium">Medium</option>
-                                      <option value="high">High</option>
-                                      <option value="sos">SOS</option>
+                                      @foreach (\App\Enums\EnquiryPriority::cases() as $priority)
+                                      <option value="{{ $priority->value }}">{{ $priority->label() }}</option>
+                                      @endforeach
                                     </select>
+
                                     <textarea class="form-control me-3" id="comment" name="comment" placeholder="Comments"></textarea>
                                     <button class="btn btn-primary" type="submit">Add</button>
                                   </div>
@@ -222,28 +222,25 @@
                             <div class="media-body">
                               <div>
                                 <span class="cm-name">{{$history->status}}</span>
-                                @if($history->priority)
                                 @php
-                                $badge_cls = '';
-                                switch($history->priority){
-                                  case 'low':
-                                  $badge_cls = 'badge-outline badge-info';
-                                  break;
-                                  case 'medium':
-                                  $badge_cls = 'badge-outline badge-warning';
-                                  break;
-                                  case 'high':
-                                  $badge_cls = 'badge-outline badge-danger';
-                                  break;
-                                  case 'sos':
-                                  $badge_cls = 'badge-danger';
-                                  break;
-                                }
+                                $priorityEnum = \App\Enums\EnquiryPriority::tryFrom($history->priority);
+                                $badgeClasses = [
+                                'low' => 'badge-outline badge-info',
+                                'medium' => 'badge-outline badge-warning',
+                                'high' => 'badge-outline badge-danger',
+                                'sos' => 'badge-danger',
+                                ];
+                                $badgeCls = $priorityEnum ? $badgeClasses[$priorityEnum->value] : 'badge-secondary';
                                 @endphp
-                                <span class="badge badge-sm {{$badge_cls}} badge-wth-indicator badge-wth-icon ms-3 d-lg-inline-block d-none">
-                                  <span style="text-transform: uppercase;"><i class="badge-dot ri-checkbox-blank-circle-fill"></i>{{$history->priority}}</span>
+                                @if($priorityEnum)
+                                <span class="badge badge-sm {{ $badgeCls }} badge-wth-indicator badge-wth-icon ms-3 d-lg-inline-block d-none">
+                                  <span style="text-transform: uppercase;">
+                                    <i class="badge-dot ri-checkbox-blank-circle-fill"></i>
+                                    {{ $priorityEnum->label() }}
+                                  </span>
                                 </span>
                                 @endif
+
                               </div>
                               <p>{{$history->comment}}</p>
                               <div class="comment-action-wrap mt-3">
@@ -258,18 +255,18 @@
 
                       </div>
                     </div>
-                      <div class="tab-pane fade" id="tabit_3">
+                    <div class="tab-pane fade" id="tabit_3">
 
-                          <ul class="timeline">
-                              @foreach($calllogs as $calllog)
-                              <li>
-                                  <a target="_blank">{{strtoupper($calllog->call_status)}}</a>
-                                  <a class="container-fluid d-flex justify-content-end">{{$calllog->called_at}}</a>
-                                  <p>{{$calllog->remarks}}</p>
-                              </li>
-                              @endforeach
-                          </ul>
-                      </div> 
+                      <ul class="timeline">
+                        @foreach($calllogs as $calllog)
+                        <li>
+                          <a target="_blank">{{strtoupper($calllog->call_status)}}</a>
+                          <a class="container-fluid d-flex justify-content-end">{{$calllog->called_at}}</a>
+                          <p>{{$calllog->remarks}}</p>
+                        </li>
+                        @endforeach
+                      </ul>
+                    </div>
 
                   </div>
                 </div>
@@ -426,7 +423,7 @@ $(".convert-leads-to").on('click', function(e) {
     if (status == 'success') {
 
       if (data > 0) {
-          sessionStorage.setItem('leadType', type);
+        sessionStorage.setItem('leadType', type);
 
         $.post("{{ route('leads.storeTypeInSession') }}", { type: type, _token: '{{ csrf_token() }}' }, function(response) {
 
@@ -509,37 +506,37 @@ $("#frmStatus").submit(function(e) {
 </script>
 
 @endsection
- @push('css')
- <style>
- ul.timeline {
-    list-style-type: none;
-    position: relative;
+@push('css')
+<style>
+ul.timeline {
+  list-style-type: none;
+  position: relative;
 }
 ul.timeline:before {
-    content: ' ';
-    background: #d4d9df;
-    display: inline-block;
-    position: absolute;
-    left: 29px;
-    width: 2px;
-    height: 100%;
-    z-index: 400;
+  content: ' ';
+  background: #d4d9df;
+  display: inline-block;
+  position: absolute;
+  left: 29px;
+  width: 2px;
+  height: 100%;
+  z-index: 400;
 }
 ul.timeline > li {
-    margin: 20px 0;
-    padding-left: 20px;
+  margin: 20px 0;
+  padding-left: 20px;
 }
 ul.timeline > li:before {
-    content: ' ';
-    background: white;
-    display: inline-block;
-    position: absolute;
-    border-radius: 50%;
-    border: 3px solid #22c0e8;
-    left: 20px;
-    width: 20px;
-    height: 20px;
-    z-index: 400;
+  content: ' ';
+  background: white;
+  display: inline-block;
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid #22c0e8;
+  left: 20px;
+  width: 20px;
+  height: 20px;
+  z-index: 400;
 }
 </style>
- @endpush
+@endpush
