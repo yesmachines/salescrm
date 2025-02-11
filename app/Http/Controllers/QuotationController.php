@@ -1207,108 +1207,101 @@ class QuotationController extends Controller
     public function saveProductHistory(Request $request)
     {
       try {
-
         $data = $request->all();
-
         $product = Product::find($data['productId']);
-        $customFieldsData = [];
-        $today = date('Y-m-d');
-        $todate = date('Y-m-d', strtotime('+1 month', strtotime($today)));
 
+        if (!$product) {
+          return response()->json(['success' => false, 'error' => 'Product not found'], 404);
+        }
+
+        $today = now();
+        $todate = $today->copy()->addMonth();
+
+        // Convert numeric fields to proper format
+        $sellingPrice = isset($data['selling_price']) ? str_replace(',', '', $data['selling_price']) : 0;
+        $marginAmount = isset($data['margin_amount']) ? str_replace(',', '', $data['margin_amount']) : 0;
+        $conversionRate = isset($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate'])
+        ? (float) $data['currencyConversionRate']
+        : 1;
+
+        // Ensure numeric values
+        $sellingPrice = is_numeric($sellingPrice) ? (float) $sellingPrice : 0;
+        $marginAmount = is_numeric($marginAmount) ? (float) $marginAmount : 0;
+
+        // Insert product price history
         $historyInsert = [
           'product_id' => $data['productId'],
-          'selling_price' => $data['selling_price'],
-          'margin_price' => $data['margin_amount'],
-          'margin_percent' => $data['mos_percentage'],
-          'price_valid_from' => $today,
-          'price_valid_to'  =>  $todate,
-          'currency' => $data['quote_currency'],
-          'price_basis' => $data['price_basis'],
+          'selling_price' => $sellingPrice * $conversionRate,
+          'margin_price' => $marginAmount * $conversionRate,
+          'margin_percent' => $data['mos_percentage'] ?? 0,
+          'price_valid_from' => $today->toDateString(),
+          'price_valid_to' => $todate->toDateString(),
+          'currency' => $data['quote_currency'] ?? '',
+          'price_basis' => $data['price_basis'] ?? '',
           'edited_by' => Auth::id(),
         ];
 
-        if (!empty($data['currencyConversionRate'])) {
-          $historyInsert['selling_price'] = $data['selling_price'] * $data['currencyConversionRate'];
-          $historyInsert['margin_price'] = $data['margin_amount'] * $data['currencyConversionRate'];
+        $priceHistoryData = ProductPriceHistory::create($historyInsert);
+
+        // Update product pricing if default_selling_price is selected
+        if (!empty($data['default_selling_price'])) {
+          $product->update([
+            'selling_price' => $sellingPrice * $conversionRate,
+            'margin_price' => $marginAmount * $conversionRate,
+            'margin_percent' => $data['mos_percentage'] ?? 0,
+            'currency' => $data['quote_currency'] ?? '',
+            'price_basis' => $data['price_basis'] ?? '',
+            'price_valid_from' => $today->toDateString(),
+            'price_valid_to' => $todate->toDateString(),
+            'edited_by' => Auth::id(),
+          ]);
         }
 
-        $priceHistoryData=ProductPriceHistory::create($historyInsert);
-        if ($data['default_selling_price'] == 1) {
-            $pUpdate = [
-                'selling_price' => !empty($data['currencyConversionRate'])
-                    ? $data['selling_price'] * $data['currencyConversionRate']
-                    : $data['selling_price'],
+        // Insert buying price history
+        $todate = $today->copy()->addMonths(12);
+        BuyingPrice::create([
+          'product_id' => $data['productId'],
+          'gross_price' => $data['buying_gross_price'] ?? 0,
+          'discount' => $data['buying_purchase_discount'] ?? 0,
+          'discount_amount' => $data['buying_purchase_discount_amount'] ?? 0,
+          'buying_price' => $data['buying_net_price'] ?? 0,
+          'buying_currency' => $data['buying_currency'] ?? '',
+          'price_valid_from' => $today->toDateString(),
+          'price_valid_to' => $todate->toDateString(),
+          'status' => 1,
+        ]);
 
-                'margin_price' => !empty($data['currencyConversionRate'])
-                    ? $data['margin_amount'] * $data['currencyConversionRate']
-                    : $data['margin_amount'],
-
-                'margin_percent' => $data['mos_percentage'],
-                'currency' => $data['quote_currency'],
-                'price_basis' => $data['price_basis'],
-                'price_valid_from' => $today,
-                'price_valid_to' => $todate,
-                'edited_by' => Auth::id(),
-            ];
-
-            $product->update($pUpdate);
+        // Update product's default buying price if needed
+        if (!empty($data['default_buying_price'])) {
+          $product->update([
+            'purchase_currency' => $data['buying_currency'] ?? '',
+            'purchase_price' => $data['buying_net_price'] ?? 0,
+          ]);
         }
 
-        $today = Carbon::now();
-        $todate = $today->addMonths(12);
-        $buyingHistoryData = [
-          'product_id'=>$data['productId'],
-          'gross_price' => $data['buying_gross_price'],
-          'discount' => $data['buying_purchase_discount'],
-          'discount_amount' => $data['buying_purchase_discount_amount'],
-          'buying_price' => $data['buying_net_price'],
-          'buying_currency' => $data['buying_currency'],
-          'price_valid_from' =>  $today->toDateString(),
-          'price_valid_to'  => $todate->toDateString(),
-          'status' => '1',
-        ];
-
-        BuyingPrice::create($buyingHistoryData);
-
-        if( $data['default_buying_price']==1){
-          $bUpdate = [
-            'purchase_currency'=>$data['buying_currency'],
-            'purchase_price' => $data['buying_net_price'],
+        // Process custom fields
+        if (!empty($data['custom_fields']) && is_array($data['custom_fields'])) {
+          $customFieldsData = [
+            'product_id' => $product->id,
+            'product_history_id' => $priceHistoryData->id,
           ];
-          $product->update($bUpdate);
-        }
-
-        $historyId= $priceHistoryData->id;
-
-        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
-          // foreach ($data['custom_fields'] as $field) {
-          //   if (isset($field['name']) && isset($field['value'])) {
-          //     $customFieldsData[$field['name']] = $field['value'];
-          //
-          //   }
-          // }
-          $customFieldsData = [];
 
           foreach ($data['custom_fields'] as $field) {
-            if (isset($field['name']) && isset($field['value'])) {
-              $value = $field['value'];
+            if (isset($field['name'], $field['value'])) {
+              $value = is_numeric($field['value']) ? (float) $field['value'] : 0;
 
-              // If currency conversion rate exists, multiply the value
-              if (!empty($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate']) && is_numeric($value)) {
-                $value *= $data['currencyConversionRate'];
+              if (!empty($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate'])) {
+                $value *= (float) $data['currencyConversionRate'];
               }
 
               $customFieldsData[$field['name']] = $value;
             }
           }
 
-
-          $customFieldsData['product_id'] = $product->id;
-          $customFieldsData['product_history_id'] = $priceHistoryData->id;
+          // Calculate final buying price if available
           if (!empty($data['buying_price']) && is_numeric(str_replace(',', '', $data['buying_price']))) {
             $buyingPrice = (float) str_replace(',', '', $data['buying_price']);
 
-            // Apply conversion rate if available and valid
             if (!empty($data['currencyConversionRate']) && is_numeric($data['currencyConversionRate'])) {
               $buyingPrice *= (float) $data['currencyConversionRate'];
             }
@@ -1316,20 +1309,25 @@ class QuotationController extends Controller
             $customFieldsData['final_buying_price'] = $buyingPrice;
           }
 
-          $customFieldsData['mobp'] = $data['margin_percentage'];
-          CustomPrice::create($customFieldsData);
+          $customFieldsData['mobp'] = $data['margin_percentage'] ?? 0;
 
+          CustomPrice::create($customFieldsData);
         }
+
         return response()->json([
           'success' => true,
           'message' => 'Product history saved successfully',
           'product' => $product
         ], 200);
-      }  catch (\Exception $e) {
 
-        return response()->json(['success' => false, 'error' => 'Failed to save product history: ' . $e->getMessage()], 500);
+      } catch (\Exception $e) {
+        return response()->json([
+          'success' => false,
+          'error' => 'Failed to save product history: ' . $e->getMessage()
+        ], 500);
       }
     }
+
 
     public function fetchEditModels($id, Request $request)
     {
