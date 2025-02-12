@@ -147,6 +147,19 @@ class EnquiryController extends Controller {
                 case 'sahred':
                     $enquirySql->join('lead_shares', 'lead_shares.lead_id', 'leads.id')
                             ->where('lead_shares.shared_by', $request->user()->id);
+
+                    $stext = $request->search_text;
+                    $enquirySql->when($stext, function ($query) use ($stext) {
+                        $query->where(function ($subQuery) use ($stext) {
+                            // Search in company name
+                            $subQuery->whereHas('company', function ($query) use ($stext) {
+                                        $query->where('company', 'like', '%' . $stext . '%');
+                                    })
+                                    // Search in lead details
+                                    ->orWhere('leads.details', 'like', '%' . $stext . '%');
+                        });
+                    });
+
                     break;
                 case 'sahred_to_me':
                     $enquirySql->join('lead_shares', 'lead_shares.lead_id', 'leads.id')
@@ -417,7 +430,7 @@ class EnquiryController extends Controller {
             'assign_type' => ['required', 'in:self,assist,share'],
             'share_to' => 'required_if:assign_type,share',
             'area_id' => 'present',
-           // 'manager_id' => 'present|required_unless:area_id,null',
+            // 'manager_id' => 'present|required_unless:area_id,null',
             'manager_id' => 'present|nullable',
             'assistant_id' => 'required_if:assign_type,assist',
         ];
