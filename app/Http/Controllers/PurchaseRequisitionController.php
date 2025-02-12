@@ -51,6 +51,7 @@ class PurchaseRequisitionController extends Controller
             }
         }
         $pr_number = str_replace("OS", "PR", $order->os_number);
+        $count = 1;
         foreach ($order->orderSupplier as $y => $sup) {
             $c_rate = 0;
             $currency_rate = DB::table('currency_conversion')->where('currency', $sup->price_basis)->first();
@@ -61,7 +62,8 @@ class PurchaseRequisitionController extends Controller
             $order->orderSupplier[$y]->currency_rate = $c_rate;
 
             $reference = implode("_", array($pr_number, $sup->supplier_name));
-            $order->orderSupplier[$y]->reference_num =   $purchaseRequest->getReferenceNumber($reference);
+            $order->orderSupplier[$y]->reference_num =   $purchaseRequest->getReferenceNumber($reference, $count);
+             $count++;
         }
 
         return view('purchaseRequisition.create', compact('order',  'currencies'));
@@ -80,10 +82,10 @@ class PurchaseRequisitionController extends Controller
         //      'item.*.product_id'             => 'required',
         // ]);
 
-        $valid = [
-            'supplier.*.supplier_email'     => 'required',
-            'supplier.*.supplier_contact'   => 'required',
-        ];
+        // $valid = [
+        //     'supplier.*.supplier_email'     => 'required',
+        //     'supplier.*.supplier_contact'   => 'required',
+        // ];
         $input = $request->all();
         $selectedCount = 0;
 
@@ -99,7 +101,7 @@ class PurchaseRequisitionController extends Controller
             $valid['product_id'] = 'required';
         }
         // validation
-        $this->validate($request, $valid);
+        // $this->validate($request, $valid);
 
 
         foreach ($input['supplier'] as $skey => $supdata) {

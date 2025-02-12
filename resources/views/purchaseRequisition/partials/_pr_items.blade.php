@@ -16,8 +16,8 @@
             <td width="20%">
                 <input type="text" value="{{$sup->price_basis}}" name="supplier[{{$y}}][currency]" class="form-control" readonly />
             </td>
-            <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_email]" placeholder="Supplier Email" required /></td>
-            <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_contact]" placeholder="Supplier Name" required /></td>
+            <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_email]" placeholder="Supplier Email"  /></td>
+            <td width="20%"><input type="text" class="form-control" name="supplier[{{$y}}][supplier_contact]" placeholder="Supplier Name"  /></td>
 
         </tr>
         <tr>  <td width="10%">

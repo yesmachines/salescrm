@@ -928,7 +928,7 @@
 
             <div class="form-group">
               <input class="form-check-input" type="checkbox" name="default_buying_price" id="defaultBuyingPrice" value="1"/>
-              <label class="form-check-label" for="defaultPriceCheckbox">
+              <label class="form-check-label" for="defaultBuyingPrice">
                 Do you want to make this the default buying price?
               </label>
             </div>
@@ -1018,7 +1018,7 @@
               <div class="col-md-12">
                 <div class="form-group">
                   <input class="form-check-input" type="checkbox" name="default_selling_price" id="defaultSellingPrice" value="1"/>
-                  <label class="form-check-label" for="defaultPriceCheckbox">Do you want to make this the default selling  price?
+                  <label class="form-check-label" for="defaultSellingPrice">Do you want to make this the default selling  price?
                   </label>
                 </div>
               </div>
