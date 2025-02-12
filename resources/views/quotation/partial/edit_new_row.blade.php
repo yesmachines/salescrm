@@ -362,6 +362,7 @@ $(document).ready(function() {
               row.remove();
 
               fetchCustomPriceArray(quotationId);
+              calculateOverallTotal();
 
               Swal.fire("Deleted!", response.message, "success");
             } else {
