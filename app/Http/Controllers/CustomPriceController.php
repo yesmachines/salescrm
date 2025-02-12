@@ -50,7 +50,6 @@ class CustomPriceController extends Controller
       'handling_and_local_transport',
       'customs',
       'delivery_charge',
-      'mofaic',
       'surcharges'
       )
 
@@ -77,7 +76,6 @@ class CustomPriceController extends Controller
         'handling_and_local_transport',
         'customs',
         'delivery_charge',
-        'mofaic',
         'surcharges'
         )->get();
         return response()->json(['customPrices' => $customPrices]);
@@ -98,7 +96,7 @@ class CustomPriceController extends Controller
       {
 
         $customPriceQuotes = QuotationCustomPrice::where('quotation_id', $id)
-        ->get(['id', 'product_id', 'packing', 'road_transport_to_port', 'freight', 'insurance', 'clearing', 'boe', 'handling_and_local_transport', 'customs', 'delivery_charge', 'mofaic', 'surcharges']);
+        ->get(['id', 'product_id', 'packing', 'road_transport_to_port', 'freight', 'insurance', 'clearing', 'boe', 'handling_and_local_transport', 'customs', 'delivery_charge', 'surcharges']);
 
 
         $customPriceQuotes = $customPriceQuotes->map(function ($quote) {
@@ -284,7 +282,6 @@ class CustomPriceController extends Controller
           'handling_and_local_transport' => $request['handling_and_local_transport'],
           'customs' => $request['customs'],
           'delivery_charge' => $request['delivery_charge'],
-          'mofaic' => $request['mofaic'],
           'surcharges' => $request['surcharges'],
           'final_buying_price' => $request['final_buying_price'],
           'mobp' => $request['mobp'],
@@ -390,7 +387,6 @@ class CustomPriceController extends Controller
           'handling_and_local_transport',
           'customs',
           'delivery_charge',
-          'mofaic',
           'surcharges',
         ];
         $unmatchedSum = 0;

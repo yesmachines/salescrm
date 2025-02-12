@@ -153,13 +153,7 @@ class CustomFieldsSeeder extends Seeder
         'sort_order' => '7',
         'status'=>'1'
       ],
-      [
-        'field_name' => 'MOFAIC',
-        'short_code'=>'mofaic',
-        'price_basis' => '5',
-        'sort_order' => '8',
-        'status'=>'1'
-      ],
+
       // DDU
       [
         'field_name' => 'Freight',
