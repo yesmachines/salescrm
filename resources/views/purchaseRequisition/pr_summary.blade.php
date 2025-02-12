@@ -160,7 +160,7 @@
 
         @foreach($purchaseRequest->purchaseCharge as $charge)
         <tr>
-            <td colspan="5" align="right" height="25">{{$charge->title }} </td>
+            <td colspan="6" align="right" height="25">{{$charge->title }} </td>
 
             <td align="center">
                 {{$charge->considered}}

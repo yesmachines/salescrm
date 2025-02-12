@@ -83,8 +83,9 @@
                     <td class="text-truncate overflow-hidden">
                         {{$pr->supplier->brand}}
                     </td>
-                    <td class="text-truncate overflow-hidden" title="{{$pr->purchaseDelivery->supplier_contact }}">{{$pr->purchaseDelivery->supplier_contact }}</td>
-
+                    <td class="text-truncate overflow-hidden" title="{{ $pr->purchaseDelivery?->supplier_contact }}">
+                   {{ $pr->purchaseDelivery?->supplier_contact }}
+                   </td>
                     <td class="text-truncate overflow-hidden" title="{{$pr->total_price }}">{{$pr->total_price }} {{$pr->currency}}</td>
                     <td class="text-truncate overflow-hidden"><span class="badge badge-soft-{{$clsStat}} my-1  me-2">
                             {{$pr->status }}

@@ -26,7 +26,7 @@ class PurchaseRequisitionService
 
         return $purchase;
     }
-    public function getReferenceNumber($reference): ?string
+    public function getReferenceNumber($reference,$count): ?string
     {
         // Fetch the latest order and stock records for the current year
         $latestPR = PurchaseRequisition::where('pr_number', 'LIKE', "{$reference}%")->latest()->first();
@@ -40,7 +40,7 @@ class PurchaseRequisitionService
         }
         // Determine the maximum sequential number among the latest order and stock
         $next = $lastNum + 1;
-        $reference_num = implode("_", array($reference_array[0], $reference_array[1], $next));
+        $reference_num = implode("_", array($reference_array[0], $reference_array[1], $count));
 
         return $reference_num;
     }

@@ -224,6 +224,64 @@
         //});
 
     });
+    $(document).ready(function () {
+    // Apply validation on page load for checked checkboxes
+    $(".supplier-checkbox").each(function () {
+        toggleRequiredFields($(this));
+    });
+
+    // Apply validation when the checkbox is clicked
+    $(".supplier-checkbox").change(function () {
+        toggleRequiredFields($(this));
+    });
+
+    function toggleRequiredFields(checkbox) {
+        var supplierId = checkbox.attr("id").split("_").pop(); // Extract supplier ID
+        var isChecked = checkbox.is(":checked");
+
+        // Find the corresponding fields for this supplier
+        var emailField = $("input[name='supplier[" + supplierId + "][supplier_email]']");
+        var contactField = $("input[name='supplier[" + supplierId + "][supplier_contact]']");
+
+        if (isChecked) {
+            emailField.attr("required", "required");
+            contactField.attr("required", "required");
+        } else {
+            emailField.removeAttr("required");
+            contactField.removeAttr("required");
+        }
+    }
+
+    // Prevent form submission if required fields are empty
+    $("form").on("submit", function (event) {
+        var isValid = true;
+
+        $(".supplier-checkbox:checked").each(function () {
+            var supplierId = $(this).attr("id").split("_").pop();
+            var emailField = $("input[name='supplier[" + supplierId + "][supplier_email]']");
+            var contactField = $("input[name='supplier[" + supplierId + "][supplier_contact]']");
+
+            if (emailField.val().trim() === "") {
+                isValid = false;
+                emailField.addClass("is-invalid"); // Bootstrap class for error highlighting
+            } else {
+                emailField.removeClass("is-invalid");
+            }
+
+            if (contactField.val().trim() === "") {
+                isValid = false;
+                contactField.addClass("is-invalid");
+            } else {
+                contactField.removeClass("is-invalid");
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault(); // Stop form submission
+            alert("Please fill in the required fields for selected suppliers.");
+        }
+    });
+});
 </script>
 @endpush
 @endsection
