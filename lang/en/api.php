@@ -40,7 +40,7 @@ return [
     ],
     'meeting' => [
         'not_done' => 'Meeting still not finished..',
-        'business_card' => 'Business card u[dloaded successfully',
+        'business_card' => 'Business card uploaded successfully',
         'created' => 'Meeting created successfully.',
         'notes_created' => 'Meeting notes created successfully.',
         'feedback_exist' => 'Already submitted the feedback',

@@ -401,10 +401,14 @@ class MeetingController extends Controller {
             switch ($request->type) {
                 case 'normal':
                     $meeting = Meeting::findOrFail($id);
-                    $meetingConflicted = Meeting::where('id', '<>', $meeting->id)
-                            ->where('scheduled_at', $meeting->scheduled_at)
-                            ->where('user_id', $request->user()->id)
-                            ->where('status', 0)
+                    $meetingConflicted = Meeting::where('meetings.id', '<>', $meeting->id)
+                            ->where('meetings.scheduled_at', $meeting->scheduled_at)
+                            ->leftJoin('meeting_invites', 'meetings.id', '=', 'meeting_invites.meeting_id')
+                            ->where(function ($query) use ($request) {
+                                $query->where('meetings.user_id', $request->user()->id)
+                                ->orWhere('meeting_invites.user_id', $request->user()->id);
+                            })
+                            ->where('meetings.status', 0)
                             ->first();
                     $meeting->conflicted = $meetingConflicted ? true : false;
                     $meetingTime = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);
