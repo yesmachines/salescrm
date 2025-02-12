@@ -209,7 +209,7 @@ class QuoteCustomPrice
           $values = [
             'final_buying_price' => $customData['final_buying_price'],
             'mobp' => $customData['mobp'],
-          
+
           ];
 
           // Update the existing QuotationCustomPrice record with the new values
@@ -265,7 +265,7 @@ class QuoteCustomPrice
 
   private function updateCharges($quotationId, $userData, $customPriceData)
   {
-    $quote_visible = $userData['is_visible'];
+    // $quote_visible = $userData['is_visible'];
     $summarizedCharges = [];
 
     $productIdExist = array_filter($customPriceData, fn($item) => isset($item['product_id']));
@@ -291,7 +291,8 @@ class QuoteCustomPrice
     $summedChargesArray = array_values($summedCharges);
     foreach ($summedChargesArray as $index => $chargeAmount) {
       $chargeName = array_keys($summedCharges)[$index];
-      $isVisible = isset($quote_visible[$index]) ? $quote_visible[$index] : 1;
+      // $isVisible = isset($quote_visible[$index]) ? $quote_visible[$index] : 1;
+      $isVisible = 1;
       $mergedCharges[] = [
         'title' => $chargeName,
         'amount' => $chargeAmount,

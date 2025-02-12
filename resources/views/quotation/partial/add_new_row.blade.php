@@ -1443,7 +1443,9 @@ function updateQuotationCharges(customPriceArray, sellingPrice) {
       </div>
       <div class="col-sm-3">
         <div class="form-group">
-          <input class="form-control" name="charge_amount[]" placeholder="Amount" value="${parseFloat(value).toFixed(2)}"  ${isCustomCharge ? 'disabled' : ''}/>
+        <input class="form-control" name="charge_amount[]" placeholder="Amount"
+         value="${value ? parseFloat(value).toFixed(2) : ''}"
+         ${isCustomCharge ? 'disabled' : ''}/>
         </div>
       </div>
       ${plusButtonHTML}
