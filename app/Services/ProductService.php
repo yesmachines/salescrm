@@ -119,7 +119,7 @@ class ProductService
       'handling_and_local_transport'     => isset($data['handling_and_local_transport']) ? $data['handling_and_local_transport'] : null,
       'customs'     => isset($data['customs']) ? $data['customs'] : null,
       'delivery_charge'     => isset($data['delivery_charge']) ? $data['delivery_charge'] : null,
-      'mofaic'     => isset($data['mofaic']) ? $data['mofaic'] : null,
+      // 'mofaic'     => isset($data['mofaic']) ? $data['mofaic'] : null,
       'status'     => '1',
   ]);
 

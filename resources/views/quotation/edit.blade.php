@@ -1174,12 +1174,12 @@
                 <input class="form-control" type="number" min="0" id="delivery_charge" name="delivery_charge"  data-field-name="delivery_charge" required/>
               </div>
             </div>
-            <div class="col-md-4">
+            <!-- <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="mofaic">MOFAIC</label>
                 <input class="form-control" type="number" min="0" id="mofaic" name="mofaic"  data-field-name="mofaic" required/>
               </div>
-            </div>
+            </div> -->
             <div class="col-md-4">
               <div class="form-group">
                 <label class="form-label" for="surcharges">Surcharges</label>
@@ -2204,7 +2204,7 @@ $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
     // Define the list of target fields you want to check against the short codes
     const targetFields = [
       '#packing', '#road_transport_to_port', '#freight', '#insurance', '#clearing', '#boe',
-      '#handling_and_local_transport', '#customs', '#delivery_charge', '#mofaic', '#surcharges'
+      '#handling_and_local_transport', '#customs', '#delivery_charge', '#surcharges'
     ];
 
     // Loop through each target field in the modal
@@ -2253,7 +2253,6 @@ $(document).on('click', 'a[data-bs-toggle="modal"]', function () {
           { id: '#handling_and_local_transport', value: response.handling_and_local_transport },
           { id: '#customs', value: response.customs },
           { id: '#delivery_charge', value: response.delivery_charge },
-          { id: '#mofaic', value: response.mofaic },
           { id: '#surcharges', value: response.surcharges },
           { id: '#buyingCurrencyCustom', value: response.buying_currency },
           { id: '#finalBuyingPrice', value: response.final_buying_price },
@@ -2482,7 +2481,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let handlingAndLocalTransport = $('#handling_and_local_transport').val();
     let customs = $('#customs').val();
     let deliveryCharge = $('#delivery_charge').val();
-    let mofaic = $('#mofaic').val();
     let surcharges = $('#surcharges').val();
     let finalBuyingPrice = $('#finalBuyingPrice').val();
     let marginPercentageBp = $('#marginPercentBp').val();
@@ -2583,7 +2581,6 @@ document.addEventListener('DOMContentLoaded', function() {
         handling_and_local_transport: handlingAndLocalTransport,
         customs: customs,
         delivery_charge: deliveryCharge,
-        mofaic: mofaic,
         surcharges: surcharges,
         final_buying_price: finalBuyingPrice,
         mobp: marginPercentageBp,
