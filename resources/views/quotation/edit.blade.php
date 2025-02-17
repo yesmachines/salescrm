@@ -1678,12 +1678,21 @@ function calculateTotalCustomFields() {
 
   return total;
 }
-
-
 $(document).on('input', '[data-field-name]', function () {
   updateCustomFinalBuyingPrice();
-});
+  // Get the value of finalBuyingPrice field
+  const finalBuyingPrice = parseFloat(document.getElementById('finalBuyingPrice').value) || 0;
 
+  const marginPercentBp = parseFloat(document.getElementById('marginPercentBp').value) || 0;
+  const totalCustomFieldsValue = calculateTotalCustomFields();
+  const marginPrice = (marginPercentBp / 100) * finalBuyingPrice;
+  const sellingPrice = finalBuyingPrice + marginPrice;
+  const marginPercentageCustom = (marginPrice / sellingPrice) * 100;
+  document.getElementById('marginPriceCustom').value = marginPrice.toFixed(2);
+  document.getElementById('sellingPriceCustom').value = sellingPrice.toFixed(2);
+  document.getElementById('marginPercentageCustom').value = marginPercentageCustom.toFixed(2);
+
+});
 function updateCustomFinalBuyingPrice() {
     const customBuyingPrice = parseFloat($('#custom_buying_prices').val().replace(/,/g, '')) || 0;
     const totalCustomFieldsValue = calculateTotalCustomFields();
