@@ -762,7 +762,7 @@
               if (data && data.length > 0) {
                   $('#subDropdownContainer').append('<option value="">--Select--</option>');
                   $.each(data, function(index, item) {
-                      $('#subDropdownContainer').append('<option value="' + item.id + '" data-extra-options="' + item.extra_options + '">' + item.title + '</option>');
+                      $('#subDropdownContainer').append('<option value="' + item.title + '" data-extra-options="' + item.extra_options + '">' + item.title + '</option>');
                   });
                   $('#sub-delivery').show();
               }
