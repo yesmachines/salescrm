@@ -408,7 +408,7 @@ class MeetingController extends Controller {
                                 $query->where('meetings.user_id', $request->user()->id)
                                 ->orWhere('meeting_invites.user_id', $request->user()->id);
                             })
-                            ->where('meetings.status', 0)
+                            ->where('meetings.status', '<>', 3)
                             ->first();
                     $meeting->conflicted = $meetingConflicted ? true : false;
                     $meetingTime = Carbon::parse($meeting->scheduled_at, 'UTC')->setTimezone($requestedTimezone);

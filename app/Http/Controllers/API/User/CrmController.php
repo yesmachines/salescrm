@@ -164,7 +164,7 @@ class CrmController extends Controller {
         $data['manager'] = EmployeeArea::select('users.id', 'users.name', 'employees.image_url')
                 ->join('users', 'users.id', 'employee_areas.user_id')
                 ->join('employees', 'employees.user_id', 'employee_areas.user_id')
-                ->where('employee_areas.id', $areaId)
+                ->where('employee_areas.area_id', $areaId)
                 ->where('employees.division', $division)
                 ->first();
         if ($data['manager']) {
