@@ -350,6 +350,10 @@ class EnquiryController extends Controller {
             $enquiry->assistant = User::select('users.id', 'users.name', 'employees.image_url as pimg')
                             ->join('employees', 'employees.user_id', 'users.id')
                             ->where('users.id', $enquiry->product->assistant_id)->first();
+        } else {
+            $enquiry->area = null;
+            $enquiry->manager = null;
+            $enquiry->assistant = null;
         }
 
         //Get latest history;
