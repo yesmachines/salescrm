@@ -13,7 +13,8 @@ class PresentationController extends Controller {
     private $ym_url;
 
     public function __construct() {
-        $this->ym_url = env('YM_IMG_URL', 'https://admin.yesmachinery.ae/storage/');
+        //$this->ym_url = env('YM_IMG_URL', 'https://admin.yesmachinery.ae/storage/');
+        $this->ym_url = env('YM_IMG_URL', 'https://yesmachinery-storage.s3.me-central-1.amazonaws.com/');
         $this->yc_url = env('YC_IMG_URL', 'https://www.admin.yesclean.ae/storage/');
         $this->rf_url = env('RF_IMG_URL', 'https://www.cms.rhinofloor.ae/storage/');
     }
